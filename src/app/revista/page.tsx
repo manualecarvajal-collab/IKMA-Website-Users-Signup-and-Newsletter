@@ -62,9 +62,9 @@ export default async function RevistaPage() {
                 <h2 className="font-headline-md text-headline-md text-on-surface group-hover:text-primary transition-colors">
                   {articles?.[0]?.titulo ?? "New Medical Camp in Rural Area"}
                 </h2>
-                <div className="flex items-center text-primary font-semibold space-x-1 flex-shrink-0">
+                <div className="flex items-center text-on-surface-variant font-medium space-x-0.5 flex-shrink-0 text-sm">
                   <span>Read More</span>
-                  <span className="material-symbols-outlined text-lg">arrow_forward</span>
+                  <span className="material-symbols-outlined text-base">arrow_forward</span>
                 </div>
               </div>
               <p className="font-body-md text-body-md text-on-surface-variant line-clamp-2 mb-4">
