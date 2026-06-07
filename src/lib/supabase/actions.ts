@@ -23,7 +23,6 @@ export async function signup(prevState: { error?: string; success?: string } | u
     return { error: error.message }
   }
 
-  // If user was created but not automatically signed in (email confirmation required)
   if (data.user && !data.session) {
     return {
       success: "Account created! Check your email for a confirmation link before signing in.",
@@ -31,10 +30,10 @@ export async function signup(prevState: { error?: string; success?: string } | u
   }
 
   revalidatePath("/", "layout")
-  redirect("/")
+  return { success: "ok" }
 }
 
-export async function login(prevState: { error?: string } | undefined, formData: FormData) {
+export async function login(prevState: { error?: string; success?: boolean } | undefined, formData: FormData) {
   const supabase = await createClient()
 
   const email = formData.get("email") as string
@@ -50,12 +49,12 @@ export async function login(prevState: { error?: string } | undefined, formData:
   }
 
   revalidatePath("/", "layout")
-  redirect("/")
+  return { success: true }
 }
 
 export async function signout() {
   const supabase = await createClient()
   await supabase.auth.signOut()
   revalidatePath("/", "layout")
-  redirect("/login")
+  return { success: true }
 }

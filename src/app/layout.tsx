@@ -5,6 +5,8 @@ import Navbar from "@/components/Navbar"
 import Footer from "@/components/Footer"
 import { createClient } from "@/lib/supabase/server"
 
+export const dynamic = "force-dynamic"
+
 const manrope = Manrope({
   variable: "--font-manrope",
   subsets: ["latin"],
