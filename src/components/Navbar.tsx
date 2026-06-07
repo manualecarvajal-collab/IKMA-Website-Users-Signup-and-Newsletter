@@ -1,9 +1,10 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname, useRouter } from "next/navigation"
-import { useEffect, useState, useTransition } from "react"
+import { usePathname } from "next/navigation"
+import { useEffect, useState } from "react"
 import { createBrowserClient } from "@supabase/ssr"
+import { signout } from "@/lib/supabase/actions"
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -15,7 +16,6 @@ const navLinks = [
 
 export default function Navbar({ initialUser }: { initialUser: { email: string; role: string } | null }) {
   const pathname = usePathname()
-  const router = useRouter()
   const [user, setUser] = useState<{ email: string; role: string } | null>(initialUser)
 
   useEffect(() => {
@@ -48,19 +48,10 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
     return () => subscription.unsubscribe()
   }, [])
 
-  const [isPending, startTransition] = useTransition()
-
   const handleSignOut = async () => {
-    const supabase = createBrowserClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    )
-    await supabase.auth.signOut()
+    await signout()
     setUser(null)
-    startTransition(() => {
-      router.push("/")
-      router.refresh()
-    })
+    window.location.href = "/"
   }
 
   const isActive = (href: string) => {
