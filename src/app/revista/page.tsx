@@ -41,7 +41,7 @@ export default async function RevistaPage() {
       {/* Featured Stories */}
       <section className="min-h-screen bg-surface flex items-center">
         <div className="w-full max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-12 md:py-16">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+          <div className="grid grid-cols-1 md:grid-cols-[7fr_3fr] gap-gutter">
             <Link
               href={articles?.[0] ? `/revista/${articles[0].slug}` : "#"}
               className="flex flex-col group cursor-pointer"
