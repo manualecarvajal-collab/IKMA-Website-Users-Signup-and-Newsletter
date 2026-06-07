@@ -39,12 +39,8 @@ export default async function RevistaPage() {
   return (
     <>
       {/* Featured Stories */}
-      <section className="py-section-padding bg-surface">
-        <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
-          <div className="mb-10">
-            <h1 className="font-headline-lg text-headline-lg text-primary mb-2">Featured Stories</h1>
-            <p className="font-body-lg text-body-lg text-on-surface-variant">Latest updates from our missions and community.</p>
-          </div>
+      <section className="min-h-screen bg-surface flex items-center">
+        <div className="w-full max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-12 md:py-16">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-gutter">
             <Link
               href={articles?.[0] ? `/revista/${articles[0].slug}` : "#"}
