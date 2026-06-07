@@ -89,6 +89,9 @@ export default async function RevistaPage() {
                   </div>
                 </Link>
               ))}
+              <div className="w-full h-32 rounded-lg border-2 border-dashed border-on-surface/20 bg-surface-container-high/30 flex items-center justify-center text-on-surface-variant/50 text-sm font-medium">
+                Ad Space
+              </div>
             </div>
           </div>
         </div>
