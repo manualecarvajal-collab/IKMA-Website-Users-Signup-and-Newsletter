@@ -41,12 +41,12 @@ export default async function RevistaPage() {
       {/* Featured Stories */}
       <section className="min-h-screen bg-surface flex items-start">
         <div className="w-full md:max-w-[80vw] mx-auto px-margin-mobile md:px-margin-desktop py-9 md:py-12">
-          <div className="grid grid-cols-1 md:grid-cols-[3fr_2fr] gap-gutter">
+          <div className="grid grid-cols-1 md:grid-cols-[3fr_2fr] gap-[1.2rem]">
             <Link
               href={articles?.[0] ? `/revista/${articles[0].slug}` : "#"}
               className="flex flex-col group cursor-pointer"
             >
-              <div className="w-full h-[18.4rem] rounded-lg overflow-hidden mb-5 bg-surface-container-high shadow-sm relative group-hover:shadow-[0_20px_20px_0_rgba(7,68,105,0.04)] group-hover:-translate-y-1 transition-all duration-300">
+              <div className="w-full h-[21.16rem] rounded-lg overflow-hidden mb-5 bg-surface-container-high shadow-sm relative group-hover:shadow-[0_20px_20px_0_rgba(7,68,105,0.04)] group-hover:-translate-y-1 transition-all duration-300">
                 <img
                   src={articles?.[0]?.imagen_url || IMG}
                   alt=""
