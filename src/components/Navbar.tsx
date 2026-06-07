@@ -24,16 +24,24 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     )
 
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        supabase.from("perfiles").select("rol").eq("id", session.user.id).single().then(({ data: perfil }) => {
+          setUser({ email: session.user.email ?? "", role: perfil?.rol ?? "lector" })
+        })
+      }
+    })
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === "SIGNED_OUT" || !session) {
-        setUser(null)
-      } else if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
+      if (session) {
         const { data: perfil } = await supabase
           .from("perfiles")
           .select("rol")
           .eq("id", session.user.id)
           .single()
         setUser({ email: session.user.email ?? "", role: perfil?.rol ?? "lector" })
+      } else {
+        setUser(null)
       }
     })
 
