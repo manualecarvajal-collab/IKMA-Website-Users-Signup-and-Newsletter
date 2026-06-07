@@ -40,7 +40,7 @@ export default async function RevistaPage() {
     <>
       {/* Featured Stories */}
       <section className="min-h-screen bg-surface flex items-start">
-        <div className="w-full px-margin-mobile md:px-margin-desktop py-9 md:py-12">
+        <div className="w-full md:max-w-[80vw] mx-auto px-margin-mobile md:px-margin-desktop py-9 md:py-12">
           <div className="grid grid-cols-1 md:grid-cols-[7fr_3fr] gap-gutter">
             <Link
               href={articles?.[0] ? `/revista/${articles[0].slug}` : "#"}
@@ -96,7 +96,7 @@ export default async function RevistaPage() {
 
       {/* All Articles Grid */}
       <section className="py-section-padding bg-surface">
-        <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+        <div className="max-w-container-max md:max-w-[80vw] mx-auto px-margin-mobile md:px-margin-desktop">
           <div className="mb-10">
             <h2 className="font-headline-lg text-headline-lg text-primary mb-2">All Articles</h2>
             <p className="font-body-lg text-body-lg text-on-surface-variant">Browse our complete library of medical articles and stories.</p>
