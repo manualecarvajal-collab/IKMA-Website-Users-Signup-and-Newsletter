@@ -10,7 +10,18 @@ export const metadata: Metadata = {
 
 const IMG = "https://lh3.googleusercontent.com/aida-public/AB6AXuBHuLiwXl_xEBXKpZx7HZPQ7upktgXRz6MeiiraZMSW-EokcqsS7YcQ2MRrGXaPyInQfX7OAr-Zv9L_tnxiN-mPbkgGYR9oaIL1qirVlCApixW6K8s41Yk2o48vbuLj9fEBFVtO7Ur5zJWZ1BP51tvpjgcxe7F3rP9ASnuSUgfSaVGfoOoZzeTaO0r4IGq2UbfcvMbyBmMU-k7usazvbTooLeyUephhENZ-rwqmkIV4iMhmPdAHhtf3qCxQlKwpYqVqB-4tGw9945k"
 
-async function getArticles() {
+interface Article {
+  id: string
+  titulo: string
+  slug: string
+  resumen: string | null
+  categoria: string | null
+  imagen_url: string | null
+  publicado: boolean
+  created_at: string
+}
+
+async function getArticles(): Promise<Article[]> {
   const supabase = await createClient()
   const { data } = await supabase
     .from("articulos")
@@ -18,8 +29,8 @@ async function getArticles() {
     .eq("publicado", true)
     .order("fecha_publicacion", { ascending: false })
 
-  if (data && data.length > 0) return data
-  return null
+  if (data && data.length > 0) return data as Article[]
+  return staticArticles
 }
 
 export default async function RevistaPage() {
@@ -63,7 +74,7 @@ export default async function RevistaPage() {
               </div>
             </Link>
             <div className="flex flex-col space-y-5">
-              {(articles ?? []).slice(1, 4).map((a) => (
+              {articles.slice(1, 4).map((a) => (
                 <Link
                   key={a.id}
                   href={`/revista/${a.slug}`}
@@ -95,7 +106,7 @@ export default async function RevistaPage() {
             <p className="font-body-lg text-body-lg text-on-surface-variant">Browse our complete library of medical articles and stories.</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter">
-            {(articles ?? []).map((a) => (
+            {articles.map((a) => (
               <Link
                 key={a.id}
                 href={`/revista/${a.slug}`}
@@ -130,3 +141,14 @@ export default async function RevistaPage() {
     </>
   )
 }
+
+const staticArticles: Article[] = [
+  { id: "s1", titulo: "New Medical Camp in Rural Area", slug: "nuevo-campamento-medico", categoria: "Medical Updates", resumen: "Our latest initiative has established a new medical camp bringing essential pediatric and maternal care to previously unreached rural communities.", imagen_url: "https://lh3.googleusercontent.com/aida-public/AB6AXuBHuLiwXl_xEBXKpZx7HZPQ7upktgXRz6MeiiraZMSW-EokcqsS7YcQ2MRrGXaPyInQfX7OAr-Zv9L_tnxiN-mPbkgGYR9oaIL1qirVlCApixW6K8s41Yk2o48vbuLj9fEBFVtO7Ur5zJWZ1BP51tvpjgcxe7F3rP9ASnuSUgfSaVGfoOoZzeTaO0r4IGq2UbfcvMbyBmMU-k7usazvbTooLeyUephhENZ-rwqmkIV4iMhmPdAHhtf3qCxQlKwpYqVqB-4tGw9945k", publicado: true, created_at: "2024-12-01" },
+  { id: "s2", titulo: "Finding Hope in the Hardest Times", slug: "esperanza-en-tiempos-dificiles", categoria: "Stories of Faith", resumen: "A powerful testimony of faith and medicine working together.", imagen_url: "https://lh3.googleusercontent.com/aida-public/AB6AXuAs0_z9hrCSVCDqgbuqbiuNSZ35V72TRcN-CuOcxf8eGnePDwWVo9TjtwQCuZP1ijGWC_NlcKHz0wVVbGTr3FIedkuNRE72deICvW9JoTbEMTfkBfkXiqBb0gBlee4wvDIu3N6WrTpDLJKLHXS82dWLq8sON6q1q_moQg9pX_pxfFK3ybmTIMsESu8eziNXfO_zWnYTtPlRkLAhFeyU-V5U8bgwPTQHbj6KYlKHWTk9nsoAgTUZINXluUtGd2iCGPLf5fq4C0ufi4Q", publicado: true, created_at: "2024-11-15" },
+  { id: "s3", titulo: "Global Health Initiatives: A 2024 Review", slug: "iniciativas-globales-salud", categoria: "Medical Updates", resumen: "Reflecting on a year of transformative global health projects.", imagen_url: "https://lh3.googleusercontent.com/aida-public/AB6AXuDd3ky8AbGqf2Mc19PTrWV9HJS3-aILzx4GVgA1Jxd7pUMyqqnH1XzLNINH2Nt34OVrru_MatYosw8HgTE0y6-KMAW2nL_5yzyWyLfD-r_vUcQprrtDiqLiWYpvSk12gMA5fE8uFNZEVnFkdgi4mBGhbfzH6gREBHRWEi-RTEGrn9A4suNc7C1ran38I9S2NilVqvAytdccBlOli0pW_9uJJQ70O14ZIlNWyfWSwxXC24RMblhBenSH3XUyXAiEDwQQc8aqGplqamA", publicado: true, created_at: "2024-10-20" },
+  { id: "s4", titulo: "Community Gathering Event", slug: "encuentro-comunitario", categoria: "Community News", resumen: "Bringing together leaders, professionals, and volunteers.", imagen_url: "https://lh3.googleusercontent.com/aida-public/AB6AXuBvjPdQN6G-ZXVQp6UfLadZvTRtl2-mjoWUM5pIB1vbi-PTITvFWcycdQIZYvT9MR3xbwdPS_02LK9ZclqdCHUHS0pzQLSe9d6E4Y-5tJ4sdkboCUvOkEeI7jJcua3k2NClL27gChR8dKXQYbU9Hb700A9Ye7buO5_55TfEf8niQvjUDbqocVLgS752jdaNpeQq9J5BjckKw_gQaZqODnbmCNv0OzAG5Hc3SCu9KF7Ri8y-97I01AeNMoeMIr3RD6QngeNjGK3luk8", publicado: true, created_at: "2024-09-10" },
+  { id: "s5", titulo: "Volunteer Spotlight: Sarah's Journey", slug: "voluntaria-sarah", categoria: "Volunteer Story", resumen: "Meet Sarah, one of our most dedicated frontline volunteers.", imagen_url: "https://lh3.googleusercontent.com/aida-public/AB6AXuATd1-x0lp4ughzvYQGR5Jjz-4LVEED_04MkuHaU7NMKahb5GImRSWsvjxvbEHSjOhP8eXkpjUlPuMmUcBX48DbZ4eyQE8osjcpAbLOAPs0RkAT8MB5tYkUwJxUrqZXwqpi2idmZQP1hUQkTswJ9hz8QNzeqIYmAbhonC_JAXCxYpEuikm1KSDMUdIcXQO_1weAA7F0lG3GOv6PZ6QCCmMNOtrI8d_GIR2zGrRZuhGf0UF6jndUKm9Vftg1E9ZUWdt5QasMJkOsrN8", publicado: true, created_at: "2024-08-05" },
+  { id: "s6", titulo: "Expanding Care in Rural Communities", slug: "expandiendo-atencion-rural", categoria: "Mission Update", resumen: "Three new mobile clinics bringing care to unreached regions.", imagen_url: "https://lh3.googleusercontent.com/aida-public/AB6AXuBtj2_UADzENxPpAypwUlKOXfP4jAXr84LcletR9iXHB7vovWFIWSQiZFVZRPT7e6_LM5aNm6bEBZw9XR5qvQvHobmdV_ZfS-CA5L4wSdrTn_nlrJnLw910ii3aW6ZYDJGjQkh9GAobbDlZPu0zWNvwI1apafl-vBpzM_9UOSl7BSoCR1cGNw8-bOoiYqllNt8jRpH48udSBxjEVVI_F8iyOxgHBaubo2ewEdVyxhUozTUsrhStCgmDviC_m5vimSP9-T2lyLb5Qn8", publicado: true, created_at: "2024-07-12" },
+  { id: "s7", titulo: "Maria's Recovery Journey", slug: "recuperacion-maria", categoria: "Patient Story", resumen: "Life-saving cardiovascular surgery for a young mother.", imagen_url: "https://lh3.googleusercontent.com/aida-public/AB6AXuD4UImxzKlQG1xEgUib0LCmX5PloStnSX8JKONE1ppvULsfXyL_j8czGSN-WTspKXccjm68nKpBBqpY7PXru8I749gQnOl9UiTNo1uxh_e171GPTj1cB3FyXZflYO73khwbZReyZqjRM8be-zv1JduZty_FsoalyBJ9AJsGLxNzaP7_6886clLzQ3CPrYdXW7LBNQuGcbsaEw2T7ohxEZBp1znmPUIq9Zt4HO_ZtQnCeE7mywsNIdBqFWJ1PM_iWh7h1Jfrj3DO9uY", publicado: true, created_at: "2024-06-18" },
+  { id: "s8", titulo: "Medical Excellence in Faith-Based Care", slug: "excelencia-medica-fe", categoria: "Excellence", resumen: "Integrating spiritual values with world-class medical standards.", imagen_url: "https://lh3.googleusercontent.com/aida-public/AB6AXuBV8zbc1VsO7_tMSGR2RBmy6wM6vk-VcvPAmV4KSqnAbpXaDgYRIA4gYQ3-WCdTkOes_cs4xLagdchqy5qS9UUKg5g00jrHqRcErnzU_2ZeQSakEnHY73GpQash7mHRT7Iuq0cN_OvZe-XsB-AQAYHsh5sq8Ahn4JLhRpUTUlw_uxTaPGQxvuPedNh1Dq7dA_0XvAnBpHbBF9DJOBP8O9D3Dz9QZbEBOmLAOzuhKLhDG3VygVGyw52wlxyqJ3gmZkKMlPq-lB7rbyM", publicado: true, created_at: "2024-05-22" },
+]

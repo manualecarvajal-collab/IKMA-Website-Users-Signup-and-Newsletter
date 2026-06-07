@@ -142,3 +142,79 @@ insert into public.doctores (nombre, especialidad_principal, frase, acerca_de, i
   '[{"name":"David A.","type":"Epilepsy Patient","text":"Dr. Osei helped me gain control of my seizures when other doctors had given up. A true gift."},{"name":"Grace N.","type":"Parkinson''s Caregiver","text":"His patience and deep knowledge made such a difference for my husband''s quality of life."},{"name":"Samuel K.","type":"Neurology Patient","text":"Dr. Osei takes time to listen and truly understands. Best neurologist I''ve ever seen."}]'::jsonb,
   true
 );
+
+-- Seed sample articles
+insert into public.articulos (titulo, slug, resumen, categoria, imagen_url, contenido_html, publicado) values
+(
+  'New Medical Camp in Rural Area',
+  'nuevo-campamento-medico',
+  'Our latest initiative has established a new medical camp bringing essential pediatric and maternal care to previously unreached rural communities.',
+  'Medical Updates',
+  'https://lh3.googleusercontent.com/aida-public/AB6AXuBHuLiwXl_xEBXKpZx7HZPQ7upktgXRz6MeiiraZMSW-EokcqsS7YcQ2MRrGXaPyInQfX7OAr-Zv9L_tnxiN-mPbkgGYR9oaIL1qirVlCApixW6K8s41Yk2o48vbuLj9fEBFVtO7Ur5zJWZ1BP51tvpjgcxe7F3rP9ASnuSUgfSaVGfoOoZzeTaO0r4IGq2UbfcvMbyBmMU-k7usazvbTooLeyUephhENZ-rwqmkIV4iMhmPdAHhtf3qCxQlKwpYqVqB-4tGw9945k',
+  '<p>Our latest initiative has established a new medical camp bringing essential pediatric and maternal care to previously unreached rural communities. This project was made possible through the generous support of our donors and the dedication of our medical volunteers.</p><p>The camp serves over 500 patients weekly, providing primary care, vaccinations, prenatal checkups, and health education. We are committed to expanding this model to other underserved regions.</p>',
+  true
+),
+(
+  'Finding Hope in the Hardest Times',
+  'esperanza-en-tiempos-dificiles',
+  'A powerful testimony of faith and medicine working together to transform lives in the face of overwhelming adversity.',
+  'Stories of Faith',
+  'https://lh3.googleusercontent.com/aida-public/AB6AXuAs0_z9hrCSVCDqgbuqbiuNSZ35V72TRcN-CuOcxf8eGnePDwWVo9TjtwQCuZP1ijGWC_NlcKHz0wVVbGTr3FIedkuNRE72deICvW9JoTbEMTfkBfkXiqBb0gBlee4wvDIu3N6WrTpDLJKLHXS82dWLq8sON6q1q_moQg9pX_pxfFK3ybmTIMsESu8eziNXfO_zWnYTtPlRkLAhFeyU-V5U8bgwPTQHbj6KYlKHWTk9nsoAgTUZINXluUtGd2iCGPLf5fq4C0ufi4Q',
+  '<p>In the face of overwhelming adversity, the combination of compassionate medical care and unwavering faith has proven to be a powerful force for healing and transformation. This is the story of how our community came together to support those in greatest need.</p>',
+  true
+),
+(
+  'Global Health Initiatives: A 2024 Review',
+  'iniciativas-globales-salud',
+  'Reflecting on a year of transformative global health projects and the lives impacted across multiple continents.',
+  'Medical Updates',
+  'https://lh3.googleusercontent.com/aida-public/AB6AXuDd3ky8AbGqf2Mc19PTrWV9HJS3-aILzx4GVgA1Jxd7pUMyqqnH1XzLNINH2Nt34OVrru_MatYosw8HgTE0y6-KMAW2nL_5yzyWyLfD-r_vUcQprrtDiqLiWYpvSk12gMA5fE8uFNZEVnFkdgi4mBGhbfzH6gREBHRWEi-RTEGrn9A4suNc7C1ran38I9S2NilVqvAytdccBlOli0pW_9uJJQ70O14ZIlNWyfWSwxXC24RMblhBenSH3XUyXAiEDwQQc8aqGplqamA',
+  '<p>This year marked significant milestones in our global health initiatives. From mobile clinics in Sub-Saharan Africa to telemedicine programs in Southeast Asia, we have expanded our reach and deepened our impact.</p><p>Key achievements include the training of 200 community health workers, the distribution of over 50,000 mosquito nets, and the establishment of three permanent clinic sites.</p>',
+  true
+),
+(
+  'Community Gathering Event',
+  'encuentro-comunitario',
+  'Bringing together leaders, professionals, and volunteers for a day of connection, learning, and shared purpose.',
+  'Community News',
+  'https://lh3.googleusercontent.com/aida-public/AB6AXuBvjPdQN6G-ZXVQp6UfLadZvTRtl2-mjoWUM5pIB1vbi-PTITvFWcycdQIZYvT9MR3xbwdPS_02LK9ZclqdCHUHS0pzQLSe9d6E4Y-5tJ4sdkboCUvOkEeI7jJcua3k2NClL27gChR8dKXQYbU9Hb700A9Ye7buO5_55TfEf8niQvjUDbqocVLgS752jdaNpeQq9J5BjckKw_gQaZqODnbmCNv0OzAG5Hc3SCu9KF7Ri8y-97I01AeNMoeMIr3RD6QngeNjGK3luk8',
+  '<p>Our annual Community Gathering Event was a resounding success, with over 300 attendees including healthcare professionals, community leaders, volunteers, and supporters. The day featured workshops, networking sessions, and inspiring testimonies from those whose lives have been touched by our work.</p>',
+  true
+),
+(
+  'Volunteer Spotlight: Sarah''s Journey',
+  'voluntaria-sarah',
+  'Meet Sarah, one of our most dedicated frontline volunteers whose compassion and commitment inspire everyone around her.',
+  'Volunteer Story',
+  'https://lh3.googleusercontent.com/aida-public/AB6AXuATd1-x0lp4ughzvYQGR5Jjz-4LVEED_04MkuHaU7NMKahb5GImRSWsvjxvbEHSjOhP8eXkpjUlPuMmUcBX48DbZ4eyQE8osjcpAbLOAPs0RkAT8MB5tYkUwJxUrqZXwqpi2idmZQP1hUQkTswJ9hz8QNzeqIYmAbhonC_JAXCxYpEuikm1KSDMUdIcXQO_1weAA7F0lG3GOv6PZ6QCCmMNOtrI8d_GIR2zGrRZuhGf0UF6jndUKm9Vftg1E9ZUWdt5QasMJkOsrN8',
+  '<p>Sarah has been volunteering with IKMA for over three years, dedicating countless hours to serving patients in our mobile clinics. Her journey began after she attended one of our community health fairs and felt called to serve.</p><p>"I never imagined how much joy I would find in serving others," Sarah shares. "Every patient I meet teaches me something new about resilience and hope."</p>',
+  true
+),
+(
+  'Expanding Care in Rural Communities',
+  'expandiendo-atencion-rural',
+  'Three new mobile clinics are now operational, bringing essential medical care to previously unreached regions.',
+  'Mission Update',
+  'https://lh3.googleusercontent.com/aida-public/AB6AXuBtj2_UADzENxPpAypwUlKOXfP4jAXr84LcletR9iXHB7vovWFIWSQiZFVZRPT7e6_LM5aNm6bEBZw9XR5qvQvHobmdV_ZfS-CA5L4wSdrTn_nlrJnLw910ii3aW6ZYDJGjQkh9GAobbDlZPu0zWNvwI1apafl-vBpzM_9UOSl7BSoCR1cGNw8-bOoiYqllNt8jRpH48udSBxjEVVI_F8iyOxgHBaubo2ewEdVyxhUozTUsrhStCgmDviC_m5vimSP9-T2lyLb5Qn8',
+  '<p>We are excited to announce the launch of three new mobile clinics that will serve rural communities across the region. Each clinic is equipped with modern medical equipment and staffed by a team of dedicated healthcare professionals.</p><p>These mobile units will provide primary care, maternal health services, vaccinations, and health education to communities that previously had limited access to medical care.</p>',
+  true
+),
+(
+  'Maria''s Recovery Journey',
+  'recuperacion-maria',
+  'Life-saving cardiovascular surgery for a young mother — a story of hope, faith, and the power of community support.',
+  'Patient Story',
+  'https://lh3.googleusercontent.com/aida-public/AB6AXuD4UImxzKlQG1xEgUib0LCmX5PloStnSX8JKONE1ppvULsfXyL_j8czGSN-WTspKXccjm68nKpBBqpY7PXru8I749gQnOl9UiTNo1uxh_e171GPTj1cB3FyXZflYO73khwbZReyZqjRM8be-zv1JduZty_FsoalyBJ9AJsGLxNzaP7_6886clLzQ3CPrYdXW7LBNQuGcbsaEw2T7ohxEZBp1znmPUIq9Zt4HO_ZtQnCeE7mywsNIdBqFWJ1PM_iWh7h1Jfrj3DO9uY',
+  '<p>Maria, a 32-year-old mother of two, arrived at our clinic with a critical cardiac condition that required immediate surgical intervention. Thanks to the expertise of our medical team and the support of our community, she received life-saving treatment.</p><p>Today, Maria is recovering well and has returned to her family. "I am grateful every day for the care I received," she says. "IKMA gave me a second chance at life."</p>',
+  true
+),
+(
+  'Medical Excellence in Faith-Based Care',
+  'excelencia-medica-fe',
+  'How integrating spiritual values with world-class medical standards creates a uniquely effective approach to healthcare.',
+  'Excellence',
+  'https://lh3.googleusercontent.com/aida-public/AB6AXuBV8zbc1VsO7_tMSGR2RBmy6wM6vk-VcvPAmV4KSqnAbpXaDgYRIA4gYQ3-WCdTkOes_cs4xLagdchqy5qS9UUKg5g00jrHqRcErnzU_2ZeQSakEnHY73GpQash7mHRT7Iuq0cN_OvZe-XsB-AQAYHsh5sq8Ahn4JLhRpUTUlw_uxTaPGQxvuPedNh1Dq7dA_0XvAnBpHbBF9DJOBP8O9D3Dz9QZbEBOmLAOzuhKLhDG3VygVGyw52wlxyqJ3gmZkKMlPq-lB7rbyM',
+  '<p>At IKMA, we believe that the best healthcare treats the whole person — body, mind, and spirit. Our faith-based approach does not compromise on medical excellence; rather, it enhances the healing experience by addressing the deeper needs of every patient.</p><p>Our hospitals and clinics maintain the highest standards of medical care while creating an environment where patients feel valued, respected, and supported in their spiritual journey.</p>',
+  true
+);
+
