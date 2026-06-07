@@ -105,26 +105,35 @@ export default async function RevistaPage() {
             <p className="font-body-lg text-body-lg text-on-surface-variant">Browse our complete library of medical articles and stories.</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter">
-            {articles.map((a) => (
-              <Link
-                key={a.id}
-                href={`/revista/${a.slug}`}
-                className="flex flex-col group cursor-pointer bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-[0_12px_24px_rgba(7,68,105,0.06)] hover:-translate-y-0.5 transition-all duration-300"
-              >
-                <div className="w-full aspect-[16/10] overflow-hidden bg-surface-container-high">
-                  <img src={a.imagen_url || IMG} alt="" className="w-full h-full object-cover" />
+            {articles.map((a, i) =>
+              i === 0 ? (
+                <div
+                  key="ad-1"
+                  className="flex flex-col bg-white rounded-lg overflow-hidden shadow-sm border-2 border-dashed border-on-surface/20 min-h-[280px] items-center justify-center text-on-surface-variant/50 text-sm font-medium"
+                >
+                  Ad Space
                 </div>
-                <div className="p-4">
-                  <span className="bg-secondary-container text-on-secondary-container font-label-sm text-[10px] px-2.5 py-1 rounded-full uppercase tracking-wider">
-                    {a.categoria}
-                  </span>
-                  <h3 className="font-bold text-on-surface mt-2 group-hover:text-primary transition-colors text-sm leading-tight">
-                    {a.titulo}
-                  </h3>
-                  <p className="font-body-md text-body-md text-on-surface-variant line-clamp-1 mt-1 text-sm">{a.resumen}</p>
-                </div>
-              </Link>
-            ))}
+              ) : (
+                <Link
+                  key={a.id}
+                  href={`/revista/${a.slug}`}
+                  className="flex flex-col group cursor-pointer bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-[0_12px_24px_rgba(7,68,105,0.06)] hover:-translate-y-0.5 transition-all duration-300"
+                >
+                  <div className="w-full aspect-[16/10] overflow-hidden bg-surface-container-high">
+                    <img src={a.imagen_url || IMG} alt="" className="w-full h-full object-cover" />
+                  </div>
+                  <div className="p-4">
+                    <span className="bg-secondary-container text-on-secondary-container font-label-sm text-[10px] px-2.5 py-1 rounded-full uppercase tracking-wider">
+                      {a.categoria}
+                    </span>
+                    <h3 className="font-bold text-on-surface mt-2 group-hover:text-primary transition-colors text-sm leading-tight">
+                      {a.titulo}
+                    </h3>
+                    <p className="font-body-md text-body-md text-on-surface-variant line-clamp-1 mt-1 text-sm">{a.resumen}</p>
+                  </div>
+                </Link>
+              )
+            )}
           </div>
         </div>
       </section>
