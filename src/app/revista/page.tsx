@@ -46,7 +46,7 @@ export default async function RevistaPage() {
               href={articles?.[0] ? `/revista/${articles[0].slug}` : "#"}
               className="flex flex-col group cursor-pointer"
             >
-              <div className="w-full h-64 rounded-lg overflow-hidden mb-5 bg-surface-container-high shadow-sm relative group-hover:shadow-[0_20px_20px_0_rgba(7,68,105,0.04)] group-hover:-translate-y-1 transition-all duration-300">
+              <div className="w-full h-[18.4rem] rounded-lg overflow-hidden mb-5 bg-surface-container-high shadow-sm relative group-hover:shadow-[0_20px_20px_0_rgba(7,68,105,0.04)] group-hover:-translate-y-1 transition-all duration-300">
                 <img
                   src={articles?.[0]?.imagen_url || IMG}
                   alt=""
