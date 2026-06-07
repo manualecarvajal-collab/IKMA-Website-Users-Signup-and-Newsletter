@@ -58,7 +58,7 @@ export default async function RevistaPage() {
                   {articles?.[0]?.categoria ?? "Medical Updates"}
                 </span>
               </div>
-              <div className="flex items-center justify-start gap-3 mb-3">
+              <div className="flex items-center justify-start gap-10 mb-3">
                 <h2 className="font-headline-md text-headline-md text-on-surface group-hover:text-primary transition-colors">
                   {articles?.[0]?.titulo ?? "New Medical Camp in Rural Area"}
                 </h2>
