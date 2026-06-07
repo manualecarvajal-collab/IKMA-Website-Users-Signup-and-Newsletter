@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useTransition } from "react"
 import { createBrowserClient } from "@supabase/ssr"
 
 const navLinks = [
@@ -48,6 +48,8 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
     return () => subscription.unsubscribe()
   }, [])
 
+  const [isPending, startTransition] = useTransition()
+
   const handleSignOut = async () => {
     const supabase = createBrowserClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -55,8 +57,10 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
     )
     await supabase.auth.signOut()
     setUser(null)
-    router.push("/")
-    router.refresh()
+    startTransition(() => {
+      router.push("/")
+      router.refresh()
+    })
   }
 
   const isActive = (href: string) => {
