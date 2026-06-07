@@ -39,7 +39,7 @@ export default async function RevistaPage() {
   return (
     <>
       {/* Featured Stories */}
-      <section className="min-h-screen bg-surface flex items-center">
+      <section className="min-h-screen bg-surface flex items-start">
         <div className="w-full px-margin-mobile md:px-margin-desktop py-9 md:py-12">
           <div className="grid grid-cols-1 md:grid-cols-[7fr_3fr] gap-gutter">
             <Link
