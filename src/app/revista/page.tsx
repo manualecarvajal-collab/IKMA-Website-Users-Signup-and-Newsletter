@@ -58,16 +58,18 @@ export default async function RevistaPage() {
                   {articles?.[0]?.categoria ?? "Medical Updates"}
                 </span>
               </div>
-              <h2 className="font-headline-md text-headline-md text-on-surface mb-3 group-hover:text-primary transition-colors">
-                {articles?.[0]?.titulo ?? "New Medical Camp in Rural Area"}
-              </h2>
+              <div className="flex items-center justify-between gap-4 mb-3">
+                <h2 className="font-headline-md text-headline-md text-on-surface group-hover:text-primary transition-colors">
+                  {articles?.[0]?.titulo ?? "New Medical Camp in Rural Area"}
+                </h2>
+                <div className="flex items-center text-primary font-semibold space-x-1 flex-shrink-0">
+                  <span>Read More</span>
+                  <span className="material-symbols-outlined text-lg">arrow_forward</span>
+                </div>
+              </div>
               <p className="font-body-md text-body-md text-on-surface-variant line-clamp-2 mb-4">
                 {articles?.[0]?.resumen ?? "Our latest initiative has established a new medical camp..."}
               </p>
-              <div className="flex items-center text-primary font-semibold space-x-1">
-                <span>Read More</span>
-                <span className="material-symbols-outlined text-lg">arrow_forward</span>
-              </div>
             </Link>
             <div className="flex flex-col space-y-5">
               <div className="w-full h-32 rounded-lg border-2 border-dashed border-on-surface/20 bg-surface-container-high/30 flex items-center justify-center text-on-surface-variant/50 text-sm font-medium">
