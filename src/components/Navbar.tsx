@@ -19,18 +19,14 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
   const [user, setUser] = useState<{ email: string; role: string } | null>(initialUser)
 
   useEffect(() => {
+    setUser(initialUser)
+  }, [initialUser])
+
+  useEffect(() => {
     const supabase = createBrowserClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     )
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        supabase.from("perfiles").select("rol").eq("id", session.user.id).single().then(({ data: perfil }) => {
-          setUser({ email: session.user.email ?? "", role: perfil?.rol ?? "lector" })
-        })
-      }
-    })
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (session) {
