@@ -134,13 +134,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
             <div className="sticky top-28 space-y-6">
               {/* Magazine Cover */}
               <div className="w-full aspect-[3/4] rounded-xl overflow-hidden bg-surface-container-high shadow-sm">
-                <div className="w-full h-full bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
-                  <div className="text-center p-6">
-                    <span className="material-symbols-outlined text-6xl text-primary/30">menu_book</span>
-                    <p className="font-headline-md text-headline-md text-primary mt-2">IKMA Journal</p>
-                    <p className="font-body-md text-body-md text-on-surface-variant mt-1">Quarterly Edition</p>
-                  </div>
-                </div>
+                <img src="/images/D-magazine-medical-guide-2023-cover-1.png" alt="IKMA Journal" className="w-full h-full object-cover" />
               </div>
 
               {/* Newsletter CTA */}
