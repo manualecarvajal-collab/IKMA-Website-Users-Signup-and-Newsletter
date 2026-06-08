@@ -10,7 +10,7 @@ const navLinks = [
   { href: "/", label: "Home" },
   { href: "/about", label: "About Us" },
   { href: "/doctores", label: "Doctors" },
-  { href: "/revista", label: "Revista" },
+  { href: "/revista", label: "Newsletter" },
   { href: "/contacto", label: "Contact" },
 ]
 
