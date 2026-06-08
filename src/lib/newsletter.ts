@@ -41,7 +41,7 @@ export async function sendNewsletter(articuloId: string) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          from: "IKMA <newsletter@ikma.org>",
+          from: "IKMA <onboarding@resend.dev>",
           to: email.to,
           subject: email.subject,
           html: email.html,
