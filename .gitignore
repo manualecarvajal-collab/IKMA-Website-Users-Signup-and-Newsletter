@@ -47,3 +47,6 @@ next-env.d.ts
 
 .vercel
 .aider*
+*.exe
+*.dll
+*.dmg

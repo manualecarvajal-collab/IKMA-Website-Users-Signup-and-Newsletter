@@ -129,7 +129,7 @@ export default async function HomePage() {
               href="/revista"
               className="bg-surface-container-high text-on-surface font-label-bold text-label-bold px-8 py-3.5 rounded-lg hover:bg-surface-container-highest transition-all inline-block"
             >
-              View all articles in English
+              View all Articles
             </Link>
           </div>
         </div>
