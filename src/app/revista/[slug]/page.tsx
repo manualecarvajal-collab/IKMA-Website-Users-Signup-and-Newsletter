@@ -193,7 +193,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
 
         {/* Recommended Articles */}
         <section className="mt-16 md:mt-24">
-          <h2 className="font-headline-lg text-headline-lg text-primary mb-2">Recommended Articles</h2>
+          <h4 className="font-headline-md text-headline-md text-primary mb-2">Recommended Articles</h4>
           <p className="font-body-md text-body-md text-on-surface-variant mb-8">Continue reading from our journal.</p>
           <div className="overflow-x-auto scroll-smooth snap-x snap-mandatory pb-4 -mx-px">
             <div className="flex gap-gutter min-w-min">
