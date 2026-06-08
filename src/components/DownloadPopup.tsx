@@ -37,7 +37,7 @@ export default function DownloadPopup() {
       </button>
 
       {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40">
           <div className="bg-surface rounded-xl max-w-md w-full mx-4 p-8 shadow-xl relative">
             <button
               onClick={() => setOpen(false)}

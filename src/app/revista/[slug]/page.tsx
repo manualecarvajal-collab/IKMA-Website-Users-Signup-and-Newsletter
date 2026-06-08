@@ -58,7 +58,7 @@ async function getArticle(slug: string) {
     .single()
   if (data) return data
   const fallback = staticArticles[slug]
-  if (fallback) return { ...fallback, id: slug, slug, publicado: true, created_at: fallback.fecha_publicacion, updated_at: fallback.fecha_publicacion, url_pdf_storage: null, contenido_html: fallback.contenido_html || `<p>${fallback.resumen}</p><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p><p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>`, perfiles: null }
+  if (fallback) return { ...fallback, id: slug, slug, publicado: true, created_at: fallback.fecha_publicacion, updated_at: fallback.fecha_publicacion, url_pdf_storage: null, contenido_html: fallback.contenido_html || `<p>${fallback.resumen}</p><p>Every day, millions of people around the world lack access to even the most basic medical care. In rural communities, the nearest hospital can be hours away, and the cost of transportation alone is enough to discourage patients from seeking help. Pregnant women often give birth without a trained professional present. Children are not vaccinated. Chronic conditions like diabetes and hypertension go undiagnosed until it is too late.</p><p>Our mobile medical units are designed to bridge this gap. Each unit is equipped with diagnostic tools, essential medications, and staffed by volunteer doctors, nurses, and community health workers who have dedicated their careers to serving the underserved. We bring the clinic to the patient, not the other way around.</p><p>Since launching our first mobile unit in 2022, we have served over 15,000 patients across three regions. But the need continues to grow. New partnerships with local governments and international donors have allowed us to expand our reach, train local healthcare workers, and build trust within communities that have historically been neglected by the healthcare system.</p><p>This latest initiative establishes a permanent medical camp with both mobile and stationary services. It will offer pediatric care, maternal health services, basic surgical procedures, and health education programs. The camp is staffed year-round and includes a referral network to urban hospitals for complex cases.</p><p>We believe that access to healthcare is a fundamental right. Every consultation, every vaccine, every life saved brings us one step closer to a world where geography does not determine destiny. But we cannot do this alone — we need your support to continue and expand this mission.</p>`, perfiles: null }
   return null
 }
 
@@ -94,7 +94,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
           {/* Left Column — Article Content */}
           <div>
             {article.imagen_url && (
-              <div className="w-full h-80 rounded-xl overflow-hidden bg-surface-variant mb-6">
+              <div className="w-full aspect-[3/4] rounded-xl overflow-hidden bg-surface-variant mb-6">
                 <img src={article.imagen_url} alt="" className="w-full h-full object-cover" />
               </div>
             )}
@@ -119,7 +119,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
               </span>
             </div>
 
-            <h1 className="font-headline-xl text-headline-xl text-primary mb-8">
+            <h1 className="font-headline-xl text-[clamp(1.625rem,3.25vw,2.6rem)] text-primary mb-6">
               {article.titulo}
             </h1>
 
