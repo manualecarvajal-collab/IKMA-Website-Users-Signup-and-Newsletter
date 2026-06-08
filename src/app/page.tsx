@@ -1,4 +1,10 @@
-export default function HomePage() {
+import { createClient } from "@/lib/supabase/server"
+
+export default async function HomePage() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  const isAuthenticated = !!user
+
   return (
     <>
       {/* Hero Section */}
@@ -17,10 +23,12 @@ export default function HomePage() {
               <button className="bg-primary text-on-primary font-label-bold text-label-bold px-8 py-3.5 rounded-lg hover:bg-primary/90 transition-all shadow-[0_8px_16px_0_rgba(7,68,105,0.1)] active:scale-95 cursor-pointer">
                 Support Our Mission
               </button>
-              <button className="bg-secondary-container text-primary font-label-bold text-label-bold px-8 py-3.5 rounded-lg hover:bg-secondary-container/80 transition-all active:scale-95 flex items-center space-x-2 cursor-pointer">
-                <span>Sign up for free</span>
-                <span className="material-symbols-outlined text-lg">arrow_forward</span>
-              </button>
+              {!isAuthenticated && (
+                <button className="bg-secondary-container text-primary font-label-bold text-label-bold px-8 py-3.5 rounded-lg hover:bg-secondary-container/80 transition-all active:scale-95 flex items-center space-x-2 cursor-pointer">
+                  <span>Sign up for free</span>
+                  <span className="material-symbols-outlined text-lg">arrow_forward</span>
+                </button>
+              )}
             </div>
           </div>
           <div className="relative w-full h-[500px] rounded-xl overflow-hidden shadow-[0_20px_40px_0_rgba(7,68,105,0.06)] bg-surface-variant">
