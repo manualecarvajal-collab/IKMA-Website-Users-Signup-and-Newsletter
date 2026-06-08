@@ -90,11 +90,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
   return (
     <article className="py-section-padding px-margin-mobile md:px-margin-desktop">
       <div className="max-w-container-max mx-auto">
-        <Link href="/revista" className="font-body-md text-body-md text-primary hover:underline mb-8 inline-block">
-          &larr; Back to Revista
-        </Link>
-
-        <div className="grid grid-cols-1 md:grid-cols-[7fr_3fr] gap-gutter mt-6">
+        <div className="grid grid-cols-1 md:grid-cols-[7fr_3fr] gap-gutter">
           {/* Left Column — Article Content */}
           <div>
             {article.imagen_url && (
