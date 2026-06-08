@@ -2,19 +2,16 @@
 
 import { useActionState, useEffect } from "react"
 import { login } from "@/lib/supabase/actions"
-import { useRouter } from "next/navigation"
 import Link from "next/link"
 
 export default function LoginPage() {
-  const router = useRouter()
   const [state, action, pending] = useActionState(login, undefined)
 
   useEffect(() => {
     if (state?.success) {
-      router.push("/")
-      router.refresh()
+      window.location.href = "/"
     }
-  }, [state, router])
+  }, [state])
 
   return (
     <section className="py-section-padding px-margin-mobile md:px-margin-desktop">

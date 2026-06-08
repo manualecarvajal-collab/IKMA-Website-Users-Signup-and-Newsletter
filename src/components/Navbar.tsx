@@ -19,6 +19,10 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
   const [user, setUser] = useState<{ email: string; role: string } | null>(initialUser)
 
   useEffect(() => {
+    setUser(initialUser)
+  }, [initialUser])
+
+  useEffect(() => {
     const supabase = createBrowserClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!

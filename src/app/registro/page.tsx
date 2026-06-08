@@ -2,19 +2,16 @@
 
 import { useActionState, useEffect } from "react"
 import { signup } from "@/lib/supabase/actions"
-import { useRouter } from "next/navigation"
 import Link from "next/link"
 
 export default function RegistroPage() {
-  const router = useRouter()
   const [state, action, pending] = useActionState(signup, undefined)
 
   useEffect(() => {
     if (state?.success === "ok") {
-      router.push("/")
-      router.refresh()
+      window.location.href = "/"
     }
-  }, [state, router])
+  }, [state])
 
   return (
     <section className="py-section-padding px-margin-mobile md:px-margin-desktop">
