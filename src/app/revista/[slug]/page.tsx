@@ -147,6 +147,37 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
             </div>
           </div>
         </div>
+
+        {/* Recommended Articles */}
+        <section className="mt-16 md:mt-24">
+          <h2 className="font-headline-lg text-headline-lg text-primary mb-2">Recommended Articles</h2>
+          <p className="font-body-md text-body-md text-on-surface-variant mb-8">Continue reading from our journal.</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter">
+            {Object.entries(staticArticles)
+              .filter(([s]) => s !== slug)
+              .slice(0, 4)
+              .map(([s, a]) => (
+                <Link
+                  key={s}
+                  href={`/revista/${s}`}
+                  className="flex flex-col group cursor-pointer bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-[0_12px_24px_rgba(7,68,105,0.06)] hover:-translate-y-0.5 transition-all duration-300"
+                >
+                  <div className="w-full aspect-[16/10] overflow-hidden bg-surface-container-high">
+                    <img src={a.imagen_url} alt="" className="w-full h-full object-cover" />
+                  </div>
+                  <div className="p-4">
+                    <span className="bg-secondary-container text-on-secondary-container font-label-sm text-[10px] px-2.5 py-1 rounded-full uppercase tracking-wider">
+                      {a.categoria}
+                    </span>
+                    <h3 className="font-bold text-on-surface mt-2 group-hover:text-primary transition-colors text-sm leading-tight">
+                      {a.titulo}
+                    </h3>
+                    <p className="font-body-md text-body-md text-on-surface-variant line-clamp-1 mt-1 text-sm">{a.resumen}</p>
+                  </div>
+                </Link>
+              ))}
+          </div>
+        </section>
       </div>
     </article>
   )
