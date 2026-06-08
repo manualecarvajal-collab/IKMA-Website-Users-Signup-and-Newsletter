@@ -70,6 +70,22 @@ const staticArticles: Record<string, { titulo: string; resumen: string; categori
     contenido_html: "",
     fecha_publicacion: "2024-06-18",
   },
+  "excelencia-medica-fe": {
+    titulo: "Medical Excellence in Faith-Based Care",
+    resumen: "How we integrate spiritual values with world-class medical standards to provide compassionate, holistic care.",
+    categoria: "Excellence",
+    imagen_url: "https://lh3.googleusercontent.com/aida-public/AB6AXuBV8zbc1VsO7_tMSGR2RBmy6wM6vk-VcvPAmV4KSqnAbpXaDgYRIA4gYQ3-WCdTkOes_cs4xLagdchqy5qS9UUKg5g00jrHqRcErnzU_2ZeQSakEnHY73GpQash7mHRT7Iuq0cN_OvZe-XsB-AQAYHsh5sq8Ahn4JLhRpUTUlw_uxTaPGQxvuPedNh1Dq7dA_0XvAnBpHbBF9DJOBP8O9D3Dz9QZbEBOmLAOzuhKLhDG3VygVGyw52wlxyqJ3gmZkKMlPq-lB7rbyM",
+    contenido_html: "",
+    fecha_publicacion: "2024-05-22",
+  },
+  "impacto-comunitario-voluntario": {
+    titulo: "Community Spotlight: Volunteer Impact",
+    resumen: "Celebrating the dedicated individuals who make our missions possible and bring hope to communities worldwide.",
+    categoria: "Community News",
+    imagen_url: "https://lh3.googleusercontent.com/aida-public/AB6AXuC03_6DfzYX6va02PtEg3uKMPfTx9qbP8biGLZEhm8sEMuealLUGntsFSVusJL0QXkADDx9gZOIuptHYPMo7p4pnF_VozdK6foynOWpU3UaECPZVXPi-j2N7Jt67k0DmWCKosPiLm7qqzVUzoufv17qV9viiOaJZKSdDhnC10JcHCdM93uM9TaOcPiGn35JooQuYUO9TyMbycXRplAvqVl6o6DCSCNroMN2eDBoYgOWWXly5cqPBKrTRMslsUAkCb5InkQc2xwvFbU",
+    contenido_html: "",
+    fecha_publicacion: "2024-04-15",
+  },
 }
 
 async function getArticle(slug: string) {
