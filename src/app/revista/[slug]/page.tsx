@@ -13,6 +13,41 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   }
 }
 
+const staticArticles: Record<string, { titulo: string; resumen: string; categoria: string; imagen_url: string; contenido_html: string; fecha_publicacion: string }> = {
+  "nuevo-campamento-medico": {
+    titulo: "New Medical Camp in Rural Area",
+    resumen: "Our latest initiative has established a new medical camp bringing essential pediatric and maternal care to previously unreached rural communities.",
+    categoria: "Medical Updates",
+    imagen_url: "https://lh3.googleusercontent.com/aida-public/AB6AXuBHuLiwXl_xEBXKpZx7HZPQ7upktgXRz6MeiiraZMSW-EokcqsS7YcQ2MRrGXaPyInQfX7OAr-Zv9L_tnxiN-mPbkgGYR9oaIL1qirVlCApixW6K8s41Yk2o48vbuLj9fEBFVtO7Ur5zJWZ1BP51tvpjgcxe7F3rP9ASnuSUgfSaVGfoOoZzeTaO0r4IGq2UbfcvMbyBmMU-k7usazvbTooLeyUephhENZ-rwqmkIV4iMhmPdAHhtf3qCxQlKwpYqVqB-4tGw9945k",
+    contenido_html: "",
+    fecha_publicacion: "2024-12-01",
+  },
+  "esperanza-en-tiempos-dificiles": {
+    titulo: "Finding Hope in the Hardest Times",
+    resumen: "A powerful testimony of faith and medicine working together.",
+    categoria: "Stories of Faith",
+    imagen_url: "https://lh3.googleusercontent.com/aida-public/AB6AXuAs0_z9hrCSVCDqgbuqbiuNSZ35V72TRcN-CuOcxf8eGnePDwWVo9TjtwQCuZP1ijGWC_NlcKHz0wVVbGTr3FIedkuNRE72deICvW9JoTbEMTfkBfkXiqBb0gBlee4wvDIu3N6WrTpDLJKLHXS82dWLq8sON6q1q_moQg9pX_pxfFK3ybmTIMsESu8eziNXfO_zWnYTtPlRkLAhFeyU-V5U8bgwPTQHbj6KYlKHWTk9nsoAgTUZINXluUtGd2iCGPLf5fq4C0ufi4Q",
+    contenido_html: "",
+    fecha_publicacion: "2024-11-15",
+  },
+  "iniciativas-globales-salud": {
+    titulo: "Global Health Initiatives: A 2024 Review",
+    resumen: "Reflecting on a year of transformative global health projects.",
+    categoria: "Medical Updates",
+    imagen_url: "https://lh3.googleusercontent.com/aida-public/AB6AXuDd3ky8AbGqf2Mc19PTrWV9HJS3-aILzx4GVgA1Jxd7pUMyqqnH1XzLNINH2Nt34OVrru_MatYosw8HgTE0y6-KMAW2nL_5yzyWyLfD-r_vUcQprrtDiqLiWYpvSk12gMA5fE8uFNZEVnFkdgi4mBGhbfzH6gREBHRWEi-RTEGrn9A4suNc7C1ran38I9S2NilVqvAytdccBlOli0pW_9uJJQ70O14ZIlNWyfWSwxXC24RMblhBenSH3XUyXAiEDwQQc8aqGplqamA",
+    contenido_html: "",
+    fecha_publicacion: "2024-10-20",
+  },
+  "encuentro-comunitario": {
+    titulo: "Community Gathering Event",
+    resumen: "Bringing together leaders, professionals, and volunteers.",
+    categoria: "Community News",
+    imagen_url: "https://lh3.googleusercontent.com/aida-public/AB6AXuBvjPdQN6G-ZXVQp6UfLadZvTRtl2-mjoWUM5pIB1vbi-PTITvFWcycdQIZYvT9MR3xbwdPS_02LK9ZclqdCHUHS0pzQLSe9d6E4Y-5tJ4sdkboCUvOkEeI7jJcua3k2NClL27gChR8dKXQYbU9Hb700A9Ye7buO5_55TfEf8niQvjUDbqocVLgS752jdaNpeQq9J5BjckKw_gQaZqODnbmCNv0OzAG5Hc3SCu9KF7Ri8y-97I01AeNMoeMIr3RD6QngeNjGK3luk8",
+    contenido_html: "",
+    fecha_publicacion: "2024-09-10",
+  },
+}
+
 async function getArticle(slug: string) {
   const supabase = await createClient()
   const { data } = await supabase
@@ -21,7 +56,10 @@ async function getArticle(slug: string) {
     .eq("slug", slug)
     .eq("publicado", true)
     .single()
-  return data
+  if (data) return data
+  const fallback = staticArticles[slug]
+  if (fallback) return { ...fallback, id: slug, slug, publicado: true, created_at: fallback.fecha_publicacion, updated_at: fallback.fecha_publicacion, url_pdf_storage: null, contenido_html: fallback.contenido_html || `<p>${fallback.resumen}</p><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p><p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>`, perfiles: null }
+  return null
 }
 
 function formatDate(dateStr: string) {
