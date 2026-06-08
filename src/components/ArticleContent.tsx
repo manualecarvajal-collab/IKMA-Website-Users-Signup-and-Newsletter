@@ -6,9 +6,10 @@ import Link from "next/link"
 interface ArticleContentProps {
   contenidoHtml: string | null
   resumen: string | null
+  isAuthenticated: boolean
 }
 
-export default function ArticleContent({ contenidoHtml, resumen }: ArticleContentProps) {
+export default function ArticleContent({ contenidoHtml, resumen, isAuthenticated }: ArticleContentProps) {
   const [showFull, setShowFull] = useState(false)
 
   const content = contenidoHtml || `<p>${resumen || ""}</p>`
@@ -16,7 +17,7 @@ export default function ArticleContent({ contenidoHtml, resumen }: ArticleConten
   const firstParagraph = content.slice(0, firstParagraphEnd)
   const restContent = content.slice(firstParagraphEnd)
 
-  if (showFull) {
+  if (showFull || isAuthenticated) {
     return (
       <div
         className="prose prose-lg max-w-none"

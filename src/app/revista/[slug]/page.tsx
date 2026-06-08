@@ -97,6 +97,8 @@ function formatDate(dateStr: string) {
 export default async function ArticlePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const article = await getArticle(slug)
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
 
   const avatarUrl = `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent((article?.perfiles?.nombre_completo as string) || "IKMA")}&backgroundColor=074469&textColor=ffffff`
 
@@ -150,6 +152,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
             <ArticleContent
               contenidoHtml={article.contenido_html}
               resumen={article.resumen}
+              isAuthenticated={!!user}
             />
           </div>
 
