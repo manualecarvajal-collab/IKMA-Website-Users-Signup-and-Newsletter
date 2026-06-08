@@ -46,6 +46,30 @@ const staticArticles: Record<string, { titulo: string; resumen: string; categori
     contenido_html: "",
     fecha_publicacion: "2024-09-10",
   },
+  "voluntaria-sarah": {
+    titulo: "Volunteer Spotlight: Sarah's Journey",
+    resumen: "Meet Sarah, one of our most dedicated frontline volunteers making a difference every day in rural clinics.",
+    categoria: "Volunteer Story",
+    imagen_url: "https://lh3.googleusercontent.com/aida-public/AB6AXuATd1-x0lp4ughzvYQGR5Jjz-4LVEED_04MkuHaU7NMKahb5GImRSWsvjxvbEHSjOhP8eXkpjUlPuMmUcBX48DbZ4eyQE8osjcpAbLOAPs0RkAT8MB5tYkUwJxUrqZXwqpi2idmZQP1hUQkTswJ9hz8QNzeqIYmAbhonC_JAXCxYpEuikm1KSDMUdIcXQO_1weAA7F0lG3GOv6PZ6QCCmMNOtrI8d_GIR2zGrRZuhGf0UF6jndUKm9Vftg1E9ZUWdt5QasMJkOsrN8",
+    contenido_html: "",
+    fecha_publicacion: "2024-08-05",
+  },
+  "expandiendo-atencion-rural": {
+    titulo: "Expanding Care in Rural Communities",
+    resumen: "Three new mobile clinics bringing essential medical care to previously unreached regions across the country.",
+    categoria: "Mission Update",
+    imagen_url: "https://lh3.googleusercontent.com/aida-public/AB6AXuBtj2_UADzENxPpAypwUlKOXfP4jAXr84LcletR9iXHB7vovWFIWSQiZFVZRPT7e6_LM5aNm6bEBZw9XR5qvQvHobmdV_ZfS-CA5L4wSdrTn_nlrJnLw910ii3aW6ZYDJGjQkh9GAobbDlZPu0zWNvwI1apafl-vBpzM_9UOSl7BSoCR1cGNw8-bOoiYqllNt8jRpH48udSBxjEVVI_F8iyOxgHBaubo2ewEdVyxhUozTUsrhStCgmDviC_m5vimSP9-T2lyLb5Qn8",
+    contenido_html: "",
+    fecha_publicacion: "2024-07-12",
+  },
+  "recuperacion-maria": {
+    titulo: "Maria's Recovery Journey",
+    resumen: "Life-saving cardiovascular surgery for a young mother brings hope to an entire community in need.",
+    categoria: "Patient Story",
+    imagen_url: "https://lh3.googleusercontent.com/aida-public/AB6AXuD4UImxzKlQG1xEgUib0LCmX5PloStnSX8JKONE1ppvULsfXyL_j8czGSN-WTspKXccjm68nKpBBqpY7PXru8I749gQnOl9UiTNo1uxh_e171GPTj1cB3FyXZflYO73khwbZReyZqjRM8be-zv1JduZty_FsoalyBJ9AJsGLxNzaP7_6886clLzQ3CPrYdXW7LBNQuGcbsaEw2T7ohxEZBp1znmPUIq9Zt4HO_ZtQnCeE7mywsNIdBqFWJ1PM_iWh7h1Jfrj3DO9uY",
+    contenido_html: "",
+    fecha_publicacion: "2024-06-18",
+  },
 }
 
 async function getArticle(slug: string) {
