@@ -53,7 +53,6 @@ export default function DownloadPopup() {
             </button>
 
             <div className="text-center">
-              <span className="material-symbols-outlined text-5xl text-primary mb-4 block">newsletter</span>
               <h3 className="font-headline-md text-headline-md text-primary mb-2">Subscribe to Our Newsletter</h3>
               <p className="font-body-md text-body-md text-on-surface-variant mb-4">
                 Get the full magazine delivered straight to your inbox. Subscribe now and receive{" "}
