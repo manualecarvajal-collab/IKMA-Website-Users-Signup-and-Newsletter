@@ -20,6 +20,7 @@ const publicSans = Public_Sans({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://ikma-website.vercel.app"),
   title: "IKMA - International Kingdom Medical Association",
   description:
     "Healing through faith and excellence. A mission-driven medical association dedicated to providing accessible, high-quality healthcare and funding to those in need.",
@@ -28,6 +29,14 @@ export const metadata: Metadata = {
     description:
       "Healing through faith and excellence. A mission-driven medical association dedicated to providing accessible, high-quality healthcare and funding to those in need.",
     type: "website",
+    images: [
+      {
+        url: "/logo.png",
+        width: 160,
+        height: 48,
+        alt: "IKMA Logo",
+      },
+    ],
   },
 }
 
