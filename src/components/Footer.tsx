@@ -1,3 +1,4 @@
+import Image from "next/image"
 import Link from "next/link"
 
 export default function Footer() {
@@ -5,7 +6,7 @@ export default function Footer() {
     <footer className="bg-surface-container-low border-t border-outline-variant">
       <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-section-padding grid grid-cols-1 md:grid-cols-4 gap-gutter font-body-md text-body-md">
         <div className="col-span-1 md:col-span-2">
-          <span className="font-headline-md text-headline-md font-bold text-primary block mb-4">IKMA</span>
+          <Image src="/logo.png" alt="IKMA Logo" width={160} height={48} className="h-8 w-auto mb-4" />
           <p className="text-on-surface-variant mb-6 max-w-md">
             Healing through faith and excellence. We are dedicated to providing medical funding and support to those in
             need.

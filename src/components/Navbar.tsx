@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
 import { createBrowserClient } from "@supabase/ssr"
@@ -67,8 +68,15 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
     <nav className="bg-white/70 backdrop-blur-lg shadow-[0_20px_20px_0_rgba(7,68,105,0.04)] top-0 sticky z-50 transition-all duration-300">
       <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop flex justify-between items-center h-20">
         <div className="flex items-center gap-[clamp(0.75rem,2vw,1.5rem)]">
-          <Link href="/" className="font-headline-lg text-headline-lg font-bold text-primary">
-            IKMA
+          <Link href="/" className="flex items-center">
+            <Image
+              src="/logo.png"
+              alt="IKMA Logo"
+              width={160}
+              height={48}
+              className="h-10 w-auto"
+              priority
+            />
           </Link>
           <div className="hidden md:flex items-center font-body-md text-[clamp(0.75rem,1.2vw,1rem)] gap-[clamp(0.5rem,1.5vw,1rem)]">
             {navLinks.map((link) => (
