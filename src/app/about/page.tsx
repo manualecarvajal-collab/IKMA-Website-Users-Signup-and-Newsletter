@@ -9,7 +9,7 @@ export default function AboutPage() {
   return (
     <>
       {/* Hero Section */}
-      <section className="py-section-padding px-margin-mobile md:px-margin-desktop bg-surface-container-low">
+      <section className="py-12 md:py-section-padding px-margin-mobile md:px-margin-desktop bg-surface-container-low">
         <div className="max-w-container-max md:max-w-[80vw] mx-auto grid grid-cols-1 md:grid-cols-2 gap-gutter items-center">
           <div className="space-y-6">
             <span className="font-label-bold text-label-bold text-tertiary uppercase tracking-widest">Our Foundation</span>
@@ -31,7 +31,7 @@ export default function AboutPage() {
       </section>
 
       {/* Core Values */}
-      <section className="py-section-padding px-margin-mobile md:px-margin-desktop bg-surface">
+      <section className="py-12 md:py-section-padding px-margin-mobile md:px-margin-desktop bg-surface">
         <div className="max-w-container-max md:max-w-[80vw] mx-auto">
           <div className="text-center mb-16">
             <h2 className="font-headline-lg text-headline-lg text-primary mb-4">Our Core Values</h2>

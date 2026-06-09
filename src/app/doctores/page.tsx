@@ -24,7 +24,7 @@ export default async function DoctorsPage() {
 
   return (
     <>
-      <section className="py-section-padding bg-surface-container-low border-b border-outline-variant/30">
+      <section className="py-12 md:py-section-padding bg-surface-container-low border-b border-outline-variant/30">
         <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop text-center">
           <h1 className="font-headline-xl text-headline-xl text-primary mb-6">Our Doctors</h1>
           <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto">
@@ -33,28 +33,32 @@ export default async function DoctorsPage() {
         </div>
       </section>
 
-      <section className="py-8 bg-surface border-b border-outline-variant/20 top-20 z-40 shadow-sm">
-        <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop flex flex-wrap gap-4 items-center justify-center md:justify-start">
-          <span className="font-label-bold text-label-bold text-on-surface-variant mr-2 flex items-center gap-2">
-            <span className="material-symbols-outlined text-xl">filter_list</span>
-            Filter by Specialty:
-          </span>
-          {specialties.map((s) => (
-            <button
-              key={s}
-              className={
-                s === "All"
-                  ? "bg-primary text-on-primary font-label-bold text-label-bold px-4 py-2 rounded-full shadow-[0_20px_20px_0_rgba(7,68,105,0.04)] transition-all cursor-pointer"
-                  : "bg-surface-container text-on-surface-variant hover:bg-secondary-container hover:text-on-secondary-container font-label-bold text-label-bold px-4 py-2 rounded-full transition-all border border-outline-variant/50 cursor-pointer"
-              }
-            >
-              {s}
-            </button>
-          ))}
+      <section className="py-4 md:py-8 bg-surface border-b border-outline-variant/20 top-20 z-40 shadow-sm">
+        <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+          <div className="flex items-center gap-2 mb-3 md:mb-0">
+            <span className="font-label-bold text-label-bold text-on-surface-variant flex items-center gap-2 shrink-0">
+              <span className="material-symbols-outlined text-xl">filter_list</span>
+              <span className="hidden sm:inline">Filter by Specialty:</span>
+            </span>
+          </div>
+          <div className="flex gap-2 md:gap-4 overflow-x-auto pb-2 md:pb-0 -mx-margin-mobile md:mx-0 px-margin-mobile md:px-0 scrollbar-none">
+            {specialties.map((s) => (
+              <button
+                key={s}
+                className={
+                  s === "All"
+                    ? "bg-primary text-on-primary font-label-bold text-label-bold px-4 py-2 rounded-full shadow-[0_20px_20px_0_rgba(7,68,105,0.04)] transition-all cursor-pointer shrink-0"
+                    : "bg-surface-container text-on-surface-variant hover:bg-secondary-container hover:text-on-secondary-container font-label-bold text-label-bold px-4 py-2 rounded-full transition-all border border-outline-variant/50 cursor-pointer shrink-0"
+                }
+              >
+                {s}
+              </button>
+            ))}
+          </div>
         </div>
       </section>
 
-      <section className="py-section-padding">
+      <section className="py-12 md:py-section-padding">
         <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
             {doctors.map((doc) => (
@@ -62,8 +66,8 @@ export default async function DoctorsPage() {
                 key={doc.id}
                 className="bg-surface-container-lowest rounded-xl p-6 shadow-[0_4px_20px_0_rgba(7,68,105,0.03)] border border-outline-variant/10 hover:-translate-y-1 transition-transform duration-300 flex flex-col group"
               >
-                <div className="flex items-start gap-4 mb-6">
-                  <div className="w-24 h-24 rounded-lg overflow-hidden shrink-0 bg-surface-container-high relative">
+                <div className="flex items-start gap-3 sm:gap-4 mb-6">
+                  <div className="w-20 sm:w-24 h-20 sm:h-24 rounded-lg overflow-hidden shrink-0 bg-surface-container-high relative">
                     <img src={BASE + doc.imagen_url} alt="" className="w-full h-full object-cover" />
                     <div className="absolute bottom-1 right-1 bg-surface-container-lowest rounded-full p-0.5 shadow-sm">
                       <span className="material-symbols-outlined text-primary text-sm">verified</span>

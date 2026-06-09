@@ -100,7 +100,7 @@ export default async function RevistaPage() {
       </section>
 
       {/* All Articles Grid */}
-      <section className="py-section-padding bg-surface">
+      <section className="py-12 md:py-section-padding bg-surface">
         <div className="max-w-container-max md:max-w-[80vw] mx-auto px-margin-mobile md:px-margin-desktop">
           <div className="mb-10">
             <h2 className="font-headline-lg text-headline-lg text-primary mb-2">All Articles</h2>

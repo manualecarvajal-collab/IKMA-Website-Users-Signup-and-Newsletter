@@ -20,19 +20,19 @@ export default async function HomePage() {
               We are a mission-driven medical association dedicated to providing accessible, high-quality healthcare and
               funding to those in need. Join us in making a profound impact on communities worldwide.
             </p>
-            <div className="flex items-center space-x-4 pt-4">
-              <button className="bg-primary text-on-primary font-label-bold text-label-bold px-8 py-3.5 rounded-lg hover:bg-primary/90 transition-all shadow-[0_8px_16px_0_rgba(7,68,105,0.1)] active:scale-95 cursor-pointer">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 pt-4">
+              <button className="bg-primary text-on-primary font-label-bold text-label-bold px-8 py-3.5 rounded-lg hover:bg-primary/90 transition-all shadow-[0_8px_16px_0_rgba(7,68,105,0.1)] active:scale-95 cursor-pointer text-center">
                 Support Our Mission
               </button>
               {!isAuthenticated && (
-                <button className="bg-secondary-container text-primary font-label-bold text-label-bold px-8 py-3.5 rounded-lg hover:bg-secondary-container/80 transition-all active:scale-95 flex items-center space-x-2 cursor-pointer">
+                <button className="bg-secondary-container text-primary font-label-bold text-label-bold px-8 py-3.5 rounded-lg hover:bg-secondary-container/80 transition-all active:scale-95 flex items-center justify-center space-x-2 cursor-pointer">
                   <span>Sign up for free</span>
                   <span className="material-symbols-outlined text-lg">arrow_forward</span>
                 </button>
               )}
             </div>
           </div>
-          <div className="relative w-full h-[500px] rounded-xl overflow-hidden shadow-[0_20px_40px_0_rgba(7,68,105,0.06)] bg-surface-variant">
+          <div className="relative w-full h-[300px] sm:h-[400px] lg:h-[500px] rounded-xl overflow-hidden shadow-[0_20px_40px_0_rgba(7,68,105,0.06)] bg-surface-variant">
             <img
               src="https://lh3.googleusercontent.com/aida-public/AB6AXuBV8zbc1VsO7_tMSGR2RBmy6wM6vk-VcvPAmV4KSqnAbpXaDgYRIA4gYQ3-WCdTkOes_cs4xLagdchqy5qS9UUKg5g00jrHqRcErnzU_2ZeQSakEnHY73GpQash7mHRT7Iuq0cN_OvZe-XsB-AQAYHsh5sq8Ahn4JLhRpUTUlw_uxTaPGQxvuPedNh1Dq7dA_0XvAnBpHbBF9DJOBP8O9D3Dz9QZbEBOmLAOzuhKLhDG3VygVGyw52wlxyqJ3gmZkKMlPq-lB7rbyM"
               alt="Medical professionals working together"
@@ -44,7 +44,7 @@ export default async function HomePage() {
       </section>
 
       {/* Insights & Stories Section */}
-      <section className="bg-surface-container-lowest py-section-padding border-t border-outline-variant/20">
+      <section className="bg-surface-container-lowest py-12 md:py-section-padding border-t border-outline-variant/20">
         <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
           <div className="mb-12">
             <h2 className="font-headline-lg text-headline-lg text-on-surface mb-2">Insights &amp; Stories</h2>
@@ -77,8 +77,8 @@ export default async function HomePage() {
               </div>
             </Link>
             <div className="flex flex-col space-y-6">
-              <Link href="/revista/recuperacion-maria" className="flex space-x-4 p-4 rounded-lg hover:bg-surface-container transition-colors cursor-pointer group">
-                <div className="w-24 h-24 rounded-lg overflow-hidden flex-shrink-0 bg-surface-variant">
+              <Link href="/revista/recuperacion-maria" className="flex space-x-3 sm:space-x-4 p-3 sm:p-4 rounded-lg hover:bg-surface-container transition-colors cursor-pointer group">
+                <div className="w-20 sm:w-24 h-20 sm:h-24 rounded-lg overflow-hidden flex-shrink-0 bg-surface-variant">
                   <img
                     src="https://lh3.googleusercontent.com/aida-public/AB6AXuD4UImxzKlQG1xEgUib0LCmX5PloStnSX8JKONE1ppvULsfXyL_j8czGSN-WTspKXccjm68nKpBBqpY7PXru8I749gQnOl9UiTNo1uxh_e171GPTj1cB3FyXZflYO73khwbZReyZqjRM8be-zv1JduZty_FsoalyBJ9AJsGLxNzaP7_6886clLzQ3CPrYdXW7LBNQuGcbsaEw2T7ohxEZBp1znmPUIq9Zt4HO_ZtQnCeE7mywsNIdBqFWJ1PM_iWh7h1Jfrj3DO9uY"
                     alt="Hands holding a growing plant"
@@ -87,13 +87,13 @@ export default async function HomePage() {
                 </div>
                 <div>
                   <span className="text-[10px] font-bold text-tertiary uppercase tracking-tighter">Patient Story</span>
-                  <h4 className="font-bold text-on-surface group-hover:text-primary transition-colors">Maria's Recovery</h4>
+                  <h4 className="font-bold text-on-surface group-hover:text-primary transition-colors">Maria&apos;s Recovery</h4>
                   <p className="text-sm text-on-surface-variant line-clamp-1">Life-saving cardiovascular surgery for a young mother.</p>
                   <span className="text-xs font-bold text-primary mt-1 hover:underline inline-block">Read More</span>
                 </div>
               </Link>
-              <Link href="/revista/excelencia-medica-fe" className="flex space-x-4 p-4 rounded-lg hover:bg-surface-container transition-colors cursor-pointer group">
-                <div className="w-24 h-24 rounded-lg overflow-hidden flex-shrink-0 bg-surface-variant">
+              <Link href="/revista/excelencia-medica-fe" className="flex space-x-3 sm:space-x-4 p-3 sm:p-4 rounded-lg hover:bg-surface-container transition-colors cursor-pointer group">
+                <div className="w-20 sm:w-24 h-20 sm:h-24 rounded-lg overflow-hidden flex-shrink-0 bg-surface-variant">
                   <img
                     src="https://lh3.googleusercontent.com/aida-public/AB6AXuBV8zbc1VsO7_tMSGR2RBmy6wM6vk-VcvPAmV4KSqnAbpXaDgYRIA4gYQ3-WCdTkOes_cs4xLagdchqy5qS9UUKg5g00jrHqRcErnzU_2ZeQSakEnHY73GpQash7mHRT7Iuq0cN_OvZe-XsB-AQAYHsh5sq8Ahn4JLhRpUTUlw_uxTaPGQxvuPedNh1Dq7dA_0XvAnBpHbBF9DJOBP8O9D3Dz9QZbEBOmLAOzuhKLhDG3VygVGyw52wlxyqJ3gmZkKMlPq-lB7rbyM"
                     alt="Medical staff in hallway"
@@ -107,8 +107,8 @@ export default async function HomePage() {
                   <span className="text-xs font-bold text-primary mt-1 hover:underline inline-block">Read More</span>
                 </div>
               </Link>
-              <Link href="/revista/impacto-comunitario-voluntario" className="flex space-x-4 p-4 rounded-lg hover:bg-surface-container transition-colors cursor-pointer group">
-                <div className="w-24 h-24 rounded-lg overflow-hidden flex-shrink-0 bg-surface-variant">
+              <Link href="/revista/impacto-comunitario-voluntario" className="flex space-x-3 sm:space-x-4 p-3 sm:p-4 rounded-lg hover:bg-surface-container transition-colors cursor-pointer group">
+                <div className="w-20 sm:w-24 h-20 sm:h-24 rounded-lg overflow-hidden flex-shrink-0 bg-surface-variant">
                   <img
                     src="https://lh3.googleusercontent.com/aida-public/AB6AXuC03_6DfzYX6va02PtEg3uKMPfTx9qbP8biGLZEhm8sEMuealLUGntsFSVusJL0QXkADDx9gZOIuptHYPMo7p4pnF_VozdK6foynOWpU3UaECPZVXPi-j2N7Jt67k0DmWCKosPiLm7qqzVUzoufv17qV9viiOaJZKSdDhnC10JcHCdM93uM9TaOcPiGn35JooQuYUO9TyMbycXRplAvqVl6o6DCSCNroMN2eDBoYgOWWXly5cqPBKrTRMslsUAkCb5InkQc2xwvFbU"
                     alt="Doctor smiling"

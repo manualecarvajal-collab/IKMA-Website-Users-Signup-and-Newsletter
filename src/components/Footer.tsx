@@ -4,8 +4,8 @@ import Link from "next/link"
 export default function Footer() {
   return (
     <footer className="bg-surface-container-low border-t border-outline-variant">
-      <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-section-padding grid grid-cols-1 md:grid-cols-4 gap-gutter font-body-md text-body-md">
-        <div className="col-span-1 md:col-span-2">
+      <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-12 md:py-section-padding grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 md:gap-gutter font-body-md text-body-md">
+        <div className="sm:col-span-2">
           <Image src="/logo.png" alt="IKMA Logo" width={160} height={48} className="h-8 w-auto mb-4" />
           <p className="text-on-surface-variant mb-6 max-w-md">
             Healing through faith and excellence. We are dedicated to providing medical funding and support to those in
@@ -15,7 +15,7 @@ export default function Footer() {
             &copy; 2025 International Kingdom Medical Association. Healing through faith and excellence.
           </p>
         </div>
-        <div className="col-span-1">
+        <div>
           <h4 className="text-on-background font-bold mb-4">Legal</h4>
           <ul className="space-y-3">
             <li>
@@ -36,7 +36,7 @@ export default function Footer() {
             </li>
           </ul>
         </div>
-        <div className="col-span-1">
+        <div>
           <h4 className="text-on-background font-bold mb-4">Resources</h4>
           <ul className="space-y-3">
             <li>

@@ -18,10 +18,9 @@ const navLinks = [
 export default function Navbar({ initialUser }: { initialUser: { email: string; role: string } | null }) {
   const pathname = usePathname()
   const [user, setUser] = useState<{ email: string; role: string } | null>(initialUser)
+  const [mobileOpen, setMobileOpen] = useState(false)
 
-  useEffect(() => {
-    setUser(initialUser)
-  }, [initialUser])
+  const closeMobile = () => setMobileOpen(false)
 
   useEffect(() => {
     const supabase = createBrowserClient(
@@ -110,7 +109,7 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
               </span>
               <button
                 onClick={handleSignOut}
-                className="bg-white border border-outline-variant text-on-surface font-label-bold text-xs md:text-label-bold rounded-lg hover:bg-surface-container transition-all px-3 py-1.5 md:px-5 md:py-2.5 cursor-pointer"
+                className="hidden md:inline-block bg-white border border-outline-variant text-on-surface font-label-bold text-xs md:text-label-bold rounded-lg hover:bg-surface-container transition-all px-3 py-1.5 md:px-5 md:py-2.5 cursor-pointer"
               >
                 Sign out
               </button>
@@ -119,22 +118,98 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
             <>
               <Link
                 href="/login"
-                className="bg-white border border-outline-variant text-on-surface font-label-bold text-xs md:text-label-bold rounded-lg hover:bg-surface-container transition-all duration-300 ease-in-out active:scale-95 px-3 py-1.5 md:px-5 md:py-2.5"
+                className="hidden md:inline-block bg-white border border-outline-variant text-on-surface font-label-bold text-xs md:text-label-bold rounded-lg hover:bg-surface-container transition-all duration-300 ease-in-out active:scale-95 px-3 py-1.5 md:px-5 md:py-2.5"
               >
                 Log in
               </Link>
               <Link
                 href="/registro"
-                className="bg-surface-container-high text-on-surface font-label-bold text-xs md:text-label-bold rounded-lg hover:bg-surface-container-highest transition-all duration-300 ease-in-out active:scale-95 px-3 py-1.5 md:px-5 md:py-2.5"
+                className="hidden md:inline-block bg-surface-container-high text-on-surface font-label-bold text-xs md:text-label-bold rounded-lg hover:bg-surface-container-highest transition-all duration-300 ease-in-out active:scale-95 px-3 py-1.5 md:px-5 md:py-2.5"
               >
                 Sign up
               </Link>
             </>
           )}
           <span className="w-px h-6 bg-outline-variant hidden md:block" />
-          <button className="bg-primary text-on-primary font-label-bold text-xs md:text-label-bold px-4 py-1.5 md:px-6 md:py-2.5 rounded-lg hover:bg-primary-fixed-variant hover:text-on-primary-fixed-variant transition-all duration-300 ease-in-out active:scale-95 shadow-sm cursor-pointer">
+          <button className="hidden md:inline-block bg-primary text-on-primary font-label-bold text-xs md:text-label-bold px-4 py-1.5 md:px-6 md:py-2.5 rounded-lg hover:bg-primary-fixed-variant hover:text-on-primary-fixed-variant transition-all duration-300 ease-in-out active:scale-95 shadow-sm cursor-pointer">
             Support Now
           </button>
+          {/* Hamburger */}
+          <button
+            onClick={() => setMobileOpen((o) => !o)}
+            className="md:hidden p-2 rounded-lg hover:bg-surface-container transition-colors cursor-pointer"
+            aria-label="Toggle navigation menu"
+          >
+            <span className="material-symbols-outlined text-2xl text-on-surface">
+              {mobileOpen ? "close" : "menu"}
+            </span>
+          </button>
+        </div>
+      </div>
+      {/* Mobile Menu */}
+      <div
+        className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${
+          mobileOpen ? "max-h-[28rem] opacity-100" : "max-h-0 opacity-0"
+        }`}
+      >
+        <div className="px-margin-mobile pb-6 pt-2 space-y-1 border-t border-outline-variant/20 bg-white/70 backdrop-blur-lg">
+          {navLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              onClick={closeMobile}
+              className={
+                isActive(link.href)
+                  ? "flex items-center gap-3 px-4 py-3 rounded-lg bg-primary-container/20 text-primary font-label-bold text-label-bold"
+                  : "flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-label-bold text-label-bold transition-colors"
+              }
+            >
+              {link.label}
+            </Link>
+          ))}
+          {user?.role === "administrador" && (
+            <Link
+              href="/admin"
+              onClick={closeMobile}
+              className="flex items-center gap-3 px-4 py-3 rounded-lg text-primary font-label-bold bg-primary-container/20"
+            >
+              <span className="material-symbols-outlined text-sm">dashboard</span> CMS
+            </Link>
+          )}
+          <hr className="my-3 border-outline-variant/30" />
+          {user ? (
+            <div className="px-4 space-y-3">
+              <p className="font-body-md text-body-md text-on-surface-variant truncate">{user.email}</p>
+              <button
+                onClick={handleSignOut}
+                className="w-full bg-white border border-outline-variant text-on-surface font-label-bold text-label-bold rounded-lg hover:bg-surface-container transition-all px-5 py-2.5 cursor-pointer"
+              >
+                Sign out
+              </button>
+            </div>
+          ) : (
+            <div className="px-4 space-y-3">
+              <Link
+                href="/login"
+                onClick={closeMobile}
+                className="block w-full text-center bg-white border border-outline-variant text-on-surface font-label-bold text-label-bold rounded-lg hover:bg-surface-container transition-all px-5 py-2.5"
+              >
+                Log in
+              </Link>
+              <Link
+                href="/registro"
+                onClick={closeMobile}
+                className="block w-full text-center bg-surface-container-high text-on-surface font-label-bold text-label-bold rounded-lg hover:bg-surface-container-highest transition-all px-5 py-2.5"
+              >
+                Sign up
+              </Link>
+            </div>
+          )}
+          <div className="px-4 pt-2">
+            <button className="w-full bg-primary text-on-primary font-label-bold text-label-bold px-6 py-2.5 rounded-lg hover:bg-primary-fixed-variant hover:text-on-primary-fixed-variant transition-all shadow-sm cursor-pointer">
+              Support Now
+            </button>
+          </div>
         </div>
       </div>
     </nav>

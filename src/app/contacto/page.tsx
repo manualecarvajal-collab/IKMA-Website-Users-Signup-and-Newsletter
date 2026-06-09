@@ -9,7 +9,7 @@ export default function ContactPage() {
   return (
     <>
       {/* Hero */}
-      <section className="bg-surface-container-low py-section-padding">
+      <section className="bg-surface-container-low py-12 md:py-section-padding">
         <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop text-center">
           <h1 className="font-headline-xl text-headline-xl text-primary mb-6">Get in Touch</h1>
           <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto">
@@ -20,7 +20,7 @@ export default function ContactPage() {
       </section>
 
       {/* Contact Form + Info */}
-      <section className="py-section-padding">
+      <section className="py-12 md:py-section-padding">
         <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
             {/* Form */}
