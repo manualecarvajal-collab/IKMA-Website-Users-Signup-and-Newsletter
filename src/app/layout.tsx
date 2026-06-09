@@ -31,10 +31,10 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/logo.png",
-        width: 160,
-        height: 48,
-        alt: "IKMA Logo",
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "IKMA - International Kingdom Medical Association",
       },
     ],
   },
