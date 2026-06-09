@@ -10,7 +10,7 @@ export default function AboutPage() {
     <>
       {/* Hero Section */}
       <section className="py-section-padding px-margin-mobile md:px-margin-desktop bg-surface-container-low">
-        <div className="max-w-container-max mx-auto grid grid-cols-1 md:grid-cols-2 gap-gutter items-center">
+        <div className="max-w-container-max md:max-w-[80vw] mx-auto grid grid-cols-1 md:grid-cols-2 gap-gutter items-center">
           <div className="space-y-6">
             <span className="font-label-bold text-label-bold text-tertiary uppercase tracking-widest">Our Foundation</span>
             <h1 className="font-headline-xl text-headline-xl text-primary">Healing Through Faith &amp; Excellence</h1>
@@ -32,7 +32,7 @@ export default function AboutPage() {
 
       {/* Core Values */}
       <section className="py-section-padding px-margin-mobile md:px-margin-desktop bg-surface">
-        <div className="max-w-container-max mx-auto">
+        <div className="max-w-container-max md:max-w-[80vw] mx-auto">
           <div className="text-center mb-16">
             <h2 className="font-headline-lg text-headline-lg text-primary mb-4">Our Core Values</h2>
             <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto">
