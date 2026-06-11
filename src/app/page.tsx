@@ -36,7 +36,7 @@ export default async function HomePage() {
           </h2>
           <p className="font-body-md text-body-md text-on-surface-variant max-w-3xl">
             We are a mission-driven medical association dedicated to providing
-            accessible, high-quality healthcare and funding to those in need.
+            accessible, high-quality healthcare to those in need.
             Join us in making a profound impact on communities worldwide.
           </p>
           <div className="flex flex-row items-center justify-center gap-3 sm:gap-4 pt-4">
@@ -210,7 +210,7 @@ export default async function HomePage() {
             <h2 className="font-headline-lg text-headline-lg text-primary mb-2">
               Our Doctors
             </h2>
-            <p className="font-body-lg text-headline-md text-on-surface-variant">
+            <p className="font-body-lg text-body-md text-on-surface-variant">
               Meet the dedicated medical professionals combining clinical
               excellence with deep compassion.
             </p>

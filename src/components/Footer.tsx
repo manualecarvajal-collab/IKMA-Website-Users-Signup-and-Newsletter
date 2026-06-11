@@ -8,8 +8,7 @@ export default function Footer() {
         <div className="sm:col-span-2">
           <Image src="/logo.png" alt="IKMA Logo" width={160} height={48} className="h-8 w-auto mb-4" />
           <p className="text-on-surface-variant mb-6 max-w-md">
-            Healing through faith and excellence. We are dedicated to providing medical funding and support to those in
-            need.
+            We have God’s grace and wisdom to bring solutions to the problems facing our society.
           </p>
           <p className="text-on-surface-variant text-sm">
             &copy; 2025 International Kingdom Medical Association. Healing through faith and excellence.
