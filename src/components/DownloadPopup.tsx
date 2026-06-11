@@ -6,12 +6,7 @@ import Link from "next/link"
 
 export default function DownloadPopup() {
   const [open, setOpen] = useState(false)
-  const [mounted, setMounted] = useState(false)
   const [timeLeft, setTimeLeft] = useState(600)
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
 
   useEffect(() => {
     if (!open) return
@@ -42,7 +37,7 @@ export default function DownloadPopup() {
         Download PDF
       </button>
 
-      {open && mounted && createPortal(
+      {open && typeof document !== "undefined" && createPortal(
         <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-[200]">
           <div className="bg-surface rounded-xl max-w-md w-full mx-4 p-8 shadow-xl relative">
             <button

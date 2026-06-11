@@ -1,34 +1,42 @@
-import type { Metadata } from "next"
-import Link from "next/link"
-import { createClient } from "@/lib/supabase/server"
+import type { Metadata } from "next";
+import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
   title: "Our Doctors - IKMA",
-  description: "Meet the dedicated medical professionals combining clinical excellence with deep compassion to serve our community.",
-}
+  description:
+    "Meet the dedicated medical professionals combining clinical excellence with deep compassion to serve our community.",
+};
 
-const BASE = "https://lh3.googleusercontent.com/aida-public/"
+const BASE = "https://lh3.googleusercontent.com/aida-public/";
 
 export default async function DoctorsPage() {
-  const supabase = await createClient()
+  const supabase = await createClient();
 
   // Fallback to static data if DB not available
   const { data: dbDoctors } = await supabase
     .from("doctores")
     .select("*")
     .eq("publicado", true)
-    .order("nombre")
+    .order("nombre");
 
-  const doctors = dbDoctors && dbDoctors.length > 0 ? dbDoctors : staticDoctors
-  const specialties = ["All", ...new Set(doctors.map((d) => d.especialidad_principal))]
+  const doctors = dbDoctors && dbDoctors.length > 0 ? dbDoctors : staticDoctors;
+  const specialties = [
+    "All",
+    ...new Set(doctors.map((d) => d.especialidad_principal)),
+  ];
 
   return (
     <>
       <section className="py-12 md:py-section-padding bg-surface-container-low border-b border-outline-variant/30">
         <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop text-center">
-          <h1 className="font-headline-xl text-headline-xl text-primary mb-6">Our Doctors</h1>
+          <h1 className="font-headline-xl text-headline-xl text-primary mb-6">
+            Our Doctors
+          </h1>
           <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto">
-            Meet the network of professionals, doctors, and specialists from the Americas, Europe, and Africa who are transforming healthcare. International expertise at your service.
+            Meet the network of professionals, doctors, and specialists from the
+            Americas, Europe, and Africa who are transforming healthcare.
+            International expertise at your service.
           </p>
         </div>
       </section>
@@ -37,7 +45,9 @@ export default async function DoctorsPage() {
         <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
           <div className="flex items-center gap-2 mb-3 md:mb-0">
             <span className="font-label-bold text-label-bold text-on-surface-variant flex items-center gap-2 shrink-0">
-              <span className="material-symbols-outlined text-xl">filter_list</span>
+              <span className="material-symbols-outlined text-xl">
+                filter_list
+              </span>
               <span className="hidden sm:inline">Filter by Specialty:</span>
             </span>
           </div>
@@ -68,13 +78,23 @@ export default async function DoctorsPage() {
               >
                 <div className="flex items-start gap-3 sm:gap-4 mb-6">
                   <div className="w-20 sm:w-24 h-20 sm:h-24 rounded-lg overflow-hidden shrink-0 bg-surface-container-high relative">
-                    <img src={doc.imagen_url?.startsWith("http") ? doc.imagen_url : BASE + doc.imagen_url} alt="" className="w-full h-full object-cover" />
+                    <img
+                      src={
+                        doc.imagen_url?.startsWith("http")
+                          ? doc.imagen_url
+                          : BASE + doc.imagen_url
+                      }
+                      alt=""
+                      className="w-full h-full object-cover"
+                    />
                     <div className="absolute bottom-1 right-1 bg-surface-container-lowest rounded-full p-0.5 shadow-sm">
-                      <span className="material-symbols-outlined text-primary text-sm">verified</span>
+                      <span className="material-symbols-outlined text-primary text-sm">
+                        verified
+                      </span>
                     </div>
                   </div>
                   <div>
-                    <h3 className="font-headline-md text-headline-md text-on-surface mb-1 group-hover:text-primary transition-colors">
+                    <h3 className="font-headline-md text-body-md text-on-surface mb-1 group-hover:text-primary transition-colors">
                       {doc.nombre}
                     </h3>
                     <span className="font-label-bold text-label-bold text-tertiary-container bg-tertiary-fixed inline-block px-2 py-0.5 rounded-sm">
@@ -86,7 +106,9 @@ export default async function DoctorsPage() {
                   <span className="material-symbols-outlined text-outline-variant absolute top-3 left-3 opacity-30 text-3xl">
                     format_quote
                   </span>
-                  <p className="font-body-md text-body-md text-on-surface-variant italic relative z-10 pl-6">{doc.frase}</p>
+                  <p className="font-body-md text-body-md text-on-surface-variant italic relative z-10 pl-6">
+                    {doc.frase}
+                  </p>
                 </div>
                 <Link
                   href={`/doctores/${doc.id}`}
@@ -99,18 +121,53 @@ export default async function DoctorsPage() {
           </div>
           <div className="mt-16 text-center">
             <button className="bg-surface-container-high text-on-surface-variant font-label-bold text-label-bold px-8 py-3 rounded-lg hover:bg-outline-variant/30 transition-colors shadow-sm inline-flex items-center gap-2 cursor-pointer">
-              Load More Professionals <span className="material-symbols-outlined text-sm">expand_more</span>
+              Load More Professionals{" "}
+              <span className="material-symbols-outlined text-sm">
+                expand_more
+              </span>
             </button>
           </div>
         </div>
       </section>
     </>
-  )
+  );
 }
 
 const staticDoctors = [
-  { id: 1, nombre: "Dr. Sarah Jenkins", especialidad_principal: "Cardiology", frase: "Healing the physical heart is my medical duty, but bringing peace to the anxious soul is my true calling.", imagen_url: "AB6AXuAEVoMDLvTzpuk46GOo8lj9JgBORU1iZwCf4sWnvtHUko5w8etAQWu5K9UGeKaueOECOKjZGhwHwnEpPpIHJJLppbhavNhCqkN7uDZxfmFzV8wfw2lg2cJLm82aF8qjSvvbZ19gJ6STAhCWjNekq-qGbWm1Lyw6ZL5rowp3w0rek9Mgj1PikNrhA8odQVp9fHNkiUBXDIR6Sugo_HbcjEm-OKFs-8t5lhAWUu-vE18I4afS_Uo-quEmNLDcLO_nba5UlyyaArZp-Wc" },
-  { id: 2, nombre: "Dr. Marcus Chen", especialidad_principal: "Pediatrics", frase: "Every child holds a promise for the future. We provide the care they need to realize that promise fully.", imagen_url: "AB6AXuAfGdBCg-iG913EqelruRwaNM-8HyF5Nxj2n9txUYVU0Irx_FUOLiq7_taCXGqo_7iO_NsXe8cKZv_l1EPb58JKfou2LswTqY0_wnvRE_CD0q9YRuZnj9gq_ThAppsyO7rXeYXbs3urywmvmiqBMlhpYL2FnHq1yforqQvuR_b-qnvu-0mP5kHyA2xnRC7GbIqYm5MwkcOPe5iTeePAWTwx9zwNkelV0wkYgxLbVYb1S3P8kBdjkd5wnU6eyz2bxhwn66h4785Sz4k" },
-  { id: 3, nombre: "Dr. Elena Rodriguez", especialidad_principal: "Oncology", frase: "Walking alongside families during their toughest battles is a profound privilege. We fight with science and support with faith.", imagen_url: "AB6AXuBvJ_sDLH8kRg-mitYacKkeltAoQ0a1YB1jm2GNDwKcS4quE4CCwkirBnlIXfs-M_A1vAJYGQzmMlSON4VVL9zXuzy2KMj5kTVtWS2DbePBei-wBKDWD4EK35XS1ypWFfvVvp9p_tBwK-AnSZvY7EutSunVCIPMqzJcEXwYPZFHyJCa7PWMHCqI5iuom1cr5ocN9InU_JvTMgAQbfc6oFK9q0Vkp7j-avr7yS6ZGw4IIgwLcnmrXsXRgK2ylFJOxc5GcDP5BwzNbYo" },
-  { id: 4, nombre: "Dr. David Osei", especialidad_principal: "Neurology", frase: "The complexity of the human mind is a testament to divine design. I seek to restore balance through rigorous care.", imagen_url: "AB6AXuDaielhLpt8F5ZpHLyNvjXoLQ61P7zmx6A9EmmTvVxBepzlBSul6EywbHpcEKNe96UBHgQKKRbO2IKWvbOvJ_6-4ScK2E9qxAk2O3QK4usubN69vWlEpxbfPbHwKkD6PzwmlHzzCQYHTivRGLJpzn4Z2ynMjM3st4XLteasVZtH7VQMQ6ZzbXJnwvp8jwuXkl811SNs-E6Ov7B3_nKzS9azeZyI_SFz9f7aIpx4EkplIpcJQI3oYOrs838yvNs81yHObkG7OAxZEeU" },
-]
+  {
+    id: 1,
+    nombre: "Dr. Sarah Jenkins",
+    especialidad_principal: "Cardiology",
+    frase:
+      "Healing the physical heart is my medical duty, but bringing peace to the anxious soul is my true calling.",
+    imagen_url:
+      "AB6AXuAEVoMDLvTzpuk46GOo8lj9JgBORU1iZwCf4sWnvtHUko5w8etAQWu5K9UGeKaueOECOKjZGhwHwnEpPpIHJJLppbhavNhCqkN7uDZxfmFzV8wfw2lg2cJLm82aF8qjSvvbZ19gJ6STAhCWjNekq-qGbWm1Lyw6ZL5rowp3w0rek9Mgj1PikNrhA8odQVp9fHNkiUBXDIR6Sugo_HbcjEm-OKFs-8t5lhAWUu-vE18I4afS_Uo-quEmNLDcLO_nba5UlyyaArZp-Wc",
+  },
+  {
+    id: 2,
+    nombre: "Dr. Marcus Chen",
+    especialidad_principal: "Pediatrics",
+    frase:
+      "Every child holds a promise for the future. We provide the care they need to realize that promise fully.",
+    imagen_url:
+      "AB6AXuAfGdBCg-iG913EqelruRwaNM-8HyF5Nxj2n9txUYVU0Irx_FUOLiq7_taCXGqo_7iO_NsXe8cKZv_l1EPb58JKfou2LswTqY0_wnvRE_CD0q9YRuZnj9gq_ThAppsyO7rXeYXbs3urywmvmiqBMlhpYL2FnHq1yforqQvuR_b-qnvu-0mP5kHyA2xnRC7GbIqYm5MwkcOPe5iTeePAWTwx9zwNkelV0wkYgxLbVYb1S3P8kBdjkd5wnU6eyz2bxhwn66h4785Sz4k",
+  },
+  {
+    id: 3,
+    nombre: "Dr. Elena Rodriguez",
+    especialidad_principal: "Oncology",
+    frase:
+      "Walking alongside families during their toughest battles is a profound privilege. We fight with science and support with faith.",
+    imagen_url:
+      "AB6AXuBvJ_sDLH8kRg-mitYacKkeltAoQ0a1YB1jm2GNDwKcS4quE4CCwkirBnlIXfs-M_A1vAJYGQzmMlSON4VVL9zXuzy2KMj5kTVtWS2DbePBei-wBKDWD4EK35XS1ypWFfvVvp9p_tBwK-AnSZvY7EutSunVCIPMqzJcEXwYPZFHyJCa7PWMHCqI5iuom1cr5ocN9InU_JvTMgAQbfc6oFK9q0Vkp7j-avr7yS6ZGw4IIgwLcnmrXsXRgK2ylFJOxc5GcDP5BwzNbYo",
+  },
+  {
+    id: 4,
+    nombre: "Dr. David Osei",
+    especialidad_principal: "Neurology",
+    frase:
+      "The complexity of the human mind is a testament to divine design. I seek to restore balance through rigorous care.",
+    imagen_url:
+      "AB6AXuDaielhLpt8F5ZpHLyNvjXoLQ61P7zmx6A9EmmTvVxBepzlBSul6EywbHpcEKNe96UBHgQKKRbO2IKWvbOvJ_6-4ScK2E9qxAk2O3QK4usubN69vWlEpxbfPbHwKkD6PzwmlHzzCQYHTivRGLJpzn4Z2ynMjM3st4XLteasVZtH7VQMQ6ZzbXJnwvp8jwuXkl811SNs-E6Ov7B3_nKzS9azeZyI_SFz9f7aIpx4EkplIpcJQI3oYOrs838yvNs81yHObkG7OAxZEeU",
+  },
+];
