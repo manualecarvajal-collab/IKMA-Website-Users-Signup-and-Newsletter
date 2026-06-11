@@ -18,13 +18,19 @@ export function ImageUpload({ name, defaultValue, label }: { name: string; defau
 
       const res = await fetch("/api/upload", { method: "POST", body })
 
-      if (!res.ok) {
-        const { error } = await res.json()
-        throw new Error(error || "Upload failed")
+      let data
+      try {
+        data = await res.json()
+      } catch {
+        const text = await res.text()
+        throw new Error(text || `HTTP ${res.status}`)
       }
 
-      const { url: publicUrl } = await res.json()
-      setUrl(publicUrl)
+      if (!res.ok) {
+        throw new Error(data.error || "Upload failed")
+      }
+
+      setUrl(data.url)
     } catch (err) {
       const message = err instanceof Error ? err.message : "Upload failed"
       setUploadError(`${message}. You can paste a URL below instead.`)
