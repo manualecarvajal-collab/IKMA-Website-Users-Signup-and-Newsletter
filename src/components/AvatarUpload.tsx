@@ -12,11 +12,11 @@ export function AvatarUpload({ name, defaultValue }: { name: string; defaultValu
     setUploading(true)
     setUploadError("")
     try {
-      const body = new FormData()
-      body.append("file", file)
-      body.append("folder", "avatars")
-
-      const res = await fetch("/api/upload", { method: "POST", body })
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: file.name, type: file.type, folder: "avatars" }),
+      })
 
       const text = await res.text()
 
@@ -31,7 +31,17 @@ export function AvatarUpload({ name, defaultValue }: { name: string; defaultValu
         throw new Error(data.error || "Upload failed")
       }
 
-      setUrl(data.url)
+      const uploadRes = await fetch(data.signedUrl, {
+        method: "PUT",
+        body: file,
+        headers: { "Content-Type": file.type },
+      })
+
+      if (!uploadRes.ok) {
+        throw new Error("Failed to upload file to storage")
+      }
+
+      setUrl(data.publicUrl)
     } catch (err) {
       const message = err instanceof Error ? err.message : "Upload failed"
       setUploadError(`${message}. You can paste a URL below instead.`)
