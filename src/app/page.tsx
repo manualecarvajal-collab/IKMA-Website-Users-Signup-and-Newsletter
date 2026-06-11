@@ -22,7 +22,7 @@ export default async function HomePage() {
     <>
       {/* Hero Section */}
       <section className="relative overflow-hidden max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop min-h-[calc(100vh-5rem)] flex flex-col items-center text-center justify-center">
-        <HeroBg3D />
+        <div className="max-md:hidden"><HeroBg3D /></div>
         <div className="relative z-10 flex flex-col items-center justify-center space-y-4 max-w-3xl max-md:flex-none md:flex-1 w-full p-0 md:p-[40px]">
           <h2 className="font-headline-lg text-headline-lg text-on-surface">
             Healing through <span className="text-primary">faith</span> and{" "}
