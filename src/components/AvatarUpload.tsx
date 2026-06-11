@@ -18,11 +18,12 @@ export function AvatarUpload({ name, defaultValue }: { name: string; defaultValu
 
       const res = await fetch("/api/upload", { method: "POST", body })
 
+      const text = await res.text()
+
       let data
       try {
-        data = await res.json()
+        data = JSON.parse(text)
       } catch {
-        const text = await res.text()
         throw new Error(text || `HTTP ${res.status}`)
       }
 
