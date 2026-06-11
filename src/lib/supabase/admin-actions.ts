@@ -19,15 +19,25 @@ async function checkAdmin() {
 
 // ─── ARTICLES ───────────────────────────────────────────
 
+function slugify(text: string) {
+  return text
+    .toLowerCase()
+    .replace(/[^\w\s]/g, "")
+    .replace(/\s+/g, "-")
+    .trim()
+}
+
 export async function createArticle(formData: FormData) {
   const { supabase } = await checkAdmin()
+  const titulo = formData.get("titulo") as string
   const data = {
-    titulo: formData.get("titulo") as string,
-    slug: formData.get("slug") as string,
+    titulo,
+    slug: slugify(titulo),
     contenido_html: formData.get("contenido_html") as string,
     resumen: formData.get("resumen") as string,
-    categoria: formData.get("categoria") as string,
     imagen_url: formData.get("imagen_url") as string,
+    autor_nombre: formData.get("autor_nombre") as string,
+    autor_avatar_url: formData.get("autor_avatar_url") as string,
     publicado: formData.get("publicado") === "on",
   }
   const { error } = await supabase.from("articulos").insert(data)
@@ -39,13 +49,15 @@ export async function createArticle(formData: FormData) {
 
 export async function updateArticle(id: string, formData: FormData) {
   const { supabase } = await checkAdmin()
+  const titulo = formData.get("titulo") as string
   const data = {
-    titulo: formData.get("titulo") as string,
-    slug: formData.get("slug") as string,
+    titulo,
+    slug: slugify(titulo),
     contenido_html: formData.get("contenido_html") as string,
     resumen: formData.get("resumen") as string,
-    categoria: formData.get("categoria") as string,
     imagen_url: formData.get("imagen_url") as string,
+    autor_nombre: formData.get("autor_nombre") as string,
+    autor_avatar_url: formData.get("autor_avatar_url") as string,
     publicado: formData.get("publicado") === "on",
   }
   const { error } = await supabase.from("articulos").update(data).eq("id", id)

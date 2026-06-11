@@ -43,7 +43,7 @@ export default async function AdminArticulosPage(props: { searchParams?: Promise
           <thead>
             <tr className="bg-surface-container-low border-b border-outline-variant/20">
               <th className="text-left font-label-bold text-label-sm text-on-surface-variant uppercase tracking-wider px-6 py-4">Title</th>
-              <th className="text-left font-label-bold text-label-sm text-on-surface-variant uppercase tracking-wider px-6 py-4 hidden md:table-cell">Category</th>
+              <th className="text-left font-label-bold text-label-sm text-on-surface-variant uppercase tracking-wider px-6 py-4 hidden md:table-cell">Author</th>
               <th className="text-left font-label-bold text-label-sm text-on-surface-variant uppercase tracking-wider px-6 py-4 hidden sm:table-cell">Status</th>
               <th className="text-left font-label-bold text-label-sm text-on-surface-variant uppercase tracking-wider px-6 py-4 hidden md:table-cell">Date</th>
               <th className="text-right font-label-bold text-label-sm text-on-surface-variant uppercase tracking-wider px-6 py-4">Actions</th>
@@ -60,7 +60,7 @@ export default async function AdminArticulosPage(props: { searchParams?: Promise
                   <p className="font-body-md text-body-md text-on-surface-variant text-sm mt-0.5">/{a.slug}</p>
                 </td>
                 <td className="px-6 py-4 hidden md:table-cell">
-                  <span className="bg-secondary-container text-on-secondary-container font-label-sm text-label-sm px-2.5 py-1 rounded-full">{a.categoria}</span>
+                  <span className="font-body-md text-body-md text-on-surface-variant">{a.autor_nombre || "—"}</span>
                 </td>
                 <td className="px-6 py-4 hidden sm:table-cell">
                   <ToggleStatus id={a.id} published={a.publicado} toggleAction={toggleArticleStatus} />

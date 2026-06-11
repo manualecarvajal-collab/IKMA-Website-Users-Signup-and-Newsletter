@@ -1,7 +1,8 @@
 "use client"
 
-import { useActionState } from "react"
+import { useState, useActionState } from "react"
 import { ImageUpload } from "./ImageUpload"
+import { AvatarUpload } from "./AvatarUpload"
 interface Article {
   id?: string
   titulo: string
@@ -11,6 +12,16 @@ interface Article {
   categoria: string | null
   imagen_url: string | null
   publicado: boolean
+  autor_nombre?: string | null
+  autor_avatar_url?: string | null
+}
+
+function slugify(text: string) {
+  return text
+    .toLowerCase()
+    .replace(/[^\w\s]/g, "")
+    .replace(/\s+/g, "-")
+    .trim()
 }
 
 export function ArticleForm({
@@ -27,6 +38,8 @@ export function ArticleForm({
     undefined
   )
 
+  const [title, setTitle] = useState(article?.titulo ?? "")
+
   return (
     <form action={formAction} className="max-w-3xl space-y-6">
       {state?.error && (
@@ -35,19 +48,17 @@ export function ArticleForm({
 
       <div>
         <label className="block font-label-bold text-label-sm text-on-surface-variant mb-1.5">Title *</label>
-        <input name="titulo" defaultValue={article?.titulo ?? ""} required
+        <input name="titulo" value={title} onChange={(e) => setTitle(e.target.value)} required
           className="w-full bg-surface-container-low border border-outline-variant/50 rounded-lg px-4 py-3 font-body-md text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30" />
+        <input type="hidden" name="slug" value={slugify(title)} />
+        <p className="font-body-md text-body-md text-on-surface-variant text-sm mt-1">Slug: {slugify(title) || "..."}</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label className="block font-label-bold text-label-sm text-on-surface-variant mb-1.5">Slug *</label>
-          <input name="slug" defaultValue={article?.slug ?? ""} required
-            className="w-full bg-surface-container-low border border-outline-variant/50 rounded-lg px-4 py-3 font-body-md text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30" />
-        </div>
-        <div>
-          <label className="block font-label-bold text-label-sm text-on-surface-variant mb-1.5">Category</label>
-          <input name="categoria" defaultValue={article?.categoria ?? ""}
+      <div className="flex items-start gap-6">
+        <AvatarUpload name="autor_avatar_url" defaultValue={article?.autor_avatar_url} />
+        <div className="flex-1">
+          <label className="block font-label-bold text-label-sm text-on-surface-variant mb-1.5">Author Name</label>
+          <input name="autor_nombre" defaultValue={article?.autor_nombre ?? ""}
             className="w-full bg-surface-container-low border border-outline-variant/50 rounded-lg px-4 py-3 font-body-md text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30" />
         </div>
       </div>
@@ -58,7 +69,7 @@ export function ArticleForm({
           className="w-full bg-surface-container-low border border-outline-variant/50 rounded-lg px-4 py-3 font-body-md text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30" />
       </div>
 
-      <ImageUpload name="imagen_url" defaultValue={article?.imagen_url} />
+      <ImageUpload name="imagen_url" defaultValue={article?.imagen_url} label="Cover Image" />
 
       <div>
         <label className="block font-label-bold text-label-sm text-on-surface-variant mb-1.5">Content (HTML)</label>
