@@ -1,0 +1,79 @@
+"use client"
+
+import { useState, useRef } from "react"
+
+export function AvatarUpload({ name, defaultValue }: { name: string; defaultValue?: string | null }) {
+  const [url, setUrl] = useState(defaultValue ?? "")
+  const [uploading, setUploading] = useState(false)
+  const [uploadError, setUploadError] = useState("")
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  const uploadFile = async (file: File) => {
+    setUploading(true)
+    setUploadError("")
+    try {
+      const body = new FormData()
+      body.append("file", file)
+      body.append("folder", "avatars")
+
+      const res = await fetch("/api/upload", { method: "POST", body })
+
+      if (!res.ok) {
+        const { error } = await res.json()
+        throw new Error(error || "Upload failed")
+      }
+
+      const { url: publicUrl } = await res.json()
+      setUrl(publicUrl)
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Upload failed"
+      setUploadError(`${message}. You can paste a URL below instead.`)
+      console.error("Upload error:", err)
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) uploadFile(file)
+  }
+
+  return (
+    <div>
+      <p className="font-label-bold text-label-sm text-on-surface-variant mb-2">Author Avatar</p>
+      <div className="flex items-center gap-4">
+        <div className="w-14 h-14 rounded-full overflow-hidden bg-surface-container-high border border-outline-variant/30 flex items-center justify-center flex-shrink-0">
+          {url ? (
+            <img src={url} alt="Avatar" className="w-full h-full object-cover" />
+          ) : (
+            <span className="material-symbols-outlined text-2xl text-on-surface-variant/50">person</span>
+          )}
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="bg-primary text-on-primary font-label-bold text-label-sm px-4 py-2 rounded-lg hover:brightness-110 transition-colors cursor-pointer inline-block text-center">
+            {uploading ? "Uploading..." : "Upload Picture"}
+            <input ref={inputRef} type="file" accept="image/*" onChange={handleChange} disabled={uploading} className="hidden" />
+          </label>
+          {url && (
+            <button
+              type="button"
+              onClick={() => setUrl("")}
+              className="text-error font-label-bold text-label-xs hover:underline cursor-pointer text-xs text-left"
+            >
+              Remove
+            </button>
+          )}
+        </div>
+      </div>
+      {uploadError && (
+        <p className="font-body-md text-body-md text-error text-sm mt-2">{uploadError}</p>
+      )}
+      {uploadError && !url && (
+        <input name={name} defaultValue={defaultValue ?? ""} placeholder="Paste avatar URL here..."
+          className="w-full bg-surface-container-low border border-outline-variant/50 rounded-lg px-4 py-3 font-body-md text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 mt-2" />
+      )}
+      <input type="hidden" name={name} value={url} />
+    </div>
+  )
+}

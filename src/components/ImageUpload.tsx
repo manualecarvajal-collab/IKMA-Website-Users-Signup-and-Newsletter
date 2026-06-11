@@ -1,71 +1,110 @@
 "use client"
 
-import { useState } from "react"
-import { createBrowserClient } from "@supabase/ssr"
+import { useState, useRef } from "react"
 
-export function ImageUpload({ name, defaultValue }: { name: string; defaultValue?: string | null }) {
+export function ImageUpload({ name, defaultValue, label }: { name: string; defaultValue?: string | null; label?: string }) {
   const [url, setUrl] = useState(defaultValue ?? "")
   const [uploading, setUploading] = useState(false)
+  const [uploadError, setUploadError] = useState("")
+  const [dragging, setDragging] = useState(false)
+  const inputRef = useRef<HTMLInputElement>(null)
 
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-
+  const uploadFile = async (file: File) => {
     setUploading(true)
+    setUploadError("")
     try {
-      const supabase = createBrowserClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-      )
+      const body = new FormData()
+      body.append("file", file)
 
-      const ext = file.name.split(".").pop()
-      const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+      const res = await fetch("/api/upload", { method: "POST", body })
 
-      const { error } = await supabase.storage
-        .from("doctor-images")
-        .upload(fileName, file)
+      if (!res.ok) {
+        const { error } = await res.json()
+        throw new Error(error || "Upload failed")
+      }
 
-      if (error) throw error
-
-      const { data: { publicUrl } } = supabase.storage
-        .from("doctor-images")
-        .getPublicUrl(fileName)
-
+      const { url: publicUrl } = await res.json()
       setUrl(publicUrl)
     } catch (err) {
+      const message = err instanceof Error ? err.message : "Upload failed"
+      setUploadError(`${message}. You can paste a URL below instead.`)
       console.error("Upload error:", err)
     } finally {
       setUploading(false)
     }
   }
 
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    setDragging(false)
+    const file = e.dataTransfer.files?.[0]
+    if (file) uploadFile(file)
+  }
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    setDragging(true)
+  }
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault()
+    setDragging(false)
+  }
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) uploadFile(file)
+  }
+
   return (
     <div className="space-y-3">
-      <label className="block font-label-bold text-label-sm text-on-surface-variant mb-1.5">Photo</label>
-      <div className="flex items-start gap-4">
-        {url && (
-          <div className="w-24 h-24 rounded-lg overflow-hidden bg-surface-container-high shrink-0 border border-outline-variant/30">
-            <img src={url} alt="Preview" className="w-full h-full object-cover" />
+      {label && <p className="font-label-bold text-label-sm text-on-surface-variant mb-1.5">{label}</p>}
+      <div
+        onDrop={handleDrop}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onClick={() => inputRef.current?.click()}
+        className={`relative border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors ${
+          dragging
+            ? "border-primary bg-primary/5"
+            : "border-outline-variant/50 bg-surface-container-low hover:border-primary/50"
+        }`}
+      >
+        <input ref={inputRef} type="file" accept="image/*" onChange={handleChange} disabled={uploading} className="hidden" />
+        {uploading ? (
+          <div className="flex flex-col items-center gap-2">
+            <span className="material-symbols-outlined text-4xl text-on-surface-variant/50 animate-pulse">cloud_upload</span>
+            <p className="font-body-md text-body-md text-on-surface-variant">Uploading...</p>
           </div>
-        )}
-        <div className="flex-1 space-y-2">
-          <label className="bg-primary text-on-primary font-label-bold text-label-sm px-4 py-2 rounded-lg hover:bg-primary-container hover:text-on-primary-container transition-colors cursor-pointer inline-block">
-            {uploading ? "Uploading..." : "Choose File"}
-            <input type="file" accept="image/*" onChange={handleUpload} disabled={uploading} className="hidden" />
-          </label>
-          <input type="hidden" name={name} value={url} />
-          {url && (
+        ) : url ? (
+          <div className="flex flex-col items-center gap-3">
+            <img src={url} alt="Preview" className="max-h-40 rounded-lg object-contain" />
             <button
               type="button"
-              onClick={() => setUrl("")}
-              className="block text-error font-label-bold text-label-sm hover:underline cursor-pointer"
+              onClick={(e) => { e.stopPropagation(); setUrl("") }}
+              className="text-error font-label-bold text-label-sm hover:underline cursor-pointer"
             >
               Remove image
             </button>
-          )}
-          {url && <p className="font-body-md text-body-md text-on-surface-variant text-sm break-all">{url}</p>}
-        </div>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center gap-2">
+            <span className="material-symbols-outlined text-4xl text-on-surface-variant/50">cloud_upload</span>
+            <p className="font-body-md text-body-md text-on-surface-variant">
+              Drag & drop your file here
+            </p>
+            <p className="font-label-bold text-label-sm text-primary">Browse Files</p>
+          </div>
+        )}
       </div>
+      {uploadError && (
+        <p className="font-body-md text-body-md text-error text-sm mt-2">{uploadError}</p>
+      )}
+      {uploadError && !url && (
+        <input name={name} defaultValue={defaultValue ?? ""} placeholder="Paste image URL here..."
+          className="w-full bg-surface-container-low border border-outline-variant/50 rounded-lg px-4 py-3 font-body-md text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 mt-2" />
+      )}
+      <input type="hidden" name={name} value={url} />
     </div>
   )
 }
