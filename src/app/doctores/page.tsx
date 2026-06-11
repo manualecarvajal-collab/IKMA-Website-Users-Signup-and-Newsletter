@@ -28,7 +28,7 @@ export default async function DoctorsPage() {
         <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop text-center">
           <h1 className="font-headline-xl text-headline-xl text-primary mb-6">Our Doctors</h1>
           <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto">
-            Meet the dedicated medical professionals combining clinical excellence with deep compassion to serve our community.
+            Meet the network of professionals, doctors, and specialists from the Americas, Europe, and Africa who are transforming healthcare. International expertise at your service.
           </p>
         </div>
       </section>
@@ -68,7 +68,7 @@ export default async function DoctorsPage() {
               >
                 <div className="flex items-start gap-3 sm:gap-4 mb-6">
                   <div className="w-20 sm:w-24 h-20 sm:h-24 rounded-lg overflow-hidden shrink-0 bg-surface-container-high relative">
-                    <img src={BASE + doc.imagen_url} alt="" className="w-full h-full object-cover" />
+                    <img src={doc.imagen_url?.startsWith("http") ? doc.imagen_url : BASE + doc.imagen_url} alt="" className="w-full h-full object-cover" />
                     <div className="absolute bottom-1 right-1 bg-surface-container-lowest rounded-full p-0.5 shadow-sm">
                       <span className="material-symbols-outlined text-primary text-sm">verified</span>
                     </div>

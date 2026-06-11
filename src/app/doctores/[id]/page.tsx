@@ -57,8 +57,8 @@ export default async function DoctorDetailPage({ params }: { params: Promise<{ i
   const doc = await getDoctor(id)
 
   if (!doc) return (
-    <section className="py-section-padding px-margin-mobile md:px-margin-desktop">
-      <div className="max-w-container-max mx-auto text-center"><h1 className="font-headline-lg text-headline-lg text-primary">Doctor not found</h1>
+    <section className="py-section-padding">
+      <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop text-center"><h1 className="font-headline-lg text-headline-lg text-primary">Doctor not found</h1>
       <Link href="/doctores" className="text-primary hover:underline mt-4 inline-block">&larr; Back to Doctors</Link></div>
     </section>
   )
@@ -79,7 +79,7 @@ export default async function DoctorDetailPage({ params }: { params: Promise<{ i
           <div className="flex flex-col md:flex-row gap-gutter md:gap-12 items-start">
             <div className="w-full md:w-80 shrink-0">
               <div className="relative rounded-lg overflow-hidden bg-surface-container-high aspect-[3/4] shadow-[0_0_20px_0_rgba(7,68,105,0.04)]">
-                <img src={BASE + doc.imagen_url} alt={doc.nombre} className="w-full h-full object-cover" />
+                <img src={doc.imagen_url?.startsWith("http") ? doc.imagen_url : BASE + doc.imagen_url} alt={doc.nombre} className="w-full h-full object-cover" />
                 <div className="absolute bottom-3 right-3 bg-surface-container-lowest rounded-full p-1.5 shadow-sm">
                   <span className="material-symbols-outlined text-primary text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
                 </div>
