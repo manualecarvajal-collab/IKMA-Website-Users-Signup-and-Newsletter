@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar"
 import Footer from "@/components/Footer"
 import ToastContainer from "@/components/Toast"
 import { createClient } from "@/lib/supabase/server"
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 export const dynamic = "force-dynamic"
 
@@ -70,6 +71,7 @@ export default async function RootLayout({
         <main className="flex-grow">{children}</main>
         <Footer />
         <ToastContainer />
+        <SpeedInsights />
       </body>
     </html>
   )
