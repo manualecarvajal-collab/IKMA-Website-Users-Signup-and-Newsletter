@@ -269,9 +269,10 @@ export async function getAllUsers() {
   const admin = await createAdminClient()
 
   // Use admin client (service_role) to bypass RLS and get all profiles
+  // Note: only select columns that exist in the migration-defined schema
   const { data: perfiles } = await admin
     .from("perfiles")
-    .select("id, nombre_completo, email, suscripcion_activa, rol, created_at")
+    .select("id, nombre_completo, suscripcion_activa, rol")
 
   const perfilesMap = new Map((perfiles ?? []).map(p => [p.id, p]))
 
@@ -290,7 +291,7 @@ export async function getAllUsers() {
         email: u.email || "No email",
         suscripcion_activa: perfil?.suscripcion_activa ?? false,
         rol: perfil?.rol || "lector",
-        created_at: perfil?.created_at || u.created_at,
+        created_at: u.created_at,
       }
     })
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())

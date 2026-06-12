@@ -81,19 +81,8 @@ export default async function AdminDashboard() {
             </div>
           </div>
 
-          <div className="mt-4 w-full bg-surface-container-high rounded-full h-4 overflow-hidden flex">
-            <div
-              className="bg-tertiary h-4 transition-all duration-500"
-              style={{ width: `${usuariosTotal ? Math.round(((suscripActiva ?? 0) / usuariosTotal) * 100) : 0}%` }}
-            />
-            <div
-              className="bg-surface-container-high h-4 transition-all duration-500"
-              style={{ width: `${usuariosTotal ? Math.round((soloRegistrados / usuariosTotal) * 100) : 100}%` }}
-            />
-          </div>
-          <p className="font-body-md text-body-md text-on-surface-variant mt-2">
-            {suscripActiva ?? 0} of {usuariosTotal} users have an active subscription ({usuariosTotal ? Math.round(((suscripActiva ?? 0) / usuariosTotal) * 100) : 0}%)
-          </p>
+
+          
         </div>
       </div>
       <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter">
