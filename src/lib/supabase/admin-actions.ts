@@ -242,7 +242,25 @@ export async function activateSubscription(): Promise<void> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return
-  await supabase.from("perfiles").update({ suscripcion_activa: true }).eq("id", user.id)
+
+  const admin = await createAdminClient()
+  const { data: existing } = await admin
+    .from("perfiles")
+    .select("id")
+    .eq("id", user.id)
+    .maybeSingle()
+
+  if (existing) {
+    await admin.from("perfiles").update({ suscripcion_activa: true }).eq("id", user.id)
+  } else {
+    await admin.from("perfiles").insert({
+      id: user.id,
+      nombre_completo: (user.user_metadata?.nombre_completo as string) || "",
+      suscripcion_activa: true,
+      rol: "lector",
+    })
+  }
+
   revalidatePath("/", "layout")
 }
 
@@ -380,10 +398,11 @@ export async function sendMagazineToEmail(revistaId: string, userId: string): Pr
 
   if (!revista) return { error: "Magazine not found" }
 
-  // Buscamos el perfil actualizado directamente
-  const { data: perfil, error: perfilError } = await supabase
+  // Use admin client (service_role) to bypass RLS and ensure we read the real state
+  const admin = await createAdminClient()
+  const { data: perfil, error: perfilError } = await admin
     .from("perfiles")
-    .select("nombre_completo, email, suscripcion_activa")
+    .select("nombre_completo, suscripcion_activa")
     .eq("id", user.id)
     .single()
 
@@ -393,7 +412,7 @@ export async function sendMagazineToEmail(revistaId: string, userId: string): Pr
     return { error: `Subscription not active for ${user.email}. Please refresh the page.` }
   }
 
-  const email = perfil.email || user.email
+  const email = user.email
   if (!email) return { error: "No email on file" }
 
   const config = await getEmailConfig()
