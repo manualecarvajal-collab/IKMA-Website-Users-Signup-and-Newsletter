@@ -50,18 +50,12 @@ export default async function HomePage() {
             Join us in making a profound impact on communities worldwide.
           </p>
           <div className="flex flex-row items-center justify-center gap-3 sm:gap-4 pt-4">
-            {isAuthenticated ? (
-              <Link
-                href="/suscripcion-exito"
-                className="bg-primary text-on-primary font-label-bold text-label-bold px-8 py-3.5 rounded-lg hover:bg-primary/90 transition-all shadow-[0_8px_16px_0_rgba(7,68,105,0.1)] active:scale-95 text-center inline-block"
-              >
-                Support Our Mission
-              </Link>
-            ) : (
-              <button disabled className="bg-primary/40 text-on-primary/60 font-label-bold text-label-bold px-8 py-3.5 rounded-lg shadow-sm cursor-not-allowed">
-                Support Our Mission
-              </button>
-            )}
+            <Link
+              href={isAuthenticated ? "/suscripcion-exito" : "/registro"}
+              className="bg-primary text-on-primary font-label-bold text-label-bold px-8 py-3.5 rounded-lg hover:bg-primary/90 transition-all shadow-[0_8px_16px_0_rgba(7,68,105,0.1)] active:scale-95 text-center inline-block"
+            >
+              Support Our Mission
+            </Link>
             {!isAuthenticated && (
               <Link
                 href="/registro"
@@ -77,7 +71,7 @@ export default async function HomePage() {
         </div>
         <div className="w-full max-w-5xl mx-auto relative z-10 max-md:order-first md:order-0 max-md:mt-0 md:mt-auto">
           <img
-            src="/images/hero img.png"
+            src="/images/hero img.webp"
             alt="Group of medical professionals"
             className="w-full h-auto object-contain object-bottom pointer-events-none"
           />

@@ -81,43 +81,15 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
   return (
     <article className="py-section-padding">
       <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
-        <div className="grid grid-cols-1 md:grid-cols-[7fr_3fr] gap-gutter">
-          {/* Left Column — Article Content */}
-          <div>
-            {article.imagen_url && (
-              <div className="w-full h-80 rounded-xl overflow-hidden bg-surface-variant mb-6">
-                <img src={article.imagen_url} alt="" className="w-full h-full object-cover" />
-              </div>
-            )}
-
-            <div className="flex items-center gap-4 mb-6">
-              <div className="w-10 h-10 rounded-full overflow-hidden bg-primary flex-shrink-0">
-                <img src={authorAvatar} alt="" className="w-full h-full object-cover" />
-              </div>
-              <div>
-                <p className="font-label-bold text-label-bold text-on-surface">
-                  {article.autor_nombre || "IKMA Editorial"}
-                </p>
-                <p className="font-body-md text-body-md text-on-surface-variant">
-                  {formatDate(article.fecha_publicacion || article.created_at)}
-                </p>
-              </div>
-            </div>
-
-            <h1 className="font-headline-xl text-[clamp(1.625rem,3.25vw,2.6rem)] text-primary mb-6">
-              {article.titulo}
-            </h1>
-
-            <ArticleContent
-              contenidoHtml={article.contenido_html}
-              resumen={article.resumen}
-              isAuthenticated={!!user}
-            />
-          </div>
-
-          {/* Right Column — Sidebar */}
-          <div className="md:pl-6">
+        <div className="grid grid-cols-1 md:grid-cols-[3fr_7fr] gap-gutter">
+          {/* Left Column — Sidebar */}
+          <div className="md:pr-6 order-2 md:order-1">
             <div className="sticky top-28 space-y-6">
+              {/* Ad Space */}
+              <div className="w-full h-64 rounded-xl border-2 border-dashed border-on-surface/20 bg-surface-container-high/30 flex items-center justify-center text-on-surface-variant/50 text-sm font-medium">
+                Ad Space
+              </div>
+
               {magazines && magazines.length > 0 && (
                 <div className="bg-surface-container-low rounded-xl p-5 shadow-sm border border-outline-variant/20">
                   <div className="flex items-center gap-2 mb-4">
@@ -159,6 +131,39 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                 </div>
               )}
             </div>
+          </div>
+
+          {/* Right Column — Article Content */}
+          <div className="order-1 md:order-2">
+            {article.imagen_url && (
+              <div className="w-full h-80 rounded-xl overflow-hidden bg-surface-variant mb-6">
+                <img src={article.imagen_url} alt="" className="w-full h-full object-cover" />
+              </div>
+            )}
+
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-10 h-10 rounded-full overflow-hidden bg-primary flex-shrink-0">
+                <img src={authorAvatar} alt="" className="w-full h-full object-cover" />
+              </div>
+              <div>
+                <p className="font-label-bold text-label-bold text-on-surface">
+                  {article.autor_nombre || "IKMA Editorial"}
+                </p>
+                <p className="font-body-md text-body-md text-on-surface-variant">
+                  {formatDate(article.fecha_publicacion || article.created_at)}
+                </p>
+              </div>
+            </div>
+
+            <h1 className="font-headline-xl text-[clamp(1.625rem,3.25vw,2.6rem)] text-primary mb-6">
+              {article.titulo}
+            </h1>
+
+            <ArticleContent
+              contenidoHtml={article.contenido_html}
+              resumen={article.resumen}
+              isAuthenticated={!!user}
+            />
           </div>
         </div>
 

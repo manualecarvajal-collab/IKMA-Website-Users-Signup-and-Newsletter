@@ -133,18 +133,12 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
             </>
           )}
           <span className="w-px h-6 bg-outline-variant hidden md:block" />
-          {user ? (
-            <Link
-              href="/suscripcion-exito"
-              className="hidden md:inline-block bg-primary text-on-primary font-label-bold text-xs md:text-label-bold px-4 py-1.5 md:px-6 md:py-2.5 rounded-lg hover:bg-surface hover:text-on-primary-fixed-variant transition-all duration-300 ease-in-out active:scale-95 shadow-sm"
-            >
-              Support Now
-            </Link>
-          ) : (
-            <button disabled className="hidden md:inline-block bg-primary/40 text-on-primary/60 font-label-bold text-xs md:text-label-bold px-4 py-1.5 md:px-6 md:py-2.5 rounded-lg cursor-not-allowed shadow-sm">
-              Support Now
-            </button>
-          )}
+          <Link
+            href={user ? "/suscripcion-exito" : "/registro"}
+            className="hidden md:inline-block bg-primary text-on-primary font-label-bold text-xs md:text-label-bold px-4 py-1.5 md:px-6 md:py-2.5 rounded-lg hover:bg-surface hover:text-on-primary-fixed-variant transition-all duration-300 ease-in-out active:scale-95 shadow-sm"
+          >
+            Support Now
+          </Link>
           {/* Hamburger */}
           <button
             onClick={() => setMobileOpen((o) => !o)}
@@ -217,19 +211,13 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
             </div>
           )}
           <div className="px-4 pt-2">
-            {user ? (
-              <Link
-                href="/suscripcion-exito"
-                onClick={closeMobile}
-                className="block w-full text-center bg-primary text-on-primary font-label-bold text-label-bold px-6 py-2.5 rounded-lg hover:bg-primary-fixed-variant hover:text-on-primary-fixed-variant transition-all shadow-sm"
-              >
-                Support Now
-              </Link>
-            ) : (
-              <button disabled className="w-full bg-primary/40 text-on-primary/60 font-label-bold text-label-bold px-6 py-2.5 rounded-lg cursor-not-allowed">
-                Support Now
-              </button>
-            )}
+            <Link
+              href={user ? "/suscripcion-exito" : "/registro"}
+              onClick={closeMobile}
+              className="block w-full text-center bg-primary text-on-primary font-label-bold text-label-bold px-6 py-2.5 rounded-lg hover:bg-primary-fixed-variant hover:text-on-primary-fixed-variant transition-all shadow-sm"
+            >
+              Support Now
+            </Link>
           </div>
         </div>
       </div>
