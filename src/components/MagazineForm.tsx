@@ -54,12 +54,12 @@ export function MagazineForm({
         <label className="font-body-md text-body-md text-on-surface">Published</label>
       </div>
 
-      <div className="flex gap-4">
+      <div className="flex flex-col sm:flex-row gap-4">
         <button type="submit" disabled={pending}
-          className="bg-primary text-on-primary font-label-bold text-label-bold px-6 py-3 rounded-lg hover:bg-primary-container hover:text-on-primary-container transition-colors disabled:opacity-50">
+          className="w-full sm:w-auto bg-primary text-on-primary font-label-bold text-label-bold px-6 py-3 rounded-lg hover:bg-primary-container hover:text-on-primary-container transition-colors disabled:opacity-50 text-center">
           {pending ? "Saving..." : revista ? "Update Magazine" : "Create Magazine"}
         </button>
-        <a href="/admin/revistas" className="bg-surface-container-high text-on-surface-variant font-label-bold text-label-bold px-6 py-3 rounded-lg hover:bg-outline-variant/30 transition-colors">Cancel</a>
+        <a href="/admin/revistas" className="w-full sm:w-auto bg-surface-container-high text-on-surface-variant font-label-bold text-label-bold px-6 py-3 rounded-lg hover:bg-outline-variant/30 transition-colors text-center">Cancel</a>
       </div>
     </form>
   )

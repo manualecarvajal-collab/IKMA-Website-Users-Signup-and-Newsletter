@@ -23,8 +23,8 @@ export default async function AdminDoctoresPage(props: {
   const { data: doctores } = await query;
 
   return (
-    <div className="p-6 md:p-8">
-      <div className="flex items-center justify-between mb-8">
+    <div className="p-4 sm:p-6 md:p-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
           <h1 className="font-headline-lg text-headline-lg text-primary">
             Doctors
@@ -35,7 +35,7 @@ export default async function AdminDoctoresPage(props: {
         </div>
         <Link
           href="/admin/doctores/nuevo"
-          className="bg-primary text-on-primary font-label-bold text-label-bold px-5 py-2.5 rounded-lg hover:bg-primary-container hover:text-on-primary-container transition-colors inline-flex items-center gap-2"
+          className="w-full sm:w-auto bg-primary text-on-primary font-label-bold text-label-bold px-5 py-2.5 rounded-lg hover:bg-primary-container hover:text-on-primary-container transition-colors inline-flex items-center justify-center gap-2"
         >
           <span className="material-symbols-outlined text-sm">add</span> New
           Doctor

@@ -1,0 +1,215 @@
+"use client"
+
+import { useEffect, useRef, useState } from "react"
+
+const stats2022 = [
+  { label: "Assisted patients", value: 260, color: "bg-[#007edc]" },
+  { label: "Delivered medication", value: 153, color: "bg-[#007edc]" },
+  { label: "Assisted pets", value: 22, color: "bg-[#b8c5d1]" },
+  { label: "Handicap visitations", value: 10, color: "bg-[#114b7e]" },
+]
+
+const max2022 = 260
+
+const chartData = {
+  months: [
+    {
+      name: "May",
+      total: 198,
+      segments: [
+        { label: "Assisted patients", value: 128, color: "bg-[#114b7e]" },
+        { label: "Delivered medication", value: 70, color: "bg-[#007edc]" },
+      ],
+    },
+    {
+      name: "June",
+      total: 345,
+      segments: [
+        { label: "Assisted patients", value: 315, color: "bg-[#114b7e]" },
+        { label: "Assisted pets", value: 30, color: "bg-[#7ce5ff]" },
+      ],
+    },
+    {
+      name: "September",
+      total: 523,
+      segments: [
+        { label: "Assisted patients", value: 325, color: "bg-[#114b7e]" },
+        { label: "Delivered medication", value: 153, color: "bg-[#007edc]" },
+        { label: "Assisted pets", value: 45, color: "bg-[#7ce5ff]" },
+      ],
+    },
+  ],
+  maxHeight: 550,
+}
+
+function Bar({ value, max, color, delay }: { value: number; max: number; color: string; delay: number }) {
+  const [w, setW] = useState(0)
+  useEffect(() => {
+    const t = setTimeout(() => setW((value / max) * 100), delay)
+    return () => clearTimeout(t)
+  }, [value, max, delay])
+  return (
+    <div className="w-full h-8 bg-slate-200 rounded-lg overflow-hidden">
+      <div className={`${color} h-full rounded-r-lg transition-all duration-1000 ease-out`} style={{ width: w + "%" }} />
+    </div>
+  )
+}
+
+function StackSegment({ value, max, color, label }: { value: number; max: number; color: string; label: string }) {
+  const [h, setH] = useState(0)
+  useEffect(() => {
+    const t = setTimeout(() => setH((value / max) * 100), 300)
+    return () => clearTimeout(t)
+  }, [value, max])
+  return (
+    <div
+      className={`${color} w-full flex items-center justify-center text-[10px] sm:text-xs font-bold text-white shadow-inner transition-all duration-1000 ease-out group-hover:opacity-90`}
+      style={{ height: h + "%" }}
+      title={label + ": " + value}
+    >
+      <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">{value}</span>
+    </div>
+  )
+}
+
+export default function StatsSection() {
+  const ref = useRef<HTMLDivElement>(null)
+  const [visible, setVisible] = useState(false)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true)
+          observer.disconnect()
+        }
+      },
+      { threshold: 0.15 }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+
+  return (
+    <div ref={ref} className="bg-white rounded-3xl shadow-xl border border-outline-variant/10 overflow-hidden p-6 md:p-12 lg:p-16 relative">
+      <div className="absolute -top-40 -right-40 w-96 h-96 bg-blue-50 rounded-full blur-3xl opacity-60 pointer-events-none" />
+      <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-sky-50 rounded-full blur-3xl opacity-60 pointer-events-none" />
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start relative z-10">
+        <div className="lg:col-span-7 xl:col-span-8 space-y-12">
+          <div className="space-y-4">
+            <span className="inline-block bg-[#007edc]/10 text-[#007edc] font-bold text-xs tracking-wider uppercase px-4 py-1.5 rounded-full">
+              Statistics
+            </span>
+            <h2 className="text-4xl md:text-5xl font-extrabold text-[#114b7e] leading-tight tracking-tight">
+              IKMA: health<br className="hidden md:inline" /> in numbers
+            </h2>
+            <p className="font-serif italic text-lg md:text-xl text-[#5fa4e6]">
+              Healthy lives, strong communities.
+            </p>
+          </div>
+
+          <div className="space-y-6">
+            <h3 className="text-xl md:text-2xl font-bold text-[#114b7e]">2022. First medical journey</h3>
+            <div className="space-y-5 bg-slate-50/50 p-6 rounded-2xl border border-outline-variant/10">
+              {stats2022.map((s, i) => (
+                <div key={s.label} className="space-y-1.5">
+                  <div className="flex justify-between text-sm">
+                    <span className="italic font-bold text-slate-700">{s.label}</span>
+                    <span className="font-extrabold text-slate-900">{s.value}</span>
+                  </div>
+                  {visible && <Bar value={s.value} max={max2022} color={s.color} delay={100 + i * 150} />}
+                  {!visible && <div className="w-full h-8 bg-slate-200 rounded-lg" />}
+                </div>
+              ))}
+              <div className="flex justify-between text-xs text-slate-400 pt-2 border-t border-slate-200/60 px-1 font-bold">
+                <span>0</span>
+                <span>260</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <h3 className="text-3xl font-extrabold text-[#114b7e]">2023</h3>
+              <div className="flex flex-wrap gap-x-4 gap-y-2 text-xs md:text-sm italic font-bold text-slate-700">
+                <div className="flex items-center gap-2">
+                  <span className="w-3.5 h-3.5 rounded-full bg-[#114b7e]" />
+                  <span>Assisted patients</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-3.5 h-3.5 rounded-full bg-[#007edc]" />
+                  <span>Delivered medication</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-3.5 h-3.5 rounded-full bg-[#7ce5ff]" />
+                  <span>Assisted pets</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-slate-50/50 p-6 rounded-2xl border border-outline-variant/10 relative">
+              <div className="absolute left-4 top-6 text-xs font-bold text-slate-400">550</div>
+              <div className="flex justify-around items-end h-80 pt-8 pb-4 relative border-l-2 border-slate-200 pl-4 sm:pl-8">
+                {chartData.months.map((month) => (
+                  <div key={month.name} className="flex flex-col items-center gap-2 w-16 sm:w-24 group">
+                    <div className="w-full flex flex-col justify-end h-64 relative rounded-t-lg overflow-hidden">
+                      {month.segments.map((seg) => (
+                        <StackSegment key={seg.label} value={seg.value} max={chartData.maxHeight} color={seg.color} label={seg.label} />
+                      ))}
+                    </div>
+                    <div className="text-center">
+                      <span className="block text-xs font-bold text-slate-700 mt-1">{month.name}</span>
+                      <span className="block text-[10px] text-slate-400 font-bold">({month.total} total)</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="flex justify-between text-xs text-slate-400 pt-2 px-1 font-bold pl-4 sm:pl-8">
+                <span>0</span>
+                <span>(Hover segments for values)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="lg:col-span-5 xl:col-span-4 flex flex-col justify-between h-full space-y-10 lg:space-y-16">
+          <div className="space-y-6 text-slate-600 leading-relaxed text-sm md:text-base">
+            <p>IKMA is an organization committed to the apostolic vision of God in the health field in several nations.</p>
+            <p>Its statistics are not mere numbers, they are the reflection of a tireless dedication and genuine commitment to conquer the mountain of medicine and to be governed by our Lord and His Christ.</p>
+            <p>The organization has been a strategic partner for the health system in Falcon, complementing government efforts and providing support to critical areas, mainly in reinforcing spiritual values in health personnel in public administration in Falcon, Venezuela.</p>
+          </div>
+
+          <div className="relative pt-6">
+            <div className="absolute -top-10 -left-6 w-full h-full bg-gradient-to-tr from-[#5fa4e6]/10 to-[#114b7e]/10 blur-xl rounded-full transform rotate-12 pointer-events-none" />
+            <div className="border-4 border-white shadow-xl relative aspect-[4/5] bg-slate-100 group overflow-hidden"
+              style={{ borderRadius: "60% 30% 10% 10% / 30% 10% 10% 10%" }}>
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 via-transparent to-transparent z-10" />
+              <img
+                src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&q=80&w=800"
+                alt="IKMA Medical Service"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                onError={handleImgError}
+              />
+              <div className="absolute bottom-4 right-6 text-white text-xs font-bold tracking-widest uppercase z-20 opacity-80">
+                IKMA
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-16 pt-6 border-t border-slate-100 flex justify-between text-[11px] md:text-xs font-bold text-[#114b7e]/60 tracking-wider">
+          <span>16 / SEPTEMBER 2025 &bull; FIRST EDITION</span>
+          <span>IKMA INTERNATIONAL</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function handleImgError(e: React.SyntheticEvent<HTMLImageElement>) {
+  const img = e.target as HTMLImageElement;
+  img.src = "https://placehold.co/400x500/114b7e/ffffff?text=IKMA+Medical+Service";
+}

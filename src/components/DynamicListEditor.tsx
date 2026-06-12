@@ -41,7 +41,8 @@ export function DynamicListEditor({
 
   return (
     <div className="border border-outline-variant/30 rounded-xl overflow-hidden">
-      <div className="overflow-x-auto">
+      {/* Desktop Table View */}
+      <div className="hidden md:block overflow-x-auto">
         <table className="w-full">
           <thead>
             <tr className="bg-surface-container-low border-b border-outline-variant/20">
@@ -84,7 +85,7 @@ export function DynamicListEditor({
                     )}
                   </td>
                 ))}
-                <td className="px-4 py-2">
+                <td className="px-4 py-2 text-right">
                   <button
                     type="button"
                     onClick={() => removeRow(i)}
@@ -99,6 +100,52 @@ export function DynamicListEditor({
           </tbody>
         </table>
       </div>
+
+      {/* Mobile Card View */}
+      <div className="md:hidden divide-y divide-outline-variant/20">
+        {items.length === 0 && (
+          <div className="px-4 py-8 text-center font-body-md text-body-md text-on-surface-variant">
+            No entries yet. Click &ldquo;Add Row&rdquo; to begin.
+          </div>
+        )}
+        {items.map((row, i) => (
+          <div key={i} className="p-4 space-y-4 relative bg-white">
+            <button
+              type="button"
+              onClick={() => removeRow(i)}
+              className="absolute top-2 right-2 text-error p-2 cursor-pointer"
+              title="Remove row"
+            >
+              <span className="material-symbols-outlined">delete</span>
+            </button>
+            {columns.map((col) => (
+              <div key={col.key} className="space-y-1">
+                <label className="block font-label-bold text-[10px] uppercase tracking-wider text-on-surface-variant/70">
+                  {col.label}
+                </label>
+                {col.type === "textarea" ? (
+                  <textarea
+                    value={row[col.key] ?? ""}
+                    onChange={(e) => updateRow(i, col.key, e.target.value)}
+                    rows={3}
+                    placeholder={col.placeholder}
+                    className="w-full bg-surface-container-low border border-outline-variant/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  />
+                ) : (
+                  <input
+                    type="text"
+                    value={row[col.key] ?? ""}
+                    onChange={(e) => updateRow(i, col.key, e.target.value)}
+                    placeholder={col.placeholder}
+                    className="w-full bg-surface-container-low border border-outline-variant/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  />
+                )}
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+
       <div className="bg-surface-container-low px-4 py-3 border-t border-outline-variant/20">
         <button
           type="button"

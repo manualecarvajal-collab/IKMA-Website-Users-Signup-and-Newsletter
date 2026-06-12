@@ -202,7 +202,7 @@ export async function createRevista(formData: FormData) {
   const { error } = await supabase.from("revistas").insert(data)
   if (error) return { error: error.message }
   revalidatePath("/admin/revistas")
-  revalidatePath("/revista")
+  revalidatePath("/revista", "layout")
   redirect("/admin/revistas")
 }
 
@@ -218,7 +218,7 @@ export async function updateRevista(id: string, formData: FormData) {
   const { error } = await supabase.from("revistas").update(data).eq("id", id)
   if (error) return { error: error.message }
   revalidatePath("/admin/revistas")
-  revalidatePath("/revista")
+  revalidatePath("/revista", "layout")
   redirect("/admin/revistas")
 }
 
@@ -226,14 +226,14 @@ export async function deleteRevista(id: string, _formData: FormData): Promise<vo
   const { supabase } = await checkAdmin()
   await supabase.from("revistas").delete().eq("id", id)
   revalidatePath("/admin/revistas")
-  revalidatePath("/revista")
+  revalidatePath("/revista", "layout")
 }
 
 export async function toggleRevistaStatus(id: string, publicado: boolean): Promise<void> {
   const { supabase } = await checkAdmin()
   await supabase.from("revistas").update({ publicado }).eq("id", id)
   revalidatePath("/admin/revistas")
-  revalidatePath("/revista")
+  revalidatePath("/revista", "layout")
 }
 
 // ─── SUBSCRIPTION ────────────────────────────────────────

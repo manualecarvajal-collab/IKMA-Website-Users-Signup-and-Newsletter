@@ -42,13 +42,13 @@ export function DoctorForm({
   const stats = doctor?.estadisticas ?? {}
 
   return (
-    <form action={formAction} className="max-w-4xl space-y-8">
+    <form action={formAction} className="max-w-4xl space-y-8 pb-10">
       {state?.error && (
         <div className="bg-error-container text-on-error-container font-body-md text-body-md px-4 py-3 rounded-lg">{state.error}</div>
       )}
 
       {/* Basic Info */}
-      <fieldset className="border border-outline-variant/30 rounded-xl p-6 space-y-6">
+      <fieldset className="border border-outline-variant/30 rounded-xl p-4 md:p-6 space-y-6">
         <legend className="font-headline-md text-headline-md text-primary px-2">Basic Information</legend>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -80,7 +80,7 @@ export function DoctorForm({
       </fieldset>
 
       {/* Stats & Rating */}
-      <fieldset className="border border-outline-variant/30 rounded-xl p-6 space-y-4">
+      <fieldset className="border border-outline-variant/30 rounded-xl p-4 md:p-6 space-y-4">
         <legend className="font-headline-md text-headline-md text-primary px-2">Stats & Rating</legend>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div>
@@ -119,7 +119,7 @@ export function DoctorForm({
       </fieldset>
 
       {/* Specialties & Languages */}
-      <fieldset className="border border-outline-variant/30 rounded-xl p-6 space-y-4">
+      <fieldset className="border border-outline-variant/30 rounded-xl p-4 md:p-6 space-y-4">
         <legend className="font-headline-md text-headline-md text-primary px-2">Specialties & Languages</legend>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
@@ -136,7 +136,7 @@ export function DoctorForm({
       </fieldset>
 
       {/* Location & Contact */}
-      <fieldset className="border border-outline-variant/30 rounded-xl p-6 space-y-4">
+      <fieldset className="border border-outline-variant/30 rounded-xl p-4 md:p-6 space-y-4">
         <legend className="font-headline-md text-headline-md text-primary px-2">Location & Contact</legend>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
@@ -158,7 +158,7 @@ export function DoctorForm({
       </fieldset>
 
       {/* Professional Experience */}
-      <fieldset className="border border-outline-variant/30 rounded-xl p-6 space-y-4">
+      <fieldset className="border border-outline-variant/30 rounded-xl p-4 md:p-6 space-y-4">
         <legend className="font-headline-md text-headline-md text-primary px-2">Professional Experience</legend>
         <DynamicListEditor
           name="experiencia"
@@ -173,7 +173,7 @@ export function DoctorForm({
       </fieldset>
 
       {/* Education */}
-      <fieldset className="border border-outline-variant/30 rounded-xl p-6 space-y-4">
+      <fieldset className="border border-outline-variant/30 rounded-xl p-4 md:p-6 space-y-4">
         <legend className="font-headline-md text-headline-md text-primary px-2">Education</legend>
         <DynamicListEditor
           name="educacion"
@@ -187,7 +187,7 @@ export function DoctorForm({
       </fieldset>
 
       {/* Certifications */}
-      <fieldset className="border border-outline-variant/30 rounded-xl p-6 space-y-4">
+      <fieldset className="border border-outline-variant/30 rounded-xl p-4 md:p-6 space-y-4">
         <legend className="font-headline-md text-headline-md text-primary px-2">Certifications</legend>
         <DynamicListEditor
           name="certificaciones"
@@ -201,7 +201,7 @@ export function DoctorForm({
       </fieldset>
 
       {/* Awards */}
-      <fieldset className="border border-outline-variant/30 rounded-xl p-6 space-y-4">
+      <fieldset className="border border-outline-variant/30 rounded-xl p-4 md:p-6 space-y-4">
         <legend className="font-headline-md text-headline-md text-primary px-2">Awards & Recognition</legend>
         <DynamicListEditor
           name="premios"
@@ -216,7 +216,7 @@ export function DoctorForm({
       </fieldset>
 
       {/* Testimonials */}
-      <fieldset className="border border-outline-variant/30 rounded-xl p-6 space-y-4">
+      <fieldset className="border border-outline-variant/30 rounded-xl p-4 md:p-6 space-y-4">
         <legend className="font-headline-md text-headline-md text-primary px-2">Testimonials</legend>
         <DynamicListEditor
           name="testimonios"
@@ -237,12 +237,12 @@ export function DoctorForm({
       </div>
 
       {/* Actions */}
-      <div className="flex gap-4">
+      <div className="flex flex-col sm:flex-row gap-4">
         <button type="submit" disabled={pending}
-          className="bg-primary text-on-primary font-label-bold text-label-bold px-6 py-3 rounded-lg hover:bg-primary-container hover:text-on-primary-container transition-colors disabled:opacity-50">
+          className="w-full sm:w-auto bg-primary text-on-primary font-label-bold text-label-bold px-6 py-3 rounded-lg hover:bg-primary-container hover:text-on-primary-container transition-colors disabled:opacity-50 text-center">
           {pending ? "Saving..." : doctor ? "Update Doctor" : "Create Doctor"}
         </button>
-        <a href="/admin/doctores" className="bg-surface-container-high text-on-surface-variant font-label-bold text-label-bold px-6 py-3 rounded-lg hover:bg-outline-variant/30 transition-colors">Cancel</a>
+        <a href="/admin/doctores" className="w-full sm:w-auto bg-surface-container-high text-on-surface-variant font-label-bold text-label-bold px-6 py-3 rounded-lg hover:bg-outline-variant/30 transition-colors text-center">Cancel</a>
       </div>
     </form>
   )

@@ -66,13 +66,14 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
 
   const relatedArticles = await getRelatedArticles(slug)
 
-  const { data: latestMagazine } = await supabase
+  const { data: magazines } = await supabase
     .from("revistas")
-    .select("id, imagen_portada, titulo, archivo_url")
+    .select("id, titulo, descripcion, archivo_url, imagen_portada")
     .eq("publicado", true)
     .order("fecha_publicacion", { ascending: false })
-    .limit(1)
-    .maybeSingle()
+    .limit(3)
+
+  const latestMagazineId = magazines?.[0]?.id
 
   const authorAvatar = article.autor_avatar_url ||
     `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(article.autor_nombre || "IKMA")}&backgroundColor=074469&textColor=ffffff`
@@ -117,28 +118,46 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
           {/* Right Column — Sidebar */}
           <div className="md:pl-6">
             <div className="sticky top-28 space-y-6">
-              {/* Magazine Cover */}
-              <div className="w-full aspect-[3/4] rounded-xl overflow-hidden bg-surface-container-high shadow-sm">
-                {latestMagazine?.imagen_portada ? (
-                  <a href={latestMagazine.archivo_url || "#"} target="_blank" rel="noopener noreferrer">
-                    <img src={latestMagazine.imagen_portada} alt={latestMagazine.titulo} className="w-full h-full object-cover hover:opacity-90 transition-opacity" />
-                  </a>
-                ) : (
-                  <img src="/images/magazine.png" alt="IKMA Journal" className="w-full h-full object-cover" />
-                )}
-              </div>
-
-              {/* Newsletter CTA */}
-              <div>
-                <p className="font-body-md text-body-md text-on-surface-variant mb-4">
-                  Find this and more articles about faith in medicine in our Newsletter.
-                </p>
-                <DownloadPopup
-                  isAuthenticated={!!user}
-                  isSubscribed={!!perfil?.suscripcion_activa}
-                  revistaId={latestMagazine?.id}
-                />
-              </div>
+              {magazines && magazines.length > 0 && (
+                <div className="bg-surface-container-low rounded-xl p-5 shadow-sm border border-outline-variant/20">
+                  <div className="flex items-center gap-2 mb-4">
+                    <span className="material-symbols-outlined text-xl text-primary">menu_book</span>
+                    <h3 className="font-headline-md text-headline-md text-primary text-sm">Latest Magazines</h3>
+                  </div>
+                  <div className="space-y-3 mb-4">
+                    {magazines.map((m) => (
+                      <a
+                        key={m.id}
+                        href={m.archivo_url || "#"}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex gap-3 bg-white rounded-lg overflow-hidden hover:shadow-md transition-shadow group p-2"
+                      >
+                        {m.imagen_portada ? (
+                          <div className="w-16 h-20 shrink-0 rounded overflow-hidden bg-surface-variant">
+                            <img src={m.imagen_portada} alt={m.titulo} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                          </div>
+                        ) : (
+                          <div className="w-16 h-20 shrink-0 rounded bg-surface-container-high flex items-center justify-center">
+                            <span className="material-symbols-outlined text-2xl text-on-surface-variant/30">description</span>
+                          </div>
+                        )}
+                        <div className="min-w-0">
+                          <h4 className="font-label-bold text-label-sm text-on-surface group-hover:text-primary transition-colors truncate">{m.titulo}</h4>
+                          {m.descripcion && (
+                            <p className="font-body-md text-body-md text-on-surface-variant text-xs mt-0.5 line-clamp-2">{m.descripcion}</p>
+                          )}
+                        </div>
+                      </a>
+                    ))}
+                  </div>
+                  <DownloadPopup
+                    isAuthenticated={!!user}
+                    isSubscribed={!!perfil?.suscripcion_activa}
+                    revistaId={latestMagazineId}
+                  />
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -54,9 +54,11 @@ export function ArticleForm({
         <p className="font-body-md text-body-md text-on-surface-variant text-sm mt-1">Slug: {slugify(title) || "..."}</p>
       </div>
 
-      <div className="flex items-start gap-6">
-        <AvatarUpload name="autor_avatar_url" defaultValue={article?.autor_avatar_url} />
-        <div className="flex-1">
+      <div className="flex flex-col sm:flex-row items-start gap-6">
+        <div className="mx-auto sm:mx-0">
+          <AvatarUpload name="autor_avatar_url" defaultValue={article?.autor_avatar_url} />
+        </div>
+        <div className="flex-1 w-full">
           <label className="block font-label-bold text-label-sm text-on-surface-variant mb-1.5">Author Name</label>
           <input name="autor_nombre" defaultValue={article?.autor_nombre ?? ""}
             className="w-full bg-surface-container-low border border-outline-variant/50 rounded-lg px-4 py-3 font-body-md text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30" />
@@ -82,12 +84,12 @@ export function ArticleForm({
         <label className="font-body-md text-body-md text-on-surface">Published</label>
       </div>
 
-      <div className="flex gap-4">
+      <div className="flex flex-col sm:flex-row gap-4">
         <button type="submit" disabled={pending}
-          className="bg-primary text-on-primary font-label-bold text-label-bold px-6 py-3 rounded-lg hover:bg-primary-container hover:text-on-primary-container transition-colors disabled:opacity-50">
+          className="w-full sm:w-auto bg-primary text-on-primary font-label-bold text-label-bold px-6 py-3 rounded-lg hover:bg-primary-container hover:text-on-primary-container transition-colors disabled:opacity-50 text-center">
           {pending ? "Saving..." : article ? "Update Article" : "Create Article"}
         </button>
-        <a href="/admin/articulos" className="bg-surface-container-high text-on-surface-variant font-label-bold text-label-bold px-6 py-3 rounded-lg hover:bg-outline-variant/30 transition-colors">Cancel</a>
+        <a href="/admin/articulos" className="w-full sm:w-auto bg-surface-container-high text-on-surface-variant font-label-bold text-label-bold px-6 py-3 rounded-lg hover:bg-outline-variant/30 transition-colors text-center">Cancel</a>
       </div>
     </form>
   )

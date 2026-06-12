@@ -21,6 +21,16 @@ export default async function HomePage() {
   const featuredDoctors =
     dbDoctors && dbDoctors.length > 0 ? dbDoctors : staticDoctors.slice(0, 3);
 
+  const { data: dbArticles } = await supabase
+    .from("articulos")
+    .select("*")
+    .eq("publicado", true)
+    .order("created_at", { ascending: false })
+    .limit(4);
+
+  const mainArticle = dbArticles?.[0];
+  const sideArticles = dbArticles?.slice(1, 4) || [];
+
   return (
     <>
       {/* Hero Section */}
@@ -87,118 +97,72 @@ export default async function HomePage() {
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-gutter">
-            <Link
-              href="/revista/expandiendo-atencion-rural"
-              className="flex flex-col group cursor-pointer"
-            >
-              <div className="w-full h-64 rounded-lg overflow-hidden mb-6 bg-surface-variant shadow-sm relative group-hover:shadow-[0_20px_20px_0_rgba(7,68,105,0.04)] group-hover:-translate-y-1 transition-all duration-300">
-                <img
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuBtj2_UADzENxPpAypwUlKOXfP4jAXr84LcletR9iXHB7vovWFIWSQiZFVZRPT7e6_LM5aNm6bEBZw9XR5qvQvHobmdV_ZfS-CA5L4wSdrTn_nlrJnLw910ii3aW6ZYDJGjQkh9GAobbDlZPu0zWNvwI1apafl-vBpzM_9UOSl7BSoCR1cGNw8-bOoiYqllNt8jRpH48udSBxjEVVI_F8iyOxgHBaubo2ewEdVyxhUozTUsrhStCgmDviC_m5vimSP9-T2lyLb5Qn8"
-                  alt="Medical supplies being prepared"
-                  className="w-full h-full object-cover"
-                />
+            {mainArticle ? (
+              <Link
+                href={`/revista/${mainArticle.slug}`}
+                className="flex flex-col group cursor-pointer"
+              >
+                <div className="w-full h-64 rounded-lg overflow-hidden mb-6 bg-surface-variant shadow-sm relative group-hover:shadow-[0_20px_20px_0_rgba(7,68,105,0.04)] group-hover:-translate-y-1 transition-all duration-300">
+                  <img
+                    src={mainArticle.imagen_url || "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=1000"}
+                    alt={mainArticle.titulo}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="flex items-center mb-3">
+                  <span className="bg-secondary-container text-on-secondary-container font-label-sm text-label-sm px-3 py-1 rounded-full uppercase tracking-wider">
+                    {mainArticle.categoria || "Mission Update"}
+                  </span>
+                </div>
+                <h3 className="font-headline-md text-headline-md text-on-surface mb-3 group-hover:text-primary transition-colors">
+                  {mainArticle.titulo}
+                </h3>
+                <p className="font-body-md text-body-md text-on-surface-variant line-clamp-2 mb-4">
+                  {mainArticle.resumen}
+                </p>
+                <div className="flex items-center text-primary font-semibold space-x-1">
+                  <span>Read More</span>
+                  <span className="material-symbols-outlined text-lg">
+                    arrow_forward
+                  </span>
+                </div>
+              </Link>
+            ) : (
+              <div className="flex flex-col items-center justify-center p-12 bg-surface-container-low rounded-xl border border-dashed border-outline-variant/50">
+                <p className="text-on-surface-variant">No articles published yet.</p>
               </div>
-              <div className="flex items-center mb-3">
-                <span className="bg-secondary-container text-on-secondary-container font-label-sm text-label-sm px-3 py-1 rounded-full uppercase tracking-wider">
-                  Mission Update
-                </span>
-              </div>
-              <h3 className="font-headline-md text-headline-md text-on-surface mb-3 group-hover:text-primary transition-colors">
-                Expanding Care in Rural Communities
-              </h3>
-              <p className="font-body-md text-body-md text-on-surface-variant line-clamp-2 mb-4">
-                Our latest initiative has successfully established three new
-                mobile clinics, bringing essential pediatric and maternal care
-                to previously unreached regions.
-              </p>
-              <div className="flex items-center text-primary font-semibold space-x-1">
-                <span>Read More</span>
-                <span className="material-symbols-outlined text-lg">
-                  arrow_forward
-                </span>
-              </div>
-            </Link>
+            )}
+            
             <div className="flex flex-col space-y-6">
-              <Link
-                href="/revista/recuperacion-maria"
-                className="flex space-x-3 sm:space-x-4 p-3 sm:p-4 rounded-lg hover:bg-surface-container transition-colors cursor-pointer group"
-              >
-                <div className="w-20 sm:w-24 h-20 sm:h-24 rounded-lg overflow-hidden flex-shrink-0 bg-surface-variant">
-                  <img
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuD4UImxzKlQG1xEgUib0LCmX5PloStnSX8JKONE1ppvULsfXyL_j8czGSN-WTspKXccjm68nKpBBqpY7PXru8I749gQnOl9UiTNo1uxh_e171GPTj1cB3FyXZflYO73khwbZReyZqjRM8be-zv1JduZty_FsoalyBJ9AJsGLxNzaP7_6886clLzQ3CPrYdXW7LBNQuGcbsaEw2T7ohxEZBp1znmPUIq9Zt4HO_ZtQnCeE7mywsNIdBqFWJ1PM_iWh7h1Jfrj3DO9uY"
-                    alt="Hands holding a growing plant"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div>
-                  <span className="text-[10px] font-bold text-tertiary uppercase tracking-tighter">
-                    Patient Story
-                  </span>
-                  <h4 className="font-bold text-on-surface group-hover:text-primary transition-colors">
-                    Maria&apos;s Recovery
-                  </h4>
-                  <p className="text-sm text-on-surface-variant line-clamp-1">
-                    Life-saving cardiovascular surgery for a young mother.
-                  </p>
-                  <span className="text-xs font-bold text-primary mt-1 hover:underline inline-block">
-                    Read More
-                  </span>
-                </div>
-              </Link>
-              <Link
-                href="/revista/excelencia-medica-fe"
-                className="flex space-x-3 sm:space-x-4 p-3 sm:p-4 rounded-lg hover:bg-surface-container transition-colors cursor-pointer group"
-              >
-                <div className="w-20 sm:w-24 h-20 sm:h-24 rounded-lg overflow-hidden flex-shrink-0 bg-surface-variant">
-                  <img
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuBV8zbc1VsO7_tMSGR2RBmy6wM6vk-VcvPAmV4KSqnAbpXaDgYRIA4gYQ3-WCdTkOes_cs4xLagdchqy5qS9UUKg5g00jrHqRcErnzU_2ZeQSakEnHY73GpQash7mHRT7Iuq0cN_OvZe-XsB-AQAYHsh5sq8Ahn4JLhRpUTUlw_uxTaPGQxvuPedNh1Dq7dA_0XvAnBpHbBF9DJOBP8O9D3Dz9QZbEBOmLAOzuhKLhDG3VygVGyw52wlxyqJ3gmZkKMlPq-lB7rbyM"
-                    alt="Medical staff in hallway"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div>
-                  <span className="text-[10px] font-bold text-primary uppercase tracking-tighter">
-                    Excellence
-                  </span>
-                  <h4 className="font-bold text-on-surface group-hover:text-primary transition-colors">
-                    Medical Excellence in Faith-Based Care
-                  </h4>
-                  <p className="text-sm text-on-surface-variant line-clamp-1">
-                    How we integrate spiritual values with world-class medical
-                    standards.
-                  </p>
-                  <span className="text-xs font-bold text-primary mt-1 hover:underline inline-block">
-                    Read More
-                  </span>
-                </div>
-              </Link>
-              <Link
-                href="/revista/impacto-comunitario-voluntario"
-                className="flex space-x-3 sm:space-x-4 p-3 sm:p-4 rounded-lg hover:bg-surface-container transition-colors cursor-pointer group"
-              >
-                <div className="w-20 sm:w-24 h-20 sm:h-24 rounded-lg overflow-hidden flex-shrink-0 bg-surface-variant">
-                  <img
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuC03_6DfzYX6va02PtEg3uKMPfTx9qbP8biGLZEhm8sEMuealLUGntsFSVusJL0QXkADDx9gZOIuptHYPMo7p4pnF_VozdK6foynOWpU3UaECPZVXPi-j2N7Jt67k0DmWCKosPiLm7qqzVUzoufv17qV9viiOaJZKSdDhnC10JcHCdM93uM9TaOcPiGn35JooQuYUO9TyMbycXRplAvqVl6o6DCSCNroMN2eDBoYgOWWXly5cqPBKrTRMslsUAkCb5InkQc2xwvFbU"
-                    alt="Doctor smiling"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div>
-                  <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-tighter">
-                    Community News
-                  </span>
-                  <h4 className="font-bold text-on-surface group-hover:text-primary transition-colors">
-                    Community Spotlight: Volunteer Impact
-                  </h4>
-                  <p className="text-sm text-on-surface-variant line-clamp-1">
-                    Celebrating the dedicated individuals who make our missions
-                    possible.
-                  </p>
-                  <span className="text-xs font-bold text-primary mt-1 hover:underline inline-block">
-                    Read More
-                  </span>
-                </div>
-              </Link>
+              {sideArticles.map((article) => (
+                <Link
+                  key={article.id}
+                  href={`/revista/${article.slug}`}
+                  className="flex space-x-3 sm:space-x-4 p-3 sm:p-4 rounded-lg hover:bg-surface-container transition-colors cursor-pointer group"
+                >
+                  <div className="w-20 sm:w-24 h-20 sm:h-24 rounded-lg overflow-hidden flex-shrink-0 bg-surface-variant">
+                    <img
+                      src={article.imagen_url || "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=1000"}
+                      alt={article.titulo}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-bold text-tertiary uppercase tracking-tighter">
+                      {article.categoria || "Article"}
+                    </span>
+                    <h4 className="font-bold text-on-surface group-hover:text-primary transition-colors line-clamp-1">
+                      {article.titulo}
+                    </h4>
+                    <p className="text-sm text-on-surface-variant line-clamp-1">
+                      {article.resumen}
+                    </p>
+                    <span className="text-xs font-bold text-primary mt-1 hover:underline inline-block">
+                      Read More
+                    </span>
+                  </div>
+                </Link>
+              ))}
             </div>
           </div>
           <div className="mt-10 text-center">

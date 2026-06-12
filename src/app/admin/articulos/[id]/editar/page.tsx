@@ -12,7 +12,7 @@ export default async function EditarArticuloPage({ params }: { params: Promise<{
   const updateWithId = updateArticle.bind(null, id)
 
   return (
-    <div className="p-6 md:p-8">
+    <div className="p-4 sm:p-6 md:p-8">
       <h1 className="font-headline-lg text-headline-lg text-primary mb-8">Edit Article</h1>
       <ArticleForm action={updateWithId} article={article} />
     </div>

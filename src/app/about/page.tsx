@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import StatsSection from "@/components/StatsSection";
 
 export const metadata: Metadata = {
   title: "About Us - IKMA",
@@ -87,6 +88,12 @@ export default function AboutPage() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      <section className="py-12 md:py-section-padding bg-surface">
+        <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+          <StatsSection />
         </div>
       </section>
 
