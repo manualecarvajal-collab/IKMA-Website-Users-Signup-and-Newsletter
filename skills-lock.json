@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "skills": {
+    "frontend-design": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "skillPath": "skills/frontend-design/SKILL.md",
+      "computedHash": "93f53fd1c0352d3d7ec17b8f73d7351bf76f4821e55d123c9d2abc2c53ba48e4"
+    },
+    "git-ci": {
+      "source": "dmythro/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/git-ci/SKILL.md",
+      "computedHash": "86da013cb853364ba4d895a6d4677837af4f65973c963b3b7d2467e35b9d7d40"
+    }
+  }
+}

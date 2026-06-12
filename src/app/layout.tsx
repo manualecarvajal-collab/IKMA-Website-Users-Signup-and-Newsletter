@@ -3,6 +3,7 @@ import { Montserrat } from "next/font/google"
 import "./globals.css"
 import Navbar from "@/components/Navbar"
 import Footer from "@/components/Footer"
+import ToastContainer from "@/components/Toast"
 import { createClient } from "@/lib/supabase/server"
 
 export const dynamic = "force-dynamic"
@@ -68,6 +69,7 @@ export default async function RootLayout({
         <Navbar initialUser={userInfo} />
         <main className="flex-grow">{children}</main>
         <Footer />
+        <ToastContainer />
       </body>
     </html>
   )

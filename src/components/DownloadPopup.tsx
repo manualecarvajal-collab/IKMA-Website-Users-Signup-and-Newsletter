@@ -3,10 +3,23 @@
 import { useState, useEffect, useCallback } from "react"
 import { createPortal } from "react-dom"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { showToast } from "./Toast"
+import { sendMagazineToEmail } from "@/lib/supabase/admin-actions"
 
-export default function DownloadPopup() {
+export default function DownloadPopup({
+  isAuthenticated,
+  isSubscribed,
+  revistaId,
+}: {
+  isAuthenticated: boolean
+  isSubscribed: boolean
+  revistaId?: string
+}) {
   const [open, setOpen] = useState(false)
   const [timeLeft, setTimeLeft] = useState(600)
+  const [loading, setLoading] = useState(false)
+  const router = useRouter()
 
   useEffect(() => {
     if (!open) return
@@ -23,18 +36,51 @@ export default function DownloadPopup() {
     return `${m}:${s.toString().padStart(2, "0")}`
   }, [timeLeft])
 
-  const resetTimer = () => {
-    setTimeLeft(600)
-    setOpen(true)
+  const handleClick = async () => {
+    if (!isAuthenticated) {
+      router.push("/registro")
+      return
+    }
+
+    if (!isSubscribed) {
+      setTimeLeft(600)
+      setOpen(true)
+      return
+    }
+
+    if (!revistaId) {
+      showToast("No magazine available for download", "error")
+      return
+    }
+
+    // Is subscribed
+    setLoading(true)
+    try {
+      const result = await sendMagazineToEmail(revistaId, "")
+      if (result.success) {
+        showToast("The magazine has been sent to your registered email successfully", "success")
+      } else if (result.error) {
+        showToast(result.error, "error")
+        // Si el error dice que no está activa, refrescamos la página para actualizar el estado del componente
+        if (result.error.includes("Subscription not active")) {
+          router.refresh()
+        }
+      }
+    } catch (err) {
+      showToast("An error occurred while sending the magazine", "error")
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
     <>
       <button
-        onClick={resetTimer}
-        className="w-full bg-primary text-on-primary font-label-bold text-label-bold px-6 py-3 rounded-lg hover:bg-primary/90 transition-all cursor-pointer"
+        onClick={handleClick}
+        disabled={loading}
+        className="w-full bg-primary text-on-primary font-label-bold text-label-bold px-6 py-3 rounded-lg hover:bg-primary/90 transition-all cursor-pointer disabled:opacity-50"
       >
-        Download PDF
+        {loading ? "Sending..." : "Download PDF"}
       </button>
 
       {open && typeof document !== "undefined" && createPortal(
@@ -60,7 +106,7 @@ export default function DownloadPopup() {
               </div>
 
               <Link
-                href="/registro"
+                href="/suscripcion-exito"
                 className="block w-full bg-primary text-on-primary font-label-bold text-label-bold px-6 py-3 rounded-lg hover:bg-primary/90 transition-all mb-3"
               >
                 Subscribe Now

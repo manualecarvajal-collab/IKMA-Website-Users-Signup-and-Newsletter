@@ -30,8 +30,30 @@ async function getArticles(): Promise<Article[]> {
   return (data ?? []) as Article[]
 }
 
+interface Revista {
+  id: string
+  titulo: string
+  descripcion: string | null
+  archivo_url: string | null
+  imagen_portada: string | null
+  publicado: boolean
+  created_at: string
+}
+
+async function getMagazines(): Promise<Revista[]> {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from("revistas")
+    .select("*")
+    .eq("publicado", true)
+    .order("fecha_publicacion", { ascending: false })
+    .limit(3)
+  return (data ?? []) as Revista[]
+}
+
 export default async function RevistaPage() {
   const articles = await getArticles()
+  const magazines = await getMagazines()
 
   return (
     <>
@@ -147,6 +169,54 @@ export default async function RevistaPage() {
               </button>
             </div>
           </div>
+
+          {/* Magazines Ticket */}
+          {magazines.length > 0 && (
+            <section className="bg-surface-container-low py-12">
+              <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+                <div className="bg-white rounded-xl p-8 shadow-sm border border-outline-variant/20">
+                  <div className="flex items-center gap-4 mb-6">
+                    <span className="material-symbols-outlined text-4xl text-primary">menu_book</span>
+                    <div>
+                      <h2 className="font-headline-lg text-headline-lg text-primary">
+                        Check out our latest posted magazines
+                      </h2>
+                      <p className="font-body-md text-body-md text-on-surface-variant">
+                        Download the most recent IKMA journals and newsletters.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                    {magazines.map((m) => (
+                      <a
+                        key={m.id}
+                        href={m.archivo_url || "#"}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex flex-col bg-surface-container-low rounded-lg overflow-hidden hover:shadow-md transition-shadow group"
+                      >
+                        {m.imagen_portada ? (
+                          <div className="aspect-[3/4] w-full overflow-hidden bg-surface-variant">
+                            <img src={m.imagen_portada} alt={m.titulo} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                          </div>
+                        ) : (
+                          <div className="aspect-[3/4] w-full bg-surface-container-high flex items-center justify-center">
+                            <span className="material-symbols-outlined text-5xl text-on-surface-variant/30">description</span>
+                          </div>
+                        )}
+                        <div className="p-4">
+                          <h3 className="font-headline-md text-headline-md text-on-surface group-hover:text-primary transition-colors text-sm">{m.titulo}</h3>
+                          {m.descripcion && (
+                            <p className="font-body-md text-body-md text-on-surface-variant text-xs mt-1 line-clamp-2">{m.descripcion}</p>
+                          )}
+                        </div>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </section>
+          )}
         </>
       )}
     </>

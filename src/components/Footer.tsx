@@ -1,9 +1,14 @@
+"use client"
+
 import Image from "next/image"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 
 export default function Footer() {
+  const pathname = usePathname()
+  const isAdmin = pathname.startsWith("/admin")
   return (
-    <footer className="bg-surface-container-low border-t border-outline-variant">
+    <footer className={`bg-surface-container-low border-t border-outline-variant ${isAdmin ? "hidden" : ""}`}>
       <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-12 md:py-section-padding grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 md:gap-gutter font-body-md text-body-md">
         <div className="sm:col-span-2">
           <Image src="/logo.png" alt="IKMA Logo" width={160} height={48} className="h-8 w-auto mb-4" />

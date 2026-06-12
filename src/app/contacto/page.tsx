@@ -28,7 +28,7 @@ export default function ContactPage() {
         <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
             {/* Form */}
-            <div className="lg:col-span-7 bg-surface rounded-xl p-8 md:p-12 shadow-[0_20px_20px_0_rgba(7,68,105,0.04)]">
+            <div className="lg:col-span-8 bg-surface rounded-xl p-8 md:p-12 shadow-[0_20px_20px_0_rgba(7,68,105,0.04)]">
               <h2 className="font-headline-md text-headline-md text-primary mb-8">
                 Send a Message
               </h2>
@@ -118,7 +118,7 @@ export default function ContactPage() {
               </form>
             </div>
             {/* Contact Info */}
-            <div className="lg:col-span-5 flex flex-col gap-gutter">
+            <div className="lg:col-span-4 flex flex-col gap-gutter">
               <div className="bg-surface-container rounded-xl p-8 flex-grow">
                 <h3 className="font-headline-md text-headline-md text-primary mb-6">
                   Contact Information

@@ -15,9 +15,9 @@ export default function LoginPage() {
 
   return (
     <section className="py-section-padding">
-      <div className="max-w-md mx-auto px-margin-mobile md:px-margin-desktop">
+      <div className="max-w-lg mx-auto px-margin-mobile md:px-margin-desktop">
         <div className="bg-surface rounded-xl p-8 md:p-12 shadow-[0_20px_20px_0_rgba(7,68,105,0.04)] border border-outline-variant/20">
-          <h1 className="font-headline-lg text-headline-lg text-primary mb-2">Welcome Back</h1>
+          <h1 className="font-headline-lg text-headline-md text-primary mb-2">Welcome Back</h1>
           <p className="font-body-md text-body-md text-on-surface-variant mb-8">Sign in to your IKMA account.</p>
 
           <form action={action} className="space-y-6">

@@ -15,9 +15,9 @@ export default function RegistroPage() {
 
   return (
     <section className="py-section-padding">
-      <div className="max-w-md mx-auto px-margin-mobile md:px-margin-desktop">
+      <div className="max-w-lg mx-auto px-margin-mobile md:px-margin-desktop">
         <div className="bg-surface rounded-xl p-8 md:p-12 shadow-[0_20px_20px_0_rgba(7,68,105,0.04)] border border-outline-variant/20">
-          <h1 className="font-headline-lg text-headline-lg text-primary mb-2">Create Account</h1>
+          <h1 className="font-headline-lg text-headline-md text-primary mb-2">Create Account</h1>
           <p className="font-body-md text-body-md text-on-surface-variant mb-8">
             Join the IKMA community. Registration is free.
           </p>

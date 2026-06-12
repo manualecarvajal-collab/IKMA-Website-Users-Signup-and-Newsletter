@@ -40,9 +40,18 @@ export default async function HomePage() {
             Join us in making a profound impact on communities worldwide.
           </p>
           <div className="flex flex-row items-center justify-center gap-3 sm:gap-4 pt-4">
-            <button className="bg-primary text-on-primary font-label-bold text-label-bold px-8 py-3.5 rounded-lg hover:bg-primary/90 transition-all shadow-[0_8px_16px_0_rgba(7,68,105,0.1)] active:scale-95 cursor-pointer text-center">
-              Support Our Mission
-            </button>
+            {isAuthenticated ? (
+              <Link
+                href="/suscripcion-exito"
+                className="bg-primary text-on-primary font-label-bold text-label-bold px-8 py-3.5 rounded-lg hover:bg-primary/90 transition-all shadow-[0_8px_16px_0_rgba(7,68,105,0.1)] active:scale-95 text-center inline-block"
+              >
+                Support Our Mission
+              </Link>
+            ) : (
+              <button disabled className="bg-primary/40 text-on-primary/60 font-label-bold text-label-bold px-8 py-3.5 rounded-lg shadow-sm cursor-not-allowed">
+                Support Our Mission
+              </button>
+            )}
             {!isAuthenticated && (
               <Link
                 href="/registro"
@@ -210,7 +219,7 @@ export default async function HomePage() {
             <h2 className="font-headline-lg text-headline-lg text-primary mb-2">
               Our Doctors
             </h2>
-            <p className="font-body-lg text-body-md text-on-surface-variant">
+            <p className="font-body-lg text- text-on-surface-variant">
               Meet the dedicated medical professionals combining clinical
               excellence with deep compassion.
             </p>

@@ -51,6 +51,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
   const article = await getArticle(slug)
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
+  const { data: perfil } = user ? await supabase.from("perfiles").select("suscripcion_activa").eq("id", user.id).single() : { data: null }
 
   if (!article) {
     return (
@@ -64,6 +65,15 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
   }
 
   const relatedArticles = await getRelatedArticles(slug)
+
+  const { data: latestMagazine } = await supabase
+    .from("revistas")
+    .select("id, imagen_portada, titulo, archivo_url")
+    .eq("publicado", true)
+    .order("fecha_publicacion", { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
   const authorAvatar = article.autor_avatar_url ||
     `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(article.autor_nombre || "IKMA")}&backgroundColor=074469&textColor=ffffff`
 
@@ -109,7 +119,13 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
             <div className="sticky top-28 space-y-6">
               {/* Magazine Cover */}
               <div className="w-full aspect-[3/4] rounded-xl overflow-hidden bg-surface-container-high shadow-sm">
-                <img src="/images/magazine.png" alt="IKMA Journal" className="w-full h-full object-cover" />
+                {latestMagazine?.imagen_portada ? (
+                  <a href={latestMagazine.archivo_url || "#"} target="_blank" rel="noopener noreferrer">
+                    <img src={latestMagazine.imagen_portada} alt={latestMagazine.titulo} className="w-full h-full object-cover hover:opacity-90 transition-opacity" />
+                  </a>
+                ) : (
+                  <img src="/images/magazine.png" alt="IKMA Journal" className="w-full h-full object-cover" />
+                )}
               </div>
 
               {/* Newsletter CTA */}
@@ -117,7 +133,11 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                 <p className="font-body-md text-body-md text-on-surface-variant mb-4">
                   Find this and more articles about faith in medicine in our Newsletter.
                 </p>
-                <DownloadPopup />
+                <DownloadPopup
+                  isAuthenticated={!!user}
+                  isSubscribed={!!perfil?.suscripcion_activa}
+                  revistaId={latestMagazine?.id}
+                />
               </div>
             </div>
           </div>

@@ -1,8 +1,9 @@
 import Link from "next/link"
-import { createClient } from "@/lib/supabase/server"
+import { createClient, createAdminClient } from "@/lib/supabase/server"
 
 export default async function AdminDashboard() {
   const supabase = await createClient()
+  const admin = await createAdminClient()
 
   const { count: articulosPub } = await supabase
     .from("articulos").select("*", { count: "exact", head: true }).eq("publicado", true)
@@ -13,10 +14,19 @@ export default async function AdminDashboard() {
   const { count: doctoresTotal } = await supabase
     .from("doctores").select("*", { count: "exact", head: true })
 
+  // Use admin client (service_role) to bypass RLS and get real counts
+  const { count: suscripActiva } = await admin
+    .from("perfiles").select("*", { count: "exact", head: true }).eq("suscripcion_activa", true)
+  const { count: perfilesTotal } = await admin
+    .from("perfiles").select("*", { count: "exact", head: true })
+  const { data: authData } = await admin.auth.admin.listUsers()
+  const usuariosTotal = authData?.users?.length ?? 0
+  const soloRegistrados = usuariosTotal - (suscripActiva ?? 0)
+
   return (
     <div className="p-6 md:p-8">
       <h1 className="font-headline-lg text-headline-lg text-primary mb-8">Dashboard</h1>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-gutter">
         <div className="bg-surface-container-lowest rounded-xl p-6 border border-outline-variant/10 shadow-sm">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-full bg-primary-container/20 flex items-center justify-center">
@@ -37,8 +47,56 @@ export default async function AdminDashboard() {
           <p className="font-headline-xl text-headline-xl text-primary">{doctoresTotal ?? 0}</p>
           <p className="font-body-md text-body-md text-on-surface-variant mt-1">{doctoresPub ?? 0} published</p>
         </div>
+        <div className="bg-surface-container-lowest rounded-xl p-6 border border-outline-variant/10 shadow-sm">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-full bg-primary-container/20 flex items-center justify-center">
+              <span className="material-symbols-outlined text-primary">group</span>
+            </div>
+            <span className="font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider">Users</span>
+          </div>
+          <div className="flex items-end justify-between mb-1">
+            <p className="font-headline-xl text-headline-xl text-primary">{usuariosTotal}</p>
+            <Link 
+              href="/admin/suscriptores"
+              className="text-primary font-label-bold text-label-sm hover:underline flex items-center gap-1 mb-1"
+            >
+              Manage <span className="material-symbols-outlined text-sm">open_in_new</span>
+            </Link>
+          </div>
+
+          <div className="mt-4 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="flex items-center gap-2 font-label-bold text-label-sm text-on-surface-variant">
+                <span className="w-3 h-3 rounded-full bg-tertiary" />
+                Paid Subscribers
+              </span>
+              <span className="font-label-bold text-label-sm text-on-surface">{suscripActiva}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="flex items-center gap-2 font-label-bold text-label-sm text-on-surface-variant">
+                <span className="w-3 h-3 rounded-full bg-surface-container-high" />
+                Free Users
+              </span>
+              <span className="font-label-bold text-label-sm text-on-surface">{soloRegistrados}</span>
+            </div>
+          </div>
+
+          <div className="mt-4 w-full bg-surface-container-high rounded-full h-4 overflow-hidden flex">
+            <div
+              className="bg-tertiary h-4 transition-all duration-500"
+              style={{ width: `${usuariosTotal ? Math.round(((suscripActiva ?? 0) / usuariosTotal) * 100) : 0}%` }}
+            />
+            <div
+              className="bg-surface-container-high h-4 transition-all duration-500"
+              style={{ width: `${usuariosTotal ? Math.round((soloRegistrados / usuariosTotal) * 100) : 100}%` }}
+            />
+          </div>
+          <p className="font-body-md text-body-md text-on-surface-variant mt-2">
+            {suscripActiva ?? 0} of {usuariosTotal} users have an active subscription ({usuariosTotal ? Math.round(((suscripActiva ?? 0) / usuariosTotal) * 100) : 0}%)
+          </p>
+        </div>
       </div>
-      <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-gutter">
+      <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter">
         <Link href="/admin/articulos" className="bg-surface-container-low rounded-xl p-6 border border-outline-variant/10 hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-headline-md text-headline-md text-primary">Manage Articles</h2>
@@ -52,6 +110,20 @@ export default async function AdminDashboard() {
             <span className="material-symbols-outlined text-primary">arrow_forward</span>
           </div>
           <p className="font-body-md text-body-md text-on-surface-variant">Create, edit, and publish doctor profiles</p>
+        </Link>
+        <Link href="/admin/revistas" className="bg-surface-container-low rounded-xl p-6 border border-outline-variant/10 hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-headline-md text-headline-md text-primary">Manage Magazines</h2>
+            <span className="material-symbols-outlined text-primary">arrow_forward</span>
+          </div>
+          <p className="font-body-md text-body-md text-on-surface-variant">Upload, publish, and send PDF magazines</p>
+        </Link>
+        <Link href="/admin/suscriptores" className="bg-surface-container-low rounded-xl p-6 border border-outline-variant/10 hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-headline-md text-headline-md text-primary">Manage Users</h2>
+            <span className="material-symbols-outlined text-primary">arrow_forward</span>
+          </div>
+          <p className="font-body-md text-body-md text-on-surface-variant">Manage subscribers, roles, and account deletions</p>
         </Link>
       </div>
     </div>

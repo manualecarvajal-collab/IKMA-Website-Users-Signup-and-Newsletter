@@ -18,6 +18,8 @@ const navLinks = [
 export default function Navbar({ initialUser }: { initialUser: { email: string; role: string } | null }) {
   const pathname = usePathname()
   const [user, setUser] = useState<{ email: string; role: string } | null>(initialUser)
+
+  const isAdmin = pathname.startsWith("/admin")
   const [mobileOpen, setMobileOpen] = useState(false)
 
   const closeMobile = () => setMobileOpen(false)
@@ -64,7 +66,7 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
   }
 
   return (
-    <nav className="bg-white/70 backdrop-blur-lg shadow-[0_20px_20px_0_rgba(7,68,105,0.04)] top-0 sticky z-50 transition-all duration-300">
+    <nav className={`bg-white/70 backdrop-blur-lg shadow-[0_20px_20px_0_rgba(7,68,105,0.04)] top-0 sticky z-50 transition-all duration-300 ${isAdmin ? "hidden" : ""}`}>
       <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop flex justify-between items-center h-20">
         <div className="flex items-center gap-[clamp(0.75rem,2vw,1.5rem)]">
           <Link href="/" className="flex items-center">
@@ -96,7 +98,7 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
                 href="/admin"
                 className="text-primary font-label-bold flex items-center gap-1 bg-primary-container/20 px-3 py-1.5 rounded-full hover:bg-primary-container/40 transition-colors"
               >
-                <span className="material-symbols-outlined text-sm">dashboard</span> CMS
+                <span className="material-symbols-outlined text-sm">dashboard</span> Admin
               </Link>
             )}
           </div>
@@ -131,9 +133,18 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
             </>
           )}
           <span className="w-px h-6 bg-outline-variant hidden md:block" />
-          <button className="hidden md:inline-block bg-primary text-on-primary font-label-bold text-xs md:text-label-bold px-4 py-1.5 md:px-6 md:py-2.5 rounded-lg hover:bg-primary-fixed-variant hover:text-on-primary-fixed-variant transition-all duration-300 ease-in-out active:scale-95 shadow-sm cursor-pointer">
-            Support Now
-          </button>
+          {user ? (
+            <Link
+              href="/suscripcion-exito"
+              className="hidden md:inline-block bg-primary text-on-primary font-label-bold text-xs md:text-label-bold px-4 py-1.5 md:px-6 md:py-2.5 rounded-lg hover:bg-surface hover:text-on-primary-fixed-variant transition-all duration-300 ease-in-out active:scale-95 shadow-sm"
+            >
+              Support Now
+            </Link>
+          ) : (
+            <button disabled className="hidden md:inline-block bg-primary/40 text-on-primary/60 font-label-bold text-xs md:text-label-bold px-4 py-1.5 md:px-6 md:py-2.5 rounded-lg cursor-not-allowed shadow-sm">
+              Support Now
+            </button>
+          )}
           {/* Hamburger */}
           <button
             onClick={() => setMobileOpen((o) => !o)}
@@ -206,9 +217,19 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
             </div>
           )}
           <div className="px-4 pt-2">
-            <button className="w-full bg-primary text-on-primary font-label-bold text-label-bold px-6 py-2.5 rounded-lg hover:bg-primary-fixed-variant hover:text-on-primary-fixed-variant transition-all shadow-sm cursor-pointer">
-              Support Now
-            </button>
+            {user ? (
+              <Link
+                href="/suscripcion-exito"
+                onClick={closeMobile}
+                className="block w-full text-center bg-primary text-on-primary font-label-bold text-label-bold px-6 py-2.5 rounded-lg hover:bg-primary-fixed-variant hover:text-on-primary-fixed-variant transition-all shadow-sm"
+              >
+                Support Now
+              </Link>
+            ) : (
+              <button disabled className="w-full bg-primary/40 text-on-primary/60 font-label-bold text-label-bold px-6 py-2.5 rounded-lg cursor-not-allowed">
+                Support Now
+              </button>
+            )}
           </div>
         </div>
       </div>
