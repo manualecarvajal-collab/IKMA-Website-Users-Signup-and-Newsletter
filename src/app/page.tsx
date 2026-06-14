@@ -56,7 +56,17 @@ export default async function HomePage() {
             >
               Support Our Mission
             </Link>
-            {!isAuthenticated && (
+            {isAuthenticated ? (
+              <Link
+                href="/suscripcion-exito"
+                className="bg-secondary-container text-primary font-label-bold text-label-bold px-8 py-3.5 rounded-lg hover:bg-secondary-container/80 transition-all active:scale-95 flex items-center justify-center space-x-2"
+              >
+                <span>Subscribe to our Newsletter</span>
+                <span className="material-symbols-outlined text-lg">
+                  arrow_forward
+                </span>
+              </Link>
+            ) : (
               <Link
                 href="/registro"
                 className="bg-secondary-container text-primary font-label-bold text-label-bold px-8 py-3.5 rounded-lg hover:bg-secondary-container/80 transition-all active:scale-95 flex items-center justify-center space-x-2"

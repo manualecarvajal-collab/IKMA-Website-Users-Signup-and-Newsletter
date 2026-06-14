@@ -307,6 +307,16 @@ export async function deleteUser(userId: string): Promise<void> {
   const { supabase } = await checkAdmin()
   const admin = await createAdminClient()
   
+  // Never allow deleting an admin user
+  const { data: target } = await admin
+    .from("perfiles")
+    .select("rol")
+    .eq("id", userId)
+    .single()
+  if (target?.rol === "administrador") {
+    throw new Error("Cannot delete an admin user")
+  }
+  
   // Borrar de auth (esto disparará el borrado en cascada del perfil si está configurado en Supabase, 
   // pero lo hacemos manual por seguridad si no hay triggers)
   await admin.auth.admin.deleteUser(userId)
@@ -317,8 +327,17 @@ export async function deleteUser(userId: string): Promise<void> {
 
 export async function updateUsersBatch(updates: { id: string, suscripcion_activa: boolean }[]) {
   const { supabase } = await checkAdmin()
+  const admin = await createAdminClient()
   
   for (const update of updates) {
+    // Skip admin users — they don't have subscriptions
+    const { data: target } = await admin
+      .from("perfiles")
+      .select("rol")
+      .eq("id", update.id)
+      .single()
+    if (target?.rol === "administrador") continue
+
     await supabase
       .from("perfiles")
       .update({ suscripcion_activa: update.suscripcion_activa })

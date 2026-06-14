@@ -10,6 +10,7 @@ interface User {
   nombre_completo: string
   email: string
   suscripcion_activa: boolean
+  rol: string
   created_at: string
 }
 
@@ -21,8 +22,9 @@ export default function UserManagementTable({ initialUsers }: { initialUsers: Us
   const router = useRouter()
 
   useEffect(() => {
-    const isDifferent = JSON.stringify(users.map(u => ({ id: u.id, s: u.suscripcion_activa }))) !== 
-                        JSON.stringify(originalUsers.map(u => ({ id: u.id, s: u.suscripcion_activa })))
+    const nonAdmin = (u: User) => u.rol !== "administrador"
+    const isDifferent = JSON.stringify(users.filter(nonAdmin).map(u => ({ id: u.id, s: u.suscripcion_activa }))) !== 
+                        JSON.stringify(originalUsers.filter(nonAdmin).map(u => ({ id: u.id, s: u.suscripcion_activa })))
     setHasChanges(isDifferent)
   }, [users, originalUsers])
 
@@ -59,7 +61,7 @@ export default function UserManagementTable({ initialUsers }: { initialUsers: Us
   const saveChanges = async () => {
     setIsSaving(true)
     const updates = users
-      .filter((u, i) => u.suscripcion_activa !== originalUsers[i].suscripcion_activa)
+      .filter((u, i) => u.rol !== "administrador" && u.suscripcion_activa !== originalUsers[i].suscripcion_activa)
       .map(u => ({ id: u.id, suscripcion_activa: u.suscripcion_activa }))
 
     try {
@@ -121,28 +123,36 @@ export default function UserManagementTable({ initialUsers }: { initialUsers: Us
                       <p className="text-sm text-on-surface-variant font-mono">{u.email}</p>
                     </td>
                     <td className="px-6 py-4">
-                      <button
-                        onClick={() => toggleSubscription(u.id)}
-                        className={`px-4 py-1.5 rounded-full text-xs font-bold border transition-all cursor-pointer ${
-                          u.suscripcion_activa 
-                            ? "bg-tertiary/10 text-tertiary border-tertiary/30 hover:bg-tertiary/20" 
-                            : "bg-surface-container-high text-on-surface-variant border-outline-variant/30 hover:bg-surface-container-highest"
-                        }`}
-                      >
-                        {u.suscripcion_activa ? "ACTIVE SUBSCRIBER" : "FREE USER"}
-                      </button>
+                      {u.rol === "administrador" ? (
+                        <span className="inline-block px-4 py-1.5 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/30">
+                          ADMIN
+                        </span>
+                      ) : (
+                        <button
+                          onClick={() => toggleSubscription(u.id)}
+                          className={`px-4 py-1.5 rounded-full text-xs font-bold border transition-all cursor-pointer ${
+                            u.suscripcion_activa 
+                              ? "bg-tertiary/10 text-tertiary border-tertiary/30 hover:bg-tertiary/20" 
+                              : "bg-surface-container-high text-on-surface-variant border-outline-variant/30 hover:bg-surface-container-highest"
+                          }`}
+                        >
+                          {u.suscripcion_activa ? "ACTIVE SUBSCRIBER" : "FREE USER"}
+                        </button>
+                      )}
                     </td>
                     <td className="px-6 py-4 hidden md:table-cell text-on-surface-variant text-sm">
                       {new Date(u.created_at).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <button
-                        onClick={() => handleDelete(u.id, u.nombre_completo)}
-                        className="p-2 text-on-surface-variant hover:text-error transition-all cursor-pointer"
-                        title="Delete Account Permanently"
-                      >
-                        <span className="material-symbols-outlined text-lg">person_remove</span>
-                      </button>
+                      {u.rol !== "administrador" && (
+                        <button
+                          onClick={() => handleDelete(u.id, u.nombre_completo)}
+                          className="p-2 text-on-surface-variant hover:text-error transition-all cursor-pointer"
+                          title="Delete Account Permanently"
+                        >
+                          <span className="material-symbols-outlined text-lg">person_remove</span>
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))
@@ -158,34 +168,42 @@ export default function UserManagementTable({ initialUsers }: { initialUsers: Us
           ) : (
             users.map((u) => (
               <div key={u.id} className="p-4 space-y-3">
-                <div className="flex justify-between items-start">
-                  <div className="space-y-0.5">
-                    <p className="font-label-bold text-on-surface">{u.nombre_completo || "Unnamed User"}</p>
-                    <p className="text-xs text-on-surface-variant font-mono break-all">{u.email}</p>
+                  <div className="flex justify-between items-start">
+                    <div className="space-y-0.5">
+                      <p className="font-label-bold text-on-surface">{u.nombre_completo || "Unnamed User"}</p>
+                      <p className="text-xs text-on-surface-variant font-mono break-all">{u.email}</p>
+                    </div>
+                    {u.rol !== "administrador" && (
+                      <button
+                        onClick={() => handleDelete(u.id, u.nombre_completo)}
+                        className="p-2 text-on-surface-variant hover:text-error"
+                        title="Delete Account Permanently"
+                      >
+                        <span className="material-symbols-outlined text-lg">person_remove</span>
+                      </button>
+                    )}
                   </div>
-                  <button
-                    onClick={() => handleDelete(u.id, u.nombre_completo)}
-                    className="p-2 text-on-surface-variant hover:text-error"
-                    title="Delete Account Permanently"
-                  >
-                    <span className="material-symbols-outlined text-lg">person_remove</span>
-                  </button>
-                </div>
                 
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] text-on-surface-variant font-medium">
                     Joined: {new Date(u.created_at).toLocaleDateString()}
                   </span>
-                  <button
-                    onClick={() => toggleSubscription(u.id)}
-                    className={`px-4 py-1.5 rounded-full text-[10px] font-bold border transition-all ${
-                      u.suscripcion_activa 
-                        ? "bg-tertiary/10 text-tertiary border-tertiary/30" 
-                        : "bg-surface-container-high text-on-surface-variant border-outline-variant/30"
-                    }`}
-                  >
-                    {u.suscripcion_activa ? "ACTIVE SUBSCRIBER" : "FREE USER"}
-                  </button>
+                  {u.rol === "administrador" ? (
+                    <span className="inline-block px-4 py-1.5 rounded-full text-[10px] font-bold bg-primary/10 text-primary border border-primary/30">
+                      ADMIN
+                    </span>
+                  ) : (
+                    <button
+                      onClick={() => toggleSubscription(u.id)}
+                      className={`px-4 py-1.5 rounded-full text-[10px] font-bold border transition-all ${
+                        u.suscripcion_activa 
+                          ? "bg-tertiary/10 text-tertiary border-tertiary/30" 
+                          : "bg-surface-container-high text-on-surface-variant border-outline-variant/30"
+                      }`}
+                    >
+                      {u.suscripcion_activa ? "ACTIVE SUBSCRIBER" : "FREE USER"}
+                    </button>
+                  )}
                 </div>
               </div>
             ))

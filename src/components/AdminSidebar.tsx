@@ -76,9 +76,15 @@ export function SidebarNav({
             </Link>
           ))}
           <hr className="my-4 border-outline-variant/20" />
-          <Link href="/" className="flex items-center gap-3 px-4 py-3 rounded-lg font-body-md text-body-md text-on-surface-variant hover:bg-primary-container/40 hover:text-primary transition-colors bg-primary-container/10 border border-primary/20">
-            <span className="material-symbols-outlined text-lg">arrow_back</span> Back to Site
-          </Link>
+          {pathname === "/admin" || pathname === "/admin/" ? (
+            <Link href="/" className="flex items-center gap-3 px-4 py-3 rounded-lg font-body-md text-body-md text-on-surface-variant hover:bg-primary-container/40 hover:text-primary transition-colors bg-primary-container/10 border border-primary/20">
+              <span className="material-symbols-outlined text-lg">arrow_back</span> Back to Site
+            </Link>
+          ) : (
+            <Link href="/admin" className="flex items-center gap-3 px-4 py-3 rounded-lg font-body-md text-body-md text-on-surface-variant hover:bg-primary-container/40 hover:text-primary transition-colors bg-primary-container/10 border border-primary/20">
+              <span className="material-symbols-outlined text-lg">arrow_back</span> Back to Dashboard
+            </Link>
+          )}
         </nav>
       </aside>
     </>
@@ -86,17 +92,19 @@ export function SidebarNav({
 }
 
 export function MobileNav({ setIsOpen }: { setIsOpen: (open: boolean) => void }) {
+  const pathname = usePathname()
+  const isDashboard = pathname === "/admin" || pathname === "/admin/"
   return (
     <header className="md:hidden bg-white border-b border-gray-200 sticky top-0 z-40 shadow-sm">
       <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
         
-        {/* IZQUIERDA: Botón Volver al Sitio (Back to Site) */}
+        {/* IZQUIERDA: Botón Volver al Dashboard / Sitio */}
         <div className="w-1/3 flex justify-start">
-          <Link href="/" className="flex items-center gap-2 text-gray-600 hover:text-ikmaBlue hover:bg-gray-100 bg-gray-50 border border-gray-200 px-3 py-2 rounded-full text-xs md:text-sm font-medium transition-all duration-200">
+          <Link href={isDashboard ? "/" : "/admin"} className="flex items-center gap-2 text-gray-600 hover:text-ikmaBlue hover:bg-gray-100 bg-gray-50 border border-gray-200 px-3 py-2 rounded-full text-xs md:text-sm font-medium transition-all duration-200">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"></path>
             </svg>
-            <span className="hidden sm:inline">Back to Site</span>
+            <span className="hidden sm:inline">{isDashboard ? "Back to Site" : "Dashboard"}</span>
             <span className="sm:hidden">Back</span>
           </Link>
         </div>

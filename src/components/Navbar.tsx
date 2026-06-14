@@ -178,7 +178,7 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
               onClick={closeMobile}
               className="flex items-center gap-3 px-4 py-3 rounded-lg text-primary font-label-bold bg-primary-container/20"
             >
-              <span className="material-symbols-outlined text-sm">dashboard</span> CMS
+              <span className="material-symbols-outlined text-sm">dashboard</span> Admin
             </Link>
           )}
           <hr className="my-3 border-outline-variant/30" />
