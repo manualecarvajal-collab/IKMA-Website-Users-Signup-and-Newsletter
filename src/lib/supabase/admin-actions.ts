@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { createClient, createAdminClient } from "@/lib/supabase/server"
+import { buildMagazineHtml } from "@/lib/email-template"
 
 async function checkAdmin() {
   const supabase = await createClient()
@@ -267,16 +268,11 @@ export async function activateSubscription(): Promise<void> {
 export async function getAllUsers() {
   const { supabase } = await checkAdmin()
   const admin = await createAdminClient()
-
-  // Use admin client (service_role) to bypass RLS and get all profiles
-  // Note: only select columns that exist in the migration-defined schema
   const { data: perfiles } = await admin
     .from("perfiles")
     .select("id, nombre_completo, suscripcion_activa, rol")
 
   const perfilesMap = new Map((perfiles ?? []).map(p => [p.id, p]))
-
-  // Get all auth users as the primary source
   const { data: authData } = await admin.auth.admin.listUsers()
   const authUsers = authData?.users ?? []
 
@@ -306,8 +302,7 @@ export async function deactivateSubscription(userId: string): Promise<void> {
 export async function deleteUser(userId: string): Promise<void> {
   const { supabase } = await checkAdmin()
   const admin = await createAdminClient()
-  
-  // Never allow deleting an admin user
+
   const { data: target } = await admin
     .from("perfiles")
     .select("rol")
@@ -316,34 +311,34 @@ export async function deleteUser(userId: string): Promise<void> {
   if (target?.rol === "administrador") {
     throw new Error("Cannot delete an admin user")
   }
-  
-  // Borrar de auth (esto disparará el borrado en cascada del perfil si está configurado en Supabase, 
-  // pero lo hacemos manual por seguridad si no hay triggers)
+
   await admin.auth.admin.deleteUser(userId)
   await supabase.from("perfiles").delete().eq("id", userId)
-  
+
   revalidatePath("/admin/suscriptores")
 }
 
 export async function updateUsersBatch(updates: { id: string, suscripcion_activa: boolean }[]) {
   const { supabase } = await checkAdmin()
   const admin = await createAdminClient()
-  
-  for (const update of updates) {
-    // Skip admin users — they don't have subscriptions
-    const { data: target } = await admin
-      .from("perfiles")
-      .select("rol")
-      .eq("id", update.id)
-      .single()
-    if (target?.rol === "administrador") continue
 
+  // Batch-fetch roles for all users in one query instead of N+1
+  const ids = updates.map(u => u.id)
+  const { data: targets } = await admin
+    .from("perfiles")
+    .select("id, rol")
+    .in("id", ids)
+
+  const adminIds = new Set((targets ?? []).filter(t => t.rol === "administrador").map(t => t.id))
+
+  for (const update of updates) {
+    if (adminIds.has(update.id)) continue
     await supabase
       .from("perfiles")
       .update({ suscripcion_activa: update.suscripcion_activa })
       .eq("id", update.id)
   }
-  
+
   revalidatePath("/admin/suscriptores")
   return { success: true }
 }
@@ -351,8 +346,8 @@ export async function updateUsersBatch(updates: { id: string, suscripcion_activa
 // ─── EMAIL CONFIG ────────────────────────────────────────
 
 export async function getEmailConfig() {
-  const supabase = await createClient()
-  const { data } = await supabase.from("app_config").select("*")
+  const admin = await createAdminClient()
+  const { data } = await admin.from("app_config").select("*")
   if (!data) return {}
   const config: Record<string, string> = {}
   for (const row of data) {
@@ -380,8 +375,6 @@ export async function updateEmailConfig(formData: FormData) {
 
 export async function getSubscribersWithEmails() {
   const admin = await createAdminClient()
-
-  // Use admin client (service_role) to bypass RLS
   const { data: suscriptores } = await admin
     .from("perfiles")
     .select("id, nombre_completo")
@@ -405,6 +398,38 @@ export async function getSubscribersWithEmails() {
 
 // ─── SEND MAGAZINE ───────────────────────────────────────
 
+function extractPdfPath(archivoUrl: string): string {
+  const marker = "/object/public/revistas-pdf/"
+  const idx = archivoUrl.indexOf(marker)
+  if (idx === -1) return archivoUrl
+  return archivoUrl.slice(idx + marker.length)
+}
+
+async function signedPdfUrl(archivoUrl: string): Promise<string> {
+  const path = extractPdfPath(archivoUrl)
+  if (path === archivoUrl) return archivoUrl // not a Supabase URL, return as-is
+  const admin = await createAdminClient()
+  const { data } = await admin.storage.from("revistas-pdf").createSignedUrl(path, 60 * 60 * 24 * 7)
+  // ponytail: 7-day expiry covers newsletter window; refresh if link expires
+  return data?.signedUrl ?? archivoUrl
+}
+
+async function sendEmail(config: Record<string, string>, to: string, subject: string, html: string) {
+  return fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from: `${config.email_from_name || "IKMA"} <${config.email_from_email || "onboarding@resend.dev"}>`,
+      to,
+      subject,
+      html,
+    }),
+  })
+}
+
 export async function sendMagazineToEmail(revistaId: string, userId: string): Promise<{ success?: string; error?: string }> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -418,16 +443,15 @@ export async function sendMagazineToEmail(revistaId: string, userId: string): Pr
 
   if (!revista) return { error: "Magazine not found" }
 
-  // Use admin client (service_role) to bypass RLS and ensure we read the real state
   const admin = await createAdminClient()
-  const { data: perfil, error: perfilError } = await admin
+  const { data: perfil } = await admin
     .from("perfiles")
     .select("nombre_completo, suscripcion_activa")
     .eq("id", user.id)
     .single()
 
-  if (perfilError || !perfil) return { error: "Profile not found" }
-  
+  if (!perfil) return { error: "Profile not found" }
+
   if (!perfil.suscripcion_activa) {
     return { error: `Subscription not active for ${user.email}. Please refresh the page.` }
   }
@@ -438,53 +462,20 @@ export async function sendMagazineToEmail(revistaId: string, userId: string): Pr
   const config = await getEmailConfig()
 
   if (process.env.RESEND_API_KEY) {
-    const resp = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from: `${config.email_from_name || "IKMA"} <${config.email_from_email || "onboarding@resend.dev"}>`,
-        to: email,
-        subject: (config.email_subject_template || "New Magazine: {{titulo}}").replace("{{titulo}}", revista.titulo),
-        html: `
-          <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; border: 1px solid #e0e0e0;">
-            <div style="background-color: #074469; padding: 32px 24px; text-align: center;">
-              <h1 style="color: #ffffff; margin: 0; font-size: 24px; letter-spacing: 1px;">IKMA JOURNAL</h1>
-            </div>
-            
-            <div style="padding: 32px 24px;">
-              <h2 style="color: #1c1b1f; margin-top: 0; font-size: 22px;">Hello ${perfil.nombre_completo || "there"},</h2>
-              <p style="color: #49454f; line-height: 1.6; font-size: 16px;">
-                A new edition of our medical journal is now available for you.
-              </p>
-              
-              <div style="margin: 32px 0; text-align: center;">
-                ${revista.imagen_portada ? `
-                  <img src="${revista.imagen_portada}" alt="${revista.titulo}" style="width: 240px; border-radius: 12px; shadow: 0 4px 12px rgba(0,0,0,0.1); border: 1px solid #eee;">
-                ` : ""}
-                <h3 style="color: #074469; margin-top: 24px; font-size: 20px;">${revista.titulo}</h3>
-                <p style="color: #49454f; font-style: italic; margin-bottom: 24px; padding: 0 20px;">${revista.descripcion || ""}</p>
-                
-                <a href="${revista.archivo_url}" style="display: inline-block; background-color: #074469; color: #ffffff; padding: 16px 32px; border-radius: 12px; text-decoration: none; font-weight: bold; font-size: 16px; box-shadow: 0 4px 8px rgba(7,68,105,0.2);">
-                  Download PDF Magazine
-                </a>
-              </div>
-              
-              <p style="color: #79747e; font-size: 14px; border-top: 1px solid #f0f0f0; padding-top: 24px; margin-top: 32px;">
-                Thank you for being part of the International Kingdom Medical Association. Your support allows us to continue our mission.
-              </p>
-            </div>
-            
-            <div style="background-color: #f9f9f9; padding: 24px; text-align: center; color: #938f99; font-size: 12px;">
-              <p style="margin: 0;">&copy; 2026 IKMA. All rights reserved.</p>
-              <p style="margin: 8px 0 0;">You are receiving this email because you are a registered subscriber.</p>
-            </div>
-          </div>
-        `,
-      }),
-    })
+    const pdfUrl = await signedPdfUrl(revista.archivo_url)
+    const resp = await sendEmail(
+      config,
+      email,
+      (config.email_subject_template || "New Magazine: {{titulo}}").replace("{{titulo}}", revista.titulo),
+      buildMagazineHtml({
+        nombre: perfil.nombre_completo || "there",
+        titulo: revista.titulo,
+        descripcion: revista.descripcion ?? undefined,
+        imagen_portada: revista.imagen_portada,
+        archivo_url: pdfUrl,
+        from_name: config.email_from_name || "IKMA",
+      })
+    )
     if (!resp.ok) return { error: "Failed to send email" }
   }
 
@@ -503,7 +494,6 @@ export async function sendMagazineToSubscribers(revistaId: string, excludeEmails
   if (!revista) return { error: "Magazine not found" }
 
   const admin = await createAdminClient()
-  // Use admin client (service_role) to bypass RLS
   const { data: suscriptores } = await admin
     .from("perfiles")
     .select("id, nombre_completo")
@@ -529,55 +519,22 @@ export async function sendMagazineToSubscribers(revistaId: string, excludeEmails
   const config = await getEmailConfig()
 
   if (process.env.RESEND_API_KEY) {
+    const pdfUrl = await signedPdfUrl(revista.archivo_url)
     let sent = 0
     for (const { email, nombre } of recipients) {
-      const resp = await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          from: `${config.email_from_name || "IKMA"} <${config.email_from_email || "onboarding@resend.dev"}>`,
-          to: email,
-          subject: (config.email_subject_template || "New Magazine: {{titulo}}").replace("{{titulo}}", revista.titulo),
-          html: `
-            <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; border: 1px solid #e0e0e0;">
-              <div style="background-color: #074469; padding: 32px 24px; text-align: center;">
-                <h1 style="color: #ffffff; margin: 0; font-size: 24px; letter-spacing: 1px;">IKMA JOURNAL</h1>
-              </div>
-              
-              <div style="padding: 32px 24px;">
-                <h2 style="color: #1c1b1f; margin-top: 0; font-size: 22px;">Hello ${nombre},</h2>
-                <p style="color: #49454f; line-height: 1.6; font-size: 16px;">
-                  A new edition of our medical journal is now available for you.
-                </p>
-                
-                <div style="margin: 32px 0; text-align: center;">
-                  ${revista.imagen_portada ? `
-                    <img src="${revista.imagen_portada}" alt="${revista.titulo}" style="width: 240px; border-radius: 12px; shadow: 0 4px 12px rgba(0,0,0,0.1); border: 1px solid #eee;">
-                  ` : ""}
-                  <h3 style="color: #074469; margin-top: 24px; font-size: 20px;">${revista.titulo}</h3>
-                  <p style="color: #49454f; font-style: italic; margin-bottom: 24px; padding: 0 20px;">${revista.descripcion || ""}</p>
-                  
-                  <a href="${revista.archivo_url}" style="display: inline-block; background-color: #074469; color: #ffffff; padding: 16px 32px; border-radius: 12px; text-decoration: none; font-weight: bold; font-size: 16px; box-shadow: 0 4px 8px rgba(7,68,105,0.2);">
-                    Download PDF Magazine
-                  </a>
-                </div>
-                
-                <p style="color: #79747e; font-size: 14px; border-top: 1px solid #f0f0f0; padding-top: 24px; margin-top: 32px;">
-                  Thank you for being part of the International Kingdom Medical Association. Your support allows us to continue our mission.
-                </p>
-              </div>
-              
-              <div style="background-color: #f9f9f9; padding: 24px; text-align: center; color: #938f99; font-size: 12px;">
-                <p style="margin: 0;">&copy; 2026 IKMA. All rights reserved.</p>
-                <p style="margin: 8px 0 0;">You are receiving this email because you are a registered subscriber.</p>
-              </div>
-            </div>
-          `,
-        }),
-      })
+      const resp = await sendEmail(
+        config,
+        email,
+        (config.email_subject_template || "New Magazine: {{titulo}}").replace("{{titulo}}", revista.titulo),
+        buildMagazineHtml({
+          nombre,
+          titulo: revista.titulo,
+          descripcion: revista.descripcion ?? undefined,
+          imagen_portada: revista.imagen_portada,
+          archivo_url: pdfUrl,
+          from_name: config.email_from_name || "IKMA",
+        })
+      )
       if (resp.ok) sent++
     }
     return { success: `Email sent to ${sent} of ${recipients.length} subscribers` }
@@ -585,4 +542,3 @@ export async function sendMagazineToSubscribers(revistaId: string, excludeEmails
 
   return { error: "Resend API key not configured" }
 }
-

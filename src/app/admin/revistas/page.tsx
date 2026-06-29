@@ -61,7 +61,7 @@ export default async function AdminRevistasPage(props: { searchParams?: Promise<
                   <div className="flex items-center gap-3">
                     {r.imagen_portada && (
                       <div className="w-10 h-12 rounded overflow-hidden bg-surface-variant flex-shrink-0">
-                        <img src={r.imagen_portada} alt="" className="w-full h-full object-cover" />
+                        <img src={r.imagen_portada} alt="" loading="lazy" className="w-full h-full object-cover" />
                       </div>
                     )}
                     <div>

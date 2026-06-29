@@ -1,9 +1,10 @@
-import { createClient, createAdminClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/server"
+import { buildMagazineHtml } from "@/lib/email-template"
 
 export async function sendNewsletter(articuloId: string) {
-  const supabase = await createClient()
+  const admin = await createAdminClient()
 
-  const { data: articulo } = await supabase
+  const { data: articulo } = await admin
     .from("articulos")
     .select("titulo, slug, resumen")
     .eq("id", articuloId)
@@ -13,9 +14,7 @@ export async function sendNewsletter(articuloId: string) {
     throw new Error("Article not found")
   }
 
-  const admin = await createAdminClient()
-
-  const { data: suscriptores } = await supabase
+  const { data: suscriptores } = await admin
     .from("perfiles")
     .select("id, nombre_completo")
     .eq("suscripcion_activa", true)

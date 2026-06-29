@@ -9,10 +9,28 @@ export function ImageUpload({ name, defaultValue, label }: { name: string; defau
   const [dragging, setDragging] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  const uploadFile = async (file: File) => {
+  const uploadFile = async (rawFile: File) => {
     setUploading(true)
     setUploadError("")
     try {
+      // ponytail: resize client-side before upload to avoid multi-MB images on the server
+      const MAX_DIM = 1200
+      const img = await createImageBitmap(rawFile)
+      let w = img.width, h = img.height
+      if (w > MAX_DIM || h > MAX_DIM) {
+        if (w > h) { h = Math.round(h * MAX_DIM / w); w = MAX_DIM }
+        else { w = Math.round(w * MAX_DIM / h); h = MAX_DIM }
+      }
+      const canvas = document.createElement("canvas")
+      canvas.width = w; canvas.height = h
+      const ctx = canvas.getContext("2d")!
+      ctx.drawImage(img, 0, 0, w, h)
+      img.close()
+      const blob = await new Promise<Blob | null>(r => canvas.toBlob(r, "image/jpeg", 0.85))
+
+      if (!blob) throw new Error("Image compression failed")
+      let file = new File([blob], rawFile.name.replace(/\.[^.]+$/, ".jpg"), { type: "image/jpeg" })
+
       const res = await fetch("/api/upload", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

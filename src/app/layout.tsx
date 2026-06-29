@@ -4,15 +4,15 @@ import "./globals.css"
 import Navbar from "@/components/Navbar"
 import Footer from "@/components/Footer"
 import ToastContainer from "@/components/Toast"
+import MaterialIcons from "@/components/MaterialIcons"
 import { createClient } from "@/lib/supabase/server"
 import { SpeedInsights } from "@vercel/speed-insights/next"
-
-export const dynamic = "force-dynamic"
 
 const montserrat = Montserrat({
   variable: "--font-montserrat",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
+  display: "swap",
 })
 
 export const metadata: Metadata = {
@@ -45,6 +45,7 @@ export default async function RootLayout({
   const { data: { user } } = await supabase.auth.getUser()
 
   let userInfo: { email: string; role: string } | null = null
+  let isAdmin = false
   if (user) {
     const { data: perfil } = await supabase
       .from("perfiles")
@@ -52,6 +53,7 @@ export default async function RootLayout({
       .eq("id", user.id)
       .single()
     userInfo = { email: user.email ?? "", role: perfil?.rol ?? "lector" }
+    isAdmin = perfil?.rol === "administrador"
   }
 
   return (
@@ -60,16 +62,15 @@ export default async function RootLayout({
       className={`${montserrat.variable} h-full antialiased`}
     >
       <head>
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
-        />
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       <body className="min-h-full flex flex-col bg-background text-on-background selection:bg-primary-container selection:text-on-primary-container">
+        <MaterialIcons />
         <Navbar initialUser={userInfo} />
         <main className="flex-grow">{children}</main>
-        <Footer />
+        <Footer isAdmin={isAdmin} />
         <ToastContainer />
         <SpeedInsights />
       </body>

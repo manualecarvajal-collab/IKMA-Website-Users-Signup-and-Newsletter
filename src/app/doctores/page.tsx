@@ -85,6 +85,7 @@ export default async function DoctorsPage() {
                           : BASE + doc.imagen_url
                       }
                       alt=""
+                      loading="lazy"
                       className="w-full h-full object-cover"
                     />
                     <div className="absolute bottom-1 right-1 bg-surface-container-lowest rounded-full p-0.5 shadow-sm">

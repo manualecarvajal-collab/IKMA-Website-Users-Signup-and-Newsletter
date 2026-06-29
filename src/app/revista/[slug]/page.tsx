@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
+import { notFound } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import ArticleContent from "@/components/ArticleContent"
 import DownloadPopup from "@/components/DownloadPopup"
@@ -53,16 +54,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
   const { data: { user } } = await supabase.auth.getUser()
   const { data: perfil } = user ? await supabase.from("perfiles").select("suscripcion_activa").eq("id", user.id).single() : { data: null }
 
-  if (!article) {
-    return (
-      <article className="py-section-padding">
-        <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop text-center">
-          <Link href="/revista" className="font-body-md text-body-md text-primary hover:underline mb-8 inline-block">&larr; Back to Revista</Link>
-          <h1 className="font-headline-xl text-headline-xl text-primary mt-8">Article not found</h1>
-        </div>
-      </article>
-    )
-  }
+  if (!article) notFound()
 
   const relatedArticles = await getRelatedArticles(slug)
 
@@ -98,16 +90,13 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                   </div>
                   <div className="space-y-3 mb-4">
                     {magazines.map((m) => (
-                      <a
+                      <div
                         key={m.id}
-                        href={m.archivo_url || "#"}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex gap-3 bg-white rounded-lg overflow-hidden hover:shadow-md transition-shadow group p-2"
+                        className="flex gap-3 bg-white rounded-lg overflow-hidden hover:shadow-md transition-shadow group p-2 cursor-default"
                       >
                         {m.imagen_portada ? (
                           <div className="w-16 h-20 shrink-0 rounded overflow-hidden bg-surface-variant">
-                            <img src={m.imagen_portada} alt={m.titulo} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                            <img src={m.imagen_portada} alt={m.titulo} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                           </div>
                         ) : (
                           <div className="w-16 h-20 shrink-0 rounded bg-surface-container-high flex items-center justify-center">
@@ -115,12 +104,12 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                           </div>
                         )}
                         <div className="min-w-0">
-                          <h4 className="font-label-bold text-label-sm text-on-surface group-hover:text-primary transition-colors truncate">{m.titulo}</h4>
+                          <h4 className="font-label-bold text-label-sm text-on-surface truncate">{m.titulo}</h4>
                           {m.descripcion && (
                             <p className="font-body-md text-body-md text-on-surface-variant text-xs mt-0.5 line-clamp-2">{m.descripcion}</p>
                           )}
                         </div>
-                      </a>
+                      </div>
                     ))}
                   </div>
                   <DownloadPopup
@@ -137,13 +126,13 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
           <div className="order-1 md:order-2">
             {article.imagen_url && (
               <div className="w-full h-80 rounded-xl overflow-hidden bg-surface-variant mb-6">
-                <img src={article.imagen_url} alt="" className="w-full h-full object-cover" />
+                <img src={article.imagen_url} alt="" loading="lazy" className="w-full h-full object-cover" />
               </div>
             )}
 
             <div className="flex items-center gap-4 mb-6">
               <div className="w-10 h-10 rounded-full overflow-hidden bg-primary flex-shrink-0">
-                <img src={authorAvatar} alt="" className="w-full h-full object-cover" />
+                <img src={authorAvatar} alt="" loading="lazy" className="w-full h-full object-cover" />
               </div>
               <div>
                 <p className="font-label-bold text-label-bold text-on-surface">
@@ -181,7 +170,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                     className="flex flex-col group cursor-pointer bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-[0_12px_24px_rgba(7,68,105,0.06)] hover:-translate-y-0.5 transition-all duration-300 snap-start w-[280px] sm:w-[300px] flex-shrink-0"
                   >
                     <div className="w-full aspect-[16/10] overflow-hidden bg-surface-container-high">
-                      <img src={a.imagen_url} alt="" className="w-full h-full object-cover" />
+                      <img src={a.imagen_url} alt="" loading="lazy" className="w-full h-full object-cover" />
                     </div>
                     <div className="p-4">
                       <h3 className="font-bold text-on-surface mt-2 group-hover:text-primary transition-colors text-sm leading-tight">

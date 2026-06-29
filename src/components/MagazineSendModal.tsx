@@ -54,7 +54,6 @@ export default function MagazineSendModal({
       return
     }
 
-    setSending(sending)
     setSending(true)
     try {
       const result = await sendMagazineToSubscribers(revistaId, excludedEmails)

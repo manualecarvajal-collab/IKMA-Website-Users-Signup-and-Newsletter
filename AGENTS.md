@@ -35,3 +35,65 @@ Use: `url?.startsWith("http") ? url : BASE + url` where `BASE = "https://lh3.goo
 ## Branches
 - `main` — production; auto-deploys to Vercel
 - Tags: `v1.0`, `v1.1` (MVP milestone)
+
+## Session 2026-06-24 — Security & polish round
+
+### PDF bucket security
+- `revistas-pdf` bucket made **private** (was public).
+- Migration: `supabase/migrations/00009_revistas_pdf_private.sql` — set bucket private, add RLS policies (subscribers + admins can read).
+- Direct PDF links removed from `/revista` and `/revista/[slug]` — `<a>` tags replaced with `<div>`.
+- Emails now use signed 7-day PDF URLs via `signedPdfUrl()` helper in `src/lib/supabase/admin-actions.ts`.
+
+### Bug fixes
+- `newsletter.ts`: uses `createAdminClient()` instead of regular client (was only returning own profile).
+- `getEmailConfig()` in `email-config.ts`: uses `createAdminClient()` (was failing for non-admin users).
+- `setSending(sending)` → `setSending(true/false)` typo in `MagazineSendModal.tsx`.
+- `deleteArticle`, `deleteDoctor`, `deleteRevista` return types: `Promise<void>`.
+- Server-side password validation: ≥8 chars, uppercase+lowercase+digit in `actions.ts`.
+- `.env.local` removed from git tracking + added to `.gitignore`.
+
+### Email deduplication
+- `src/lib/email-template.ts` — shared `buildMagazineHtml()` for all email sends.
+
+### Footer
+- Converted to Server Component; receives `isAdmin` prop instead of `use client` + `usePathname`.
+
+### Performance
+- Middleware/proxy: `src/proxy.ts` with `export async function proxy` (Next.js 16 convention).
+- `force-dynamic` removed from root layout; pages decide individually.
+- `loading="lazy"` added to ~21 `<img>` tags across all pages.
+- Hero image: `loading="lazy"` removed, `fetchPriority="high"` added.
+- Security headers in `next.config.ts`: X-Frame-Options DENY, X-Content-Type-Options nosniff, Referrer-Policy strict-origin-when-cross-origin.
+- Image `remotePatterns` configured (Supabase, Unsplash, Google, DiceBear).
+- Dashboard batches: `updateUsersBatch` uses single `IN` query instead of N+1.
+
+### Render-blocking fixes
+- Google Fonts preload **removed** from layout `<head>` (was render-blocking).
+- Material Symbols loaded via `MaterialIcons.tsx` client inject with `media="print"` + `onload`.
+- FOUT fix: `globals.css` sets `.material-symbols-outlined { visibility: hidden }`, toggled to `visible` via `.fonts-ready` class on `<html>` when `document.fonts.ready` resolves.
+
+### Image upload resize
+- `ImageUpload.tsx` and `AvatarUpload.tsx`: client-side Canvas resize before upload (max 1200px / 600px, JPEG 0.85).
+
+### Page transitions
+- No `loading.tsx` (causes Suspense freeze with async server components).
+- Instead: CSS `fadeIn` animation on `<main>` in `globals.css` — 0.5s ease-in, no JS, no bundle.
+
+### Relevant files touched
+- `supabase/migrations/00009_revistas_pdf_private.sql` (new)
+- `src/lib/email-template.ts` (new)
+- `src/proxy.ts` (new)
+- `src/components/MaterialIcons.tsx` (rewritten)
+- `src/app/globals.css` (material icons FOUT + page fade-in)
+- `src/app/layout.tsx` (removed preload links, force-dynamic)
+- `src/app/revista/page.tsx` (removed PDF <a>)
+- `src/app/revista/[slug]/page.tsx` (removed PDF <a>)
+- `src/components/ImageUpload.tsx` (added resize)
+- `src/components/AvatarUpload.tsx` (added resize)
+- `src/components/Footer.tsx` (converted to server component)
+- `src/lib/supabase/admin-actions.ts` (added signedPdfUrl)
+- `next.config.ts` (security headers + remotePatterns)
+- `src/lib/supabase/newsletter.ts` (createAdminClient)
+- `src/lib/email-config.ts` (createAdminClient)
+- `src/middleware.ts` (removed, replaced by proxy.ts)
+- `src/app/admin/users/page.tsx` (batch update)

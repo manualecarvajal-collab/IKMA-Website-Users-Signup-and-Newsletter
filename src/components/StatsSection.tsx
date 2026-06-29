@@ -190,6 +190,7 @@ export default function StatsSection() {
               <img
                 src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&q=80&w=800"
                 alt="IKMA Medical Service"
+                loading="lazy"
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                 onError={handleImgError}
               />
@@ -198,11 +199,6 @@ export default function StatsSection() {
               </div>
             </div>
           </div>
-        </div>
-
-        <div className="mt-16 pt-6 border-t border-slate-100 flex justify-between text-[11px] md:text-xs font-bold text-[#114b7e]/60 tracking-wider">
-          <span>16 / SEPTEMBER 2025 &bull; FIRST EDITION</span>
-          <span>IKMA INTERNATIONAL</span>
         </div>
       </div>
     </div>

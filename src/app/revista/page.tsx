@@ -71,6 +71,7 @@ export default async function RevistaPage() {
                     <img
                       src={articles[0].imagen_url  || ""}
                       alt=""
+                      loading="lazy"
                       className="w-full h-full object-cover"
                     />
                   </div>
@@ -103,7 +104,7 @@ export default async function RevistaPage() {
                       className="flex space-x-4 p-0 rounded-lg hover:bg-surface-container/50 transition-colors cursor-pointer group"
                     >
                       <div className="w-24 h-24 rounded-lg overflow-hidden flex-shrink-0 bg-surface-container-high">
-                        <img src={a.imagen_url  || ""} alt="" className="w-full h-full object-cover" />
+                        <img src={a.imagen_url  || ""} alt="" loading="lazy" className="w-full h-full object-cover" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <span className="text-[10px] font-bold text-tertiary uppercase tracking-tighter">{a.autor_nombre || "IKMA"}</span>
@@ -143,7 +144,7 @@ export default async function RevistaPage() {
                       className="flex flex-col group cursor-pointer bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-[0_12px_24px_rgba(7,68,105,0.06)] hover:-translate-y-0.5 transition-all duration-300"
                     >
                       <div className="w-full aspect-[16/10] overflow-hidden bg-surface-container-high">
-                        <img src={a.imagen_url  || ""} alt="" className="w-full h-full object-cover" />
+                        <img src={a.imagen_url  || ""} alt="" loading="lazy" className="w-full h-full object-cover" />
                       </div>
                       <div className="p-4">
                     <span className="text-[10px] font-bold text-tertiary uppercase tracking-tighter">
@@ -188,16 +189,13 @@ export default async function RevistaPage() {
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                     {magazines.map((m) => (
-                      <a
+                      <div
                         key={m.id}
-                        href={m.archivo_url || "#"}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex flex-col bg-surface-container-low rounded-lg overflow-hidden hover:shadow-md transition-shadow group"
+                        className="flex flex-col bg-surface-container-low rounded-lg overflow-hidden hover:shadow-md transition-shadow group cursor-default"
                       >
                         {m.imagen_portada ? (
                           <div className="aspect-[3/4] w-full overflow-hidden bg-surface-variant">
-                            <img src={m.imagen_portada} alt={m.titulo} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                            <img src={m.imagen_portada} alt={m.titulo} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                           </div>
                         ) : (
                           <div className="aspect-[3/4] w-full bg-surface-container-high flex items-center justify-center">
@@ -205,12 +203,12 @@ export default async function RevistaPage() {
                           </div>
                         )}
                         <div className="p-4">
-                          <h3 className="font-headline-md text-headline-md text-on-surface group-hover:text-primary transition-colors text-sm">{m.titulo}</h3>
+                          <h3 className="font-headline-md text-headline-md text-on-surface text-sm">{m.titulo}</h3>
                           {m.descripcion && (
                             <p className="font-body-md text-body-md text-on-surface-variant text-xs mt-1 line-clamp-2">{m.descripcion}</p>
                           )}
                         </div>
-                      </a>
+                      </div>
                     ))}
                   </div>
                 </div>

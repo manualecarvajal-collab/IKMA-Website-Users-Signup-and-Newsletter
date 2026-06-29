@@ -83,6 +83,7 @@ export default async function HomePage() {
           <img
             src="/images/hero img.webp"
             alt="Group of medical professionals"
+            fetchPriority="high"
             className="w-full h-auto object-contain object-bottom pointer-events-none"
           />
           <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-background to-transparent pointer-events-none" />
@@ -110,6 +111,7 @@ export default async function HomePage() {
                   <img
                     src={mainArticle.imagen_url || "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=1000"}
                     alt={mainArticle.titulo}
+                    loading="lazy"
                     className="w-full h-full object-cover"
                   />
                 </div>
@@ -145,9 +147,10 @@ export default async function HomePage() {
                   className="flex space-x-3 sm:space-x-4 p-3 sm:p-4 rounded-lg hover:bg-surface-container transition-colors cursor-pointer group"
                 >
                   <div className="w-20 sm:w-24 h-20 sm:h-24 rounded-lg overflow-hidden flex-shrink-0 bg-surface-variant">
-                    <img
+                      <img
                       src={article.imagen_url || "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=1000"}
                       alt={article.titulo}
+                      loading="lazy"
                       className="w-full h-full object-cover"
                     />
                   </div>
@@ -214,6 +217,7 @@ export default async function HomePage() {
                             : BASE + doc.imagen_url
                         }
                         alt=""
+                        loading="lazy"
                         className="w-full h-full object-cover"
                       />
                       <div className="absolute bottom-1 right-1 bg-surface-container-lowest rounded-full p-0.5 shadow-sm">
