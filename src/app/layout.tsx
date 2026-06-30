@@ -8,6 +8,7 @@ import CookieConsent from "@/components/CookieConsent"
 import MaterialIcons from "@/components/MaterialIcons"
 import { createClient } from "@/lib/supabase/server"
 import { SpeedInsights } from "@vercel/speed-insights/next"
+import { headers } from "next/headers"
 
 const montserrat = Montserrat({
   variable: "--font-montserrat",
@@ -46,7 +47,6 @@ export default async function RootLayout({
   const { data: { user } } = await supabase.auth.getUser()
 
   let userInfo: { email: string; role: string } | null = null
-  let isAdmin = false
   if (user) {
     const { data: perfil } = await supabase
       .from("perfiles")
@@ -54,8 +54,11 @@ export default async function RootLayout({
       .eq("id", user.id)
       .single()
     userInfo = { email: user.email ?? "", role: perfil?.rol ?? "lector" }
-    isAdmin = perfil?.rol === "administrador"
   }
+
+  const headersList = await headers()
+  const pathname = headersList.get("x-invoke-path") || headersList.get("x-pathname") || ""
+  const isAdminPage = pathname.startsWith("/admin")
 
   return (
     <html
@@ -71,7 +74,7 @@ export default async function RootLayout({
         <MaterialIcons />
         <Navbar initialUser={userInfo} />
         <main className="flex-grow">{children}</main>
-        <Footer isAdmin={isAdmin} />
+        <Footer hide={isAdminPage} />
         <ToastContainer />
         <CookieConsent />
         <SpeedInsights />

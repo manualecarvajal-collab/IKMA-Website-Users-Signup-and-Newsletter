@@ -2,24 +2,12 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import HeroBg3D from "@/components/HeroBg3DWrapper";
 
-const BASE = "https://lh3.googleusercontent.com/aida-public/";
-
 export default async function HomePage() {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   const isAuthenticated = !!user;
-
-  const { data: dbDoctors } = await supabase
-    .from("doctores")
-    .select("*")
-    .eq("publicado", true)
-    .order("nombre")
-    .limit(3);
-
-  const featuredDoctors =
-    dbDoctors && dbDoctors.length > 0 ? dbDoctors : staticDoctors.slice(0, 3);
 
   const { data: dbArticles } = await supabase
     .from("articulos")
@@ -182,117 +170,6 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* Doctors Section */}
-      <section className="py-12 md:py-section-padding bg-surface-container-low border-t border-outline-variant/20">
-        <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
-          <div className="mb-12 text-center">
-            <h2 className="font-headline-lg text-headline-lg text-primary mb-2">
-              Our Doctors
-            </h2>
-            <p className="font-body-lg text- text-on-surface-variant">
-              Meet the dedicated medical professionals combining clinical
-              excellence with deep compassion.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-gutter">
-            {featuredDoctors.map(
-              (doc: {
-                id: number;
-                nombre: string;
-                especialidad_principal: string;
-                frase: string | null;
-                imagen_url: string | null;
-              }) => (
-                <article
-                  key={doc.id}
-                  className="bg-surface-container-lowest rounded-xl p-6 shadow-[0_4px_20px_0_rgba(7,68,105,0.03)] border border-outline-variant/10 hover:-translate-y-1 transition-transform duration-300 flex flex-col group"
-                >
-                  <div className="flex items-start gap-3 sm:gap-4 mb-6">
-                    <div className="w-20 sm:w-24 h-20 sm:h-24 rounded-lg overflow-hidden shrink-0 bg-surface-container-high relative">
-                      <img
-                        src={
-                          doc.imagen_url?.startsWith("http")
-                            ? doc.imagen_url
-                            : BASE + doc.imagen_url
-                        }
-                        alt=""
-                        loading="lazy"
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute bottom-1 right-1 bg-surface-container-lowest rounded-full p-0.5 shadow-sm">
-                        <span className="material-symbols-outlined text-primary text-sm">
-                          verified
-                        </span>
-                      </div>
-                    </div>
-                    <div>
-                      <h3 className="font-headline-md text-body-md text-on-surface mb-1 group-hover:text-primary transition-colors">
-                        {doc.nombre}
-                      </h3>
-                      <span className="font-label-bold text-label-bold text-tertiary-container bg-tertiary-fixed inline-block px-2 py-0.5 rounded-sm">
-                        {doc.especialidad_principal}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="bg-surface-container-low p-4 rounded-lg mt-auto relative">
-                    <span className="material-symbols-outlined text-outline-variant absolute top-3 left-3 opacity-30 text-3xl">
-                      format_quote
-                    </span>
-                    <p className="font-body-md text-body-md text-on-surface-variant italic relative z-10 pl-6">
-                      {doc.frase}
-                    </p>
-                  </div>
-                  <Link
-                    href={`/doctores/${doc.id}`}
-                    className="mt-6 w-full bg-surface text-primary border border-primary/20 font-label-bold text-label-bold py-3 rounded-lg hover:bg-secondary-container transition-colors group-hover:border-primary block text-center"
-                  >
-                    View Full Profile
-                  </Link>
-                </article>
-              ),
-            )}
-          </div>
-          <div className="mt-10 text-center">
-            <Link
-              href="/doctores"
-              className="bg-surface-container-high text-on-surface font-label-bold text-label-bold px-8 py-3.5 rounded-lg hover:bg-surface-container-highest transition-all inline-block"
-            >
-              See all Doctors
-            </Link>
-          </div>
-        </div>
-      </section>
     </>
   );
 }
-
-const staticDoctors = [
-  {
-    id: 1,
-    nombre: "Dr. Sarah Jenkins",
-    especialidad_principal: "Cardiology",
-    frase:
-      "Healing the physical heart is my medical duty, but bringing peace to the anxious soul is my true calling.",
-    imagen_url:
-      "AB6AXuAEVoMDLvTzpuk46GOo8lj9JgBORU1iZwCf4sWnvtHUko5w8etAQWu5K9UGeKaueOECOKjZGhwHwnEpPpIHJJLppbhavNhCqkN7uDZxfmFzV8wfw2lg2cJLm82aF8qjSvvbZ19gJ6STAhCWjNekq-qGbWm1Lyw6ZL5rowp3w0rek9Mgj1PikNrhA8odQVp9fHNkiUBXDIR6Sugo_HbcjEm-OKFs-8t5lhAWUu-vE18I4afS_Uo-quEmNLDcLO_nba5UlyyaArZp-Wc",
-  },
-  {
-    id: 2,
-    nombre: "Dr. Marcus Chen",
-    especialidad_principal: "Pediatrics",
-    frase:
-      "Every child holds a promise for the future. We provide the care they need to realize that promise fully.",
-    imagen_url:
-      "AB6AXuAfGdBCg-iG913EqelruRwaNM-8HyF5Nxj2n9txUYVU0Irx_FUOLiq7_taCXGqo_7iO_NsXe8cKZv_l1EPb58JKfou2LswTqY0_wnvRE_CD0q9YRuZnj9gq_ThAppsyO7rXeYXbs3urywmvmiqBMlhpYL2FnHq1yforqQvuR_b-qnvu-0mP5kHyA2xnRC7GbIqYm5MwkcOPe5iTeePAWTwx9zwNkelV0wkYgxLbVYb1S3P8kBdjkd5wnU6eyz2bxhwn66h4785Sz4k",
-  },
-  {
-    id: 3,
-    nombre: "Dr. Elena Rodriguez",
-    especialidad_principal: "Oncology",
-    frase:
-      "Walking alongside families during their toughest battles is a profound privilege. We fight with science and support with faith.",
-    imagen_url:
-      "AB6AXuBvJ_sDLH8kRg-mitYacKkeltAoQ0a1YB1jm2GNDwKcS4quE4CCwkirBnlIXfs-M_A1vAJYGQzmMlSON4VVL9zXuzy2KMj5kTVtWS2DbePBei-wBKDWD4EK35XS1ypWFfvVvp9p_tBwK-AnSZvY7EutSunVCIPMqzJcEXwYPZFHyJCa7PWMHCqI5iuom1cr5ocN9InU_JvTMgAQbfc6oFK9q0Vkp7j-avr7yS6ZGw4IIgwLcnmrXsXRgK2ylFJOxc5GcDP5BwzNbYo",
-  },
-];

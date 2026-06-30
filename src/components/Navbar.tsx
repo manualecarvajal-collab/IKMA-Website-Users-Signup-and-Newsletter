@@ -10,7 +10,6 @@ import { signout } from "@/lib/supabase/actions"
 const navLinks = [
   { href: "/", label: "Home" },
   { href: "/about", label: "About Us" },
-  { href: "/doctores", label: "Doctors" },
   { href: "/revista", label: "Blog" },
   { href: "/contacto", label: "Contact" },
 ]

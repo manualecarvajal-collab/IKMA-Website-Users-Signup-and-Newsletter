@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { createClient, createAdminClient } from "@/lib/supabase/server"
-import { buildMagazineHtml } from "@/lib/email-template"
+import { buildMagazineHtml, buildNewsletterHtml } from "@/lib/email-template"
 
 async function checkAdmin() {
   const supabase = await createClient()
@@ -541,4 +541,103 @@ export async function sendMagazineToSubscribers(revistaId: string, excludeEmails
   }
 
   return { error: "Resend API key not configured" }
+}
+
+// ─── NEWSLETTERS ─────────────────────────────────────────
+
+export async function sendNewsletter(
+  _prevState: { error?: string; success?: string } | undefined,
+  formData: FormData
+) {
+  const { user } = await checkAdmin()
+
+  const titulo = formData.get("titulo") as string
+  const contenido_html = formData.get("contenido_html") as string
+  const imagen_url = formData.get("imagen_url") as string
+
+  if (!titulo || !contenido_html) return { error: "Title and content are required" }
+
+  const admin = await createAdminClient()
+
+  const { data: suscriptores } = await admin
+    .from("perfiles")
+    .select("id, nombre_completo")
+    .eq("suscripcion_activa", true)
+
+  if (!suscriptores?.length) return { error: "No active subscribers" }
+
+  const { data: users } = await admin.auth.admin.listUsers()
+  const userMap = new Map(
+    (users?.users ?? []).map((u) => [u.id, u.email ?? ""])
+  )
+
+  const recipients = suscriptores
+    .map((s) => ({
+      email: userMap.get(s.id) || "",
+      nombre: s.nombre_completo,
+    }))
+    .filter((r): r is { email: string; nombre: string } => !!r.email)
+
+  if (!recipients.length) return { error: "No recipients with emails" }
+
+  const config = await getEmailConfig()
+  let sent = 0
+
+  if (process.env.RESEND_API_KEY) {
+    for (const { email, nombre } of recipients) {
+      const resp = await sendEmail(
+        config,
+        email,
+        `Newsletter: ${titulo}`,
+        buildNewsletterHtml({
+          nombre,
+          titulo,
+          contenido_html,
+          imagen_url: imagen_url || null,
+          from_name: config.email_from_name || "IKMA",
+        })
+      )
+      if (resp.ok) sent++
+    }
+  }
+
+  // Save to DB
+  await admin.from("newsletters").insert({
+    titulo,
+    contenido_html,
+    imagen_url: imagen_url || null,
+    enviado_por: user.id,
+    destinatarios: sent,
+  })
+
+  revalidatePath("/admin/newsletter")
+  return { success: `Newsletter sent to ${sent} of ${recipients.length} subscribers` }
+}
+
+export async function getNewsletters() {
+  await checkAdmin()
+  const admin = await createAdminClient()
+  const { data } = await admin
+    .from("newsletters")
+    .select("*")
+    .order("created_at", { ascending: false })
+  return data ?? []
+}
+
+export async function getNewsletter(id: string) {
+  await checkAdmin()
+  const admin = await createAdminClient()
+  const { data } = await admin
+    .from("newsletters")
+    .select("*")
+    .eq("id", id)
+    .single()
+  return data
+}
+
+export async function deleteNewsletter(id: string) {
+  await checkAdmin()
+  const admin = await createAdminClient()
+  await admin.from("newsletters").delete().eq("id", id)
+  revalidatePath("/admin/newsletter")
 }

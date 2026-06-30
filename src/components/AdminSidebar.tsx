@@ -9,6 +9,7 @@ const navItems = [
   { href: "/admin/articulos", label: "Articles", icon: "article" },
   { href: "/admin/doctores", label: "Doctors", icon: "stethoscope" },
   { href: "/admin/revistas", label: "Magazines", icon: "menu_book" },
+  { href: "/admin/newsletter", label: "Newsletter", icon: "mail" },
 ]
 
 export function SidebarNav({ 
