@@ -4,6 +4,7 @@ import "./globals.css"
 import Navbar from "@/components/Navbar"
 import Footer from "@/components/Footer"
 import ToastContainer from "@/components/Toast"
+import CookieConsent from "@/components/CookieConsent"
 import MaterialIcons from "@/components/MaterialIcons"
 import { createClient } from "@/lib/supabase/server"
 import { SpeedInsights } from "@vercel/speed-insights/next"
@@ -72,6 +73,7 @@ export default async function RootLayout({
         <main className="flex-grow">{children}</main>
         <Footer isAdmin={isAdmin} />
         <ToastContainer />
+        <CookieConsent />
         <SpeedInsights />
       </body>
     </html>

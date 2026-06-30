@@ -66,3 +66,33 @@ export async function signout() {
   revalidatePath("/", "layout")
   return { success: true }
 }
+
+export async function resetPassword(prevState: { error?: string; success?: string } | undefined, formData: FormData) {
+  const supabase = await createClient()
+  const email = formData.get("email") as string
+
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/actualizar-password`,
+  })
+
+  if (error) return { error: error.message }
+  return { success: "Check your email for a password reset link." }
+}
+
+export async function updatePassword(prevState: { error?: string; success?: string } | undefined, formData: FormData) {
+  const supabase = await createClient()
+  const password = formData.get("password") as string
+
+  if (!password || password.length < 8) {
+    return { error: "Password must be at least 8 characters long" }
+  }
+  if (!/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/\d/.test(password)) {
+    return { error: "Password must contain at least one uppercase letter, one lowercase letter, and one number" }
+  }
+
+  const { error } = await supabase.auth.updateUser({ password })
+  if (error) return { error: error.message }
+
+  revalidatePath("/", "layout")
+  return { success: "Password updated successfully." }
+}
