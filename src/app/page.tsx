@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import HeroBg3D from "@/components/HeroBg3DWrapper";
+import HeroCarousel, { Slide } from "@/components/HeroCarousel";
 
 export default async function HomePage() {
   const supabase = await createClient();
@@ -21,62 +21,112 @@ export default async function HomePage() {
 
   return (
     <>
-      {/* Hero Section */}
-      <section className="relative overflow-hidden max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop min-h-[calc(100vh-5rem)] flex flex-col items-center text-center justify-center">
-        <div className="max-md:hidden">
-          <HeroBg3D />
-        </div>
-        <div className="relative z-10 flex flex-col items-center justify-center space-y-4 max-w-3xl max-md:flex-none md:flex-1 w-full p-0 md:p-[40px]">
-          <h2 className="font-headline-lg text-headline-lg text-on-surface">
-            Healing through <span className="text-primary">faith</span>
-            {""} and {""}
-            <span className="text-primary"> excellence</span>
-          </h2>
-          <p className="font-body-md text-body-md text-on-surface-variant max-w-3xl">
-            We are a mission-driven medical association dedicated to providing
-            accessible, high-quality healthcare to those in need.
-            Join us in making a profound impact on communities worldwide.
-          </p>
-          <div className="flex flex-row items-center justify-center gap-3 sm:gap-4 pt-4">
-            <Link
-              href={isAuthenticated ? "/suscripcion-exito" : "/registro"}
-              className="bg-primary text-on-primary font-label-bold text-label-bold px-8 py-3.5 rounded-lg hover:bg-primary/90 transition-all shadow-[0_8px_16px_0_rgba(7,68,105,0.1)] active:scale-95 text-center inline-block"
-            >
-              Support Our Mission
-            </Link>
-            {isAuthenticated ? (
-              <Link
-                href="/suscripcion-exito"
-                className="bg-secondary-container text-primary font-label-bold text-label-bold px-8 py-3.5 rounded-lg hover:bg-secondary-container/80 transition-all active:scale-95 flex items-center justify-center space-x-2"
-              >
-                <span>Subscribe to our Newsletter</span>
-                <span className="material-symbols-outlined text-lg">
-                  arrow_forward
+      <HeroCarousel isAuthenticated={isAuthenticated}>
+        <Slide>
+          <div className="relative w-full h-full">
+            <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop flex flex-col md:flex-row h-full">
+              {/* Left - Content */}
+              <div className="relative z-10 w-full md:w-[55%] flex flex-col justify-center py-8 md:py-0">
+                <div className="max-w-[420px]">
+                <span
+                  className="text-[#334D96] leading-none select-none block"
+                  style={{ fontSize: "clamp(48px, 6vw, 90px)", fontFamily: "Montserrat", fontWeight: 700, lineHeight: 0.5 }}
+                  aria-hidden="true"
+                >
+                  &ldquo;
                 </span>
-              </Link>
-            ) : (
-              <Link
-                href="/registro"
-                className="bg-secondary-container text-primary font-label-bold text-label-bold px-8 py-3.5 rounded-lg hover:bg-secondary-container/80 transition-all active:scale-95 flex items-center justify-center space-x-2"
-              >
-                <span>Sign up for free</span>
-                <span className="material-symbols-outlined text-lg">
-                  arrow_forward
-                </span>
-              </Link>
-            )}
+
+                <p className="text-[#334D96] text-sm sm:text-base md:text-[clamp(13px,1.2vw,19px)] leading-snug md:leading-[1.5] -mt-2 md:-mt-3">
+                  <span className="font-[700]">Mankind and the nations are operating below </span>
+                  <span className="font-[500] italic">our God-given potential.</span>
+                  <span className="font-[700]"> Our mission/purpose is to </span>
+                  <span className="font-[900]">rebuild, restore, and renew the medical field</span>
+                  <span className="font-[700]"> </span>
+                  <span className="font-[500]">to its role of preserving and supporting the flourishing of mankind.</span>
+                </p>
+
+                <div className="text-right -mt-1">
+                  <span
+                    className="text-[#334D96] leading-none select-none inline-block scale-x-[-1] scale-y-[-1]"
+                    style={{ fontSize: "clamp(48px, 6vw, 90px)", fontFamily: "Montserrat", fontWeight: 700, lineHeight: 0.5 }}
+                    aria-hidden="true"
+                  >
+                    &ldquo;
+                  </span>
+                </div>
+
+                <p className="text-[#717377] text-[10px] md:text-xs font-[700] mt-2 md:mt-3 tracking-[0.2em] uppercase">
+                  APOSTLE JOHN BONEY
+                </p>
+              </div>
+            </div>
+
+            {/* Right - Image */}
+            <div className="w-full md:w-[45%] md:relative overflow-hidden flex-shrink-0">
+              <img
+                src="/images/Ap Bonny 2.png"
+                alt="Apostle John Boney"
+                fetchPriority="high"
+                className="w-full h-[35vh] md:absolute md:inset-0 md:h-full object-cover object-[center_15%] pointer-events-none rounded-xl md:rounded-none"
+              />
+            </div>
           </div>
         </div>
-        <div className="w-full max-w-5xl mx-auto relative z-10 max-md:order-first md:order-0 max-md:mt-0 md:mt-auto">
-          <img
-            src="/images/hero img.webp"
-            alt="Group of medical professionals"
-            fetchPriority="high"
-            className="w-full h-auto object-contain object-bottom pointer-events-none"
-          />
-          <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-background to-transparent pointer-events-none" />
+        </Slide>
+        <Slide>
+          <div className="relative w-full h-full">
+            <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop flex flex-col md:flex-row h-full">
+              {/* Left - Content */}
+              <div className="relative z-10 w-full md:w-[55%] flex flex-col justify-center py-8 md:py-0">
+                <div className="max-w-[420px]">
+                <span
+                  className="text-[#334D96] leading-none select-none block"
+                  style={{ fontSize: "clamp(48px, 6vw, 90px)", fontFamily: "Montserrat", fontWeight: 700, lineHeight: 0.5 }}
+                  aria-hidden="true"
+                >
+                  &ldquo;
+                </span>
+
+                <p className="text-[#334D96] text-sm sm:text-base md:text-[clamp(13px,1.2vw,19px)] leading-snug md:leading-[1.5] -mt-2 md:-mt-3">
+                  <span className="font-[600]">The root of all diseases has a </span>
+                  <span className="font-[600]">spiritual component </span>
+                  <span className="font-[800]">that affects the soul, body, </span>
+                  <span className="font-[800]">and mind.</span>
+                  <span className="font-[600]"> God&rsquo;s Word reminds </span>
+                  <span className="font-[600]">us in Proverbs 20:27, </span>
+                  <span className="font-[600] italic">&ldquo;The human spirit is the lamp of the Lord that sheds light on one&rsquo;s inmost being.&rdquo;</span>
+                </p>
+
+                <div className="text-right -mt-1">
+                  <span
+                    className="text-[#334D96] leading-none select-none inline-block scale-x-[-1] scale-y-[-1]"
+                    style={{ fontSize: "clamp(48px, 6vw, 90px)", fontFamily: "Montserrat", fontWeight: 700, lineHeight: 0.5 }}
+                    aria-hidden="true"
+                  >
+                    &ldquo;
+                  </span>
+                </div>
+
+                <p className="text-[#717377] text-[10px] md:text-xs font-[700] mt-2 md:mt-3 tracking-[0.2em] uppercase">
+                  FRANCISCO HERNÁNDEZ
+                </p>
+              </div>
+            </div>
+
+            {/* Right - Image */}
+            <div className="w-full md:w-[34%] md:relative overflow-hidden flex-shrink-0">
+              <img
+                src="/images/Francisco 1.png"
+                alt="Francisco Hernández"
+                loading="lazy"
+                className="w-full h-[35vh] md:absolute md:inset-0 md:h-full object-cover object-center pointer-events-none rounded-xl md:rounded-none"
+                style={{ boxShadow: "-25px 4px 25px 0px #00000033" }}
+              />
+            </div>
+          </div>
         </div>
-      </section>
+        </Slide>
+      </HeroCarousel>
 
       {/* Insights & Stories Section */}
       <section className="bg-surface-container-lowest py-12 md:py-section-padding border-t border-outline-variant/20">
