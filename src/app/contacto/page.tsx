@@ -90,7 +90,7 @@ export default function ContactPage() {
                   >
                     <option>General Question</option>
                     <option>Medical Funding</option>
-                    <option>Doctor Network</option>
+                    <option>Membership Question</option>
                     <option>Prayer Request</option>
                   </select>
                 </div>

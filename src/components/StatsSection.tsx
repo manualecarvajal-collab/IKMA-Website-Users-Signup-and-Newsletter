@@ -93,12 +93,8 @@ export default function StatsSection() {
   }, [])
 
   return (
-    <div ref={ref} className="bg-white rounded-3xl shadow-xl border border-outline-variant/10 overflow-hidden p-6 md:p-12 lg:p-16 relative">
-      <div className="absolute -top-40 -right-40 w-96 h-96 bg-blue-50 rounded-full blur-3xl opacity-60 pointer-events-none" />
-      <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-sky-50 rounded-full blur-3xl opacity-60 pointer-events-none" />
-
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start relative z-10">
-        <div className="lg:col-span-7 xl:col-span-8 space-y-12">
+    <div ref={ref} className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+      <div className="lg:col-span-7 xl:col-span-8 space-y-12">
           <div className="space-y-4">
             <span className="inline-block bg-[#007edc]/10 text-[#007edc] font-bold text-xs tracking-wider uppercase px-4 py-1.5 rounded-full">
               Statistics
@@ -200,7 +196,6 @@ export default function StatsSection() {
             </div>
           </div>
         </div>
-      </div>
     </div>
   )
 }

@@ -2,55 +2,67 @@
 
 import { useEffect, useState } from "react"
 
-type Consent = "accepted" | "rejected" | null
+type ConsentStatus = "accepted" | "rejected"
+type StoredConsent = { status: ConsentStatus; version: string } | null
+
+const COOKIE_VERSION = "v2"
 
 export default function CookieConsent() {
-  const [consent, setConsent] = useState<Consent>(null)
   const [visible, setVisible] = useState(false)
 
   useEffect(() => {
-    const stored = localStorage.getItem("cookie-consent") as Consent | null
-    if (!stored) {
+    try {
+      const raw = localStorage.getItem("cookie-consent")
+      if (!raw) return setVisible(true)
+      const parsed = JSON.parse(raw) as StoredConsent
+      if (!parsed || parsed.version !== COOKIE_VERSION) setVisible(true)
+    } catch {
       setVisible(true)
     }
-    setConsent(stored)
   }, [])
 
-  const accept = () => {
-    localStorage.setItem("cookie-consent", "accepted")
-    setConsent("accepted")
-    setVisible(false)
-  }
-
-  const reject = () => {
-    localStorage.setItem("cookie-consent", "rejected")
-    setConsent("rejected")
+  const storeConsent = (status: ConsentStatus) => {
+    localStorage.setItem(
+      "cookie-consent",
+      JSON.stringify({ status, version: COOKIE_VERSION })
+    )
     setVisible(false)
   }
 
   if (!visible) return null
 
   return (
-    <div className="fixed bottom-4 left-4 z-[200] max-w-sm w-full animate-fadeInUp">
-      <div className="bg-surface rounded-xl p-5 shadow-xl border border-outline-variant/20">
+    <div className="fixed bottom-4 right-4 z-[200] animate-fadeInUp">
+      <div className="bg-surface rounded-xl p-5 shadow-xl border border-outline-variant/20 w-auto max-w-md max-h-[70vh] overflow-y-auto">
         <h3 className="font-label-bold text-label-bold text-on-surface mb-2">
-          🍪 Cookie Consent
+          Cookies and Tracking
         </h3>
-        <p className="font-body-md text-body-md text-on-surface-variant text-sm mb-4 leading-relaxed">
-          We use cookies to enhance your browsing experience, analyze site traffic,
-          and provide authentication services. By clicking "Accept", you consent to
-          our use of cookies.
-        </p>
-        <div className="flex gap-3">
+        <div className="font-body-md text-body-md text-on-surface-variant text-sm leading-relaxed">
+          <p>
+            Cookies are small files transferred to your browser that enable
+            sites to recognize you and remember your information. We use them
+            to remember items, understand your preferences, and compile
+            aggregate data about site traffic to offer better experiences.
+          </p>
+        </div>
+        <a
+          href="/cookies"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-block text-primary font-label-bold text-label-bold mt-2 mb-3 hover:underline cursor-pointer"
+        >
+          Read More
+        </a>
+        <div className="flex gap-3 justify-start">
           <button
-            onClick={accept}
-            className="flex-1 bg-primary text-on-primary font-label-bold text-label-bold px-4 py-2.5 rounded-lg hover:bg-primary/90 transition-colors cursor-pointer"
+            onClick={() => storeConsent("accepted")}
+            className="w-20 bg-primary text-on-primary font-label-bold text-label-bold px-4 py-2.5 rounded-lg hover:bg-primary/90 transition-colors cursor-pointer"
           >
             Accept
           </button>
           <button
-            onClick={reject}
-            className="flex-1 bg-surface-container-high text-on-surface font-label-bold text-label-bold px-4 py-2.5 rounded-lg hover:bg-surface-variant transition-colors cursor-pointer"
+            onClick={() => storeConsent("rejected")}
+            className="w-20 bg-surface-container-high text-on-surface font-label-bold text-label-bold px-4 py-2.5 rounded-lg hover:bg-surface-variant transition-colors cursor-pointer"
           >
             Reject
           </button>

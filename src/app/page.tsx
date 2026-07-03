@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import HeroCarousel, { Slide } from "@/components/HeroCarousel";
+import StatsSection from "@/components/StatsSection";
 
 export default async function HomePage() {
   const supabase = await createClient();
@@ -218,6 +219,12 @@ export default async function HomePage() {
               View all Articles
             </Link>
           </div>
+        </div>
+      </section>
+
+      <section className="py-12 md:py-section-padding bg-surface">
+        <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+          <StatsSection />
         </div>
       </section>
     </>

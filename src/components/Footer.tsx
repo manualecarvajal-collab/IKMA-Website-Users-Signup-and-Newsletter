@@ -19,7 +19,7 @@ export default function Footer({ hide }: { hide?: boolean }) {
           <ul className="space-y-3">
             <li>
               <Link
-                href="#"
+                href="/privacy-policy"
                 className="text-on-surface-variant hover:text-primary hover:underline transition-all duration-200 hover:opacity-80"
               >
                 Privacy Policy

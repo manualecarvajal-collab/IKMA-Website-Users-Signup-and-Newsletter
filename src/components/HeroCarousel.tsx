@@ -54,13 +54,13 @@ export default function HeroCarousel({
             <div className="pointer-events-auto flex flex-row flex-wrap items-center justify-start gap-2 sm:gap-3 mb-[5vh]">
               <Link
                 href={isAuthenticated ? '/suscripcion-exito' : '/registro'}
-                className="bg-[#334D96] text-white font-[600] text-xs px-6 py-3 rounded-xl hover:bg-[#334D96]/90 transition-all active:scale-95 text-center"
+                className="bg-primary text-on-primary font-label-bold text-label-bold px-6 py-3 rounded-lg hover:bg-primary/90 transition-all active:scale-95 text-center"
               >
                 Support our Mission
               </Link>
               <Link
                 href={isAuthenticated ? '/suscripcion-exito' : '/registro'}
-                className="border-2 border-[#334D96] text-[#334D96] font-[600] text-xs px-6 py-3 rounded-xl hover:bg-[#334D96]/5 transition-all active:scale-95 text-center"
+                className="border-2 border-primary text-primary font-label-bold text-label-bold px-6 py-3 rounded-lg hover:bg-primary/5 transition-all active:scale-95 text-center"
               >
                 Subscribe to our Newsletter
               </Link>
