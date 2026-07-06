@@ -422,3 +422,33 @@ src/
 4. Gestión de usuarios (toggle suscripción, eliminar)
 5. Envío masivo de revistas a suscriptores
 6. Configuración de email (from_name, from_email, subject template)
+
+---
+
+## Sesión 2026-07-03 — Strategic Aims mosaic + contenido About
+
+### Stitch MCP (diseño por referencia)
+- Se configuró acceso a Stitch vía MCP (`stitch.googleapis.com/mcp`) con API key.
+- Método: `tools/call` con `name: "get_screen"`, args `project_id` + `screen_id`.
+- Headers: `X-Goog-Api-Key`.
+- Devuelve `screenshot.downloadUrl` + `htmlCode.downloadUrl`.
+- Dos screens consultadas: "Sección Strategic Aims - IKMA" (cards 4-col) y "Sección Strategic Aims Mosaic - IKMA" (mosaic full-width).
+
+### About page — Strategic Aims mosaic
+- Se reemplazó el grid de cards `lg:grid-cols-3` por un mosaic full-width `sm:grid-cols-2 lg:grid-cols-4`.
+- Cada tile `h-[320px] md:h-[450px]` con imagen de fondo (Google AIDA), `grayscale` + `brightness-75` default, hover cambia a `grayscale-0` + `brightness-90`.
+- Overlay `from-black/80 via-black/20 to-transparent`.
+- Título siempre visible al fondo (`mt-auto`), descripción con `max-h-0` → `group-hover:max-h-40`.
+- Bloque entero sube `-translate-y-4` en hover.
+
+### Otros cambios
+- **CookieConsent.tsx**: v2 con `{status, version}` en JSON, botones compactos w-20, link a `/cookies`.
+- **Footer.tsx**: link Privacy Policy → `/privacy-policy`.
+- **HeroCarousel.tsx**: colores `#334D96` → tokens `primary`.
+- **StatsSection.tsx**: movido de About a Home, sin wrapper `rounded-3xl shadow-xl`.
+- **About**: contenido del fundador expandido, badges "Our Foundation" → "About Us".
+- **Contacto**: "Doctor Network" → "Membership Question".
+- Nuevas páginas: `/cookies`, `/privacy-policy`.
+
+### Commit
+- `0e92821` — push a main → auto-deploy Vercel.

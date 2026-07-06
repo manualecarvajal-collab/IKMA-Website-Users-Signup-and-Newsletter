@@ -7,11 +7,10 @@ import { useEffect, useState } from "react"
 import { createBrowserClient } from "@supabase/ssr"
 import { signout } from "@/lib/supabase/actions"
 
-const navLinks = [
-  { href: "/", label: "Home" },
-  { href: "/about", label: "About Us" },
-  { href: "/revista", label: "Blog" },
-  { href: "/contacto", label: "Contact" },
+const aboutLinks = [
+  { href: "/who-we-are", label: "Who We Are" },
+  { href: "/our-purpose", label: "Our Purpose" },
+  { href: "/our-objectives", label: "Our Objectives" },
 ]
 
 export default function Navbar({ initialUser }: { initialUser: { email: string; role: string } | null }) {
@@ -20,6 +19,7 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
 
   const isAdmin = pathname.startsWith("/admin")
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [aboutExpanded, setAboutExpanded] = useState(false)
 
   const closeMobile = () => setMobileOpen(false)
 
@@ -64,6 +64,8 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
     return pathname.startsWith(href)
   }
 
+  const isAboutActive = aboutLinks.some((l) => pathname.startsWith(l.href))
+
   return (
     <nav className={`bg-white/70 backdrop-blur-lg shadow-[0_20px_20px_0_rgba(7,68,105,0.04)] top-0 sticky z-50 transition-all duration-300 ${isAdmin ? "hidden" : ""}`}>
       <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop flex justify-between items-center h-20">
@@ -79,19 +81,57 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
             />
           </Link>
           <div className="hidden md:flex items-center font-body-md text-[clamp(0.75rem,1.2vw,1rem)] gap-[clamp(0.5rem,1.5vw,1rem)]">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
+            <Link
+              href="/"
+              className={
+                isActive("/")
+                  ? "text-primary border-b-2 border-primary pb-1"
+                  : "text-on-surface-variant hover:text-primary transition-colors hover:bg-primary-container/10 px-2 py-1 rounded-md duration-300 ease-in-out active:scale-95"
+              }
+            >
+              Home
+            </Link>
+            <div className="relative group">
+              <span
                 className={
-                  isActive(link.href)
-                    ? "text-primary border-b-2 border-primary pb-1"
-                    : "text-on-surface-variant hover:text-primary transition-colors hover:bg-primary-container/10 px-2 py-1 rounded-md duration-300 ease-in-out active:scale-95"
+                  (isAboutActive ? "text-primary border-b-2 border-primary pb-1" : "text-on-surface-variant group-hover:text-primary transition-colors") +
+                  " flex items-center gap-0.5 cursor-default px-2 py-1 rounded-md group-hover:bg-primary-container/10 duration-300"
                 }
               >
-                {link.label}
-              </Link>
-            ))}
+                About Us
+                <span className="material-symbols-outlined text-sm transition-transform duration-300 group-hover:rotate-180">
+                  expand_more
+                </span>
+              </span>
+              <div className="absolute top-full left-0 mt-0 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                <div className="bg-white rounded-lg shadow-lg border border-outline-variant/30 py-2 min-w-[190px]">
+                  {aboutLinks.map((l) => (
+                    <Link
+                      key={l.href}
+                      href={l.href}
+                      className={
+                        (pathname.startsWith(l.href)
+                          ? "text-primary bg-primary-container/10"
+                          : "text-on-surface-variant hover:text-primary hover:bg-primary-container/10") +
+                        " block px-4 py-2.5 font-body-md transition-colors"
+                      }
+                    >
+                      {l.label}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <Link
+              href="/revista"
+              className={
+                isActive("/revista")
+                  ? "text-primary border-b-2 border-primary pb-1"
+                  : "text-on-surface-variant hover:text-primary transition-colors hover:bg-primary-container/10 px-2 py-1 rounded-md duration-300 ease-in-out active:scale-95"
+              }
+            >
+              Blog
+            </Link>
             {user?.role === "administrador" && (
               <Link
                 href="/admin"
@@ -153,24 +193,75 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
       {/* Mobile Menu */}
       <div
         className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${
-          mobileOpen ? "max-h-[28rem] opacity-100" : "max-h-0 opacity-0"
+          mobileOpen ? "max-h-[40rem] opacity-100" : "max-h-0 opacity-0"
         }`}
       >
         <div className="px-margin-mobile pb-6 pt-2 space-y-1 border-t border-outline-variant/20 bg-white/70 backdrop-blur-lg">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              onClick={closeMobile}
+          <Link
+            href="/"
+            onClick={closeMobile}
+            className={
+              isActive("/")
+                ? "flex items-center gap-3 px-4 py-3 rounded-lg bg-primary-container/20 text-primary font-label-bold text-label-bold"
+                : "flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-label-bold text-label-bold transition-colors"
+            }
+          >
+            Home
+          </Link>
+          <div>
+            <button
+              onClick={() => setAboutExpanded((o) => !o)}
               className={
-                isActive(link.href)
-                  ? "flex items-center gap-3 px-4 py-3 rounded-lg bg-primary-container/20 text-primary font-label-bold text-label-bold"
-                  : "flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-label-bold text-label-bold transition-colors"
+                (isAboutActive
+                  ? "text-primary bg-primary-container/20"
+                  : "text-on-surface-variant") +
+                " flex items-center justify-between w-full px-4 py-3 rounded-lg font-label-bold text-label-bold transition-colors"
               }
             >
-              {link.label}
-            </Link>
-          ))}
+              About Us
+              <span
+                className={`material-symbols-outlined text-sm transition-transform duration-300 ${
+                  aboutExpanded ? "rotate-180" : ""
+                }`}
+              >
+                expand_more
+              </span>
+            </button>
+            <div
+              className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                aboutExpanded ? "max-h-40 opacity-100" : "max-h-0 opacity-0"
+              }`}
+            >
+              <div className="pl-6 space-y-1">
+                {aboutLinks.map((l) => (
+                  <Link
+                    key={l.href}
+                    href={l.href}
+                    onClick={() => { closeMobile(); setAboutExpanded(false) }}
+                    className={
+                      (pathname.startsWith(l.href)
+                        ? "text-primary bg-primary-container/10"
+                        : "text-on-surface-variant hover:text-primary hover:bg-surface-container") +
+                      " flex items-center gap-3 px-4 py-2.5 rounded-lg font-body-md transition-colors"
+                    }
+                  >
+                    {l.label}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
+          <Link
+            href="/revista"
+            onClick={closeMobile}
+            className={
+              isActive("/revista")
+                ? "flex items-center gap-3 px-4 py-3 rounded-lg bg-primary-container/20 text-primary font-label-bold text-label-bold"
+                : "flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-label-bold text-label-bold transition-colors"
+            }
+          >
+            Blog
+          </Link>
           {user?.role === "administrador" && (
             <Link
               href="/admin"
