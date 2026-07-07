@@ -277,6 +277,7 @@ Middleware que refresca cookies de autenticación en cada request. No hay `middl
 - **Rutas admin** — layouts separados con verificación de rol
 - **Doctor images** — `imagen_url` puede ser URL completa (http) o path relativo a Google AIDA (`BASE + url` con `BASE = "https://lh3.googleusercontent.com/aida-public/"`)
 - **Server Actions** — todas en `admin-actions.ts` con `"use server"` y `checkAdmin()`
+- **Container pattern** — toda página pública debe usar el mismo contenedor que el Navbar: `max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop`. Ignorar configuraciones de layout/márgenes/paddings de diseños externos (Stitch, Figma, etc.) si difieren del proyecto.
 
 ---
 
@@ -428,11 +429,26 @@ src/
 ## Sesión 2026-07-03 — Strategic Aims mosaic + contenido About
 
 ### Stitch MCP (diseño por referencia)
-- Se configuró acceso a Stitch vía MCP (`stitch.googleapis.com/mcp`) con API key.
+- Se configuró acceso a Stitch vía MCP (`stitch.googleapis.com/mcp`).
+- Proyecto ID: `5238137457577360481`
+- API Key: `AIzaSy...` (reemplazar con key real)
+- Config para `opencode.jsonc`:
+```jsonc
+"mcp": {
+  "stitch": {
+    "type": "remote",
+    "url": "https://stitch.googleapis.com/mcp",
+    "enabled": true,
+    "headers": {
+      "X-Goog-Api-Key": "AIzaSy... (reemplazar con key real)"
+    }
+  }
+}
+```
 - Método: `tools/call` con `name: "get_screen"`, args `project_id` + `screen_id`.
-- Headers: `X-Goog-Api-Key`.
 - Devuelve `screenshot.downloadUrl` + `htmlCode.downloadUrl`.
-- Dos screens consultadas: "Sección Strategic Aims - IKMA" (cards 4-col) y "Sección Strategic Aims Mosaic - IKMA" (mosaic full-width).
+- Descargar con `curl -L`.
+- Screens usadas: "Sección Strategic Aims - IKMA", "Sección Strategic Aims Mosaic - IKMA", "Sección Who We Are - IKMA", "Sección Mensaje del Fundador - IKMA", "Sección Junta Directiva (Vertical Cards) - IKMA", "Sección Socios Principales - IKMA".
 
 ### About page — Strategic Aims mosaic
 - Se reemplazó el grid de cards `lg:grid-cols-3` por un mosaic full-width `sm:grid-cols-2 lg:grid-cols-4`.
@@ -452,3 +468,44 @@ src/
 
 ### Commit
 - `0e92821` — push a main → auto-deploy Vercel.
+
+---
+
+## Sesión 2026-07-06 — Who We Are page + reestructuración About
+
+### Homepage → Contact section en Footer
+- `src/app/contacto/` eliminado como ruta.
+- Contact form + info + prayer banner extraídos a `src/components/ContactSection.tsx`.
+- `Footer.tsx` renderiza `<ContactSection />` al inicio.
+- Navbar: eliminado link "Contact".
+
+### 404 page
+- `src/app/notfound/page.tsx`: página 404 con SVG corazón latiendo + EKG animado en colores primary.
+- `src/app/not-found.tsx`: re-export de `/notfound` para rutas inexistentes.
+- URL: `/notfound` (ya no `/contacto`).
+
+### Navbar dropdown
+- "About Us" reemplazado por dropdown hover (desktop) con chevron `expand_more` que rota.
+- 3 sub-links: `/who-we-are`, `/our-purpose`, `/our-objectives`.
+- Mobile: "About Us" expandible con click, sub-links indentados.
+- `src/app/about/` eliminado.
+
+### Who We Are page (`src/app/who-we-are/page.tsx`)
+- **Hero**: fondo blur circles (primary-fixed-dim + secondary-fixed), label "Our Identity", título "Who we are", card highlight con `volunteer_activism`, imagen AIDA + floating `public` circle.
+- **Founder's Message**: card vertical horizontal con imagen local `/images/ap-boney-studio.jpg`, label "A word from our founder" con `format_quote`, texto del fundador con pull-quote destacado (border-l-4 + bg-surface-container-low), footer con fechas + badge `#TheMandateContinues`.
+- **Board of Directors**: grid 1/2/3 col, cards con foto circular + ring, nombre, rol. Imágenes locales desde `/images/` (Ap-Raymond, De León, Hernández, marlene-bonney, Boneza). Dalia Beltran con placeholder `person`.
+- **Main Partners**: header bridge full-width con imágenes dual + overlay "Global Network", 3 partner cards (EMIC, Ciudad de las Águilas, Bethlehem Kingdom Center) con flag, líder, ubicación. Callout banner `bg-primary` con CTAs. Statistics 4-col.
+- Imágenes locales usadas donde disponibles; AIDA URLs para hero bridge y flags de partners.
+
+### Relevant files touched
+- `src/app/who-we-are/page.tsx` (nueva — hero + founder + board + partners)
+- `src/components/ContactSection.tsx` (nuevo)
+- `src/components/Footer.tsx` (añadido ContactSection)
+- `src/components/Navbar.tsx` (dropdown About Us + removed Contact link)
+- `src/app/notfound/page.tsx` (nuevo — 404)
+- `src/app/not-found.tsx` (nuevo — re-export)
+- `src/app/contacto/` (eliminado)
+- `src/app/about/` (eliminado)
+- `src/app/our-purpose/page.tsx` (nuevo — blank)
+- `src/app/our-objectives/page.tsx` (nuevo — blank)
+- `IKMA_CONTEXTO_COMPLETO.md` (actualizado)
