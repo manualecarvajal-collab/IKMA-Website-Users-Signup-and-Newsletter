@@ -112,6 +112,8 @@ body {
 
 .material-symbols-outlined {
     visibility: hidden;
+    display: inline-block;
+    min-width: 1em;
     font-variation-settings:
         "FILL" 0,
         "wght" 400,

@@ -14,8 +14,14 @@ interface Video {
   created_at: string
 }
 
+function toEmbedUrl(url: string): string {
+  if (url.includes("/embed/")) return url
+  const id = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/)?.[1]
+  return id ? `https://www.youtube.com/embed/${id}` : url
+}
+
 function youtubeId(url: string): string | null {
-  const m = url.match(/embed\/([a-zA-Z0-9_-]+)/)
+  const m = url.match(/(?:youtube\.com\/(?:embed\/|watch\?v=)|youtu\.be\/)([a-zA-Z0-9_-]+)/)
   return m?.[1] ?? null
 }
 
@@ -80,16 +86,22 @@ export default async function TeachingPage({ params }: { params: Promise<{ slug:
       <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-section-padding">
         <div className="flex flex-col lg:grid lg:grid-cols-12 gap-gutter">
           <div className="lg:col-span-8">
+            <nav className="flex items-center gap-2 font-label-bold text-label-sm text-on-surface-variant mb-6">
+              <Link href="/teachings" className="hover:text-primary transition-colors">Teachings</Link>
+              <span className="material-symbols-outlined text-sm">chevron_right</span>
+              <span className="text-primary truncate">{video.titulo}</span>
+            </nav>
             <div className="relative aspect-video bg-surface-container rounded-xl overflow-hidden shadow-lg mb-8">
               <iframe
-                src={video.embed_url}
+                src={toEmbedUrl(video.embed_url)}
                 title={video.titulo}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
+                referrerPolicy="strict-origin-when-cross-origin"
                 className="w-full h-full"
               />
             </div>
-            <h1 className="font-headline-lg text-headline-lg text-primary mb-4">{video.titulo}</h1>
+            <h1 className="font-headline-md text-headline-md text-primary mb-4">{video.titulo}</h1>
             <div className="flex items-center gap-4 mb-6">
               <span className="flex items-center gap-2 font-label-bold text-label-sm text-on-surface-variant">
                 <span className="material-symbols-outlined text-lg">calendar_today</span>
@@ -97,7 +109,7 @@ export default async function TeachingPage({ params }: { params: Promise<{ slug:
               </span>
             </div>
             {video.descripcion && (
-              <p className="font-body-lg text-body-lg text-on-surface-variant leading-relaxed">{video.descripcion}</p>
+              <p className="font-body-md text-body-md text-on-surface-variant leading-relaxed">{video.descripcion}</p>
             )}
           </div>
           {related.length > 0 && (

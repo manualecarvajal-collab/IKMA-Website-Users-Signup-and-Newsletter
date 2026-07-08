@@ -20,7 +20,7 @@ interface Video {
 }
 
 function youtubeId(url: string): string | null {
-  const m = url.match(/embed\/([a-zA-Z0-9_-]+)/)
+  const m = url.match(/(?:youtube\.com\/(?:embed\/|watch\?v=)|youtu\.be\/)([a-zA-Z0-9_-]+)/)
   return m?.[1] ?? null
 }
 
@@ -88,9 +88,9 @@ export default async function TeachingsPage() {
                 </div>
               </Link>
               <div>
-                <h1 className="font-headline-lg text-headline-lg text-primary mb-4 leading-tight">{featured.titulo}</h1>
+                <h1 className="font-headline-md text-headline-md text-primary mb-2 leading-tight">{featured.titulo}</h1>
                 {featured.descripcion && (
-                  <p className="font-body-lg text-body-lg text-on-surface-variant max-w-3xl leading-relaxed">{featured.descripcion}</p>
+                  <p className="font-body-md text-body-md text-on-surface-variant max-w-3xl line-clamp-2">{featured.descripcion}</p>
                 )}
                 <div className="flex items-center gap-4 mt-6">
                   <span className="flex items-center gap-2 font-label-bold text-label-sm text-on-surface-variant">
@@ -158,9 +158,9 @@ export default async function TeachingsPage() {
                   </div>
                 </div>
                 <div className="p-6 flex flex-col flex-grow">
-                  <h3 className="font-headline-md text-headline-md text-on-surface line-clamp-2 group-hover:text-primary transition-colors mb-3">{v.titulo}</h3>
+                  <h3 className="font-label-bold text-label-bold text-on-surface line-clamp-2 group-hover:text-primary transition-colors mb-2">{v.titulo}</h3>
                   {v.descripcion && (
-                    <p className="font-body-md text-body-md text-on-surface-variant line-clamp-3 mb-6">{v.descripcion}</p>
+                    <p className="font-body-md text-body-md text-on-surface-variant line-clamp-2 mb-4">{v.descripcion}</p>
                   )}
                   <div className="mt-auto flex items-center justify-between pt-4 border-t border-surface-container">
                     <span className="font-label-bold text-label-sm text-primary">{formatDate(v.created_at)}</span>

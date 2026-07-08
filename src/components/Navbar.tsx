@@ -228,8 +228,8 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
                         {m.label}
                         <span className="material-symbols-outlined text-sm">chevron_right</span>
                       </span>
-                      <div className="absolute left-full top-0 ml-0 opacity-0 invisible group-hover/sub:opacity-100 group-hover/sub:visible transition-all duration-200">
-                        <div className="bg-white rounded-lg shadow-lg border border-outline-variant/30 py-2 min-w-[260px] ml-1">
+                      <div className="absolute right-full top-0 mr-2 opacity-0 invisible group-hover/sub:opacity-100 group-hover/sub:visible transition-all duration-200">
+                        <div className="bg-white rounded-lg shadow-lg border border-outline-variant/30 py-2 min-w-[260px]">
                           {m.sublinks.map((s) => (
                             <Link
                               key={s.label}

@@ -85,7 +85,7 @@ export default function WhoWeArePage() {
           {/* Image Column */}
           <div className="md:w-5/12 relative bg-surface-container-low overflow-hidden flex-shrink-0">
             <img
-              src="/images/ap-boney-studio.jpg"
+              src="/images/ap-boney-studio.webp"
               alt="Ap. John Magnus Boney"
               className="w-full h-full object-cover object-top min-h-[400px] md:min-h-full opacity-90 hover:opacity-100 transition-opacity duration-500"
               loading="lazy"
@@ -187,27 +187,27 @@ export default function WhoWeArePage() {
             {
               name: "Ap Raymond Mabion",
               role: "International director and board member",
-              img: "/images/Ap-Raymond.png",
+              img: "/images/Ap-Raymond.webp",
             },
             {
               name: "Ap Carlos De León",
               role: "Latine America director and board member",
-              img: "/images/De León.png",
+              img: "/images/De León.webp",
             },
             {
               name: "Ap Dr Francisco Hernandez",
               role: "Medical director and board member",
-              img: "/images/Hernández.png",
+              img: "/images/Hernández.webp",
             },
             {
               name: "Sister Marlene Boney",
               role: "Treasurer and board member",
-              img: "/images/marlene-bonney.png",
+              img: "/images/marlene-bonney.webp",
             },
             {
               name: "Dr Ngata Gratia Boneza",
               role: "CEO-/ manager, board member",
-              img: "/images/Boneza.png",
+              img: "/images/Boneza.webp",
             },
             {
               name: "Sister Dalia Beltran",

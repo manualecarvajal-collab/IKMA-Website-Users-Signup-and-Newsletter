@@ -12,15 +12,16 @@ export default function MaterialIcons() {
 
     const reveal = () => {
       document.documentElement.classList.add("fonts-ready")
-      link.media = "all"
     }
 
-    link.onload = reveal
+    link.onload = () => {
+      link.media = "all"
+      document.fonts.ready.then(reveal)
+    }
+
     document.head.appendChild(link)
 
-    document.fonts.ready.then(reveal)
-
-    setTimeout(reveal, 3000)
+    setTimeout(reveal, 2000)
   }, [])
 
   return null

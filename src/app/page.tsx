@@ -65,7 +65,7 @@ export default async function HomePage() {
             {/* Right - Image */}
             <div className="w-full md:w-[45%] md:relative overflow-hidden flex-shrink-0">
               <img
-                src="/images/Ap Bonny 2.png"
+                src="/images/Ap Bonny 2.webp"
                 alt="Apostle John Boney"
                 fetchPriority="high"
                 className="w-full h-[35vh] md:absolute md:inset-0 md:h-full object-cover object-[center_15%] pointer-events-none rounded-xl md:rounded-none"
@@ -117,7 +117,7 @@ export default async function HomePage() {
             {/* Right - Image */}
             <div className="w-full md:w-[34%] md:relative overflow-hidden flex-shrink-0">
               <img
-                src="/images/Francisco 1.png"
+                src="/images/Francisco 1.webp"
                 alt="Francisco Hernández"
                 loading="lazy"
                 className="w-full h-[35vh] md:absolute md:inset-0 md:h-full object-cover object-center pointer-events-none rounded-xl md:rounded-none"

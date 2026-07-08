@@ -1,5 +1,12 @@
 import { NextResponse } from "next/server"
-import { createClient } from "@/lib/supabase/server"
+import { createClient, createAdminClient } from "@/lib/supabase/server"
+
+function extractPdfPath(archivoUrl: string): string {
+  const marker = "/object/public/revistas-pdf/"
+  const idx = archivoUrl.indexOf(marker)
+  if (idx === -1) return archivoUrl
+  return archivoUrl.slice(idx + marker.length)
+}
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
@@ -36,12 +43,16 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Magazine not found" }, { status: 404 })
   }
 
-  const { data: signedUrlData } = await supabase
+  const pdfPath = extractPdfPath(revista.archivo_url)
+
+  const admin = await createAdminClient()
+  const { data: signedUrlData, error } = await admin
     .storage
     .from("revistas-pdf")
-    .createSignedUrl(revista.archivo_url, 60)
+    .createSignedUrl(pdfPath, 60)
 
-  if (!signedUrlData?.signedUrl) {
+  if (error || !signedUrlData?.signedUrl) {
+    console.error("Signed URL error:", error?.message ?? "unknown")
     return NextResponse.json({ error: "Failed to generate download link" }, { status: 500 })
   }
 
