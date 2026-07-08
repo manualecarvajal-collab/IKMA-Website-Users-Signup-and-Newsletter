@@ -1,0 +1,11 @@
+import { VideoForm } from "@/components/VideoForm"
+import { createVideo } from "@/lib/supabase/admin-actions"
+
+export default function NuevoVideoPage() {
+  return (
+    <div className="p-4 sm:p-6 md:p-8">
+      <h1 className="font-headline-lg text-headline-lg text-primary mb-8">New Video</h1>
+      <VideoForm action={createVideo} />
+    </div>
+  )
+}

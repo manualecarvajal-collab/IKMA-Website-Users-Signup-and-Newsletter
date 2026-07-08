@@ -262,8 +262,14 @@ Middleware que refresca cookies de autenticación en cada request. No hay `middl
 | `/suscripcion-exito` | Página de agradecimiento (activa suscripción automáticamente) |
 | `/doctores` | Lista de doctores con filtro por especialidad |
 | `/doctores/[id]` | Perfil detallado de doctor |
-| `/revista` | Lista de artículos y revistas |
-| `/revista/[slug]` | Artículo completo (con paywall para no autenticados) |
+| `/revista` | Lista de artículos y revistas (legacy, redirige a `/blog`) |
+| `/revista/[slug]` | Artículo completo legacy (redirige a `/blog/[slug]`) |
+| `/blog` | Blog: artículos destacados, grilla, sidebar, revistas |
+| `/blog/[slug]` | Artículo completo con paywall, sidebar, artículos relacionados |
+| `/newsletter` | Lista de revistas/magazines con botón "Read" gated por auth+suscripción |
+| `/teachings` | Placeholder |
+| `/our-purpose` | Propósito, misión y valores de la organización |
+| `/our-objectives` | Objetivos de la organización |
 
 ---
 
@@ -506,6 +512,32 @@ src/
 - `src/app/not-found.tsx` (nuevo — re-export)
 - `src/app/contacto/` (eliminado)
 - `src/app/about/` (eliminado)
-- `src/app/our-purpose/page.tsx` (nuevo — blank)
-- `src/app/our-objectives/page.tsx` (nuevo — blank)
+- `src/app/our-purpose/page.tsx` (nuevo — blank → rellenado en sesión 2026-07-07)
+- `src/app/our-objectives/page.tsx` (nuevo — blank → rellenado en sesión 2026-07-07)
 - `IKMA_CONTEXTO_COMPLETO.md` (actualizado)
+
+---
+
+## Sesión 2026-07-07 — Nuevo Layout: Newsletter + Blog + Teachings
+
+### Reestructuración de navegación
+- Navbar: nuevo dropdown "Blog" con 3 sub-links: **Newsletter**, **Blog**, **Teachings**.
+- About Us dropdown se mantiene con Who We Are, Our Purpose, Our Objectives.
+- `/revista` y `/revista/[slug]` ahora redirigen a `/blog` y `/blog/[slug]`.
+
+### Nuevas páginas
+- **`/newsletter`** — Server component: lista de magazines publicados con botón "Read" gated por auth + suscripción. Usa `ReadMagazineButton.tsx`.
+- **`/blog`** — Lista completa de artículos: hero con featured article, sidebar con artículos recientes, grilla 4-col, Load More, sección de magazines al final.
+- **`/blog/[slug]`** — Página de artículo: metadata dinámica, imagen + avatar de autor + `ArticleContent`, sidebar con ad + promo magazines, "Recommended Articles" horizontal scroll.
+- **`/teachings`** — Placeholder (solo `<div className="min-h-screen" />`).
+- **`/our-purpose`** — Rellenada: página completa con propósito, misión, valores (pillars con iconos y bullets).
+- **`/our-objectives`** — Rellenada: hero con imagen de fondo + overlay, contenido con badge "NEED REVIEW".
+
+### Componentes nuevos
+- **`ReadMagazineButton.tsx`** — Botón cliente: no auth → `/registro`, no suscrito → `/suscripcion-exito`, suscrito → descarga vía `api/download-magazine`.
+
+### API
+- **`/api/download-magazine`** — GET: auth check (401), suscripción check (403), genera signed URL 60s del bucket `revistas-pdf` y redirige.
+
+### Commit
+- `e6e792d` — push a main → auto-deploy Vercel. Se sanitizó API key de GCP expuesta en `IKMA_CONTEXTO_COMPLETO.md` antes del push.

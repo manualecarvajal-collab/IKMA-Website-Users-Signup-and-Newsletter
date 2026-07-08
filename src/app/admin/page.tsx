@@ -17,6 +17,10 @@ export default async function AdminDashboard() {
     .from("revistas").select("*", { count: "exact", head: true }).eq("publicado", true)
   const { count: revistasTotal } = await supabase
     .from("revistas").select("*", { count: "exact", head: true })
+  const { count: videosPub } = await supabase
+    .from("videos").select("*", { count: "exact", head: true }).eq("publicado", true)
+  const { count: videosTotal } = await supabase
+    .from("videos").select("*", { count: "exact", head: true })
 
   // Use admin client (service_role) to bypass RLS and get real counts
   const { count: suscripActiva } = await admin
@@ -28,7 +32,7 @@ export default async function AdminDashboard() {
   return (
     <div className="p-6 md:p-8">
       <h1 className="font-headline-lg text-headline-lg text-primary mb-8">Dashboard</h1>
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-gutter">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-gutter">
         <div className="bg-surface-container-lowest rounded-xl p-6 border border-outline-variant/10 shadow-sm relative">
           <Link
             href="/admin/articulos"
@@ -88,6 +92,27 @@ export default async function AdminDashboard() {
           <p className="font-body-md text-body-md text-on-surface-variant mt-1">{revistasPub ?? 0} published</p>
           <div className="mt-4 pt-3 border-t border-outline-variant/10">
             <Link href="/admin/revistas" className="text-primary font-label-bold text-label-sm hover:underline flex items-center gap-1">
+              Manage <span className="material-symbols-outlined text-sm">open_in_new</span>
+            </Link>
+          </div>
+        </div>
+        <div className="bg-surface-container-lowest rounded-xl p-6 border border-outline-variant/10 shadow-sm relative">
+          <Link
+            href="/admin/teachings"
+            className="absolute top-4 right-4 text-primary font-label-bold text-label-sm hover:underline flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
+          >
+            Manage <span className="material-symbols-outlined text-sm">open_in_new</span>
+          </Link>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-full bg-primary-container/20 flex items-center justify-center">
+              <span className="material-symbols-outlined text-primary">play_circle</span>
+            </div>
+            <span className="font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider">Total Teachings</span>
+          </div>
+          <p className="font-headline-xl text-headline-xl text-primary">{videosTotal ?? 0}</p>
+          <p className="font-body-md text-body-md text-on-surface-variant mt-1">{videosPub ?? 0} published</p>
+          <div className="mt-4 pt-3 border-t border-outline-variant/10">
+            <Link href="/admin/teachings" className="text-primary font-label-bold text-label-sm hover:underline flex items-center gap-1">
               Manage <span className="material-symbols-outlined text-sm">open_in_new</span>
             </Link>
           </div>

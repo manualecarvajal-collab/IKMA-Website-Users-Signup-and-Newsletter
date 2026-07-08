@@ -641,3 +641,56 @@ export async function deleteNewsletter(id: string) {
   await admin.from("newsletters").delete().eq("id", id)
   revalidatePath("/admin/newsletter")
 }
+
+// ─── VIDEOS ────────────────────────────────────────────
+
+export async function createVideo(formData: FormData) {
+  const { supabase } = await checkAdmin()
+  const titulo = formData.get("titulo") as string
+  const data = {
+    titulo,
+    slug: slugify(titulo),
+    descripcion: formData.get("descripcion") as string,
+    embed_url: formData.get("embed_url") as string,
+    imagen_preview: formData.get("imagen_preview") as string,
+    publicado: formData.get("publicado") === "on",
+  }
+  const { error } = await supabase.from("videos").insert(data)
+  if (error) return { error: error.message }
+  revalidatePath("/admin/teachings")
+  revalidatePath("/teachings")
+  redirect("/admin/teachings")
+}
+
+export async function updateVideo(id: string, formData: FormData) {
+  const { supabase } = await checkAdmin()
+  const titulo = formData.get("titulo") as string
+  const data = {
+    titulo,
+    slug: slugify(titulo),
+    descripcion: formData.get("descripcion") as string,
+    embed_url: formData.get("embed_url") as string,
+    imagen_preview: formData.get("imagen_preview") as string,
+    publicado: formData.get("publicado") === "on",
+  }
+  const { error } = await supabase.from("videos").update(data).eq("id", id)
+  if (error) return { error: error.message }
+  revalidatePath("/admin/teachings")
+  revalidatePath("/teachings")
+  revalidatePath(`/teachings/${data.slug}`)
+  redirect("/admin/teachings")
+}
+
+export async function deleteVideo(id: string, _formData: FormData): Promise<void> {
+  const { supabase } = await checkAdmin()
+  await supabase.from("videos").delete().eq("id", id)
+  revalidatePath("/admin/teachings")
+  revalidatePath("/teachings")
+}
+
+export async function toggleVideoStatus(id: string, publicado: boolean): Promise<void> {
+  const { supabase } = await checkAdmin()
+  await supabase.from("videos").update({ publicado }).eq("id", id)
+  revalidatePath("/admin/teachings")
+  revalidatePath("/teachings")
+}
