@@ -11,23 +11,24 @@ const aboutLinks = [
   { href: "/who-we-are", label: "Who We Are" },
   { href: "/our-purpose", label: "Our Purpose" },
   { href: "/our-objectives", label: "Our Objectives" },
+  { href: "/outreach", label: "Outreach" },
 ]
 
-const blogLinks = [
+const resourcesLinks = [
   { href: "/newsletter", label: "Newsletter" },
   { href: "/blog", label: "Blog" },
   { href: "/teachings", label: "Teachings" },
 ]
 
 const memberRegions = [
-  { href: "/registro", label: "North America / Europe / Australia" },
-  { href: "/registro", label: "Africa / Central and South America / Asia" },
+  { href: "#", label: "North America / Europe / Australia" },
+  { href: "#", label: "Africa / Central and South America / Asia" },
 ]
 
 const memberLinks = [
-  { href: "", label: "Medical professional", sublinks: memberRegions },
-  { href: "/registro", label: "Non-medical" },
-  { href: "/registro", label: "Student" },
+  { href: "#", label: "Medical professional", sublinks: memberRegions },
+  { href: "#", label: "Non-medical" },
+  { href: "#", label: "Student" },
 ]
 
 export default function Navbar({ initialUser }: { initialUser: { email: string; role: string } | null }) {
@@ -37,7 +38,7 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
   const isAdmin = pathname.startsWith("/admin")
   const [mobileOpen, setMobileOpen] = useState(false)
   const [aboutExpanded, setAboutExpanded] = useState(false)
-  const [blogExpanded, setBlogExpanded] = useState(false)
+  const [resourcesExpanded, setResourcesExpanded] = useState(false)
   const [memberExpanded, setMemberExpanded] = useState(false)
   const [medProExpanded, setMedProExpanded] = useState(false)
 
@@ -85,7 +86,7 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
   }
 
   const isAboutActive = aboutLinks.some((l) => pathname.startsWith(l.href))
-  const isBlogActive = blogLinks.some((l) => pathname.startsWith(l.href))
+  const isResourcesActive = resourcesLinks.some((l) => pathname.startsWith(l.href))
 
   return (
     <nav className={`bg-white/70 backdrop-blur-lg shadow-[0_20px_20px_0_rgba(7,68,105,0.04)] top-0 sticky z-50 transition-all duration-300 ${isAdmin ? "hidden" : ""}`}>
@@ -146,18 +147,18 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
             <div className="relative group">
               <span
                 className={
-                  (isBlogActive ? "text-primary border-b-2 border-primary pb-1" : "text-on-surface-variant group-hover:text-primary transition-colors") +
+                  (isResourcesActive ? "text-primary border-b-2 border-primary pb-1" : "text-on-surface-variant group-hover:text-primary transition-colors") +
                   " flex items-center gap-0.5 cursor-default px-2 py-1 rounded-md group-hover:bg-primary-container/10 duration-300"
                 }
               >
-                Blog
+                Resources
                 <span className="material-symbols-outlined text-sm transition-transform duration-300 group-hover:rotate-180">
                   expand_more
                 </span>
               </span>
               <div className="absolute top-full left-0 mt-0 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
                 <div className="bg-white rounded-lg shadow-lg border border-outline-variant/30 py-2 min-w-[190px]">
-                  {blogLinks.map((l) => (
+                  {resourcesLinks.map((l) => (
                     <Link
                       key={l.href}
                       href={l.href}
@@ -233,7 +234,7 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
                           {m.sublinks.map((s) => (
                             <Link
                               key={s.label}
-                              href={user ? "/suscripcion-exito" : s.href}
+                              href={s.href}
                               className="block px-4 py-2.5 font-body-md text-on-surface-variant hover:text-primary hover:bg-primary-container/10 transition-colors whitespace-nowrap"
                             >
                               {s.label}
@@ -245,7 +246,7 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
                   ) : (
                     <Link
                       key={m.label}
-                      href={user ? "/suscripcion-exito" : m.href}
+                      href={m.href}
                       className="block px-4 py-2.5 font-body-md text-on-surface-variant hover:text-primary hover:bg-primary-container/10 transition-colors"
                     >
                       {m.label}
@@ -330,18 +331,18 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
           </div>
           <div>
             <button
-              onClick={() => setBlogExpanded((o) => !o)}
+              onClick={() => setResourcesExpanded((o) => !o)}
               className={
-                (isBlogActive
+                (isResourcesActive
                   ? "text-primary bg-primary-container/20"
                   : "text-on-surface-variant") +
                 " flex items-center justify-between w-full px-4 py-3 rounded-lg font-label-bold text-label-bold transition-colors"
               }
             >
-              Blog
+              Resources
               <span
                 className={`material-symbols-outlined text-sm transition-transform duration-300 ${
-                  blogExpanded ? "rotate-180" : ""
+                  resourcesExpanded ? "rotate-180" : ""
                 }`}
               >
                 expand_more
@@ -349,15 +350,15 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
             </button>
             <div
               className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                blogExpanded ? "max-h-40 opacity-100" : "max-h-0 opacity-0"
+                resourcesExpanded ? "max-h-40 opacity-100" : "max-h-0 opacity-0"
               }`}
             >
               <div className="pl-6 space-y-1">
-                {blogLinks.map((l) => (
+                {resourcesLinks.map((l) => (
                   <Link
                     key={l.href}
                     href={l.href}
-                    onClick={() => { closeMobile(); setBlogExpanded(false) }}
+                    onClick={() => { closeMobile(); setResourcesExpanded(false) }}
                     className={
                       (pathname.startsWith(l.href)
                         ? "text-primary bg-primary-container/10"
@@ -432,7 +433,7 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
                       {memberRegions.map((r) => (
                         <Link
                           key={r.label}
-                          href={user ? "/suscripcion-exito" : r.href}
+                          href={r.href}
                           onClick={() => { closeMobile(); setMemberExpanded(false); setMedProExpanded(false) }}
                           className="block px-4 py-2 rounded-lg font-body-md text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors"
                         >
@@ -443,14 +444,14 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
                   </div>
                 </div>
                 <Link
-                  href={user ? "/suscripcion-exito" : "/registro"}
+                  href="#"
                   onClick={() => { closeMobile(); setMemberExpanded(false) }}
                   className="block px-4 py-2.5 rounded-lg font-body-md text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors"
                 >
                   Non-medical
                 </Link>
                 <Link
-                  href={user ? "/suscripcion-exito" : "/registro"}
+                  href="#"
                   onClick={() => { closeMobile(); setMemberExpanded(false) }}
                   className="block px-4 py-2.5 rounded-lg font-body-md text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors"
                 >

@@ -17,6 +17,12 @@ interface Video {
   imagen_preview: string | null
   publicado: boolean
   created_at: string
+  categoria_id?: string | null
+}
+
+interface Categoria {
+  id: string
+  nombre: string
 }
 
 function youtubeId(url: string): string | null {
@@ -38,20 +44,22 @@ function formatDate(d: string) {
   })
 }
 
-async function getVideos(): Promise<Video[]> {
+export default async function TeachingsPage(props: { searchParams?: Promise<Record<string, string>> }) {
+  const searchParams = await props.searchParams
   const supabase = await createClient()
-  const { data } = await supabase
-    .from("videos")
-    .select("*")
-    .eq("publicado", true)
-    .order("created_at", { ascending: false })
-  return (data ?? []) as Video[]
-}
 
-export default async function TeachingsPage() {
-  const videos = await getVideos()
+  const catFilter = searchParams?.categoria
+  const selectedCat = catFilter || ""
 
-  if (videos.length === 0) {
+  let query = supabase.from("videos").select("*").eq("publicado", true)
+  if (catFilter) query = query.eq("categoria_id", catFilter)
+  query = query.order("created_at", { ascending: false })
+
+  const { data: videos } = await query
+  const { data: categorias } = await supabase.from("categorias").select("*").order("nombre", { ascending: true })
+  const catMap = new Map((categorias ?? []).map((c: Categoria) => [c.id, c.nombre]))
+
+  if (!videos || videos.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <p className="font-body-md text-body-md text-on-surface-variant">No teachings available yet.</p>
@@ -59,7 +67,7 @@ export default async function TeachingsPage() {
     )
   }
 
-  const featured = videos[0]
+  const featured = videos[0] as Video
   const recommended = videos.slice(1, 5)
 
   return (
@@ -93,6 +101,11 @@ export default async function TeachingsPage() {
                   <p className="font-body-md text-body-md text-on-surface-variant max-w-3xl line-clamp-2">{featured.descripcion}</p>
                 )}
                 <div className="flex items-center gap-4 mt-6">
+                  {featured.categoria_id && catMap.has(featured.categoria_id) && (
+                    <span className="inline-flex items-center gap-1.5 bg-primary-fixed text-primary font-label-bold text-label-sm px-3 py-1 rounded-full">
+                      {catMap.get(featured.categoria_id)}
+                    </span>
+                  )}
                   <span className="flex items-center gap-2 font-label-bold text-label-sm text-on-surface-variant">
                     <span className="material-symbols-outlined text-lg">calendar_today</span>
                     {formatDate(featured.created_at)}
@@ -108,18 +121,18 @@ export default async function TeachingsPage() {
                 </div>
                 <div className="flex flex-col gap-6 max-h-[600px] overflow-y-auto pr-2">
                   {recommended.map((v) => (
-                    <Link key={v.id} href={`/teachings/${v.slug}`} className="flex gap-4 group cursor-pointer">
+                    <Link key={v.id} href={`/teachings/${(v as Video).slug}`} className="flex gap-4 group cursor-pointer">
                       <div className="w-32 h-20 flex-shrink-0 bg-surface-container rounded-lg overflow-hidden relative">
                         <img
-                          src={thumbnailUrl(v)}
-                          alt={v.titulo}
+                          src={thumbnailUrl(v as Video)}
+                          alt={(v as Video).titulo}
                           loading="lazy"
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform"
                         />
                       </div>
                       <div className="flex flex-col justify-between py-0.5 min-w-0">
-                        <h3 className="font-label-bold text-label-sm text-on-surface line-clamp-2 group-hover:text-primary transition-colors">{v.titulo}</h3>
-                        <span className="font-label-sm text-label-sm text-on-surface-variant">{formatDate(v.created_at)}</span>
+                        <h3 className="font-label-bold text-label-sm text-on-surface line-clamp-2 group-hover:text-primary transition-colors">{(v as Video).titulo}</h3>
+                        <span className="font-label-sm text-label-sm text-on-surface-variant">{formatDate((v as Video).created_at)}</span>
                       </div>
                     </Link>
                   ))}
@@ -139,9 +152,25 @@ export default async function TeachingsPage() {
               <p className="font-body-md text-body-md text-on-surface-variant mt-1">Explore our collection of educational and mission-focused content.</p>
             </div>
           </div>
+
+          {/* Category Filter */}
+          {categorias && categorias.length > 0 && (
+            <div className="flex flex-wrap items-center gap-3 mb-10 pb-6 border-b border-outline-variant/20">
+              <CategoryChip href="/teachings" label="All" active={!selectedCat} />
+              {(categorias as Categoria[]).map((c) => (
+                <CategoryChip
+                  key={c.id}
+                  href={`/teachings?categoria=${c.id}`}
+                  label={c.nombre}
+                  active={selectedCat === c.id}
+                />
+              ))}
+            </div>
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
-            {videos.map((v) => (
-              <Link
+            {(videos as Video[]).map((v) => (
+              <a
                 key={v.id}
                 href={`/teachings/${v.slug}`}
                 className="group flex flex-col bg-surface-container-lowest rounded-xl overflow-hidden border border-outline-variant/20 hover:border-primary/30 transition-all shadow-sm hover:shadow-md"
@@ -158,6 +187,11 @@ export default async function TeachingsPage() {
                   </div>
                 </div>
                 <div className="p-6 flex flex-col flex-grow">
+                  {v.categoria_id && catMap.has(v.categoria_id) && (
+                    <span className="self-start inline-flex items-center bg-primary-fixed text-primary font-label-bold text-label-sm px-2.5 py-0.5 rounded-full mb-2">
+                      {catMap.get(v.categoria_id)}
+                    </span>
+                  )}
                   <h3 className="font-label-bold text-label-bold text-on-surface line-clamp-2 group-hover:text-primary transition-colors mb-2">{v.titulo}</h3>
                   {v.descripcion && (
                     <p className="font-body-md text-body-md text-on-surface-variant line-clamp-2 mb-4">{v.descripcion}</p>
@@ -167,11 +201,26 @@ export default async function TeachingsPage() {
                     <span className="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">arrow_forward</span>
                   </div>
                 </div>
-              </Link>
+              </a>
             ))}
           </div>
         </div>
       </section>
     </>
+  )
+}
+
+function CategoryChip({ href, label, active }: { href: string; label: string; active: boolean }) {
+  return (
+    <a
+      href={href}
+      className={`inline-flex items-center px-4 py-2 rounded-full font-label-bold text-label-sm transition-all ${
+        active
+          ? "bg-primary text-on-primary shadow-sm"
+          : "bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high border border-outline-variant/30"
+      }`}
+    >
+      {label}
+    </a>
   )
 }

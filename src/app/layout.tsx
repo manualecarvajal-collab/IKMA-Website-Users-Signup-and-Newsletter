@@ -6,6 +6,7 @@ import Footer from "@/components/Footer"
 import ToastContainer from "@/components/Toast"
 import CookieConsent from "@/components/CookieConsent"
 import MaterialIcons from "@/components/MaterialIcons"
+import VisitorTracker from "@/components/VisitorTracker"
 import { createClient } from "@/lib/supabase/server"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { headers } from "next/headers"
@@ -81,6 +82,7 @@ export default async function RootLayout({
         <ToastContainer />
         <CookieConsent />
         <SpeedInsights />
+        <VisitorTracker />
       </body>
     </html>
   )

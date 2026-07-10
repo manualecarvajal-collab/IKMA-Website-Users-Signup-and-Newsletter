@@ -55,12 +55,16 @@ const pillars = [
 ]
 
 const tickerImages = [
-  "https://lh3.googleusercontent.com/aida/AP1WRLu6AkRRhmvUNao3FlmVHVTlqfLdyfyI3nr8eEz9AhyNmwCq7ns-oL5fDmRpJ72wy3B5sHyhDWNV38xPp4EzBSyJuRCO5UVfuQ2GadSM34eTi8ounElaNIqyTgsRWmhlXMt4DwlX7jSbpwLrFrZP8GDnyCkCMa2DJH4MyGnxVsTsfD6v7e-vIR_8u9MK_WFd6SHPfmxQk2ss6fe7vCgrDMe0NudAP7u2XSkP4SBahIYTtXaFX6LBSZX7iw",
-  "https://lh3.googleusercontent.com/aida/AP1WRLuCDdOzD-xkX3SXGNikP54XkXcXVpreWdrniwvZuHrBo2JRCl2R2_hHBw6qNzR3S60AqqsDyQvJfN2S9SvM4J2dUdKDZfjEHiF96KzE35Nn1n3NXL7e6zopHnoW002otida20w2bkUzPRyaqlLjQhbHw1iQAR-NQhdmUBYz0x19oDLVeELM_nflcRUjurdkufSq_bA-sq8BQpn7gs6R1asRzunlDrXuwl3l64sORyezUltHVKBg5pS2mg",
-  "https://lh3.googleusercontent.com/aida/AP1WRLtRTvIzLr__tCca171OvF5aloy1QJWqhUAs4FBdtmwY89aMnn2HXLwQocRvBoPXMAGP2KZZ9m6Vjnv42B9U9CKMSR8qlVlPtrI_niHaHh4NwWe0PXQdP1l2d-x_6FfYeLstKR2_BK8xnFzxhhmh9JBKmIGXhXFYMH8orqTzTh4uJy5Df6u-YPcDmNmEPAa4oX8_5SDI62HgmEQuPoop2wLNa-sh184gcvoizogOLIX3KnOBIkP-A1Cd9g",
-  "https://lh3.googleusercontent.com/aida/AP1WRLvVNZYFIT4XXfVeoMcbySrAxvfuapp5WCZpGJJePLHwU17kBPVM9FzzbMiV_0niwI-tOsf2uQlWeXJZIJMe1Q-9DwLztpZZcWjo5nbOks7HknDSqN3Rrj3pZPUfdijrV9OMwJg45QXrHC8nVBGNPJseftwaXH6rznos5QWj7UggtMNMe1j711UCx5BQPdOpnjCoTGN-VJdqTJSVC-1pZxJ1t-XBRD7lFiNcoYGvMAdyI8HHvYP-xdEEjA",
-  "https://lh3.googleusercontent.com/aida/AP1WRLu1Pg0nqB_dMcIi8iXqzzr038eTLWxah_3cvHt-1BI04IM1CxMxRiclGz_FYvUx6UAMGSy1wrVDWwxtHI23zl2EGC7FQNReFdDxwY7DfkTWuJR6atDzSaE-K3uD0YFGg7WWWnPTK9DGfPzOLjQ6nWMQfw8ppJJOEbeJbaIOEyR-Jhh0nt9mb1cCAmIjspZvz5dXbleCeaE_2qNkw2xS-K4--6MwdiHvSaWFG3J6PgRs-3SWthAeH7le",
-  "https://lh3.googleusercontent.com/aida/AP1WRLu2xhbwVPaLCzI9OtH2VvW_4KPGhKbxI5I-bzVAwZPUj8AWWrVt7fsbJOYRz-3FAKJnm3hkgv11uKLJZ5jSsn7Gn0-Vp5BaUaNd3_SI5jm7fWsdqpDuh1JPvbmF2yuNRZ45mm0JmjTFI6n1gdBBwU5xQlShdSfoIjcryEkh5rVW9VkPjwpqi5-3Flnfw5fsY7bThJ6aci4NQikFp4_pL6wCEszWy4evKfQ1mAUkpMiIi0QsFHEdzy0a",
+  "/outreach/zumurucuare/705891641_122224595906056158_2670985528843388643_n.jpg",
+  "/outreach/communities/722754014_122226599486056158_2300381472205760622_n.jpg",
+  "/outreach/communities/722859201_122226599360056158_8224432456366207890_n.jpg",
+  "/outreach/zumurucuare/705147654_122224596038056158_8112663266005204686_n.jpg",
+  "/outreach/zumurucuare/706615125_122224595996056158_6078982541363949541_n.jpg",
+  "/outreach/communities/724700384_122226599642056158_6007277332430952663_n.jpg",
+  "/outreach/zumurucuare/704954916_122224596224056158_8423650010699471845_n.jpg",
+  "/outreach/zumurucuare/707694952_122224596092056158_4994212879144635464_n.jpg",
+  "/outreach/communities/724073318_122226599612056158_6550501176011429048_n.jpg",
+  "/outreach/zumurucuare/706028451_122224596134056158_6000027931194377977_n.jpg",
 ]
 
 export default function OurPurposePage() {
@@ -156,23 +160,20 @@ export default function OurPurposePage() {
             100% { transform: translateX(-50%); }
           }
           .animate-ticker {
-            display: flex;
-            width: max-content;
             animation: ticker-scroll 40s linear infinite;
           }
           .animate-ticker:hover {
             animation-play-state: paused;
           }
         `}</style>
-        <div className="relative">
-          <div className="animate-ticker gap-8 flex">
+        <div className="relative overflow-hidden">
+          <div className="animate-ticker flex w-max">
             {[...tickerImages, ...tickerImages].map((src, i) => (
               <img
                 key={i}
                 src={src}
                 alt=""
-                className="h-[250px] w-auto rounded-lg shadow-[0_4px_20px_rgba(26,77,109,0.08)] object-cover"
-                loading="lazy"
+                className="h-[250px] w-auto rounded-lg shadow-[0_4px_20px_rgba(26,77,109,0.08)] object-cover shrink-0 mr-8"
               />
             ))}
           </div>

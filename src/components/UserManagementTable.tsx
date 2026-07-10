@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { showToast } from "./Toast"
 import { updateUsersBatch, deleteUser } from "@/lib/supabase/admin-actions"
@@ -17,15 +17,13 @@ interface User {
 export default function UserManagementTable({ initialUsers }: { initialUsers: User[] }) {
   const [users, setUsers] = useState<User[]>(initialUsers)
   const [originalUsers, setOriginalUsers] = useState<User[]>(initialUsers)
-  const [hasChanges, setHasChanges] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const router = useRouter()
 
-  useEffect(() => {
+  const hasChanges = useMemo(() => {
     const nonAdmin = (u: User) => u.rol !== "administrador"
-    const isDifferent = JSON.stringify(users.filter(nonAdmin).map(u => ({ id: u.id, s: u.suscripcion_activa }))) !== 
-                        JSON.stringify(originalUsers.filter(nonAdmin).map(u => ({ id: u.id, s: u.suscripcion_activa })))
-    setHasChanges(isDifferent)
+    return JSON.stringify(users.filter(nonAdmin).map(u => ({ id: u.id, s: u.suscripcion_activa }))) !== 
+           JSON.stringify(originalUsers.filter(nonAdmin).map(u => ({ id: u.id, s: u.suscripcion_activa })))
   }, [users, originalUsers])
 
   useEffect(() => {
@@ -67,7 +65,6 @@ export default function UserManagementTable({ initialUsers }: { initialUsers: Us
     try {
       await updateUsersBatch(updates)
       setOriginalUsers([...users])
-      setHasChanges(false)
       showToast("Changes saved successfully", "success")
       router.refresh()
     } catch (err) {

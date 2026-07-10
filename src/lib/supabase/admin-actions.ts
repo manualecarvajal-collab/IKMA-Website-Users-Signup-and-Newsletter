@@ -18,6 +18,32 @@ async function checkAdmin() {
   return { supabase, user }
 }
 
+async function registrarActividad(
+  supabase: ReturnType<typeof createClient> extends Promise<infer T> ? T : never,
+  tipo: string,
+  descripcion: string,
+  ref_tabla?: string,
+  ref_id?: string
+) {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return
+  // Use admin client to bypass RLS on select (perfiles lookup)
+  const admin = await createAdminClient()
+  const { data: perfil } = await admin
+    .from("perfiles")
+    .select("nombre_completo")
+    .eq("id", user.id)
+    .single()
+  await admin.from("actividad_admin").insert({
+    usuario_id: user.id,
+    usuario_nombre: perfil?.nombre_completo || user.email || "Admin",
+    tipo,
+    descripcion,
+    ref_tabla,
+    ref_id,
+  })
+}
+
 // ─── ARTICLES ───────────────────────────────────────────
 
 function slugify(text: string) {
@@ -31,9 +57,10 @@ function slugify(text: string) {
 export async function createArticle(formData: FormData) {
   const { supabase } = await checkAdmin()
   const titulo = formData.get("titulo") as string
+  const slug = slugify(titulo)
   const data = {
     titulo,
-    slug: slugify(titulo),
+    slug,
     contenido_html: formData.get("contenido_html") as string,
     resumen: formData.get("resumen") as string,
     imagen_url: formData.get("imagen_url") as string,
@@ -43,6 +70,7 @@ export async function createArticle(formData: FormData) {
   }
   const { error } = await supabase.from("articulos").insert(data)
   if (error) return { error: error.message }
+  registrarActividad(supabase, "articulo_creado", `Created article "${titulo}"`, "articulos", slug)
   revalidatePath("/admin/articulos")
   revalidatePath("/revista")
   redirect("/admin/articulos")
@@ -51,9 +79,10 @@ export async function createArticle(formData: FormData) {
 export async function updateArticle(id: string, formData: FormData) {
   const { supabase } = await checkAdmin()
   const titulo = formData.get("titulo") as string
+  const slug = slugify(titulo)
   const data = {
     titulo,
-    slug: slugify(titulo),
+    slug,
     contenido_html: formData.get("contenido_html") as string,
     resumen: formData.get("resumen") as string,
     imagen_url: formData.get("imagen_url") as string,
@@ -63,22 +92,29 @@ export async function updateArticle(id: string, formData: FormData) {
   }
   const { error } = await supabase.from("articulos").update(data).eq("id", id)
   if (error) return { error: error.message }
+  registrarActividad(supabase, "articulo_actualizado", `Updated article "${titulo}"`, "articulos", slug)
   revalidatePath("/admin/articulos")
   revalidatePath("/revista")
-  revalidatePath(`/revista/${data.slug}`)
+  revalidatePath(`/revista/${slug}`)
   redirect("/admin/articulos")
 }
 
 export async function deleteArticle(id: string, _formData: FormData): Promise<void> {
   const { supabase } = await checkAdmin()
+  // Fetch title before deleting for the activity log
+  const { data: articulo } = await supabase.from("articulos").select("titulo").eq("id", id).single()
   await supabase.from("articulos").delete().eq("id", id)
+  registrarActividad(supabase, "articulo_eliminado", `Deleted article "${articulo?.titulo || "unknown"}"`, "articulos", id)
   revalidatePath("/admin/articulos")
   revalidatePath("/revista")
 }
 
 export async function toggleArticleStatus(id: string, publicado: boolean): Promise<void> {
   const { supabase } = await checkAdmin()
+  const { data: articulo } = await supabase.from("articulos").select("titulo").eq("id", id).single()
   await supabase.from("articulos").update({ publicado }).eq("id", id)
+  const accion = publicado ? "Published" : "Unpublished"
+  registrarActividad(supabase, `articulo_${publicado ? "publicado" : "despublicado"}`, `${accion} article "${articulo?.titulo || "unknown"}"`, "articulos", id)
   revalidatePath("/admin/articulos")
   revalidatePath("/revista")
   revalidatePath(`/revista/*`)
@@ -102,8 +138,9 @@ export async function createDoctor(formData: FormData) {
     publications: formData.get("stat_publications") as string || "",
   })
 
+  const nombre = formData.get("nombre") as string
   const data = {
-    nombre: formData.get("nombre") as string,
+    nombre,
     especialidad_principal: formData.get("especialidad_principal") as string,
     frase: formData.get("frase") as string,
     acerca_de: formData.get("acerca_de") as string,
@@ -125,6 +162,7 @@ export async function createDoctor(formData: FormData) {
   }
   const { error } = await supabase.from("doctores").insert(data)
   if (error) return { error: error.message }
+  registrarActividad(supabase, "doctor_creado", `Created doctor "${nombre}"`, "doctores", nombre)
   revalidatePath("/admin/doctores")
   revalidatePath("/doctores")
   redirect("/admin/doctores")
@@ -145,8 +183,9 @@ export async function updateDoctor(id: string, formData: FormData) {
     publications: formData.get("stat_publications") as string || "",
   })
 
+  const nombre = formData.get("nombre") as string
   const data = {
-    nombre: formData.get("nombre") as string,
+    nombre,
     especialidad_principal: formData.get("especialidad_principal") as string,
     frase: formData.get("frase") as string,
     acerca_de: formData.get("acerca_de") as string,
@@ -168,6 +207,7 @@ export async function updateDoctor(id: string, formData: FormData) {
   }
   const { error } = await supabase.from("doctores").update(data).eq("id", id)
   if (error) return { error: error.message }
+  registrarActividad(supabase, "doctor_actualizado", `Updated doctor "${nombre}"`, "doctores", id)
   revalidatePath("/admin/doctores")
   revalidatePath("/doctores")
   revalidatePath(`/doctores/${id}`)
@@ -176,14 +216,19 @@ export async function updateDoctor(id: string, formData: FormData) {
 
 export async function deleteDoctor(id: string, _formData: FormData): Promise<void> {
   const { supabase } = await checkAdmin()
+  const { data: doctor } = await supabase.from("doctores").select("nombre").eq("id", id).single()
   await supabase.from("doctores").delete().eq("id", id)
+  registrarActividad(supabase, "doctor_eliminado", `Deleted doctor "${doctor?.nombre || "unknown"}"`, "doctores", id)
   revalidatePath("/admin/doctores")
   revalidatePath("/doctores")
 }
 
 export async function toggleDoctorStatus(id: string, publicado: boolean): Promise<void> {
   const { supabase } = await checkAdmin()
+  const { data: doctor } = await supabase.from("doctores").select("nombre").eq("id", id).single()
   await supabase.from("doctores").update({ publicado }).eq("id", id)
+  const accion = publicado ? "Published" : "Unpublished"
+  registrarActividad(supabase, `doctor_${publicado ? "publicado" : "despublicado"}`, `${accion} doctor "${doctor?.nombre || "unknown"}"`, "doctores", id)
   revalidatePath("/admin/doctores")
   revalidatePath("/doctores")
   revalidatePath(`/doctores/${id}`)
@@ -193,8 +238,9 @@ export async function toggleDoctorStatus(id: string, publicado: boolean): Promis
 
 export async function createRevista(formData: FormData) {
   const { supabase } = await checkAdmin()
+  const titulo = formData.get("titulo") as string
   const data = {
-    titulo: formData.get("titulo") as string,
+    titulo,
     descripcion: formData.get("descripcion") as string,
     archivo_url: formData.get("archivo_url") as string,
     imagen_portada: formData.get("imagen_portada") as string,
@@ -202,6 +248,7 @@ export async function createRevista(formData: FormData) {
   }
   const { error } = await supabase.from("revistas").insert(data)
   if (error) return { error: error.message }
+  registrarActividad(supabase, "revista_creada", `Created magazine "${titulo}"`, "revistas", titulo)
   revalidatePath("/admin/revistas")
   revalidatePath("/revista", "layout")
   redirect("/admin/revistas")
@@ -209,8 +256,9 @@ export async function createRevista(formData: FormData) {
 
 export async function updateRevista(id: string, formData: FormData) {
   const { supabase } = await checkAdmin()
+  const titulo = formData.get("titulo") as string
   const data = {
-    titulo: formData.get("titulo") as string,
+    titulo,
     descripcion: formData.get("descripcion") as string,
     archivo_url: formData.get("archivo_url") as string,
     imagen_portada: formData.get("imagen_portada") as string,
@@ -218,6 +266,7 @@ export async function updateRevista(id: string, formData: FormData) {
   }
   const { error } = await supabase.from("revistas").update(data).eq("id", id)
   if (error) return { error: error.message }
+  registrarActividad(supabase, "revista_actualizada", `Updated magazine "${titulo}"`, "revistas", id)
   revalidatePath("/admin/revistas")
   revalidatePath("/revista", "layout")
   redirect("/admin/revistas")
@@ -225,14 +274,19 @@ export async function updateRevista(id: string, formData: FormData) {
 
 export async function deleteRevista(id: string, _formData: FormData): Promise<void> {
   const { supabase } = await checkAdmin()
+  const { data: revista } = await supabase.from("revistas").select("titulo").eq("id", id).single()
   await supabase.from("revistas").delete().eq("id", id)
+  registrarActividad(supabase, "revista_eliminada", `Deleted magazine "${revista?.titulo || "unknown"}"`, "revistas", id)
   revalidatePath("/admin/revistas")
   revalidatePath("/revista", "layout")
 }
 
 export async function toggleRevistaStatus(id: string, publicado: boolean): Promise<void> {
   const { supabase } = await checkAdmin()
+  const { data: revista } = await supabase.from("revistas").select("titulo").eq("id", id).single()
   await supabase.from("revistas").update({ publicado }).eq("id", id)
+  const accion = publicado ? "Published" : "Unpublished"
+  registrarActividad(supabase, `revista_${publicado ? "publicada" : "despublicada"}`, `${accion} magazine "${revista?.titulo || "unknown"}"`, "revistas", id)
   revalidatePath("/admin/revistas")
   revalidatePath("/revista", "layout")
 }
@@ -261,6 +315,15 @@ export async function activateSubscription(): Promise<void> {
       rol: "lector",
     })
   }
+
+  await admin.from("actividad_admin").insert({
+    usuario_id: user.id,
+    usuario_nombre: (user.user_metadata?.nombre_completo as string) || user.email || "User",
+    tipo: "suscripcion_activada",
+    descripcion: `Subscription activated for user ${user.email}`,
+    ref_tabla: "perfiles",
+    ref_id: user.id,
+  })
 
   revalidatePath("/", "layout")
 }
@@ -305,15 +368,18 @@ export async function deleteUser(userId: string): Promise<void> {
 
   const { data: target } = await admin
     .from("perfiles")
-    .select("rol")
+    .select("rol, nombre_completo")
     .eq("id", userId)
     .single()
   if (target?.rol === "administrador") {
     throw new Error("Cannot delete an admin user")
   }
 
+  const nombreUser = target?.nombre_completo || "User"
   await admin.auth.admin.deleteUser(userId)
   await supabase.from("perfiles").delete().eq("id", userId)
+
+  registrarActividad(supabase, "usuario_eliminado", `Deleted user "${nombreUser}" (${userId})"`, "perfiles", userId)
 
   revalidatePath("/admin/suscriptores")
 }
@@ -322,21 +388,25 @@ export async function updateUsersBatch(updates: { id: string, suscripcion_activa
   const { supabase } = await checkAdmin()
   const admin = await createAdminClient()
 
-  // Batch-fetch roles for all users in one query instead of N+1
   const ids = updates.map(u => u.id)
   const { data: targets } = await admin
     .from("perfiles")
-    .select("id, rol")
+    .select("id, rol, nombre_completo")
     .in("id", ids)
 
   const adminIds = new Set((targets ?? []).filter(t => t.rol === "administrador").map(t => t.id))
 
   for (const update of updates) {
     if (adminIds.has(update.id)) continue
+    const target = (targets ?? []).find(t => t.id === update.id)
     await supabase
       .from("perfiles")
       .update({ suscripcion_activa: update.suscripcion_activa })
       .eq("id", update.id)
+    
+    const nombre = target?.nombre_completo || "User"
+    const accion = update.suscripcion_activa ? "activated" : "deactivated"
+    registrarActividad(supabase, `suscripcion_${update.suscripcion_activa ? "activada" : "desactivada"}`, `${accion} subscription for "${nombre}"`, "perfiles", update.id)
   }
 
   revalidatePath("/admin/suscriptores")
@@ -479,6 +549,16 @@ export async function sendMagazineToEmail(revistaId: string, userId: string): Pr
     if (!resp.ok) return { error: "Failed to send email" }
   }
 
+  // Log activity
+  await admin.from("actividad_admin").insert({
+    usuario_id: user.id,
+    usuario_nombre: perfil.nombre_completo || user.email || "User",
+    tipo: "revista_enviada_email",
+    descripcion: `Magazine "${revista.titulo}" sent to ${email}`,
+    ref_tabla: "revistas",
+    ref_id: revistaId,
+  })
+
   return { success: "The magazine has been sent to your registered email" }
 }
 
@@ -537,6 +617,16 @@ export async function sendMagazineToSubscribers(revistaId: string, excludeEmails
       )
       if (resp.ok) sent++
     }
+
+    // Log activity
+    const admin = await createAdminClient()
+    await admin.from("actividad_admin").insert({
+      tipo: "revista_enviada_masivo",
+      descripcion: `Magazine "${revista.titulo}" sent to ${sent} of ${recipients.length} subscribers`,
+      ref_tabla: "revistas",
+      ref_id: revistaId,
+    })
+
     return { success: `Email sent to ${sent} of ${recipients.length} subscribers` }
   }
 
@@ -610,6 +700,15 @@ export async function sendNewsletter(
     destinatarios: sent,
   })
 
+  // Log activity
+  await admin.from("actividad_admin").insert({
+    usuario_id: user.id,
+    tipo: "newsletter_enviado",
+    descripcion: `Newsletter "${titulo}" sent to ${sent} of ${recipients.length} subscribers`,
+    ref_tabla: "newsletters",
+    ref_id: titulo,
+  })
+
   revalidatePath("/admin/newsletter")
   return { success: `Newsletter sent to ${sent} of ${recipients.length} subscribers` }
 }
@@ -642,21 +741,47 @@ export async function deleteNewsletter(id: string) {
   revalidatePath("/admin/newsletter")
 }
 
+// ─── CATEGORIES ──────────────────────────────────────────
+
+export async function getCategorias() {
+  const supabase = await createClient()
+  const { data } = await supabase.from("categorias").select("*").order("nombre", { ascending: true })
+  return data ?? []
+}
+
+export async function createCategoria(formData: FormData) {
+  const { supabase } = await checkAdmin()
+  const nombre = formData.get("nombre") as string
+  if (!nombre?.trim()) return { error: "Category name is required" }
+  const { data, error } = await supabase.from("categorias").insert({ nombre: nombre.trim() }).select("id, nombre").single()
+  if (error) {
+    if (error.code === "23505") return { error: "Category already exists" }
+    return { error: error.message }
+  }
+  registrarActividad(supabase, "categoria_creada", `Created category "${nombre.trim()}"`, "categorias", data.id)
+  revalidatePath("/admin/teachings")
+  return { data }
+}
+
 // ─── VIDEOS ────────────────────────────────────────────
 
 export async function createVideo(formData: FormData) {
   const { supabase } = await checkAdmin()
   const titulo = formData.get("titulo") as string
-  const data = {
+  const slug = slugify(titulo)
+  const categoriaId = formData.get("categoria_id") as string
+  const data: Record<string, unknown> = {
     titulo,
-    slug: slugify(titulo),
+    slug,
     descripcion: formData.get("descripcion") as string,
     embed_url: formData.get("embed_url") as string,
     imagen_preview: formData.get("imagen_preview") as string,
     publicado: formData.get("publicado") === "on",
   }
+  if (categoriaId) data.categoria_id = categoriaId
   const { error } = await supabase.from("videos").insert(data)
   if (error) return { error: error.message }
+  registrarActividad(supabase, "video_creado", `Created teaching "${titulo}"`, "videos", slug)
   revalidatePath("/admin/teachings")
   revalidatePath("/teachings")
   redirect("/admin/teachings")
@@ -665,32 +790,42 @@ export async function createVideo(formData: FormData) {
 export async function updateVideo(id: string, formData: FormData) {
   const { supabase } = await checkAdmin()
   const titulo = formData.get("titulo") as string
-  const data = {
+  const slug = slugify(titulo)
+  const categoriaId = formData.get("categoria_id") as string
+  const data: Record<string, unknown> = {
     titulo,
-    slug: slugify(titulo),
+    slug,
     descripcion: formData.get("descripcion") as string,
     embed_url: formData.get("embed_url") as string,
     imagen_preview: formData.get("imagen_preview") as string,
     publicado: formData.get("publicado") === "on",
   }
+  if (categoriaId) data.categoria_id = categoriaId
+  else data.categoria_id = null
   const { error } = await supabase.from("videos").update(data).eq("id", id)
   if (error) return { error: error.message }
+  registrarActividad(supabase, "video_actualizado", `Updated teaching "${titulo}"`, "videos", slug)
   revalidatePath("/admin/teachings")
   revalidatePath("/teachings")
-  revalidatePath(`/teachings/${data.slug}`)
+  revalidatePath(`/teachings/${slug}`)
   redirect("/admin/teachings")
 }
 
 export async function deleteVideo(id: string, _formData: FormData): Promise<void> {
   const { supabase } = await checkAdmin()
+  const { data: video } = await supabase.from("videos").select("titulo").eq("id", id).single()
   await supabase.from("videos").delete().eq("id", id)
+  registrarActividad(supabase, "video_eliminado", `Deleted teaching "${video?.titulo || "unknown"}"`, "videos", id)
   revalidatePath("/admin/teachings")
   revalidatePath("/teachings")
 }
 
 export async function toggleVideoStatus(id: string, publicado: boolean): Promise<void> {
   const { supabase } = await checkAdmin()
+  const { data: video } = await supabase.from("videos").select("titulo").eq("id", id).single()
   await supabase.from("videos").update({ publicado }).eq("id", id)
+  const accion = publicado ? "Published" : "Unpublished"
+  registrarActividad(supabase, `video_${publicado ? "publicado" : "despublicado"}`, `${accion} teaching "${video?.titulo || "unknown"}"`, "videos", id)
   revalidatePath("/admin/teachings")
   revalidatePath("/teachings")
 }

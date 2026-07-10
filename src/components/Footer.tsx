@@ -12,6 +12,9 @@ export default function Footer({ hide }: { hide?: boolean }) {
           <p className="text-on-surface-variant mb-6 max-w-md">
             We have God&apos;s grace and wisdom to bring solutions to the problems facing our society.
           </p>
+          <p className="text-on-surface-variant text-sm mb-2">
+            <span className="material-symbols-outlined text-sm align-text-bottom">mail</span> ikma@emmint.com
+          </p>
           <p className="text-on-surface-variant text-sm">
             &copy; 2025 International Kingdom Medical Association. Healing through faith and excellence.
           </p>

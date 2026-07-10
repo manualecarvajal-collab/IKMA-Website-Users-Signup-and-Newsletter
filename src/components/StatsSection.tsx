@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
+import Link from "next/link"
 
 const stats2022 = [
   { label: "Assisted patients", value: 260, color: "bg-[#007edc]" },
@@ -171,14 +172,22 @@ export default function StatsSection() {
           </div>
         </div>
 
-        <div className="lg:col-span-5 xl:col-span-4 flex flex-col justify-between h-full space-y-10 lg:space-y-16">
+        <div className="lg:col-span-5 xl:col-span-4 flex flex-col justify-start h-full space-y-10 lg:space-y-16">
           <div className="space-y-6 text-slate-600 leading-relaxed text-sm md:text-base">
             <p>IKMA is an organization committed to the apostolic vision of God in the health field in several nations.</p>
             <p>Its statistics are not mere numbers, they are the reflection of a tireless dedication and genuine commitment to conquer the mountain of medicine and to be governed by our Lord and His Christ.</p>
             <p>The organization has been a strategic partner for the health system in Falcon, complementing government efforts and providing support to critical areas, mainly in reinforcing spiritual values in health personnel in public administration in Falcon, Venezuela.</p>
           </div>
 
-          <div className="relative pt-6">
+          <Link
+            href="/outreach"
+            className="inline-flex items-center gap-2 bg-primary text-on-primary font-label-bold text-label-bold px-6 py-3 rounded-lg hover:bg-primary-container transition-all w-fit"
+          >
+            Read More About Our Outreach
+            <span className="material-symbols-outlined text-sm">arrow_forward</span>
+          </Link>
+
+          <div className="relative pt-24">
             <div className="absolute -top-10 -left-6 w-full h-full bg-gradient-to-tr from-[#5fa4e6]/10 to-[#114b7e]/10 blur-xl rounded-full transform rotate-12 pointer-events-none" />
             <div className="border-4 border-white shadow-xl relative aspect-[4/5] bg-slate-100 group overflow-hidden"
               style={{ borderRadius: "60% 30% 10% 10% / 30% 10% 10% 10%" }}>

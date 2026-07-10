@@ -11,6 +11,8 @@
 # typescript
 # vercel
 .aider*
+graphify-out/
+*.odt
 /build
 /CLAUDE.md
 /coverage

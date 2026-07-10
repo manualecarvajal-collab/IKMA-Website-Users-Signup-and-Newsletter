@@ -541,3 +541,72 @@ src/
 
 ### Commit
 - `e6e792d` — push a main → auto-deploy Vercel. Se sanitizó API key de GCP expuesta en `IKMA_CONTEXTO_COMPLETO.md` antes del push.
+
+---
+
+## Sesión 2026-07-08 — Bug fixes + performance optimization
+
+### Newsletter PDF download fix
+- `api/download-magazine/route.ts` no extraía el path del `archivo_url` antes de llamar a `createSignedUrl()`.
+- Se añadió `extractPdfPath()` (mismo helper que ya usaba `signedPdfUrl()` en emails) para convertir la URL pública completa al path interno.
+- Se cambió `createClient()` → `createAdminClient()` para el signed URL, ya que la sesión del SSR client no siempre se propaga correctamente al storage API en server context. La ruta ya verifica auth (401) y suscripción (403) antes.
+
+### Favicon Vercel default override
+- `src/app/favicon.ico` contenía el favicon default del template de Vercel (26 KB, 16/32px).
+- Se generó un nuevo favicon 32×32 desde `favicon.webp` con `sharp` y se sobrescribió `src/app/favicon.ico` (833 bytes).
+- Se añadió `<link rel="icon" type="image/x-icon" href="/favicon.ico?v=2" />` con cache busting en layout.
+- Se eliminó `public/favicon.ico`.
+
+### Material Icons FOUT fix
+- Los iconos mostraban su nombre en texto plano (ej. "play_arrow") y deformaban botones mientras cargaba la fuente Google.
+- **Inline style blocking** en `layout.tsx`: `<style>` con `visibility: hidden; display: inline-block; min-width: 1em` se aplica sincrónicamente antes del primer paint.
+- `MaterialIcons.tsx`: se corrigió la secuencia de `reveal()` — primero `link.media = "all"`, luego espera `document.fonts.ready`, y solo entonces añade `fonts-ready`. Timeout reducido de 3000ms → 2000ms.
+- `globals.css`: añadido `display: inline-block` y `min-width: 1em` a `.material-symbols-outlined` para consistencia antes/después de carga de fuente.
+
+### PageSpeed optimization (score 66 → estimado 85+)
+
+**Problemas detectados (PageSpeed Insights desktop):**
+- Performance: 66
+- LCP: 8.5s (culpable: `Ap Bonny 2.png` de 6.8 MB como LCP element)
+- Network payload: 11,956 KB
+- Google Maps: 445 KB JS innecesario en página principal
+
+**Imágenes convertidas a WebP (sharp, quality 80, max 1200px):**
+
+| Archivo | Antes | Después | Ahorro |
+|---------|-------|---------|--------|
+| `Ap Bonny 2.png` (LCP) | 6.8 MB | 0.1 MB | 99% |
+| `Ap-Raymond.png` | 5.7 MB | 0.1 MB | 98% |
+| `ikma_vzla.jpg` | 9.6 MB | 0.2 MB | 98% |
+| `Francisco 1.png` | 1.0 MB | 0.1 MB | 90% |
+| `De León.png` | 1.4 MB | 12 KB | 99% |
+| `Hernández.png` | 1.5 MB | 14 KB | 98% |
+| `Boneza.png` | 1.4 MB | 19 KB | 98% |
+| `marlene-bonney.png` | 1.9 MB | 72 KB | 96% |
+| `hero img.png` | 1.6 MB | 0.1 MB | 96% |
+| +15 más | varios | < 200 KB | 88-99% |
+
+**Ahorro total:** ~40 MB → ~1.5 MB
+
+**Referencias actualizadas:**
+- `src/app/page.tsx`: `.png` → `.webp` (hero slides)
+- `src/app/who-we-are/page.tsx`: `.png`/`.jpg` → `.webp` (board members + fundador)
+- Archivos originales `.png`/`.jpg` eliminados de `public/images/`
+
+**Google Maps:** ya tenía `loading="lazy"` en el iframe — sin cambios adicionales.
+
+### Navbar: "Become a member" submenu overflow
+- El submenú "Medical professional" del dropdown "Become a member" usaba `left-full` (extendía a la derecha), saliéndose de la pantalla en monitores compactos.
+- Cambiado a `right-full` + `mr-2` para que extienda hacia la izquierda.
+
+### Relevant files touched
+- `src/app/api/download-magazine/route.ts` (extractPdfPath + createAdminClient)
+- `src/app/favicon.ico` (sobrescrito con favicon custom)
+- `src/app/layout.tsx` (inline style iconos + favicon cache busting)
+- `src/components/MaterialIcons.tsx` (secuencia reveal corregida, timeout 2s)
+- `src/app/globals.css` (display:inline-block + min-width en iconos)
+- `public/favicon.ico` (eliminado)
+- `public/images/*.png` / `*.jpg` (eliminados, reemplazados por .webp)
+- `src/app/page.tsx` (rutas de imágenes a .webp)
+- `src/app/who-we-are/page.tsx` (rutas de imágenes a .webp)
+- `src/components/Navbar.tsx` (submenu right-full)

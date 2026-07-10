@@ -13,7 +13,7 @@ export default function OurObjectivesPage() {
       <section className="relative min-h-[85vh] flex items-center pt-20 overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img
-            src="https://lh3.googleusercontent.com/aida/AP1WRLu9VUuBStf4Y9uxb4jRJhJHglHiAf9PiLPQckstSomcKv1Hwdxb_T0fHgKjs1ATjlvNjKb8nrc54o9u793wLP_capo-iZ_Dk9l8gwTeO7KM4sw66VK2pfdJ-QG-T6P8-PAFMr17iCLnZEsO0NplJsQvJ5KXzp29J1pXUcFtjAxda3bPM-FLRzMrhUMlbuYKcu01iwQ1HWU0i-op3AW6kUlg0EsgIpi6yUDq3FGO2BkOO6OjCi2HphbEUA"
+            src="/outreach/communities/723067031_122226599306056158_29644257407622949_n.jpg"
             alt=""
             className="w-full h-full object-cover"
             loading="lazy"
@@ -83,7 +83,7 @@ export default function OurObjectivesPage() {
             <div className="relative group">
               <div className="absolute -inset-6 bg-primary-fixed/20 -z-10 rounded-2xl group-hover:bg-primary-fixed/30 transition-all" />
               <img
-                src="https://images.unsplash.com/photo-1551601651-2a8555f1a136?w=800"
+                src="/outreach/communities/724073318_122226599612056158_6550501176011429048_n.jpg"
                 alt="Healthcare professionals meeting"
                 className="w-full aspect-[4/3] object-cover rounded-lg shadow-2xl transition-transform duration-500 group-hover:scale-[1.02]"
                 loading="lazy"
@@ -126,7 +126,7 @@ export default function OurObjectivesPage() {
             <div className="relative group order-1">
               <div className="absolute -inset-6 bg-secondary-fixed/20 -z-10 rounded-2xl group-hover:bg-secondary-fixed/30 transition-all" />
               <img
-                src="https://lh3.googleusercontent.com/aida/AP1WRLtXbfyDCku2NEr1dW6ZjWhAoS1LQegWoo_Jvw4zNzRj5lpnJLLk3hhbM4qIC6sk2q-EYHOXu1zpRfM1fviw8YwDpLee0JsfFLUWyGDQlLCl55KYNRUseQ8_fpJaX0vFQXdDbfzQHpp-a-IMz7oei_cHG-RKr-IlKcwbP6gSrrY_PJPriaxYsZzSVbsZ0x01e2BOzJUIx7p_ndiTxvi0NVVIAukqg_PT5gxvpKTG9x4QZc5nxjRp7Gkp"
+                src="/outreach/communities/724265425_122226599258056158_6696920523978700488_n.jpg"
                 alt="Medical students studying"
                 className="w-full aspect-[4/3] object-cover rounded-lg shadow-2xl transition-transform duration-500 group-hover:scale-[1.02]"
                 loading="lazy"
@@ -195,10 +195,10 @@ export default function OurObjectivesPage() {
           </div>
           <div className="rounded-2xl overflow-hidden h-[500px] shadow-2xl relative">
             <img
-              src="https://lh3.googleusercontent.com/aida/AP1WRLu2xhbwVPaLCzI9OtH2VvW_4KPGhKbxI5I-bzVAwZPUj8AWWrVt7fsbJOYRz-3FAKJnm3hkgv11uKLJZ5jSsn7Gn0-Vp5BaUaNd3_SI5jm7fWsdqpDuh1JPvbmF2yuNRZ45mm0JmjTFI6n1gdBBwU5xQlShdSfoIjcryEkh5rVW9VkPjwpqi5-3Flnfw5fsY7bThJ6aci4NQikFp4_pL6wCEszWy4evKfQ1mAUkpMiIi0QsFHEdzy0a"
-              alt="Medical mission outreach"
-              className="w-full h-full object-cover"
-              loading="lazy"
+              src="/outreach/communities/724778059_122226599402056158_7520346588898508840_n.jpg"
+                alt="Medical mission outreach"
+                className="w-full h-full object-cover"
+                loading="lazy"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-primary/60 to-transparent" />
           </div>

@@ -19,7 +19,7 @@ export default function WhoWeArePage() {
       <div className="relative z-10 w-full max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-gutter items-center">
           {/* Content Column */}
-          <div className="col-span-1 lg:col-span-7 flex flex-col space-y-8">
+          <div className="col-span-1 lg:col-span-6 flex flex-col space-y-8">
             <div className="inline-flex items-center gap-3">
               <span className="w-8 h-1 bg-primary rounded-full" />
               <h2 className="font-label-bold text-label-bold text-primary tracking-wider uppercase">
@@ -56,10 +56,10 @@ export default function WhoWeArePage() {
           </div>
 
           {/* Visual Column */}
-          <div className="col-span-1 lg:col-span-5 relative h-full min-h-[400px] flex items-center justify-center">
-            <div className="relative w-full h-[500px] rounded-2xl overflow-hidden shadow-[0_4px_20px_rgba(26,77,109,0.08)] bg-surface-container-low">
+          <div className="col-span-1 lg:col-span-6 relative h-full min-h-[400px] flex items-center justify-center">
+            <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden shadow-[0_4px_20px_rgba(26,77,109,0.08)] bg-surface-container-low">
               <img
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuDY9Uq2lBuPpmhOObbsbsmT5JB5AfC1T9QCuFTsweCcSnX-RMeXIzXio8o7UeSRfKIiEqd0KHzh2uqQRXL-2HqXN2rIoStPUwEqsw21wFnnRu9XW6Hx3qwFrjmJrCmZMP3VhAFA286P1ReplDz4-Wu3w8ARHZtIqo0Zihb532itF2G1yWUb-Uk471RzZs78iwH2RufMq8gICW1jd1ngPib0R8tcp4wxLvR2UlUwhYWEYawK1aC2BVI"
+                src="/outreach/zumurucuare/705891641_122224595906056158_2670985528843388643_n.jpg"
                 alt="IKMA medical professionals"
                 className="absolute inset-0 w-full h-full object-cover opacity-90 hover:opacity-100 transition-opacity duration-700"
                 loading="lazy"
@@ -256,19 +256,17 @@ export default function WhoWeArePage() {
         <div className="grid grid-cols-1 md:grid-cols-2 h-full">
           <div className="relative overflow-hidden group">
             <img
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuBfYLCgXb2qFaYA1evj9ZyPBr8Z5N7B7hRBPFuOerYc3CLgNOQpJXuQlxGHN-9QSP8_uyIfOt4ZYIkzXWKtrGS1GlpdwXwNIuWGAZKQiPnqi3iCnBT0vOIXBF2Fbh7odXGU0pcwE9sfiMoldt5uVcmIee265R7tQIfRBNn5YFpzlh_IC6R272wFp3U07ESz74yJgaTgJkZRRyQyDAdbEhoOrMDcB93PPKDpkuL_8iB-AI66Vu_Gz44"
-              alt="Community outreach team"
-              className="w-full h-full object-cover grayscale-[20%] transition-transform duration-700 group-hover:scale-105"
-              loading="lazy"
+              src="/images/ikma_vzla.webp"
+              alt="IKMA Venezuela"
+              className="w-full h-full object-cover object-[center_30%] transition-transform duration-700 group-hover:scale-105"
             />
             <div className="absolute inset-0 bg-primary-container/20 mix-blend-multiply" />
           </div>
           <div className="relative overflow-hidden group hidden md:block">
             <img
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuBEPQMQ3zHTiHOihG7nmOrSt-tl8IZf-cZbJT2twsJyklHGtBLiVa0N5-MTY9v3kwW31YmoRqixzlBKrmaEwVinneMxg4k2k5y0_Qi4MRjW6LZ6M3DxkS6R76KEyaobljRBnRsy5LmqCMUZN8RrShP-P4ZHfFvfcFj5AHjrA5tZiCfo1inry6_53At8uKW95qmF0AZQBnX9Q7qBDhI1v24QEigs9X3CzSlY3827Omvus9BnXz-4NKI"
-              alt="Diverse community gathering"
-              className="w-full h-full object-cover grayscale-[20%] transition-transform duration-700 group-hover:scale-105"
-              loading="lazy"
+              src="/images/about_img_1.webp"
+              alt="Medical mission"
+              className="w-full h-full object-cover object-[center_30%] transition-transform duration-700 group-hover:scale-105"
             />
             <div className="absolute inset-0 bg-primary-container/20 mix-blend-multiply" />
           </div>
@@ -388,12 +386,11 @@ export default function WhoWeArePage() {
         </div>
 
         {/* Statistics */}
-        <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-8">
+        <div className="mt-12 grid grid-cols-2 md:grid-cols-3 gap-8">
           {[
             { number: "3", label: "Main Regions" },
             { number: "12k+", label: "Impacted Lives" },
             { number: "100%", label: "Clinical Accuracy" },
-            { number: "24/7", label: "Network Support" },
           ].map((stat, i) => (
             <div key={i} className="text-center">
               <p className="font-headline-lg text-headline-lg text-primary">
