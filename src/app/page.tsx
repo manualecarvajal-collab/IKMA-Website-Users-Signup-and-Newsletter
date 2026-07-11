@@ -21,23 +21,34 @@ export default async function HomePage() {
   const sideArticles = dbArticles?.slice(1, 4) || [];
 
   return (
-    <>
-      <HeroCarousel isAuthenticated={isAuthenticated}>
+    <div className="-mt-20 md:mt-0 overflow-x-hidden">
+        <HeroCarousel isAuthenticated={isAuthenticated}>
         <Slide>
           <div className="relative w-full h-full">
             <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop flex flex-col md:flex-row h-full">
+              {/* Mobile: Background image with overlay */}
+              <div className="absolute inset-0 md:hidden overflow-hidden">
+                <img
+                  src="/images/Ap Bonny 2.webp"
+                  alt=""
+                  fetchPriority="high"
+                  className="w-full h-full object-cover object-[center_15%]"
+                />
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent from-[45%] to-white" />
+              </div>
+
               {/* Left - Content */}
-              <div className="relative z-10 w-full md:w-[55%] flex flex-col justify-center py-8 md:py-0">
-                <div className="max-w-[420px]">
+              <div className="relative z-10 w-full md:w-[55%] flex flex-col justify-end md:justify-center py-8 md:py-0 flex-1 md:flex-none mb-[10vh] md:mb-0">
+                <div className="max-w-[420px] text-center md:text-left">
                 <span
-                  className="text-[#334D96] leading-none select-none block"
+                  className="text-primary md:text-[#334D96] leading-none select-none block"
                   style={{ fontSize: "clamp(48px, 6vw, 90px)", fontFamily: "Montserrat", fontWeight: 700, lineHeight: 0.5 }}
                   aria-hidden="true"
                 >
                   &ldquo;
                 </span>
 
-                <p className="text-[#334D96] text-sm sm:text-base md:text-[clamp(13px,1.2vw,19px)] leading-snug md:leading-[1.5] -mt-2 md:-mt-3">
+                <p className="text-primary md:text-[#334D96] text-sm sm:text-base md:text-[clamp(13px,1.2vw,19px)] leading-snug md:leading-[1.5] -mt-2 md:-mt-3">
                   <span className="font-[700]">Mankind and the nations are operating below </span>
                   <span className="font-[500] italic">our God-given potential.</span>
                   <span className="font-[700]"> Our mission/purpose is to </span>
@@ -46,9 +57,9 @@ export default async function HomePage() {
                   <span className="font-[500]">to its role of preserving and supporting the flourishing of mankind.</span>
                 </p>
 
-                <div className="text-right -mt-1">
+                <div className="text-center md:text-right -mt-1">
                   <span
-                    className="text-[#334D96] leading-none select-none inline-block scale-x-[-1] scale-y-[-1]"
+                    className="text-primary md:text-[#334D96] leading-none select-none inline-block scale-x-[-1] scale-y-[-1]"
                     style={{ fontSize: "clamp(48px, 6vw, 90px)", fontFamily: "Montserrat", fontWeight: 700, lineHeight: 0.5 }}
                     aria-hidden="true"
                   >
@@ -56,19 +67,19 @@ export default async function HomePage() {
                   </span>
                 </div>
 
-                <p className="text-[#717377] text-[10px] md:text-xs font-[700] mt-2 md:mt-3 tracking-[0.2em] uppercase">
+                <p className="text-primary/70 md:text-[#717377] text-[10px] md:text-xs font-[700] mt-2 md:mt-3 tracking-[0.2em] uppercase">
                   APOSTLE JOHN BONEY
                 </p>
               </div>
             </div>
-
-            {/* Right - Image */}
-            <div className="w-full md:w-[45%] md:relative overflow-hidden flex-shrink-0">
+            
+            {/* Right - Image (desktop only) */}
+            <div className="hidden md:block md:w-[45%] md:relative overflow-hidden flex-shrink-0">
               <img
                 src="/images/Ap Bonny 2.webp"
                 alt="Apostle John Boney"
                 fetchPriority="high"
-                className="w-full h-[35vh] md:absolute md:inset-0 md:h-full object-cover object-[center_15%] pointer-events-none rounded-xl md:rounded-none"
+                className="md:absolute md:inset-0 md:h-full w-full object-cover object-[center_15%] pointer-events-none md:rounded-none"
               />
             </div>
           </div>
@@ -77,18 +88,29 @@ export default async function HomePage() {
         <Slide>
           <div className="relative w-full h-full">
             <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop flex flex-col md:flex-row h-full">
+              {/* Mobile: Background image with overlay */}
+              <div className="absolute inset-0 md:hidden overflow-hidden">
+                <img
+                  src="/images/Francisco 1.webp"
+                  alt=""
+                  loading="lazy"
+                  className="w-full h-full object-cover object-center"
+                />
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent from-[45%] to-white" />
+              </div>
+
               {/* Left - Content */}
-              <div className="relative z-10 w-full md:w-[55%] flex flex-col justify-center py-8 md:py-0">
-                <div className="max-w-[420px]">
+              <div className="relative z-10 w-full md:w-[55%] flex flex-col justify-end md:justify-center py-8 md:py-0 flex-1 md:flex-none mb-[10vh] md:mb-0">
+                <div className="max-w-[420px] text-center md:text-left">
                 <span
-                  className="text-[#334D96] leading-none select-none block"
+                  className="text-primary md:text-[#334D96] leading-none select-none block"
                   style={{ fontSize: "clamp(48px, 6vw, 90px)", fontFamily: "Montserrat", fontWeight: 700, lineHeight: 0.5 }}
                   aria-hidden="true"
                 >
                   &ldquo;
                 </span>
 
-                <p className="text-[#334D96] text-sm sm:text-base md:text-[clamp(13px,1.2vw,19px)] leading-snug md:leading-[1.5] -mt-2 md:-mt-3">
+                <p className="text-primary md:text-[#334D96] text-sm sm:text-base md:text-[clamp(13px,1.2vw,19px)] leading-snug md:leading-[1.5] -mt-2 md:-mt-3">
                   <span className="font-[600]">The root of all diseases has a </span>
                   <span className="font-[600]">spiritual component </span>
                   <span className="font-[800]">that affects the soul, body, </span>
@@ -98,9 +120,9 @@ export default async function HomePage() {
                   <span className="font-[600] italic">&ldquo;The human spirit is the lamp of the Lord that sheds light on one&rsquo;s inmost being.&rdquo;</span>
                 </p>
 
-                <div className="text-right -mt-1">
+                <div className="text-center md:text-right -mt-1">
                   <span
-                    className="text-[#334D96] leading-none select-none inline-block scale-x-[-1] scale-y-[-1]"
+                    className="text-primary md:text-[#334D96] leading-none select-none inline-block scale-x-[-1] scale-y-[-1]"
                     style={{ fontSize: "clamp(48px, 6vw, 90px)", fontFamily: "Montserrat", fontWeight: 700, lineHeight: 0.5 }}
                     aria-hidden="true"
                   >
@@ -108,19 +130,19 @@ export default async function HomePage() {
                   </span>
                 </div>
 
-                <p className="text-[#717377] text-[10px] md:text-xs font-[700] mt-2 md:mt-3 tracking-[0.2em] uppercase">
+                <p className="text-primary/70 md:text-[#717377] text-[10px] md:text-xs font-[700] mt-2 md:mt-3 tracking-[0.2em] uppercase">
                   FRANCISCO HERNÁNDEZ
                 </p>
               </div>
             </div>
 
-            {/* Right - Image */}
-            <div className="w-full md:w-[34%] md:relative overflow-hidden flex-shrink-0">
+            {/* Right - Image (desktop only) */}
+            <div className="hidden md:block md:w-[34%] md:relative overflow-hidden flex-shrink-0">
               <img
                 src="/images/Francisco 1.webp"
                 alt="Francisco Hernández"
                 loading="lazy"
-                className="w-full h-[35vh] md:absolute md:inset-0 md:h-full object-cover object-center pointer-events-none rounded-xl md:rounded-none"
+                className="md:absolute md:inset-0 md:h-full w-full object-cover object-center pointer-events-none md:rounded-none"
                 style={{ boxShadow: "-25px 4px 25px 0px #00000033" }}
               />
             </div>
@@ -227,6 +249,6 @@ export default async function HomePage() {
           <StatsSection />
         </div>
       </section>
-    </>
+    </div>
   );
 }

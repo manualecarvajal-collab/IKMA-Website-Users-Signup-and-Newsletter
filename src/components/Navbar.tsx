@@ -11,7 +11,6 @@ const aboutLinks = [
   { href: "/who-we-are", label: "Who We Are" },
   { href: "/our-purpose", label: "Our Purpose" },
   { href: "/our-objectives", label: "Our Objectives" },
-  { href: "/outreach", label: "Outreach" },
 ]
 
 const resourcesLinks = [
@@ -42,7 +41,14 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
   const [memberExpanded, setMemberExpanded] = useState(false)
   const [medProExpanded, setMedProExpanded] = useState(false)
 
+  const [scrolled, setScrolled] = useState(false)
   const closeMobile = () => setMobileOpen(false)
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 50)
+    window.addEventListener("scroll", onScroll, { passive: true })
+    return () => window.removeEventListener("scroll", onScroll)
+  }, [])
 
   useEffect(() => {
     const supabase = createBrowserClient(
@@ -89,7 +95,9 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
   const isResourcesActive = resourcesLinks.some((l) => pathname.startsWith(l.href))
 
   return (
-    <nav className={`bg-white/70 backdrop-blur-lg shadow-[0_20px_20px_0_rgba(7,68,105,0.04)] top-0 sticky z-50 transition-all duration-300 ${isAdmin ? "hidden" : ""}`}>
+    <nav className={`top-0 sticky z-50 transition-all duration-300 md:bg-white/70 md:backdrop-blur-lg md:shadow-[0_20px_20px_0_rgba(7,68,105,0.04)] ${
+      scrolled ? "bg-white/70 backdrop-blur-lg shadow-[0_20px_20px_0_rgba(7,68,105,0.04)]" : "bg-transparent"
+    } ${isAdmin ? "hidden" : ""}`}>
       <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop flex justify-between items-center h-20">
         <div className="flex items-center gap-[clamp(0.75rem,2vw,1.5rem)]">
           <Link href="/" className="flex items-center">
@@ -175,6 +183,16 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
                 </div>
               </div>
             </div>
+            <Link
+              href="/outreach"
+              className={
+                isActive("/outreach")
+                  ? "text-primary border-b-2 border-primary pb-1"
+                  : "text-on-surface-variant hover:text-primary transition-colors hover:bg-primary-container/10 px-2 py-1 rounded-md duration-300 ease-in-out active:scale-95"
+              }
+            >
+              Outreach
+            </Link>
             {user?.role === "administrador" && (
               <Link
                 href="/admin"
@@ -188,9 +206,6 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
         <div className="flex items-center gap-[clamp(0.25rem,0.8vw,0.75rem)]">
           {user ? (
             <>
-              <span className="hidden md:inline font-body-md text-body-md text-on-surface-variant truncate max-w-[150px]">
-                {user.email}
-              </span>
               <button
                 onClick={handleSignOut}
                 className="hidden md:inline-block bg-white border border-outline-variant text-on-surface font-label-bold text-xs md:text-label-bold rounded-lg hover:bg-surface-container transition-all px-3 py-1.5 md:px-5 md:py-2.5 cursor-pointer"
@@ -372,6 +387,18 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
               </div>
             </div>
           </div>
+          <Link
+            href="/outreach"
+            onClick={closeMobile}
+            className={
+              (isActive("/outreach")
+                ? "text-primary bg-primary-container/20"
+                : "text-on-surface-variant hover:bg-surface-container hover:text-on-surface") +
+              " flex items-center gap-3 px-4 py-3 rounded-lg font-label-bold text-label-bold transition-colors"
+            }
+          >
+            Outreach
+          </Link>
           {user?.role === "administrador" && (
             <Link
               href="/admin"

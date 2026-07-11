@@ -1,3 +1,4 @@
+import Link from "next/link"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
@@ -26,7 +27,7 @@ export default function OurObjectivesPage() {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
             </span>
-            Our objectives: (Reviewed June 8th, 2026) NEED REVIEW
+            Our objectives
           </div>
           <h1 className="font-headline-xl text-headline-xl text-surface max-w-4xl mb-8 leading-tight">
             Our Strategic Objectives
@@ -87,11 +88,7 @@ export default function OurObjectivesPage() {
                 alt="Healthcare professionals meeting"
                 className="w-full aspect-[4/3] object-cover rounded-lg shadow-2xl transition-transform duration-500 group-hover:scale-[1.02]"
                 loading="lazy"
-              />
-              <div className="absolute -bottom-8 -left-8 bg-white p-6 shadow-xl rounded-lg hidden md:block border border-outline-variant/30">
-                <p className="font-headline-lg text-headline-lg text-primary leading-none">150+</p>
-                <p className="font-label-bold text-label-bold text-on-surface-variant mt-2">Active Partnerships</p>
-              </div>
+              /> 
             </div>
           </div>
         </div>
@@ -195,7 +192,7 @@ export default function OurObjectivesPage() {
           </div>
           <div className="rounded-2xl overflow-hidden h-[500px] shadow-2xl relative">
             <img
-              src="/outreach/communities/724778059_122226599402056158_7520346588898508840_n.jpg"
+              src="/outreach/zumurucuare/706417436_122224596176056158_1440124180007367821_n.jpg"
                 alt="Medical mission outreach"
                 className="w-full h-full object-cover"
                 loading="lazy"
@@ -220,9 +217,9 @@ export default function OurObjectivesPage() {
             <button className="bg-white text-primary font-label-bold text-label-bold px-8 py-4 rounded-lg shadow-xl hover:bg-primary-fixed transition-all duration-300 cursor-pointer">
               Support Our Mission
             </button>
-            <button className="border-2 border-white/40 text-white font-label-bold text-label-bold px-8 py-4 rounded-lg hover:bg-white hover:text-primary transition-all duration-300 cursor-pointer">
+            <Link href="/outreach" className="border-2 border-white/40 text-white font-label-bold text-label-bold px-8 py-4 rounded-lg hover:bg-white hover:text-primary transition-all duration-300 cursor-pointer inline-block">
               Read Our Story
-            </button>
+            </Link>
           </div>
         </div>
       </section>
