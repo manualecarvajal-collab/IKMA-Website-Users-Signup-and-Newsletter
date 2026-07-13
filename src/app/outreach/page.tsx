@@ -115,14 +115,14 @@ export default function OutreachPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               {
-                img: "/outreach/communities/722754014_122226599486056158_2300381472205760622_n.jpg",
+                img: "/outreach/communities/722754014_122226599486056158_2300381472205760622_n.webp",
                 date: "General deployment",
                 title: "Venezuela Communities",
                 desc: "Multidisciplinary healthcare deployment across Venezuelan communities.",
                 href: "/outreach/communities",
               },
               {
-                img: "/outreach/zumurucuare/705891641_122224595906056158_2670985528843388643_n.jpg",
+                img: "/outreach/zumurucuare/705891641_122224595906056158_2670985528843388643_n.webp",
                 date: "May 2025",
                 title: "Outreach in Zumurucuare",
                 desc: "Comprehensive care outreach in the Zumurucuare sector of Coro.",

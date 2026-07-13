@@ -12,7 +12,7 @@ export default async function ZumurucuarePage() {
   const imagesDir = path.join(process.cwd(), "public", "outreach", "zumurucuare")
   const files = await fs.readdir(imagesDir)
   const images = files
-    .filter((f) => f.endsWith(".jpg"))
+    .filter((f) => f.endsWith(".webp"))
     .sort((a, b) => b.localeCompare(a))
 
   return (

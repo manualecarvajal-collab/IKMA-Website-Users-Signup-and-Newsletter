@@ -8,7 +8,7 @@ export default function Footer({ hide }: { hide?: boolean }) {
       <ContactSection />
       <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-12 md:py-section-padding grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 md:gap-gutter font-body-md text-body-md">
         <div className="sm:col-span-2">
-          <Image src="/logo.png" alt="IKMA Logo" width={160} height={48} className="h-8 w-auto mb-4" />
+          <Image src="/logo.webp" alt="IKMA Logo" width={107} height={32} className="mb-4" />
           <p className="text-on-surface-variant mb-6 max-w-md">
             We have God&apos;s grace and wisdom to bring solutions to the problems facing our society.
           </p>

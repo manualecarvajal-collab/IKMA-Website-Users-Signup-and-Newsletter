@@ -70,9 +70,9 @@ export default async function RootLayout({
         <style>{`.material-symbols-outlined { visibility: hidden; display: inline-block; min-width: 1em; } html.fonts-ready .material-symbols-outlined { visibility: visible; }`}</style>
         <link rel="icon" type="image/x-icon" href="/favicon.ico?v=2" />
         <link rel="icon" type="image/webp" href="/favicon.webp" />
-        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="preload" as="image" href="/images/Ap Bonny 2.webp" fetchPriority="high" />
       </head>
       <body className="min-h-full flex flex-col bg-background text-on-background selection:bg-primary-container selection:text-on-primary-container">
         <MaterialIcons />

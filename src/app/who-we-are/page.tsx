@@ -59,7 +59,7 @@ export default function WhoWeArePage() {
           <div className="col-span-1 lg:col-span-6 relative h-full min-h-[400px] flex items-center justify-center">
             <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden shadow-[0_4px_20px_rgba(26,77,109,0.08)] bg-surface-container-low">
               <img
-                src="/outreach/zumurucuare/705891641_122224595906056158_2670985528843388643_n.jpg"
+                src="/outreach/zumurucuare/705891641_122224595906056158_2670985528843388643_n.webp"
                 alt="IKMA medical professionals"
                 className="absolute inset-0 w-full h-full object-cover opacity-90 hover:opacity-100 transition-opacity duration-700"
                 loading="lazy"

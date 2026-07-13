@@ -10,7 +10,6 @@ import { signout } from "@/lib/supabase/actions"
 const aboutLinks = [
   { href: "/who-we-are", label: "Who We Are" },
   { href: "/our-purpose", label: "Our Purpose" },
-  { href: "/our-objectives", label: "Our Objectives" },
 ]
 
 const resourcesLinks = [
@@ -102,7 +101,7 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
         <div className="flex items-center gap-[clamp(0.75rem,2vw,1.5rem)]">
           <Link href="/" className="flex items-center">
             <Image
-              src="/logo.png"
+              src="/logo.webp"
               alt="IKMA Logo"
               width={160}
               height={48}

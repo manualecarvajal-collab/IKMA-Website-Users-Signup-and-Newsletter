@@ -14,7 +14,7 @@ export default function OurObjectivesPage() {
       <section className="relative min-h-[85vh] flex items-center pt-20 overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img
-            src="/outreach/communities/723067031_122226599306056158_29644257407622949_n.jpg"
+            src="/outreach/communities/723067031_122226599306056158_29644257407622949_n.webp"
             alt=""
             className="w-full h-full object-cover"
             loading="lazy"
@@ -84,7 +84,7 @@ export default function OurObjectivesPage() {
             <div className="relative group">
               <div className="absolute -inset-6 bg-primary-fixed/20 -z-10 rounded-2xl group-hover:bg-primary-fixed/30 transition-all" />
               <img
-                src="/outreach/communities/724073318_122226599612056158_6550501176011429048_n.jpg"
+                src="/outreach/communities/724073318_122226599612056158_6550501176011429048_n.webp"
                 alt="Healthcare professionals meeting"
                 className="w-full aspect-[4/3] object-cover rounded-lg shadow-2xl transition-transform duration-500 group-hover:scale-[1.02]"
                 loading="lazy"
@@ -123,7 +123,7 @@ export default function OurObjectivesPage() {
             <div className="relative group order-1">
               <div className="absolute -inset-6 bg-secondary-fixed/20 -z-10 rounded-2xl group-hover:bg-secondary-fixed/30 transition-all" />
               <img
-                src="/outreach/communities/724265425_122226599258056158_6696920523978700488_n.jpg"
+                src="/outreach/communities/724265425_122226599258056158_6696920523978700488_n.webp"
                 alt="Medical students studying"
                 className="w-full aspect-[4/3] object-cover rounded-lg shadow-2xl transition-transform duration-500 group-hover:scale-[1.02]"
                 loading="lazy"
@@ -192,7 +192,7 @@ export default function OurObjectivesPage() {
           </div>
           <div className="rounded-2xl overflow-hidden h-[500px] shadow-2xl relative">
             <img
-              src="/outreach/zumurucuare/706417436_122224596176056158_1440124180007367821_n.jpg"
+              src="/outreach/zumurucuare/706417436_122224596176056158_1440124180007367821_n.webp"
                 alt="Medical mission outreach"
                 className="w-full h-full object-cover"
                 loading="lazy"

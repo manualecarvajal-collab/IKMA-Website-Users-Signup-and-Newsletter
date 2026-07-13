@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { resizeImg } from "@/lib/images";
+import { SafeImage } from "@/components/SafeImage";
 import HeroCarousel, { Slide } from "@/components/HeroCarousel";
 import StatsSection from "@/components/StatsSection";
 
@@ -34,7 +36,7 @@ export default async function HomePage() {
                   fetchPriority="high"
                   className="w-full h-full object-cover object-[center_15%]"
                 />
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent from-[45%] to-white" />
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent from-[5%] to-white" />
               </div>
 
               {/* Left - Content */}
@@ -96,7 +98,7 @@ export default async function HomePage() {
                   loading="lazy"
                   className="w-full h-full object-cover object-center"
                 />
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent from-[45%] to-white" />
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent from-[5%] to-white" />
               </div>
 
               {/* Left - Content */}
@@ -169,10 +171,10 @@ export default async function HomePage() {
                 className="flex flex-col group cursor-pointer"
               >
                 <div className="w-full h-64 rounded-lg overflow-hidden mb-6 bg-surface-variant shadow-sm relative group-hover:shadow-[0_20px_20px_0_rgba(7,68,105,0.04)] group-hover:-translate-y-1 transition-all duration-300">
-                  <img
-                    src={mainArticle.imagen_url || "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=1000"}
+                  <SafeImage
+                    src={resizeImg(mainArticle.imagen_url, 600) || "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=600"}
+                    fallback={mainArticle.imagen_url || ""}
                     alt={mainArticle.titulo}
-                    loading="lazy"
                     className="w-full h-full object-cover"
                   />
                 </div>
@@ -208,10 +210,10 @@ export default async function HomePage() {
                   className="flex space-x-3 sm:space-x-4 p-3 sm:p-4 rounded-lg hover:bg-surface-container transition-colors cursor-pointer group"
                 >
                   <div className="w-20 sm:w-24 h-20 sm:h-24 rounded-lg overflow-hidden flex-shrink-0 bg-surface-variant">
-                      <img
-                      src={article.imagen_url || "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=1000"}
+                      <SafeImage
+                      src={resizeImg(article.imagen_url, 200) || "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=200"}
+                      fallback={article.imagen_url || ""}
                       alt={article.titulo}
-                      loading="lazy"
                       className="w-full h-full object-cover"
                     />
                   </div>
