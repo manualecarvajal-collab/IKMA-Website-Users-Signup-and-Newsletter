@@ -8,9 +8,9 @@ npm run lint     # lint
 ```
 
 ## Stack
-- Next.js 14 (App Router)
+- Next.js 16 (App Router)
 - Supabase (Postgres, Auth, Storage)
-- Vercel (hosting, Hobby plan: 4.5 MB serverless payload limit)
+- Vercel (hosting, Team Pro, dominio: ikmaglobal.com)
 - Material Symbols (Google icons via font)
 
 ## Key conventions
@@ -22,9 +22,12 @@ npm run lint     # lint
 - Auth: Supabase Auth; admin panel at `/admin` behind middleware
 
 ## Upload architecture
-Files go through `/api/upload` (returns a signed Supabase upload URL), then client PUTs directly to Supabase Storage. This avoids Vercel's 4.5 MB payload limit.
+Files go through `/api/upload` (returns a signed Supabase upload URL), then client PUTs directly to Supabase Storage. This avoids Vercel's serverless payload limit.
 - `ImageUpload.tsx` — generic image upload (folder: "images")
 - `AvatarUpload.tsx` — doctor avatars (folder: "avatars")
+
+## Knowledge graph
+Run `/graphify` in opencode after significant structural changes to regenerate the codebase graph.
 
 ## Doctor images
 `imagen_url` can be either:
@@ -97,3 +100,27 @@ Use: `url?.startsWith("http") ? url : BASE + url` where `BASE = "https://lh3.goo
 - `src/lib/email-config.ts` (createAdminClient)
 - `src/middleware.ts` (removed, replaced by proxy.ts)
 - `src/app/admin/users/page.tsx` (batch update)
+
+## Session 2026-07-15 — Vercel Pro migration
+
+### Changes
+- Migrated from Hobby → Team Pro, domain `ikmaglobal.com`.
+- `vercel.json` created: cleanUrls, trailingSlash:false, Node 20, security headers.
+- `layout.tsx`: `metadataBase` → `https://ikmaglobal.com`.
+- `next.config.ts`: security headers removed (moved to `vercel.json`).
+
+### External configs to update
+- **Google Cloud Console**: Authorized JavaScript origins → add `https://ikmaglobal.com`.
+- **Supabase Auth Settings**: Site URL + Redirect URLs → `https://ikmaglobal.com`.
+- **Stripe Webhooks**: Endpoint → `https://ikmaglobal.com/api/stripe/webhook`.
+- **DNS**: Point `ikmaglobal.com` to Vercel.
+
+### Env vars for new Pro project
+Set all env vars from checklist in `specs.md`. `NEXT_PUBLIC_SITE_URL` must be `https://ikmaglobal.com`.
+
+### Relevant files
+- `vercel.json` (new)
+- `specs.md` (new)
+- `src/app/layout.tsx` (metadataBase)
+- `next.config.ts` (removed headers)
+- `AGENTS.md` (updated stack)

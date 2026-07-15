@@ -19,7 +19,7 @@ const montserrat = Montserrat({
 })
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://ikma-website.vercel.app"),
+  metadataBase: new URL("https://ikmaglobal.com"),
   title: "IKMA - International Kingdom Medical Association",
   description:
     "Healing through faith and excellence. A mission-driven medical association dedicated to providing accessible, high-quality healthcare and funding to those in need.",
