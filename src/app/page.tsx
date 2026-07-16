@@ -173,7 +173,7 @@ export default async function HomePage() {
               >
                 <div className="w-full h-64 rounded-lg overflow-hidden mb-6 bg-surface-variant shadow-sm relative group-hover:shadow-[0_20px_20px_0_rgba(7,68,105,0.04)] group-hover:-translate-y-1 transition-all duration-300">
                   <SafeImage
-                    src={resizeImg(mainArticle.imagen_url, 600) || "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=600"}
+                    src={mainArticle.imagen_url || "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=600"}
                     fallback={mainArticle.imagen_url || ""}
                     alt={mainArticle.titulo}
                     className="w-full h-full object-cover"
