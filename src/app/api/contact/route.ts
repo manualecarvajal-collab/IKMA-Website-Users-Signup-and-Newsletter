@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { createAdminClient } from "@/lib/supabase/server"
 
 export async function POST(req: Request) {
   try {
@@ -9,6 +10,17 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
+    const admin = await createAdminClient()
+    const { data: configRows } = await admin.from("app_config").select("*")
+    const config: Record<string, string> = {}
+    if (configRows) {
+      for (const row of configRows) {
+        config[row.key] = row.value
+      }
+    }
+
+    const from = `${config.email_from_name || "IKMA"} <${config.email_from_email || "onboarding@resend.dev"}>`
+
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
@@ -16,7 +28,7 @@ export async function POST(req: Request) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "IKMA <onboarding@resend.dev>",
+        from,
         to: "manuelecarvajal@gmail.com",
         // ponytail: change to info@ikmaglobal.com when ready
         subject: `Website Contact: ${inquiryType} from ${firstName} ${lastName}`,
