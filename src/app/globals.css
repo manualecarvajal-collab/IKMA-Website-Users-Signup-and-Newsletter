@@ -110,21 +110,6 @@ body {
     color: var(--color-on-primary-container);
 }
 
-.material-symbols-outlined {
-    visibility: hidden;
-    display: inline-block;
-    min-width: 1em;
-    font-variation-settings:
-        "FILL" 0,
-        "wght" 400,
-        "GRAD" 0,
-        "opsz" 24;
-}
-
-html.fonts-ready .material-symbols-outlined {
-    visibility: visible;
-}
-
 main {
     animation: fadeIn 0.5s ease-in;
 }
@@ -152,3 +137,8 @@ main {
 .custom-shadow:hover {
     box-shadow: 0 8px 30px rgba(7,68,105,0.15);
 }
+
+/* Google Translate — hide injected UI */
+.skiptranslate iframe { display: none !important; }
+body { top: 0px !important; }
+.goog-te-gadget { display: none !important; }

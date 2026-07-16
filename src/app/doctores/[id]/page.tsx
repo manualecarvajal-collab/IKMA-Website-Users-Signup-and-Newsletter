@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
+import Icon from "@/components/Icon"
 
 const BASE = "https://lh3.googleusercontent.com/aida-public/"
 
@@ -46,7 +47,7 @@ function Stars({ rating }: { rating: number }) {
   return (
     <div className="flex items-center gap-1">
       {Array.from({ length: 5 }).map((_, i) => (
-        <span key={i} className={`material-symbols-outlined text-lg ${i < Math.floor(rating) ? "text-amber-600" : "text-outline-variant"}`} style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+        <Icon key={i} name="star" size={18} className={`${i < Math.floor(rating) ? "text-amber-600" : "text-outline-variant"}`} fill={i < Math.floor(rating) ? "currentColor" : undefined} />
       ))}
     </div>
   )
@@ -81,7 +82,7 @@ export default async function DoctorDetailPage({ params }: { params: Promise<{ i
               <div className="relative rounded-lg overflow-hidden bg-surface-container-high aspect-[3/4] shadow-[0_0_20px_0_rgba(7,68,105,0.04)]">
                 <img src={doc.imagen_url?.startsWith("http") ? doc.imagen_url : BASE + doc.imagen_url} alt={doc.nombre} loading="lazy" className="w-full h-full object-cover" />
                 <div className="absolute bottom-3 right-3 bg-surface-container-lowest rounded-full p-1.5 shadow-sm">
-                  <span className="material-symbols-outlined text-primary text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
+                  <Icon name="verified" size={20} className="text-primary" fill="currentColor" />
                 </div>
               </div>
             </div>
@@ -89,10 +90,10 @@ export default async function DoctorDetailPage({ params }: { params: Promise<{ i
               <div className="flex flex-wrap items-center gap-3 mb-2">
                 <span className="font-label-bold text-label-bold text-tertiary-container bg-tertiary-fixed inline-block px-3 py-1 rounded-sm">{doc.especialidad_principal}</span>
                 <span className="flex items-center gap-1 font-label-bold text-label-bold text-primary">
-                  <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span> Verified Professional
+                  <Icon name="verified" size={14} fill="currentColor" /> Verified Professional
                 </span>
               </div>
-              <h1 className="font-headline-md text-headline-md text-primary mb-2">{doc.nombre}</h1>
+              <h1 className="font-headline-md text-headline-md text-primary mb-2 notranslate">{doc.nombre}</h1>
               {doc.rating && (
                 <div className="flex items-center gap-1 mb-3">
                   <Stars rating={doc.rating} />
@@ -104,7 +105,7 @@ export default async function DoctorDetailPage({ params }: { params: Promise<{ i
               )}
               <div className="flex flex-wrap gap-4">
                 <button className="bg-secondary-container text-primary font-label-bold text-label-bold px-8 py-3 rounded-md hover:bg-secondary-fixed transition-all inline-flex items-center gap-2 cursor-pointer">
-                  <span className="material-symbols-outlined text-sm">mail</span> Email Consult
+                  <Icon name="mail" size={14} /> Email Consult
                 </button>
               </div>
             </div>
@@ -139,7 +140,7 @@ export default async function DoctorDetailPage({ params }: { params: Promise<{ i
           {doc.acerca_de && (
             <div>
               <h2 className="font-headline-lg text-headline-lg text-primary mb-4 flex items-center gap-3">
-                <span className="material-symbols-outlined text-primary">person</span> About
+                <Icon name="person" className="text-primary" /> About
               </h2>
               <p className="font-body-lg text-body-lg text-on-surface-variant leading-relaxed">{doc.acerca_de}</p>
             </div>
@@ -148,18 +149,18 @@ export default async function DoctorDetailPage({ params }: { params: Promise<{ i
           {experiencia.length > 0 && (
             <div>
               <h2 className="font-headline-lg text-headline-lg text-primary mb-6 flex items-center gap-3">
-                <span className="material-symbols-outlined text-primary">work_history</span> Professional Experience
+                <Icon name="work_history" className="text-primary" /> Professional Experience
               </h2>
               <div className="space-y-6 relative before:absolute before:left-[19px] before:top-2 before:bottom-2 before:w-0.5 before:bg-outline-variant/50">
                 {experiencia.map((e, i) => (
                   <div key={i} className="flex gap-4 relative">
                     <div className="w-10 h-10 rounded-full bg-primary-container/30 flex items-center justify-center shrink-0 z-10">
-                      <span className="material-symbols-outlined text-primary text-lg">{e.icon || icons[i] || "business"}</span>
+                      <Icon name={e.icon || icons[i] || "business"} size={18} className="text-primary" />
                     </div>
                     <div className="bg-surface-container-low rounded-md p-8 flex-1">
                       <p className="font-label-bold text-label-bold text-tertiary-container">{e.period}</p>
                       <p className="font-headline-md text-headline-md text-primary mt-1">{e.title}</p>
-                      <p className="font-body-md text-body-md text-on-surface-variant mt-1">{e.org}</p>
+                      <p className="font-body-md text-body-md text-on-surface-variant mt-1 notranslate">{e.org}</p>
                     </div>
                   </div>
                 ))}
@@ -170,12 +171,12 @@ export default async function DoctorDetailPage({ params }: { params: Promise<{ i
           {premios.length > 0 && (
             <div className="bg-surface-container-low rounded-md p-8 md:p-8">
               <h2 className="font-headline-lg text-headline-lg text-primary mb-6 flex items-center gap-3">
-                <span className="material-symbols-outlined text-primary">award_star</span> Awards & Recognition
+                <Icon name="award_star" className="text-primary" /> Awards & Recognition
               </h2>
               <div className="space-y-4">
                 {premios.map((a, i) => (
                   <div key={i} className="flex items-start gap-3">
-                    <span className="material-symbols-outlined text-amber-600 text-xl">emoji_events</span>
+                    <Icon name="emoji_events" size={20} className="text-amber-600" />
                     <div>
                       <p className="font-headline-md text-headline-md text-on-surface">{a.title}</p>
                       <p className="font-body-md text-body-md text-on-surface-variant">{a.org} — {a.year}</p>
@@ -193,19 +194,19 @@ export default async function DoctorDetailPage({ params }: { params: Promise<{ i
         <section className="py-section-padding bg-surface-container-low border-y border-outline-variant/20">
           <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
             <h2 className="font-headline-lg text-headline-lg text-primary mb-8 text-center flex items-center justify-center gap-3">
-              <span className="material-symbols-outlined text-primary">school</span> Education & Credentials
+              <Icon name="school" className="text-primary" /> Education & Credentials
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-gutter max-w-3xl mx-auto">
               {educacion.length > 0 && (
                 <div className="bg-surface-container-lowest rounded-md p-8 shadow-[0_0_20px_0_rgba(7,68,105,0.04)]">
                   <h3 className="font-headline-md text-headline-md text-primary mb-4 flex items-center gap-2">
-                    <span className="material-symbols-outlined text-primary">school</span> Education
+                    <Icon name="school" className="text-primary" /> Education
                   </h3>
                   <ul className="space-y-4">
                     {educacion.map((e, i) => (
                       <li key={i} className="flex items-start gap-3 font-body-md text-body-md text-on-surface-variant">
                         <div className="w-8 h-8 rounded-full bg-primary-container/20 flex items-center justify-center shrink-0 mt-0.5">
-                          <span className="material-symbols-outlined text-primary text-sm">school</span>
+                          <Icon name="school" size={14} className="text-primary" />
                         </div>
                         <div>
                           <p className="font-body-md text-body-md text-on-surface font-semibold">{e.degree}</p>
@@ -219,13 +220,13 @@ export default async function DoctorDetailPage({ params }: { params: Promise<{ i
               {certificaciones.length > 0 && (
                 <div className="bg-surface-container-lowest rounded-md p-8 shadow-[0_0_20px_0_rgba(7,68,105,0.04)]">
                   <h3 className="font-headline-md text-headline-md text-primary mb-4 flex items-center gap-2">
-                    <span className="material-symbols-outlined text-primary">verified</span> Certifications
+                    <Icon name="verified" className="text-primary" /> Certifications
                   </h3>
                   <ul className="space-y-4">
                     {certificaciones.map((c, i) => (
                       <li key={i} className="flex items-start gap-3 font-body-md text-body-md text-on-surface-variant">
                         <div className="w-8 h-8 rounded-full bg-primary-container/20 flex items-center justify-center shrink-0 mt-0.5">
-                          <span className="material-symbols-outlined text-primary text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
+                          <Icon name="verified" size={14} className="text-primary" fill="currentColor" />
                         </div>
                         <div>
                           <p className="font-body-md text-body-md text-on-surface font-semibold">{c.cert}</p>
@@ -253,14 +254,14 @@ export default async function DoctorDetailPage({ params }: { params: Promise<{ i
               <div className="grid grid-cols-1 md:grid-cols-3 gap-gutter">
                 {testimonios.map((t, i) => (
                   <div key={i} className="text-center px-4 md:px-8 py-8">
-                    <span className="material-symbols-outlined text-primary/15 text-5xl mb-4" style={{ fontVariationSettings: "'FILL' 1" }}>format_quote</span>
+                    <Icon name="format_quote" size={48} className="text-primary/15 mb-4" />
                     <div className="flex items-center justify-center gap-1 text-amber-600 mb-4">
                       {Array.from({ length: 5 }).map((_, j) => (
-                        <span key={j} className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                        <Icon key={j} name="star" size={14} className="fill-current" />
                       ))}
                     </div>
                     <p className="font-headline-md text-headline-md text-primary leading-snug mb-6">&ldquo;{t.text}&rdquo;</p>
-                    <p className="font-label-bold text-label-bold text-on-primary-fixed-variant">— {t.name}</p>
+                    <p className="font-label-bold text-label-bold text-on-primary-fixed-variant notranslate">— {t.name}</p>
                     <p className="font-label-sm text-label-sm text-on-surface-variant mt-1">{t.type}</p>
                   </div>
                 ))}
@@ -283,7 +284,7 @@ export default async function DoctorDetailPage({ params }: { params: Promise<{ i
             <div className="flex flex-wrap justify-center gap-4 relative z-10">
               <a className="inline-flex items-center gap-2 bg-white text-primary font-label-bold text-label-bold px-6 py-3 rounded-xl hover:bg-primary-fixed transition-all shadow-[0_0_20px_0_rgba(7,68,105,0.04)]" href="#">Support Now</a>
               <Link className="inline-flex items-center gap-2 bg-primary-container text-on-primary font-label-bold text-label-bold px-6 py-3 rounded-xl hover:bg-primary transition-all" href="/doctores">
-                <span className="material-symbols-outlined text-sm">arrow_back</span> Back to All Doctors
+                <Icon name="arrow_back" size={14} /> Back to All Doctors
               </Link>
             </div>
           </div>

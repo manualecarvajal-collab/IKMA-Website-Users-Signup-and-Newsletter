@@ -1,6 +1,7 @@
 import Link from "next/link"
 import type { Metadata } from "next"
 import { createClient } from "@/lib/supabase/server"
+import Icon from "@/components/Icon"
 
 export const metadata: Metadata = {
   title: "Blog - IKMA Medical Journal",
@@ -76,7 +77,7 @@ export default async function BlogPage() {
                     />
                   </div>
                   <div className="flex items-center mb-3">
-                    <span className="font-label-bold text-label-sm text-tertiary uppercase tracking-wider">
+                    <span className="font-label-bold text-label-sm text-tertiary uppercase tracking-wider notranslate">
                       {articles[0].autor_nombre || "IKMA"}
                     </span>
                   </div>
@@ -86,7 +87,7 @@ export default async function BlogPage() {
                     </h2>
                     <div className="flex items-center text-on-surface-variant font-medium space-x-0.5 flex-shrink-0 text-sm">
                       <span>Read More</span>
-                      <span className="material-symbols-outlined text-base">arrow_forward</span>
+                      <Icon name="arrow_forward" size={16} />
                     </div>
                   </div>
                   <p className="font-body-md text-body-md text-on-surface-variant line-clamp-2 mb-4">
@@ -107,7 +108,7 @@ export default async function BlogPage() {
                         <img src={a.imagen_url  || ""} alt="" loading="lazy" className="w-full h-full object-cover" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <span className="text-[10px] font-bold text-tertiary uppercase tracking-tighter">{a.autor_nombre || "IKMA"}</span>
+                        <span className="text-[10px] font-bold text-tertiary uppercase tracking-tighter notranslate">{a.autor_nombre || "IKMA"}</span>
                         <h3 className="font-bold text-on-surface group-hover:text-primary transition-colors text-sm leading-tight mt-0.5">
                           {a.titulo}
                         </h3>
@@ -147,7 +148,7 @@ export default async function BlogPage() {
                         <img src={a.imagen_url  || ""} alt="" loading="lazy" className="w-full h-full object-cover" />
                       </div>
                       <div className="p-4">
-                    <span className="text-[10px] font-bold text-tertiary uppercase tracking-tighter">
+                    <span className="text-[10px] font-bold text-tertiary uppercase tracking-tighter notranslate">
                       {a.autor_nombre || "IKMA"}
                     </span>
                         <h3 className="font-bold text-on-surface mt-2 group-hover:text-primary transition-colors text-sm leading-tight">
@@ -177,7 +178,7 @@ export default async function BlogPage() {
               <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
                 <div className="bg-white rounded-xl p-8 shadow-sm border border-outline-variant/20">
                   <div className="flex items-center gap-4 mb-6">
-                    <span className="material-symbols-outlined text-4xl text-primary">menu_book</span>
+                    <Icon name="menu_book" size={36} className="text-primary" />
                     <div>
                       <h2 className="font-headline-lg text-headline-lg text-primary">
                         Check out our latest posted magazines
@@ -199,7 +200,7 @@ export default async function BlogPage() {
                           </div>
                         ) : (
                           <div className="aspect-[3/4] w-full bg-surface-container-high flex items-center justify-center">
-                            <span className="material-symbols-outlined text-5xl text-on-surface-variant/30">description</span>
+                            <Icon name="description" size={48} className="text-on-surface-variant/30" />
                           </div>
                         )}
                         <div className="p-4">

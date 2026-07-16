@@ -1,6 +1,7 @@
 "use client"
 
 import { useRouter } from "next/navigation"
+import Icon from "@/components/Icon"
 
 interface Newsletter {
   id: string
@@ -51,7 +52,7 @@ export default function NewsletterList({ newsletters }: { newsletters: Newslette
                       className="p-2 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors"
                       title="Edit & re-send"
                     >
-                      <span className="material-symbols-outlined text-lg">edit</span>
+                      <Icon name="edit" size={18} />
                     </button>
                     <form
                       action={`/api/newsletter/delete?id=${nl.id}`}
@@ -69,7 +70,7 @@ export default function NewsletterList({ newsletters }: { newsletters: Newslette
                         className="p-2 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-error transition-colors"
                         title="Delete"
                       >
-                        <span className="material-symbols-outlined text-lg">delete</span>
+                        <Icon name="delete" size={18} />
                       </button>
                     </form>
                   </div>

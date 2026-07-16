@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import Icon from "@/components/Icon"
 
 export const metadata: Metadata = {
   title: "Our Purpose, Mission and Values - IKMA",
@@ -114,9 +115,7 @@ export default function OurPurposePage() {
             >
               <div className="flex items-center gap-4 mb-6">
                 <div className="w-14 h-14 rounded-full bg-primary-fixed flex items-center justify-center text-primary">
-                  <span className="material-symbols-outlined text-3xl" style={{ fontVariationSettings: '"FILL" 1' }}>
-                    {pillar.icon}
-                  </span>
+                  <Icon name={pillar.icon} size={30} fill="currentColor" />
                 </div>
                 <h2 className="font-headline-md text-body-lg text-primary">
                   {pillar.title}
@@ -128,9 +127,7 @@ export default function OurPurposePage() {
               <ul className="space-y-3 font-label-sm text-label-bold text-on-surface-variant flex-grow">
                 {pillar.items.map((item, i) => (
                   <li key={i} className="flex items-start gap-3">
-                    <span className="material-symbols-outlined text-primary text-sm mt-1 shrink-0">
-                      check
-                    </span>
+                    <Icon name="check" size={14} className="text-primary mt-1 shrink-0" />
                     <span>{item}</span>
                   </li>
                 ))}

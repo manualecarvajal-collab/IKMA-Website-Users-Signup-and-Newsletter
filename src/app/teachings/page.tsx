@@ -1,6 +1,7 @@
 import Link from "next/link"
 import type { Metadata } from "next"
 import { createClient } from "@/lib/supabase/server"
+import Icon from "@/components/Icon"
 
 export const metadata: Metadata = {
   title: "Teachings - IKMA Video Library",
@@ -87,7 +88,7 @@ export default async function TeachingsPage(props: { searchParams?: Promise<Reco
                   />
                   <div className="absolute inset-0 bg-primary/20 flex items-center justify-center group-hover:bg-primary/10 transition-colors">
                     <div className="w-20 h-20 bg-white/90 rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform">
-                      <span className="material-symbols-outlined text-primary text-5xl">play_arrow</span>
+                      <Icon name="play_arrow" size={48} className="text-primary" />
                     </div>
                   </div>
                   <div className="absolute bottom-4 left-4 bg-primary/80 backdrop-blur-md text-on-primary px-3 py-1 rounded font-label-bold text-label-sm uppercase tracking-wider">
@@ -107,7 +108,7 @@ export default async function TeachingsPage(props: { searchParams?: Promise<Reco
                     </span>
                   )}
                   <span className="flex items-center gap-2 font-label-bold text-label-sm text-on-surface-variant">
-                    <span className="material-symbols-outlined text-lg">calendar_today</span>
+                    <Icon name="calendar_today" size={18} />
                     {formatDate(featured.created_at)}
                   </span>
                 </div>
@@ -183,7 +184,7 @@ export default async function TeachingsPage(props: { searchParams?: Promise<Reco
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-primary/20">
-                    <span className="material-symbols-outlined text-on-primary text-5xl">play_circle</span>
+                    <Icon name="play_circle" size={48} className="text-on-primary" />
                   </div>
                 </div>
                 <div className="p-6 flex flex-col flex-grow">
@@ -198,7 +199,7 @@ export default async function TeachingsPage(props: { searchParams?: Promise<Reco
                   )}
                   <div className="mt-auto flex items-center justify-between pt-4 border-t border-surface-container">
                     <span className="font-label-bold text-label-sm text-primary">{formatDate(v.created_at)}</span>
-                    <span className="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">arrow_forward</span>
+                    <Icon name="arrow_forward" className="text-on-surface-variant group-hover:text-primary transition-colors" />
                   </div>
                 </div>
               </a>

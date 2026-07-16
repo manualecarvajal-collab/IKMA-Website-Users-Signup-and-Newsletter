@@ -1,6 +1,7 @@
 import { getNewsletters } from "@/lib/supabase/admin-actions"
 import NewsletterList from "@/components/NewsletterList"
 import Link from "next/link"
+import Icon from "@/components/Icon"
 
 export default async function NewsletterPage() {
   const newsletters = await getNewsletters()
@@ -18,7 +19,7 @@ export default async function NewsletterPage() {
           href="/admin/newsletter/nueva"
           className="flex items-center gap-2 bg-primary text-on-primary font-label-bold text-label-bold px-5 py-2.5 rounded-lg hover:bg-primary/90 transition-all"
         >
-          <span className="material-symbols-outlined text-lg">send</span>
+          <Icon name="send" size={18} />
           Send a Newsletter
         </Link>
       </div>

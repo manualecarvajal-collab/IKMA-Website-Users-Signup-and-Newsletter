@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { showToast } from "./Toast"
 import { updateUsersBatch, deleteUser } from "@/lib/supabase/admin-actions"
+import Icon from "@/components/Icon"
 
 interface User {
   id: string
@@ -87,9 +88,9 @@ export default function UserManagementTable({ initialUsers }: { initialUsers: Us
           }`}
         >
           {isSaving ? (
-            <span className="material-symbols-outlined animate-spin">sync</span>
+            <Icon name="sync" className="animate-spin" />
           ) : (
-            <span className="material-symbols-outlined">save</span>
+            <Icon name="save" />
           )}
           {isSaving ? "Saving..." : "Save Changes"}
         </button>
@@ -147,7 +148,7 @@ export default function UserManagementTable({ initialUsers }: { initialUsers: Us
                           className="p-2 text-on-surface-variant hover:text-error transition-all cursor-pointer"
                           title="Delete Account Permanently"
                         >
-                          <span className="material-symbols-outlined text-lg">person_remove</span>
+                          <Icon name="person_remove" size={18} />
                         </button>
                       )}
                     </td>
@@ -176,7 +177,7 @@ export default function UserManagementTable({ initialUsers }: { initialUsers: Us
                         className="p-2 text-on-surface-variant hover:text-error"
                         title="Delete Account Permanently"
                       >
-                        <span className="material-symbols-outlined text-lg">person_remove</span>
+                        <Icon name="person_remove" size={18} />
                       </button>
                     )}
                   </div>
@@ -210,7 +211,7 @@ export default function UserManagementTable({ initialUsers }: { initialUsers: Us
       
       {hasChanges && (
         <div className="bg-primary-container/30 border border-primary/20 p-4 rounded-xl flex items-start gap-3">
-          <span className="material-symbols-outlined text-primary text-lg">info</span>
+          <Icon name="info" size={18} className="text-primary" />
           <p className="text-sm text-on-primary-container font-body-md">
             You have unsaved changes. Make sure to click <strong>"Save Changes"</strong> before leaving this page.
           </p>

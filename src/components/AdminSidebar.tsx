@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useState, useEffect } from "react"
+import Icon from "@/components/Icon"
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: "dashboard" },
@@ -67,23 +68,23 @@ export function SidebarNav({
             className="md:hidden p-2 text-on-surface-variant"
             onClick={() => setIsOpen(false)}
           >
-            <span className="material-symbols-outlined">close</span>
+            <Icon name="close" />
           </button>
         </div>
         <nav className="p-4 space-y-1">
           {navItems.map((item) => (
             <Link key={item.href} href={item.href} className={linkClasses(item.href)}>
-              <span className="material-symbols-outlined text-lg">{item.icon}</span> {item.label}
+              <Icon name={item.icon} size={18} /> {item.label}
             </Link>
           ))}
           <hr className="my-4 border-outline-variant/20" />
           {pathname === "/admin" || pathname === "/admin/" ? (
             <Link href="/" className="flex items-center gap-3 px-4 py-3 rounded-lg font-body-md text-body-md text-on-surface-variant hover:bg-primary-container/40 hover:text-primary transition-colors bg-primary-container/10 border border-primary/20">
-              <span className="material-symbols-outlined text-lg">arrow_back</span> Back to Site
+              <Icon name="arrow_back" size={18} /> Back to Site
             </Link>
           ) : (
             <Link href="/admin" className="flex items-center gap-3 px-4 py-3 rounded-lg font-body-md text-body-md text-on-surface-variant hover:bg-primary-container/40 hover:text-primary transition-colors bg-primary-container/10 border border-primary/20">
-              <span className="material-symbols-outlined text-lg">arrow_back</span> Back to Dashboard
+              <Icon name="arrow_back" size={18} /> Back to Dashboard
             </Link>
           )}
         </nav>

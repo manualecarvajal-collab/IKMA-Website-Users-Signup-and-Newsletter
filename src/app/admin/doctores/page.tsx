@@ -4,6 +4,7 @@ import { deleteDoctor, toggleDoctorStatus } from "@/lib/supabase/admin-actions";
 import { DeleteButton } from "@/components/DeleteButton";
 import { ToggleStatus } from "@/components/ToggleStatus";
 import { ListFilters } from "@/components/ListFilters";
+import Icon from "@/components/Icon";
 
 export default async function AdminDoctoresPage(props: {
   searchParams?: Promise<Record<string, string>>;
@@ -37,7 +38,7 @@ export default async function AdminDoctoresPage(props: {
           href="/admin/doctores/nuevo"
           className="w-full sm:w-auto bg-primary text-on-primary font-label-bold text-label-bold px-5 py-2.5 rounded-lg hover:bg-primary-container hover:text-on-primary-container transition-colors inline-flex items-center justify-center gap-2"
         >
-          <span className="material-symbols-outlined text-sm">add</span> New
+          <Icon name="add" size={14} /> New
           Doctor
         </Link>
       </div>
@@ -80,7 +81,7 @@ export default async function AdminDoctoresPage(props: {
                 className="border-b border-outline-variant/10 hover:bg-surface-container-low/50 transition-colors"
               >
                 <td className="px-6 py-4">
-                  <p className="font-body-md text-body-md text-on-surface">
+                  <p className="font-body-md text-body-md text-on-surface notranslate">
                     {d.nombre}
                   </p>
                 </td>
@@ -102,9 +103,7 @@ export default async function AdminDoctoresPage(props: {
                       href={`/admin/doctores/${d.id}/editar`}
                       className="text-primary hover:text-primary-fixed-dim p-1.5"
                     >
-                      <span className="material-symbols-outlined text-lg">
-                        edit
-                      </span>
+                      <Icon name="edit" size={18} />
                     </Link>
                     <DeleteButton
                       action={deleteDoctor.bind(null, String(d.id))}

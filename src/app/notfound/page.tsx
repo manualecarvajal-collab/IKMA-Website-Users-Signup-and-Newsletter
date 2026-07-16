@@ -1,4 +1,5 @@
 import Link from "next/link"
+import Icon from "@/components/Icon"
 
 export default function NotFoundPage() {
   return (
@@ -57,7 +58,7 @@ export default function NotFoundPage() {
         href="/"
         className="inline-flex items-center gap-2 bg-primary text-on-primary font-label-bold text-label-bold px-8 py-4 rounded-lg hover:opacity-90 transition-opacity"
       >
-        <span className="material-symbols-outlined">home</span>
+        <Icon name="home" />
         Back to Homepage
       </Link>
     </div>

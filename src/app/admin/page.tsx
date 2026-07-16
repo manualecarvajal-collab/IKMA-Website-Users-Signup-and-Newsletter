@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { createClient, createAdminClient } from "@/lib/supabase/server"
+import Icon from "@/components/Icon"
 
 export default async function AdminDashboard() {
   const supabase = await createClient()
@@ -84,7 +85,7 @@ export default async function AdminDashboard() {
             href="/admin/suscriptores"
             className="bg-[#003652] text-white px-6 py-2 rounded-lg text-[14px] font-semibold leading-5 tracking-[0.01em] hover:bg-[#1a4d6d] transition-all duration-200 flex items-center gap-2"
           >
-            <span className="material-symbols-outlined text-[20px] font-light">person_add</span>
+            <Icon name="person_add" size={20} className="font-light" />
             Users
           </Link>
         </div>
@@ -98,7 +99,7 @@ export default async function AdminDashboard() {
           <div className="bg-white rounded-xl overflow-hidden shadow-[0_4px_20px_rgba(26,77,109,0.08)] group hover:-translate-y-0.5 transition-all duration-300 flex flex-col">
             <div className="p-6 pb-0 flex justify-between items-start mb-4">
               <div className="w-12 h-12 rounded-lg bg-[#cae6ff] flex items-center justify-center text-[#003652]">
-                <span className="material-symbols-outlined text-[28px]">description</span>
+                <Icon name="description" size={28} />
               </div>
               <span className="text-[#41474d] text-[12px] font-medium leading-4 tracking-[0.02em] bg-[#eceeef] px-2 py-1 rounded">
                 Last 30 days
@@ -125,7 +126,7 @@ export default async function AdminDashboard() {
               <div className="pt-4 border-t border-[#c1c7ce] flex justify-between items-center mt-auto">
                 <Link href="/admin/articulos" className="text-[#003652] text-[14px] font-semibold leading-5 tracking-[0.01em] flex items-center gap-1 hover:underline">
                   Manage
-                  <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+                  <Icon name="arrow_forward" size={16} />
                 </Link>
                 <div className="flex -space-x-2">
                   <div className="w-6 h-6 rounded-full border-2 border-white bg-[#d8dadb]"></div>
@@ -139,7 +140,7 @@ export default async function AdminDashboard() {
           <div className="bg-white rounded-xl overflow-hidden shadow-[0_4px_20px_rgba(26,77,109,0.08)] group hover:-translate-y-0.5 transition-all duration-300 flex flex-col">
             <div className="p-6 pb-0 flex justify-between items-start">
               <div className="w-12 h-12 rounded-lg bg-[#ffddb3] flex items-center justify-center text-[#472d00]">
-                <span className="material-symbols-outlined text-[28px]">menu_book</span>
+                <Icon name="menu_book" size={28} />
               </div>
               <div className="text-right">
                 <h3 className="text-[#41474d] text-[14px] font-semibold leading-5 tracking-[0.01em]">Total Magazines</h3>
@@ -159,7 +160,7 @@ export default async function AdminDashboard() {
                 )}
                 {!ultimaRevista?.imagen_portada && (
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="material-symbols-outlined text-[48px] text-[#003652]/30">menu_book</span>
+                    <Icon name="menu_book" size={48} className="text-[#003652]/30" />
                   </div>
                 )}
                 <div className="absolute bottom-2 left-2 bg-[#003652]/90 text-white px-2 py-1 rounded text-[10px] uppercase font-bold tracking-widest">
@@ -172,7 +173,7 @@ export default async function AdminDashboard() {
               <div className="mt-4 pt-4 border-t border-[#c1c7ce] mt-auto">
                 <Link href="/admin/revistas" className="text-[#003652] text-[14px] font-semibold leading-5 tracking-[0.01em] flex items-center gap-1 hover:underline">
                   Manage
-                  <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+                  <Icon name="arrow_forward" size={16} />
                 </Link>
               </div>
             </div>
@@ -182,7 +183,7 @@ export default async function AdminDashboard() {
           <div className="bg-white rounded-xl overflow-hidden shadow-[0_4px_20px_rgba(26,77,109,0.08)] group hover:-translate-y-0.5 transition-all duration-300 flex flex-col">
             <div className="p-6 pb-0 flex justify-between items-start">
               <div className="w-12 h-12 rounded-lg bg-[#d9e4e8] flex items-center justify-center text-[#003652]">
-                <span className="material-symbols-outlined text-[28px]">smart_display</span>
+                <Icon name="smart_display" size={28} />
               </div>
               <div className="text-right">
                 <h3 className="text-[#41474d] text-[14px] font-semibold leading-5 tracking-[0.01em]">Total Teachings</h3>
@@ -198,7 +199,7 @@ export default async function AdminDashboard() {
                 )}
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                    <span className="material-symbols-outlined text-white text-[32px]">play_arrow</span>
+                    <Icon name="play_arrow" size={32} className="text-white" />
                   </div>
                 </div>
                 <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent">
@@ -208,7 +209,7 @@ export default async function AdminDashboard() {
               <div className="mt-4 pt-4 border-t border-[#c1c7ce] mt-auto">
                 <Link href="/admin/teachings" className="text-[#003652] text-[14px] font-semibold leading-5 tracking-[0.01em] flex items-center gap-1 hover:underline">
                   Manage
-                  <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+                  <Icon name="arrow_forward" size={16} />
                 </Link>
               </div>
             </div>
@@ -290,15 +291,8 @@ export default async function AdminDashboard() {
                             a.tipo?.startsWith("doctor") ? "bg-[#ffddb3]" :
                             "bg-[#eceeef]"
                           }`}>
-                            <span className={`material-symbols-outlined text-lg ${
-                              a.tipo?.startsWith("articulo") ? "text-[#003652]" :
-                              a.tipo?.startsWith("revista") ? "text-[#472d00]" :
-                              a.tipo?.startsWith("video") || a.tipo?.startsWith("newsletter") ? "text-[#003652]" :
-                              a.tipo?.startsWith("usuario") || a.tipo?.startsWith("suscripcion") ? "text-[#41474d]" :
-                              a.tipo?.startsWith("doctor") ? "text-[#472d00]" :
-                              "text-[#41474d]"
-                            }`}>
-                              {a.tipo?.startsWith("articulo_creado") ? "note_add" :
+                            <Icon name={
+                              a.tipo?.startsWith("articulo_creado") ? "note_add" :
                                a.tipo?.startsWith("articulo_actualizado") ? "edit_note" :
                                a.tipo?.startsWith("articulo_eliminado") || a.tipo?.endsWith("_eliminado") ? "delete" :
                                a.tipo?.includes("publicado") ? "check_circle" :
@@ -309,8 +303,15 @@ export default async function AdminDashboard() {
                                a.tipo?.startsWith("doctor") ? "stethoscope" :
                                a.tipo?.startsWith("usuario") ? "person_remove" :
                                a.tipo?.startsWith("suscripcion") ? "subscriptions" :
-                               "article"}
-                            </span>
+                               "article"
+                            } size={18} className={
+                              a.tipo?.startsWith("articulo") ? "text-[#003652]" :
+                              a.tipo?.startsWith("revista") ? "text-[#472d00]" :
+                              a.tipo?.startsWith("video") || a.tipo?.startsWith("newsletter") ? "text-[#003652]" :
+                              a.tipo?.startsWith("usuario") || a.tipo?.startsWith("suscripcion") ? "text-[#41474d]" :
+                              a.tipo?.startsWith("doctor") ? "text-[#472d00]" :
+                              "text-[#41474d]"
+                            } />
                           </div>
                           <span className="text-[14px] text-[#1A1C1E] leading-5">{a.descripcion}</span>
                         </div>

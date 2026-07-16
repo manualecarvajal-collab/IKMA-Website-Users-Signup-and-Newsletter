@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
 import { createBrowserClient } from "@supabase/ssr"
 import { signout } from "@/lib/supabase/actions"
+import Icon from "@/components/Icon"
 
 const aboutLinks = [
   { href: "/who-we-are", label: "Who We Are" },
@@ -13,7 +14,7 @@ const aboutLinks = [
 ]
 
 const resourcesLinks = [
-  { href: "/newsletter", label: "Newsletter" },
+  { href: "/newsletter", label: "Magazine" },
   { href: "/blog", label: "Blog" },
   { href: "/teachings", label: "Teachings" },
 ]
@@ -128,9 +129,7 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
                 }
               >
                 About Us
-                <span className="material-symbols-outlined text-sm transition-transform duration-300 group-hover:rotate-180">
-                  expand_more
-                </span>
+                <Icon name="expand_more" size={14} className="transition-transform duration-300 group-hover:rotate-180" />
               </span>
               <div className="absolute top-full left-0 mt-0 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
                 <div className="bg-white rounded-lg shadow-lg border border-outline-variant/30 py-2 min-w-[190px]">
@@ -159,9 +158,7 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
                 }
               >
                 Resources
-                <span className="material-symbols-outlined text-sm transition-transform duration-300 group-hover:rotate-180">
-                  expand_more
-                </span>
+                <Icon name="expand_more" size={14} className="transition-transform duration-300 group-hover:rotate-180" />
               </span>
               <div className="absolute top-full left-0 mt-0 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
                 <div className="bg-white rounded-lg shadow-lg border border-outline-variant/30 py-2 min-w-[190px]">
@@ -197,7 +194,7 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
                 href="/admin"
                 className="text-primary font-label-bold flex items-center gap-1 bg-primary-container/20 px-3 py-1.5 rounded-full hover:bg-primary-container/40 transition-colors"
               >
-                <span className="material-symbols-outlined text-sm">dashboard</span> Admin
+                <Icon name="dashboard" size={14} /> Admin
               </Link>
             )}
           </div>
@@ -232,7 +229,7 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
           <div className="relative group hidden md:block">
             <span className="bg-primary text-on-primary font-label-bold text-xs md:text-label-bold px-4 py-1.5 md:px-6 md:py-2.5 rounded-lg hover:bg-surface hover:text-on-primary-fixed-variant transition-all duration-300 ease-in-out cursor-default shadow-sm flex items-center gap-1">
               Become a member
-              <span className="material-symbols-outlined text-sm transition-transform duration-300 group-hover:rotate-180">expand_more</span>
+              <Icon name="expand_more" size={14} className="transition-transform duration-300 group-hover:rotate-180" />
             </span>
             <div className="absolute top-full right-0 mt-0 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
               <div className="bg-white rounded-lg shadow-lg border border-outline-variant/30 py-2 min-w-[220px]">
@@ -241,7 +238,7 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
                     <div key={m.label} className="relative group/sub">
                       <span className="flex items-center justify-between px-4 py-2.5 font-body-md text-on-surface-variant cursor-default">
                         {m.label}
-                        <span className="material-symbols-outlined text-sm">chevron_right</span>
+                        <Icon name="chevron_right" size={14} />
                       </span>
                       <div className="absolute right-full top-0 mr-2 opacity-0 invisible group-hover/sub:opacity-100 group-hover/sub:visible transition-all duration-200">
                         <div className="bg-white rounded-lg shadow-lg border border-outline-variant/30 py-2 min-w-[260px]">
@@ -276,9 +273,7 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
             className="md:hidden p-2 rounded-lg hover:bg-surface-container transition-colors cursor-pointer"
             aria-label="Toggle navigation menu"
           >
-            <span className="material-symbols-outlined text-2xl text-on-surface">
-              {mobileOpen ? "close" : "menu"}
-            </span>
+            <Icon name={mobileOpen ? "close" : "menu"} size={24} className="text-on-surface" />
           </button>
         </div>
       </div>
@@ -311,13 +306,7 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
               }
             >
               About Us
-              <span
-                className={`material-symbols-outlined text-sm transition-transform duration-300 ${
-                  aboutExpanded ? "rotate-180" : ""
-                }`}
-              >
-                expand_more
-              </span>
+              <Icon name="expand_more" size={14} className={`transition-transform duration-300 ${aboutExpanded ? "rotate-180" : ""}`} />
             </button>
             <div
               className={`overflow-hidden transition-all duration-300 ease-in-out ${
@@ -354,13 +343,7 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
               }
             >
               Resources
-              <span
-                className={`material-symbols-outlined text-sm transition-transform duration-300 ${
-                  resourcesExpanded ? "rotate-180" : ""
-                }`}
-              >
-                expand_more
-              </span>
+              <Icon name="expand_more" size={14} className={`transition-transform duration-300 ${resourcesExpanded ? "rotate-180" : ""}`} />
             </button>
             <div
               className={`overflow-hidden transition-all duration-300 ease-in-out ${
@@ -404,7 +387,7 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
               onClick={closeMobile}
               className="flex items-center gap-3 px-4 py-3 rounded-lg text-primary font-label-bold bg-primary-container/20"
             >
-              <span className="material-symbols-outlined text-sm">dashboard</span> Admin
+              <Icon name="dashboard" size={14} /> Admin
             </Link>
           )}
           <hr className="my-3 border-outline-variant/30" />
@@ -442,7 +425,7 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
               className="flex items-center justify-between w-full bg-primary text-on-primary font-label-bold text-label-bold px-6 py-2.5 rounded-lg transition-all shadow-sm"
             >
               Become a member
-              <span className={`material-symbols-outlined text-sm transition-transform duration-300 ${memberExpanded ? "rotate-180" : ""}`}>expand_more</span>
+              <Icon name="expand_more" size={14} className={`transition-transform duration-300 ${memberExpanded ? "rotate-180" : ""}`} />
             </button>
             <div className={`overflow-hidden transition-all duration-300 ease-in-out ${memberExpanded ? "max-h-96 opacity-100" : "max-h-0 opacity-0"}`}>
               <div className="pl-4 space-y-1 mt-1">
@@ -452,7 +435,7 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
                     className="flex items-center justify-between w-full px-4 py-2.5 rounded-lg font-body-md text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors"
                   >
                     Medical professional
-                    <span className={`material-symbols-outlined text-sm transition-transform duration-300 ${medProExpanded ? "rotate-180" : ""}`}>expand_more</span>
+                    <Icon name="expand_more" size={14} className={`transition-transform duration-300 ${medProExpanded ? "rotate-180" : ""}`} />
                   </button>
                   <div className={`overflow-hidden transition-all duration-300 ease-in-out ${medProExpanded ? "max-h-40 opacity-100" : "max-h-0 opacity-0"}`}>
                     <div className="pl-6 space-y-1">

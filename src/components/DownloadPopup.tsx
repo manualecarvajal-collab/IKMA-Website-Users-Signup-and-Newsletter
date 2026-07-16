@@ -6,6 +6,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { showToast } from "./Toast"
 import { sendMagazineToEmail } from "@/lib/supabase/admin-actions"
+import Icon from "@/components/Icon"
 
 export default function DownloadPopup({
   isAuthenticated,
@@ -90,7 +91,7 @@ export default function DownloadPopup({
               onClick={() => setOpen(false)}
               className="absolute top-4 right-4 text-on-surface-variant hover:text-on-surface cursor-pointer"
             >
-              <span className="material-symbols-outlined text-2xl">close</span>
+              <Icon name="close" size={24} />
             </button>
 
             <div className="text-center">

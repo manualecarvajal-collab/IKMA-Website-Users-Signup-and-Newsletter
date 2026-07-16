@@ -4,6 +4,7 @@ import { deleteArticle, toggleArticleStatus } from "@/lib/supabase/admin-actions
 import { DeleteButton } from "@/components/DeleteButton"
 import { ToggleStatus } from "@/components/ToggleStatus"
 import { ListFilters } from "@/components/ListFilters"
+import Icon from "@/components/Icon"
 
 export default async function AdminArticulosPage(props: { searchParams?: Promise<Record<string, string>> }) {
   const searchParams = await props.searchParams
@@ -31,7 +32,7 @@ export default async function AdminArticulosPage(props: { searchParams?: Promise
           href="/admin/articulos/nuevo"
           className="w-full sm:w-auto bg-primary text-on-primary font-label-bold text-label-bold px-5 py-2.5 rounded-lg hover:bg-primary-container hover:text-on-primary-container transition-colors inline-flex items-center justify-center gap-2"
         >
-          <span className="material-symbols-outlined text-sm">add</span> New Article
+          <Icon name="add" size={14} /> New Article
         </Link>
       </div>
 
@@ -60,7 +61,7 @@ export default async function AdminArticulosPage(props: { searchParams?: Promise
                   <p className="font-body-md text-body-md text-on-surface-variant text-sm mt-0.5">/{a.slug}</p>
                 </td>
                 <td className="px-6 py-4 hidden md:table-cell">
-                  <span className="font-body-md text-body-md text-on-surface-variant">{a.autor_nombre || "—"}</span>
+                  <span className="font-body-md text-body-md text-on-surface-variant notranslate">{a.autor_nombre || "—"}</span>
                 </td>
                 <td className="px-6 py-4 hidden sm:table-cell">
                   <ToggleStatus id={a.id} published={a.publicado} toggleAction={toggleArticleStatus} />
@@ -70,7 +71,7 @@ export default async function AdminArticulosPage(props: { searchParams?: Promise
                 </td>
                 <td className="px-6 py-4 text-right">
                   <div className="flex items-center justify-end gap-2">
-                    <Link href={`/admin/articulos/${a.id}/editar`} className="text-primary hover:text-primary-fixed-dim p-1.5"><span className="material-symbols-outlined text-lg">edit</span></Link>
+                    <Link href={`/admin/articulos/${a.id}/editar`} className="text-primary hover:text-primary-fixed-dim p-1.5"><Icon name="edit" size={18} /></Link>
                     <DeleteButton action={deleteArticle.bind(null, a.id)} label="Article" />
                   </div>
                 </td>

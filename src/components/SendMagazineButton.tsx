@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Icon from "@/components/Icon"
 import MagazineSendModal from "./MagazineSendModal"
 
 interface Subscriber {
@@ -27,7 +28,7 @@ export default function SendMagazineButton({
         title="Send to subscribers"
         className="text-tertiary hover:text-tertiary-fixed-dim p-1.5 cursor-pointer bg-transparent border-none outline-none"
       >
-        <span className="material-symbols-outlined text-lg">send</span>
+        <Icon name="send" size={18} />
       </button>
 
       {showModal && (

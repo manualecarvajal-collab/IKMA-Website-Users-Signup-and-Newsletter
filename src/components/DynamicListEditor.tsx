@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Icon from "@/components/Icon"
 
 interface Column {
   key: string
@@ -92,7 +93,7 @@ export function DynamicListEditor({
                     className="text-error hover:text-error/70 p-1.5 cursor-pointer"
                     title="Remove row"
                   >
-                    <span className="material-symbols-outlined text-lg">remove_circle</span>
+                    <Icon name="remove_circle" size={18} />
                   </button>
                 </td>
               </tr>
@@ -116,7 +117,7 @@ export function DynamicListEditor({
               className="absolute top-2 right-2 text-error p-2 cursor-pointer"
               title="Remove row"
             >
-              <span className="material-symbols-outlined">delete</span>
+              <Icon name="delete" />
             </button>
             {columns.map((col) => (
               <div key={col.key} className="space-y-1">
@@ -152,7 +153,7 @@ export function DynamicListEditor({
           onClick={addRow}
           className="text-primary font-label-bold text-label-sm hover:text-primary-fixed-dim transition-colors inline-flex items-center gap-1 cursor-pointer"
         >
-          <span className="material-symbols-outlined text-sm">add_circle</span> Add Row
+          <Icon name="add_circle" size={14} /> Add Row
         </button>
       </div>
       <input type="hidden" name={name} value={JSON.stringify(items)} />

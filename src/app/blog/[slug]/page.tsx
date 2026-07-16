@@ -4,6 +4,7 @@ import { notFound } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import ArticleContent from "@/components/ArticleContent"
 import DownloadPopup from "@/components/DownloadPopup"
+import Icon from "@/components/Icon"
 
 export const dynamic = "force-dynamic"
 
@@ -85,7 +86,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
               {magazines && magazines.length > 0 && (
                 <div className="bg-surface-container-low rounded-xl p-5 shadow-sm border border-outline-variant/20">
                   <div className="flex items-center gap-2 mb-4">
-                    <span className="material-symbols-outlined text-xl text-primary">menu_book</span>
+                    <Icon name="menu_book" size={20} className="text-primary" />
                     <h3 className="font-headline-md text-headline-md text-primary text-sm">Latest Magazines</h3>
                   </div>
                   <div className="space-y-3 mb-4">
@@ -100,7 +101,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                           </div>
                         ) : (
                           <div className="w-16 h-20 shrink-0 rounded bg-surface-container-high flex items-center justify-center">
-                            <span className="material-symbols-outlined text-2xl text-on-surface-variant/30">description</span>
+                            <Icon name="description" size={24} className="text-on-surface-variant/30" />
                           </div>
                         )}
                         <div className="min-w-0">
@@ -135,7 +136,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                 <img src={authorAvatar} alt="" loading="lazy" className="w-full h-full object-cover" />
               </div>
               <div>
-                <p className="font-label-bold text-label-bold text-on-surface">
+                <p className="font-label-bold text-label-bold text-on-surface notranslate">
                   {article.autor_nombre || "IKMA Editorial"}
                 </p>
                 <p className="font-body-md text-body-md text-on-surface-variant">

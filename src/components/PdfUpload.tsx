@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useRef } from "react"
+import Icon from "@/components/Icon"
 
 export function PdfUpload({ name, defaultValue, label }: { name: string; defaultValue?: string | null; label?: string }) {
   const [url, setUrl] = useState(defaultValue ?? "")
@@ -91,12 +92,12 @@ export function PdfUpload({ name, defaultValue, label }: { name: string; default
         <input ref={inputRef} type="file" accept=".pdf" onChange={handleChange} disabled={uploading} className="hidden" />
         {uploading ? (
           <div className="flex flex-col items-center gap-2">
-            <span className="material-symbols-outlined text-4xl text-on-surface-variant/50 animate-pulse">cloud_upload</span>
+            <Icon name="cloud_upload" size={36} className="text-on-surface-variant/50 animate-pulse" />
             <p className="font-body-md text-body-md text-on-surface-variant">Uploading...</p>
           </div>
         ) : url ? (
           <div className="flex flex-col items-center gap-2">
-            <span className="material-symbols-outlined text-4xl text-error/70">description</span>
+            <Icon name="description" size={36} className="text-error/70" />
             <p className="font-body-md text-body-md text-on-surface-variant text-sm break-all max-w-full">PDF uploaded</p>
             <button
               type="button"
@@ -108,7 +109,7 @@ export function PdfUpload({ name, defaultValue, label }: { name: string; default
           </div>
         ) : (
           <div className="flex flex-col items-center gap-2">
-            <span className="material-symbols-outlined text-4xl text-on-surface-variant/50">description</span>
+            <Icon name="description" size={36} className="text-on-surface-variant/50" />
             <p className="font-body-md text-body-md text-on-surface-variant">
               Drag & drop your PDF here
             </p>

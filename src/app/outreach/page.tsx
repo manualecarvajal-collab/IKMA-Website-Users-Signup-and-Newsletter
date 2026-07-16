@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import Icon from "@/components/Icon"
 
 export const metadata: Metadata = {
   title: "Outreach - IKMA",
@@ -33,7 +34,7 @@ export default function OutreachPage() {
 
         <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/70 animate-bounce">
           <span className="font-label-sm text-label-sm tracking-widest uppercase">Scroll</span>
-          <span className="material-symbols-outlined">expand_more</span>
+          <Icon name="expand_more" />
         </div>
       </section>
 
@@ -73,7 +74,7 @@ export default function OutreachPage() {
               <div className="bg-white p-8 md:p-10 rounded-xl border border-outline-variant/30 custom-shadow relative overflow-hidden group">
                 <div className="absolute -top-12 -right-12 w-36 h-36 bg-primary/5 rounded-full group-hover:scale-150 transition-transform duration-700" />
                 <div className="text-primary mb-6">
-                  <span className="material-symbols-outlined text-5xl" style={{ fontVariationSettings: '"FILL" 1' }}>format_quote</span>
+                  <Icon name="format_quote" size={48} fill="currentColor" />
                 </div>
                 <blockquote className="font-body-lg text-body-lg text-primary leading-snug italic mb-6">
                   &ldquo;Beyond numbers and diagnoses, the true success of our mission is
@@ -88,7 +89,7 @@ export default function OutreachPage() {
 
               <div className="p-6 md:p-8 bg-surface-container-low rounded-xl border border-outline-variant/30 flex items-center gap-6">
                 <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center shrink-0">
-                  <span className="material-symbols-outlined text-3xl text-on-primary">volunteer_activism</span>
+                  <Icon name="volunteer_activism" size={30} className="text-on-primary" />
                 </div>
                 <div>
                   <p className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-1">
@@ -107,7 +108,7 @@ export default function OutreachPage() {
       <section className="py-section-padding">
         <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
           <div className="mb-16">
-            <span className="material-symbols-outlined text-primary text-5xl mb-4">clinical_notes</span>
+            <Icon name="clinical_notes" size={48} className="text-primary mb-4" />
             <h3 className="font-headline-md text-headline-md text-primary">Mission Chronicles</h3>
             <div className="w-24 h-1 bg-primary mt-6" />
           </div>
@@ -156,7 +157,7 @@ export default function OutreachPage() {
                   </p>
                   <span className="inline-flex items-center gap-2 text-primary font-label-bold text-label-bold group-hover:gap-3 transition-all">
                     View Details
-                    <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                    <Icon name="arrow_forward" size={14} />
                   </span>
                 </div>
               </a>

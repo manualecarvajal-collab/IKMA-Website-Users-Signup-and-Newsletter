@@ -4,6 +4,7 @@ import { resizeImg } from "@/lib/images";
 import { SafeImage } from "@/components/SafeImage";
 import HeroCarousel, { Slide } from "@/components/HeroCarousel";
 import StatsSection from "@/components/StatsSection";
+import Icon from "@/components/Icon";
 
 export default async function HomePage() {
   const supabase = await createClient();
@@ -191,9 +192,7 @@ export default async function HomePage() {
                 </p>
                 <div className="flex items-center text-primary font-semibold space-x-1">
                   <span>Read More</span>
-                  <span className="material-symbols-outlined text-lg">
-                    arrow_forward
-                  </span>
+                  <Icon name="arrow_forward" size={18} />
                 </div>
               </Link>
             ) : (

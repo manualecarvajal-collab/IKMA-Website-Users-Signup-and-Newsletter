@@ -1,4 +1,5 @@
 "use client"
+import Icon from "@/components/Icon"
 
 export function DeleteButton({ action, label = "Delete" }: { action: (formData: FormData) => Promise<void>; label?: string }) {
   return (
@@ -8,7 +9,7 @@ export function DeleteButton({ action, label = "Delete" }: { action: (formData: 
         className="text-error hover:text-error/70 p-1.5"
         onClick={(e) => { if (!confirm(`Delete this ${label.toLowerCase()}?`)) e.preventDefault() }}
       >
-        <span className="material-symbols-outlined text-lg">delete</span>
+        <Icon name="delete" size={18} />
       </button>
     </form>
   )

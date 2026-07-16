@@ -1,6 +1,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import ContactSection from "./ContactSection"
+import Icon from "@/components/Icon"
 
 export default function Footer({ hide }: { hide?: boolean }) {
   return (
@@ -13,7 +14,7 @@ export default function Footer({ hide }: { hide?: boolean }) {
             We have God&apos;s grace and wisdom to bring solutions to the problems facing our society.
           </p>
           <p className="text-on-surface-variant text-sm mb-2">
-            <span className="material-symbols-outlined text-sm align-text-bottom">mail</span> ikma@emmint.com
+            <Icon name="mail" size={14} className="align-text-bottom" /> ikma@emmint.com
           </p>
           <p className="text-on-surface-variant text-sm">
             &copy; 2025 International Kingdom Medical Association. Healing through faith and excellence.

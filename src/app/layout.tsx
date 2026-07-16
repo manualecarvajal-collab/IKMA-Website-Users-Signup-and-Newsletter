@@ -5,7 +5,7 @@ import Navbar from "@/components/Navbar"
 import Footer from "@/components/Footer"
 import ToastContainer from "@/components/Toast"
 import CookieConsent from "@/components/CookieConsent"
-import MaterialIcons from "@/components/MaterialIcons"
+import TranslateButton from "@/components/TranslateButton"
 import VisitorTracker from "@/components/VisitorTracker"
 import { createClient } from "@/lib/supabase/server"
 import { SpeedInsights } from "@vercel/speed-insights/next"
@@ -67,20 +67,17 @@ export default async function RootLayout({
       className={`${montserrat.variable} h-full antialiased`}
     >
       <head>
-        <style>{`.material-symbols-outlined { visibility: hidden; display: inline-block; min-width: 1em; } html.fonts-ready .material-symbols-outlined { visibility: visible; }`}</style>
         <link rel="icon" type="image/x-icon" href="/favicon.ico?v=2" />
         <link rel="icon" type="image/webp" href="/favicon.webp" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="preload" as="image" href="/images/Ap Bonny 2.webp" fetchPriority="high" />
       </head>
       <body className="min-h-full flex flex-col bg-background text-on-background selection:bg-primary-container selection:text-on-primary-container">
-        <MaterialIcons />
         <Navbar initialUser={userInfo} />
         <main className="flex-grow">{children}</main>
         <Footer hide={isAdminPage} />
         <ToastContainer />
         <CookieConsent />
+        <TranslateButton />
         <SpeedInsights />
         <VisitorTracker />
       </body>

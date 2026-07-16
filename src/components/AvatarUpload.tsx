@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useRef } from "react"
+import Icon from "@/components/Icon"
 
 export function AvatarUpload({ name, defaultValue }: { name: string; defaultValue?: string | null }) {
   const [url, setUrl] = useState(defaultValue ?? "")
@@ -82,7 +83,7 @@ export function AvatarUpload({ name, defaultValue }: { name: string; defaultValu
           {url ? (
             <img src={url} alt="Avatar" className="w-full h-full object-cover" />
           ) : (
-            <span className="material-symbols-outlined text-2xl text-on-surface-variant/50">person</span>
+            <Icon name="person" size={24} className="text-on-surface-variant/50" />
           )}
         </div>
         <div className="flex flex-col gap-1">

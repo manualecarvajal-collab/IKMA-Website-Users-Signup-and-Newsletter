@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import Icon from "@/components/Icon";
 
 export const metadata: Metadata = {
   title: "Our Doctors - IKMA",
@@ -45,9 +46,7 @@ export default async function DoctorsPage() {
         <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
           <div className="flex items-center gap-2 mb-3 md:mb-0">
             <span className="font-label-bold text-label-bold text-on-surface-variant flex items-center gap-2 shrink-0">
-              <span className="material-symbols-outlined text-xl">
-                filter_list
-              </span>
+              <Icon name="filter_list" size={20} />
               <span className="hidden sm:inline">Filter by Specialty:</span>
             </span>
           </div>
@@ -89,13 +88,11 @@ export default async function DoctorsPage() {
                       className="w-full h-full object-cover"
                     />
                     <div className="absolute bottom-1 right-1 bg-surface-container-lowest rounded-full p-0.5 shadow-sm">
-                      <span className="material-symbols-outlined text-primary text-sm">
-                        verified
-                      </span>
+                      <Icon name="verified" size={14} className="text-primary" />
                     </div>
                   </div>
                   <div>
-                    <h3 className="font-headline-md text-body-md text-on-surface mb-1 group-hover:text-primary transition-colors">
+                    <h3 className="font-headline-md text-body-md text-on-surface mb-1 group-hover:text-primary transition-colors notranslate">
                       {doc.nombre}
                     </h3>
                     <span className="font-label-bold text-label-bold text-tertiary-container bg-tertiary-fixed inline-block px-2 py-0.5 rounded-sm">
@@ -104,9 +101,7 @@ export default async function DoctorsPage() {
                   </div>
                 </div>
                 <div className="bg-surface-container-low p-4 rounded-lg mt-auto relative">
-                  <span className="material-symbols-outlined text-outline-variant absolute top-3 left-3 opacity-30 text-3xl">
-                    format_quote
-                  </span>
+                  <Icon name="format_quote" size={30} className="text-outline-variant absolute top-3 left-3 opacity-30" />
                   <p className="font-body-md text-body-md text-on-surface-variant italic relative z-10 pl-6">
                     {doc.frase}
                   </p>
@@ -123,9 +118,7 @@ export default async function DoctorsPage() {
           <div className="mt-16 text-center">
             <button className="bg-surface-container-high text-on-surface-variant font-label-bold text-label-bold px-8 py-3 rounded-lg hover:bg-outline-variant/30 transition-colors shadow-sm inline-flex items-center gap-2 cursor-pointer">
               Load More Professionals{" "}
-              <span className="material-symbols-outlined text-sm">
-                expand_more
-              </span>
+              <Icon name="expand_more" size={14} />
             </button>
           </div>
         </div>

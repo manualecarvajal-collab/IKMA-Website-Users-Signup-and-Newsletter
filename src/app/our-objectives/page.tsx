@@ -1,5 +1,6 @@
 import Link from "next/link"
 import type { Metadata } from "next"
+import Icon from "@/components/Icon"
 
 export const metadata: Metadata = {
   title: "Our Objectives - IKMA",
@@ -46,7 +47,7 @@ export default function OurObjectivesPage() {
               href="#"
               className="flex items-center gap-2 text-primary font-bold py-4 hover:gap-4 transition-all"
             >
-              <span className="material-symbols-outlined">play_circle</span>
+              <Icon name="play_circle" />
               Watch Our Story
             </a>
           </div>
@@ -107,7 +108,7 @@ export default function OurObjectivesPage() {
         </div>
         <div className="relative z-10 max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
           <div className="max-w-4xl mx-auto">
-            <span className="material-symbols-outlined text-white/40 text-7xl mb-8">format_quote</span>
+            <Icon name="format_quote" size={72} className="text-white/40 mb-8" />
             <blockquote className="text-white font-headline-lg text-headline-lg md:text-4xl italic leading-tight">
               &ldquo;Transforming the world through clinical excellence and the spirit of service.&rdquo;
             </blockquote>

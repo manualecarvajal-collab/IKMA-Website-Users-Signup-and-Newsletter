@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useRef } from "react"
+import Icon from "@/components/Icon"
 
 export function ImageUpload({ name, defaultValue, label }: { name: string; defaultValue?: string | null; label?: string }) {
   const [url, setUrl] = useState(defaultValue ?? "")
@@ -109,7 +110,7 @@ export function ImageUpload({ name, defaultValue, label }: { name: string; defau
         <input ref={inputRef} type="file" accept="image/*" onChange={handleChange} disabled={uploading} className="hidden" />
         {uploading ? (
           <div className="flex flex-col items-center gap-2">
-            <span className="material-symbols-outlined text-4xl text-on-surface-variant/50 animate-pulse">cloud_upload</span>
+            <Icon name="cloud_upload" size={36} className="text-on-surface-variant/50 animate-pulse" />
             <p className="font-body-md text-body-md text-on-surface-variant">Uploading...</p>
           </div>
         ) : url ? (
@@ -125,7 +126,7 @@ export function ImageUpload({ name, defaultValue, label }: { name: string; defau
           </div>
         ) : (
           <div className="flex flex-col items-center gap-2">
-            <span className="material-symbols-outlined text-4xl text-on-surface-variant/50">cloud_upload</span>
+            <Icon name="cloud_upload" size={36} className="text-on-surface-variant/50" />
             <p className="font-body-md text-body-md text-on-surface-variant">
               Drag & drop your file here
             </p>

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
+import Icon from "@/components/Icon"
 
 const stats2022 = [
   { label: "Assisted patients", value: 260, color: "bg-[#007edc]" },
@@ -184,7 +185,7 @@ export default function StatsSection() {
             className="inline-flex items-center gap-2 bg-primary text-on-primary font-label-bold text-label-bold px-6 py-3 rounded-lg hover:bg-primary-container transition-all w-fit"
           >
             Read More About Our Outreach
-            <span className="material-symbols-outlined text-sm">arrow_forward</span>
+            <Icon name="arrow_forward" size={14} />
           </Link>
 
           <div className="relative pt-24">

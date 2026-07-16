@@ -2,6 +2,7 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 import type { Metadata } from "next"
 import { createClient } from "@/lib/supabase/server"
+import Icon from "@/components/Icon"
 
 interface Video {
   id: string
@@ -88,7 +89,7 @@ export default async function TeachingPage({ params }: { params: Promise<{ slug:
           <div className="lg:col-span-8">
             <nav className="flex items-center gap-2 font-label-bold text-label-sm text-on-surface-variant mb-6">
               <Link href="/teachings" className="hover:text-primary transition-colors">Teachings</Link>
-              <span className="material-symbols-outlined text-sm">chevron_right</span>
+              <Icon name="chevron_right" size={14} />
               <span className="text-primary truncate">{video.titulo}</span>
             </nav>
             <div className="relative aspect-video bg-surface-container rounded-xl overflow-hidden shadow-lg mb-8">
@@ -104,7 +105,7 @@ export default async function TeachingPage({ params }: { params: Promise<{ slug:
             <h1 className="font-headline-md text-headline-md text-primary mb-4">{video.titulo}</h1>
             <div className="flex items-center gap-4 mb-6">
               <span className="flex items-center gap-2 font-label-bold text-label-sm text-on-surface-variant">
-                <span className="material-symbols-outlined text-lg">calendar_today</span>
+                <Icon name="calendar_today" size={18} />
                 {formatDate(video.created_at)}
               </span>
             </div>

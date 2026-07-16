@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import ActivateSubscription from "@/components/ActivateSubscription"
+import Icon from "@/components/Icon"
 
 export const metadata: Metadata = {
   title: "Thank You - IKMA",
@@ -13,7 +14,7 @@ export default function SuscripcionExitoPage() {
       <ActivateSubscription />
       <div className="max-w-lg mx-auto px-margin-mobile md:px-margin-desktop text-center">
         <div className="bg-surface rounded-xl p-8 md:p-12 shadow-[0_20px_20px_0_rgba(7,68,105,0.04)] border border-outline-variant/20">
-          <span className="material-symbols-outlined text-6xl text-tertiary mb-4">verified</span>
+          <Icon name="verified" size={60} className="text-tertiary mb-4" />
           <h1 className="font-headline-lg text-headline-lg text-primary mb-4">Thank You for Your Support!</h1>
           <p className="font-body-lg text-body-lg text-on-surface-variant mb-8">
             Your contribution makes a difference. As a supporter, you now have access to our exclusive magazines and journals.

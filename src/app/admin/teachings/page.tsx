@@ -5,6 +5,7 @@ import { DeleteButton } from "@/components/DeleteButton"
 import { ToggleStatus } from "@/components/ToggleStatus"
 import { ListFilters } from "@/components/ListFilters"
 import { CategoryFilter } from "@/components/CategoryFilter"
+import Icon from "@/components/Icon"
 
 export default async function AdminTeachingsPage(props: { searchParams?: Promise<Record<string, string>> }) {
   const searchParams = await props.searchParams
@@ -40,7 +41,7 @@ export default async function AdminTeachingsPage(props: { searchParams?: Promise
           href="/admin/teachings/nuevo"
           className="w-full sm:w-auto bg-primary text-on-primary font-label-bold text-label-bold px-5 py-2.5 rounded-lg hover:bg-primary-container hover:text-on-primary-container transition-colors inline-flex items-center justify-center gap-2"
         >
-          <span className="material-symbols-outlined text-sm">add</span> New Video
+          <Icon name="add" size={14} /> New Video
         </Link>
       </div>
 
@@ -84,7 +85,7 @@ export default async function AdminTeachingsPage(props: { searchParams?: Promise
                 </td>
                 <td className="px-6 py-4 text-right">
                   <div className="flex items-center justify-end gap-2">
-                    <Link href={`/admin/teachings/${v.id}/editar`} className="text-primary hover:text-primary-fixed-dim p-1.5"><span className="material-symbols-outlined text-lg">edit</span></Link>
+                    <Link href={`/admin/teachings/${v.id}/editar`} className="text-primary hover:text-primary-fixed-dim p-1.5"><Icon name="edit" size={18} /></Link>
                     <DeleteButton action={deleteVideo.bind(null, v.id)} label="Video" />
                   </div>
                 </td>

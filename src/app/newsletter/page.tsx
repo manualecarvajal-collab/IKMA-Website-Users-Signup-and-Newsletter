@@ -1,11 +1,12 @@
 import type { Metadata } from "next"
 import { createClient } from "@/lib/supabase/server"
 import ReadMagazineButton from "@/components/ReadMagazineButton"
+import Icon from "@/components/Icon"
 
 export const metadata: Metadata = {
-  title: "Newsletter - IKMA",
+  title: "Magazine - IKMA",
   description:
-    "Browse the collection of IKMA newsletters and magazines — delivered with clinical insights, mission updates, and community stories.",
+    "Browse the collection of IKMA magazines — delivered with clinical insights, mission updates, and community stories.",
 }
 
 interface Revista {
@@ -50,17 +51,17 @@ export default async function NewsletterPage() {
       <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
         <div className="mb-12">
           <h1 className="font-headline-lg text-headline-lg text-primary mb-4">
-            Newsletter
+            Magazine
           </h1>
           <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">
-            Browse our collection of newsletters and magazines. Subscribe to get full access to every issue.
+            Browse our collection of magazines. Subscribe to get full access to every issue.
           </p>
         </div>
 
         {magazines.length === 0 && (
           <div className="text-center py-20">
-            <span className="material-symbols-outlined text-6xl text-on-surface-variant/30 mb-4">mail</span>
-            <p className="font-body-lg text-body-lg text-on-surface-variant">No newsletters published yet.</p>
+            <Icon name="mail" size={60} className="text-on-surface-variant/30 mb-4" />
+            <p className="font-body-lg text-body-lg text-on-surface-variant">No magazines published yet.</p>
           </div>
         )}
 
@@ -76,7 +77,7 @@ export default async function NewsletterPage() {
                 </div>
               ) : (
                 <div className="aspect-[3/4] w-full bg-surface-container-high flex items-center justify-center">
-                  <span className="material-symbols-outlined text-5xl text-on-surface-variant/30">description</span>
+                  <Icon name="description" size={48} className="text-on-surface-variant/30" />
                 </div>
               )}
               <div className="p-4 flex flex-col flex-1">

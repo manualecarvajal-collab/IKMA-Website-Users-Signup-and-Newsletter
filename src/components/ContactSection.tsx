@@ -1,4 +1,38 @@
+"use client"
+
+import { useState, FormEvent } from "react"
+import Icon from "@/components/Icon"
+
 export default function ContactSection() {
+  const [sending, setSending] = useState(false)
+  const [done, setDone] = useState(false)
+  const [error, setError] = useState("")
+
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    setSending(true)
+    setError("")
+    const fd = new FormData(e.currentTarget)
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          firstName: fd.get("firstName"),
+          lastName: fd.get("lastName"),
+          email: fd.get("email"),
+          inquiryType: fd.get("inquiryType"),
+          message: fd.get("message"),
+        }),
+      })
+      if (!res.ok) throw new Error("Failed")
+      setDone(true)
+    } catch {
+      setError("Something went wrong. Please try again.")
+    } finally {
+      setSending(false)
+    }
+  }
   return (
     <>
       <section className="bg-surface-container-low py-24">
@@ -19,7 +53,14 @@ export default function ContactSection() {
             <h3 className="font-headline-md text-headline-md text-primary mb-8">
               Send a Message
             </h3>
-              <form className="space-y-6">
+              {done ? (
+                <div className="space-y-6 text-center py-8">
+                  <Icon name="check_circle" size={48} className="text-primary mx-auto" />
+                  <p className="font-headline-md text-headline-md text-primary">Message Sent!</p>
+                  <p className="text-on-surface-variant">We&apos;ll get back to you within 24 hours.</p>
+                </div>
+              ) : (
+              <form className="space-y-6" onSubmit={handleSubmit}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label
@@ -31,8 +72,10 @@ export default function ContactSection() {
                     <input
                       className="w-full rounded-md bg-surface border border-outline-variant text-on-surface py-3 px-4 focus:border-primary focus:ring-0 transition-colors"
                       id="contact-first-name"
+                      name="firstName"
                       placeholder="Jane"
                       type="text"
+                      required
                     />
                   </div>
                   <div>
@@ -45,6 +88,7 @@ export default function ContactSection() {
                     <input
                       className="w-full rounded-md bg-surface border border-outline-variant text-on-surface py-3 px-4 focus:border-primary focus:ring-0 transition-colors"
                       id="contact-last-name"
+                      name="lastName"
                       placeholder="Doe"
                       type="text"
                     />
@@ -59,9 +103,11 @@ export default function ContactSection() {
                   </label>
                   <input
                     className="w-full rounded-md bg-surface border border-outline-variant text-on-surface py-3 px-4 focus:border-primary focus:ring-0 transition-colors"
-                    id="contact-email"
-                    placeholder="jane@example.com"
-                    type="email"
+                      id="contact-email"
+                      name="email"
+                      placeholder="jane@example.com"
+                      type="email"
+                      required
                   />
                 </div>
                 <div>
@@ -74,11 +120,12 @@ export default function ContactSection() {
                   <select
                     className="w-full rounded-md bg-surface border border-outline-variant text-on-surface py-3 px-4 focus:border-primary focus:ring-0 transition-colors"
                     id="contact-inquiry-type"
+                    name="inquiryType"
                   >
-                    <option>General Question</option>
-                    <option>Medical Funding</option>
-                    <option>Membership Question</option>
-                    <option>Prayer Request</option>
+                    <option value="General Question">General Question</option>
+                    <option value="Medical Funding">Medical Funding</option>
+                    <option value="Membership Question">Membership Question</option>
+                    <option value="Prayer Request">Prayer Request</option>
                   </select>
                 </div>
                 <div>
@@ -91,27 +138,34 @@ export default function ContactSection() {
                   <textarea
                     className="w-full rounded-md bg-surface border border-outline-variant text-on-surface py-3 px-4 focus:border-primary focus:ring-0 transition-colors"
                     id="contact-message"
+                    name="message"
                     placeholder="How can we assist you today?"
                     rows={5}
+                    required
                   />
                 </div>
+                {error && (
+                  <p className="text-red-500 font-label-bold text-label-sm text-center">{error}</p>
+                )}
                 <button
-                  className="w-full bg-primary text-on-primary font-label-bold text-label-bold py-4 rounded-lg hover:opacity-90 transition-opacity flex justify-center items-center gap-2 cursor-pointer"
+                  className="w-full bg-primary text-on-primary font-label-bold text-label-bold py-4 rounded-lg hover:opacity-90 transition-opacity flex justify-center items-center gap-2 cursor-pointer disabled:opacity-50"
                   type="submit"
+                  disabled={sending}
                 >
-                  <span>Send Message</span>
-                  <span className="material-symbols-outlined">send</span>
+                  <span>{sending ? "Sending..." : "Send Message"}</span>
+                  <Icon name="send" />
                 </button>
               </form>
+              )}
             </div>
           </div>
       </section>
 
       <section className="bg-primary text-on-primary py-16">
         <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop text-center">
-          <span className="material-symbols-outlined text-5xl mb-4 text-primary-fixed">
-            volunteer_activism
-          </span>
+          <div className="flex justify-center">
+            <Icon name="volunteer_activism" size={48} className="mb-4 text-primary-fixed" />
+          </div>
           <h3 className="font-headline-lg text-headline-lg mb-4">
             Need Prayer?
           </h3>

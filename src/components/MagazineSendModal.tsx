@@ -4,6 +4,7 @@ import { useState, useMemo } from "react"
 import { createPortal } from "react-dom"
 import { showToast } from "./Toast"
 import { sendMagazineToSubscribers } from "@/lib/supabase/admin-actions"
+import Icon from "@/components/Icon"
 
 interface Subscriber {
   id: string
@@ -85,14 +86,14 @@ export default function MagazineSendModal({
             onClick={onClose}
             className="p-2 hover:bg-surface-variant/20 rounded-full transition-colors"
           >
-            <span className="material-symbols-outlined">close</span>
+            <Icon name="close" />
           </button>
         </div>
 
         {/* Search */}
         <div className="p-4 bg-surface-container-lowest">
           <div className="relative">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+            <Icon name="search" className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" />
             <input
               type="text"
               placeholder="Search by name or email..."
@@ -124,7 +125,7 @@ export default function MagazineSendModal({
                   title="Remove from this send"
                   className="p-2 text-error opacity-0 group-hover:opacity-100 hover:bg-error-container/20 rounded-lg transition-all"
                 >
-                  <span className="material-symbols-outlined text-lg">delete</span>
+                  <Icon name="delete" size={18} />
                 </button>
               </div>
             ))
@@ -150,12 +151,12 @@ export default function MagazineSendModal({
             >
               {sending ? (
                 <>
-                  <span className="material-symbols-outlined animate-spin text-sm">sync</span>
+                  <Icon name="sync" size={14} className="animate-spin" />
                   Sending...
                 </>
               ) : (
                 <>
-                  <span className="material-symbols-outlined text-sm">send</span>
+                  <Icon name="send" size={14} />
                   Send Now
                 </>
               )}

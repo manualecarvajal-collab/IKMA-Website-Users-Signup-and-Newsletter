@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import Icon from "@/components/Icon"
 
 export const metadata: Metadata = {
   title: "Who We Are - IKMA",
@@ -43,9 +44,7 @@ export default function WhoWeArePage() {
 
               <div className="p-6 md:p-8 bg-surface-container-lowest border border-surface-variant rounded-xl shadow-[0_4px_20px_rgba(26,77,109,0.08)] relative overflow-hidden group">
                 <div className="absolute top-0 left-0 w-1 h-full bg-primary transition-transform duration-300 scale-y-100 group-hover:scale-y-110 origin-top" />
-                <span className="material-symbols-outlined text-primary-container text-4xl mb-4 opacity-80">
-                  volunteer_activism
-                </span>
+                <Icon name="volunteer_activism" size={36} className="text-primary-container mb-4 opacity-80" />
                 <p className="font-body-md text-body-md text-on-surface-variant leading-relaxed">
                   We believe in a holistic approach to healing and well-being of
                   the mind, body, and spirit — rooted in biblical principles and
@@ -69,9 +68,7 @@ export default function WhoWeArePage() {
 
             {/* Floating element */}
             <div className="absolute -top-10 -right-10 w-24 h-24 bg-surface-container-lowest rounded-full shadow-[0_4px_20px_rgba(26,77,109,0.08)] flex items-center justify-center animate-bounce">
-              <span className="material-symbols-outlined text-primary text-3xl">
-                public
-              </span>
+              <Icon name="public" size={30} className="text-primary" />
             </div>
           </div>
         </div>
@@ -98,10 +95,10 @@ export default function WhoWeArePage() {
           <div className="md:w-7/12 p-8 md:p-12 lg:p-16 flex flex-col justify-center bg-surface-container-lowest">
             <div className="mb-8">
               <p className="font-label-bold text-label-bold text-primary tracking-wider uppercase mb-3 flex items-center gap-2">
-                <span className="material-symbols-outlined text-xl">format_quote</span>
+                <Icon name="format_quote" size={20} />
                 A word from our founder
               </p>
-              <h2 className="font-headline-lg text-headline-md text-primary">
+              <h2 className="font-headline-lg text-headline-md text-primary notranslate">
                 Ap. John Magnus Boney
               </h2>
             </div>
@@ -154,7 +151,7 @@ export default function WhoWeArePage() {
 
             <div className="mt-10 pt-8 border-t border-surface-variant flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
-                <p className="font-label-bold text-label-bold text-on-surface">
+                <p className="font-label-bold text-label-bold text-on-surface notranslate">
                   Ap. John Magnus Boney
                 </p>
                 <p className="font-label-sm text-label-sm text-outline mt-1">
@@ -177,7 +174,7 @@ export default function WhoWeArePage() {
       <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
         <div className="mb-12">
           <h2 className="font-headline-lg text-headline-lg text-primary">
-            Our Board of Directors:
+            Our Board of Directors
           </h2>
           <div className="h-1 w-16 bg-primary mt-4 rounded-full" />
         </div>
@@ -229,14 +226,12 @@ export default function WhoWeArePage() {
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
-                    <span className="material-symbols-outlined text-primary text-4xl">
-                      person
-                    </span>
+                    <Icon name="person" size={36} className="text-primary" />
                   </div>
                 )}
               </div>
               <div className="flex flex-col gap-2">
-                <h3 className="font-headline-md text-headline-md text-primary">
+                <h3 className="font-headline-md text-headline-md text-primary notranslate">
                   {member.name}
                 </h3>
                 <p className="font-body-md text-body-md text-on-surface-variant leading-relaxed">
@@ -271,6 +266,8 @@ export default function WhoWeArePage() {
             <div className="absolute inset-0 bg-primary-container/20 mix-blend-multiply" />
           </div>
         </div>
+        {/* Translucent overlay */}
+        <div className="absolute inset-0 bg-[#003652]/60" />
         {/* Overlay Content */}
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-gutter">
           <div className="max-w-container-max mx-auto">
@@ -298,25 +295,28 @@ export default function WhoWeArePage() {
               leader: "Ap. David Clementson",
               location: "Florida, USA",
               flag: "https://lh3.googleusercontent.com/aida-public/AB6AXuBLGCJtM9egKBrUlhG7UQILrea0c9HhRmFzRHnkj6CrcRHlnfax5m5ru3EiKXzqDooiuGyhOnvyhdyN-slsZDcgAYw4aYE0J_4mpFt13ohePPcSkPY5SIbwOIvFrnT494bV-i9DCG6hU3opgdhiNR6beImrXgxKD0QDq2IKerg7Dx9quxm8jSdkqK6YgbCZBqYVk3w1uEdMan13VO8CymwHK3BbbF2CY90wY-GzchyUkw0df6xJpp0",
+              logo: "/EMMINT.png",
             },
             {
               name: "Ciudad de las Águilas",
               leader: "Ap. Carlos De León",
               location: "Coro, Venezuela",
               flag: "https://lh3.googleusercontent.com/aida-public/AB6AXuA_Vf5aAdiGwilskObkxt3RjsSMSz4S9g8u4uM0_axlA5VWxx0527sz-Lk1Gwoi1aMbqDuTb6tXrJdrG3OymBwm1pk8wQneXzQXZRgL3J1tAMRZLOUwraWNs0J6bwaCZfkJ0C8mh_f69zgIGkiNlqG4pYEiSlPPXw-qDSO0iZ4FTbz4lEnBuzGJr68Z9I5vjauOjBpXQ88bgziMUs1LzCr1NyKXL8YKObBDM6aBmOhCPpb6N_hu_Us",
+              logo: "/CDA.png",
             },
             {
               name: "Bethlehem Kingdom Center",
               leader: "AP Raymond Mabion",
               location: "Kansas City, Kansas USA",
               flag: "https://lh3.googleusercontent.com/aida-public/AB6AXuBLGCJtM9egKBrUlhG7UQILrea0c9HhRmFzRHnkj6CrcRHlnfax5m5ru3EiKXzqDooiuGyhOnvyhdyN-slsZDcgAYw4aYE0J_4mpFt13ohePPcSkPY5SIbwOIvFrnT494bV-i9DCG6hU3opgdhiNR6beImrXgxKD0QDq2IKerg7Dx9quxm8jSdkqK6YgbCZBqYVk3w1uEdMan13VO8CymwHK3BbbF2CY90wY-GzchyUkw0df6xJpp0",
+              logo: "/BELEN.png",
             },
           ].map((partner, i) => (
             <div
               key={i}
-              className="bg-white border border-surface-container p-8 h-full rounded-lg shadow-[0_4px_20px_rgba(26,77,109,0.06)] hover:shadow-[0_8px_30px_rgba(26,77,109,0.12)] hover:-translate-y-1 transition-all duration-300 flex flex-col"
+              className="bg-white border border-surface-container p-8 h-full rounded-lg flex flex-col"
             >
-              <div className="mb-8 flex items-center gap-4">
+              <div className="mb-8 flex items-center justify-between">
                 <div className="w-12 h-12 rounded-full bg-primary-container flex items-center justify-center shrink-0">
                   <img
                     src={partner.flag}
@@ -325,24 +325,27 @@ export default function WhoWeArePage() {
                     loading="lazy"
                   />
                 </div>
-                <div className="h-px flex-grow bg-surface-container-high" />
+                <div className="w-[5.25rem] h-[5.25rem] bg-white rounded-full flex items-center justify-center shrink-0 p-2">
+                  <img
+                    src={partner.logo}
+                    alt={`${partner.name} logo`}
+                    className="w-full h-full object-contain"
+                    loading="lazy"
+                  />
+                </div>
               </div>
-              <h3 className="font-headline-md text-body-lg text-primary mb-4">
+              <h3 className="font-headline-md text-body-lg text-primary mb-4 notranslate">
                 {partner.name}
               </h3>
               <div className="mt-auto pt-6 border-t border-surface-container-low">
                 <div className="flex items-start gap-3 mb-3">
-                  <span className="material-symbols-outlined text-on-surface-variant text-lg mt-0.5">
-                    person
-                  </span>
-                  <p className="font-headline-lg text-body-md text-on-surface">
+                  <Icon name="person" size={18} className="text-on-surface-variant mt-0.5" />
+                  <p className="font-headline-lg text-body-md text-on-surface notranslate">
                     {partner.leader}
                   </p>
                 </div>
                 <div className="flex items-start gap-3">
-                  <span className="material-symbols-outlined text-on-surface-variant text-lg mt-0.5">
-                    location_on
-                  </span>
+                  <Icon name="location_on" size={18} className="text-on-surface-variant mt-0.5" />
                   <p className="font-label-bold text-label-bold text-on-surface-variant">
                     {partner.location}
                   </p>
@@ -376,7 +379,7 @@ export default function WhoWeArePage() {
             <div className="flex flex-col sm:flex-row gap-6 lg:justify-end">
               <button className="bg-white text-primary font-label-bold text-label-bold px-8 py-4 rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2 cursor-pointer">
                 Become a member
-                <span className="material-symbols-outlined">arrow_forward</span>
+                <Icon name="arrow_forward" />
               </button>
               <button className="border border-white/40 text-white font-label-bold text-label-bold px-8 py-4 rounded-lg hover:bg-white/10 transition-all cursor-pointer">
                 Support our mission

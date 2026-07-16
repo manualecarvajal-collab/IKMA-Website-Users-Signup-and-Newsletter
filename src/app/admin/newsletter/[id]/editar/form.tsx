@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { sendNewsletter } from "@/lib/supabase/admin-actions"
 import { buildNewsletterHtml } from "@/lib/email-template"
 import TiptapEditor from "@/components/TiptapEditor"
+import Icon from "@/components/Icon"
 
 export default function EditNewsletterForm({
   id,
@@ -58,7 +59,7 @@ export default function EditNewsletterForm({
   if (state?.success) {
     return (
       <div className="p-6 md:p-8 max-w-5xl mx-auto text-center py-24">
-        <span className="material-symbols-outlined text-6xl text-primary mb-4">check_circle</span>
+        <Icon name="check_circle" size={60} className="text-primary mb-4" />
         <h2 className="font-headline-lg text-headline-lg text-primary mb-2">Newsletter Sent!</h2>
         <p className="font-body-md text-body-md text-on-surface-variant mb-8">{state.success}</p>
         <button
@@ -84,7 +85,7 @@ export default function EditNewsletterForm({
           onClick={() => setShowPreview(!showPreview)}
           className="flex items-center gap-2 border border-outline-variant text-on-surface font-label-bold text-label-bold px-4 py-2 rounded-lg hover:bg-surface-container transition-all cursor-pointer"
         >
-          <span className="material-symbols-outlined text-lg">{showPreview ? "edit" : "visibility"}</span>
+          <Icon name={showPreview ? "edit" : "visibility"} size={18} />
           {showPreview ? "Edit" : "Preview"}
         </button>
       </div>
@@ -138,7 +139,7 @@ export default function EditNewsletterForm({
                 }}
                 className="flex items-center gap-2 border border-outline-variant text-on-surface-variant font-body-md text-body-md px-4 py-2.5 rounded-lg hover:bg-surface-container transition-all cursor-pointer"
               >
-                <span className="material-symbols-outlined text-lg">add_photo_alternate</span>
+                <Icon name="add_photo_alternate" size={18} />
                 {imagenUrl ? "Change Image" : "Add Image"}
               </button>
               {imagenUrl && (
@@ -149,7 +150,7 @@ export default function EditNewsletterForm({
                     onClick={() => setImagenUrl("")}
                     className="absolute -top-2 -right-2 bg-error text-on-error rounded-full p-0.5 cursor-pointer"
                   >
-                    <span className="material-symbols-outlined text-sm">close</span>
+                    <Icon name="close" size={14} />
                   </button>
                   <input type="hidden" name="imagen_url" value={imagenUrl} />
                 </div>
