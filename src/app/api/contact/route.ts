@@ -26,7 +26,8 @@ export async function POST(req: Request) {
 
     const payload = {
       from,
-      to: "info@ikmaglobal.com",
+      to: "manualecarvajal@gmail.com",
+      // ponytail: change to info@ikmaglobal.com when ready
       subject: `Website Contact: ${inquiryType} from ${firstName} ${lastName}`,
       html: `
         <h2>New Contact Form Submission</h2>
