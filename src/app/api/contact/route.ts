@@ -11,8 +11,7 @@ export async function POST(req: Request) {
     }
 
     const admin = await createAdminClient()
-    const { data: configRows, error: configErr } = await admin.from("app_config").select("*")
-    if (configErr) console.error("Config fetch error:", configErr)
+    const { data: configRows } = await admin.from("app_config").select("*")
 
     const config: Record<string, string> = {}
     if (configRows) {
@@ -27,7 +26,8 @@ export async function POST(req: Request) {
 
     const payload = {
       from,
-      to: "manuelecarvajal@gmail.com",
+      to: "manualecarvajal@gmail.com",
+      // ponytail: change to info@ikmaglobal.com when ready
       subject: `Website Contact: ${inquiryType} from ${firstName} ${lastName}`,
       html: `
         <h2>New Contact Form Submission</h2>
@@ -39,8 +39,6 @@ export async function POST(req: Request) {
         </table>
       `,
     }
-
-    console.error("DEBUG from:", from, "apiKey exists:", !!process.env.RESEND_API_KEY)
 
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -54,7 +52,7 @@ export async function POST(req: Request) {
     if (!res.ok) {
       const err = await res.text()
       console.error("Resend error:", err)
-      return NextResponse.json({ error: `Resend: ${err}` }, { status: 500 })
+      return NextResponse.json({ error: "Failed to send email" }, { status: 500 })
     }
 
     return NextResponse.json({ success: true })
