@@ -213,7 +213,7 @@ export default async function HomePage() {
                       src={resizeImg(article.imagen_url, 200) || "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=200"}
                       fallback={article.imagen_url || ""}
                       alt={article.titulo}
-                      className="w-full h-full object-cover"
+                    className="w-full h-full object-cover"
                     />
                   </div>
                   <div>
