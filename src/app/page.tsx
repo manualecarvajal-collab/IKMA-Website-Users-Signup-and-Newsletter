@@ -210,7 +210,7 @@ export default async function HomePage() {
                 >
                   <div className="w-20 sm:w-24 h-20 sm:h-24 rounded-lg overflow-hidden flex-shrink-0 bg-surface-variant">
                       <SafeImage
-                      src={resizeImg(article.imagen_url, 200) || "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=200"}
+                      src={resizeImg(article.imagen_url, 400) || "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=400"}
                       fallback={article.imagen_url || ""}
                       alt={article.titulo}
                     className="w-full h-full object-cover"
