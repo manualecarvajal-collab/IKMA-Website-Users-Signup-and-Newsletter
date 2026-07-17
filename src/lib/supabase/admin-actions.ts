@@ -741,91 +741,141 @@ export async function deleteNewsletter(id: string) {
   revalidatePath("/admin/newsletter")
 }
 
-// ─── CATEGORIES ──────────────────────────────────────────
+// ─── GROUPS ─────────────────────────────────────────────
 
-export async function getCategorias() {
+export async function getGrupos() {
   const supabase = await createClient()
-  const { data } = await supabase.from("categorias").select("*").order("nombre", { ascending: true })
+  const { data } = await supabase.from("grupos").select("*").order("posicion", { ascending: true }).order("created_at", { ascending: true })
   return data ?? []
 }
 
-export async function createCategoria(formData: FormData) {
+export async function reordenarGrupos(formData: FormData) {
+  const { supabase } = await checkAdmin()
+  const idsRaw = formData.get("ids") as string
+  const ids: string[] = idsRaw ? JSON.parse(idsRaw) : []
+  for (let i = 0; i < ids.length; i++) {
+    await supabase.from("grupos").update({ posicion: i }).eq("id", ids[i])
+  }
+  registrarActividad(supabase, "grupos_reordenados", `Reordered ${ids.length} groups`, "grupos")
+  revalidatePath("/admin/teachings")
+}
+
+function slugifySimple(text: string) {
+  return text
+    .toLowerCase()
+    .replace(/[^\w\s]/g, "")
+    .replace(/\s+/g, "-")
+    .trim()
+}
+
+export async function createGrupo(formData: FormData) {
   const { supabase } = await checkAdmin()
   const nombre = formData.get("nombre") as string
-  if (!nombre?.trim()) return { error: "Category name is required" }
-  const { data, error } = await supabase.from("categorias").insert({ nombre: nombre.trim() }).select("id, nombre").single()
+  if (!nombre?.trim()) return { error: "Group name is required" }
+  const slug = slugifySimple(nombre.trim())
+  const { data, error } = await supabase.from("grupos").insert({ nombre: nombre.trim(), slug }).select("id, nombre").single()
   if (error) {
-    if (error.code === "23505") return { error: "Category already exists" }
+    if (error.code === "23505") return { error: "Group already exists" }
     return { error: error.message }
   }
-  registrarActividad(supabase, "categoria_creada", `Created category "${nombre.trim()}"`, "categorias", data.id)
+  registrarActividad(supabase, "grupo_creado", `Created group "${nombre.trim()}"`, "grupos", data.id)
   revalidatePath("/admin/teachings")
   return { data }
 }
 
+export async function getVideosByGrupo(grupoId: string) {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from("videos")
+    .select("*")
+    .eq("grupo_id", grupoId)
+    .order("posicion", { ascending: true })
+    .order("created_at", { ascending: false })
+  return data ?? []
+}
+
+export async function reordenarVideos(formData: FormData) {
+  const { supabase } = await checkAdmin()
+  const grupoId = formData.get("grupo_id") as string
+  const idsRaw = formData.get("ids") as string
+  const ids: string[] = idsRaw ? JSON.parse(idsRaw) : []
+  for (let i = 0; i < ids.length; i++) {
+    await supabase.from("videos").update({ posicion: i }).eq("id", ids[i])
+  }
+  registrarActividad(supabase, "videos_reordenados", `Reordered ${ids.length} videos in group`, "videos")
+  revalidatePath(`/admin/teachings/${grupoId}`)
+  revalidatePath(`/teachings`)
+}
+
 // ─── VIDEOS ────────────────────────────────────────────
+
+function extractEmbedSrc(value: string): string {
+  const m = value.match(/src="([^"]+)"/)
+  return m ? m[1] : value
+}
 
 export async function createVideo(formData: FormData) {
   const { supabase } = await checkAdmin()
   const titulo = formData.get("titulo") as string
   const slug = slugify(titulo)
-  const categoriaId = formData.get("categoria_id") as string
+  const grupoId = formData.get("grupo_id") as string
   const data: Record<string, unknown> = {
     titulo,
     slug,
     descripcion: formData.get("descripcion") as string,
-    embed_url: formData.get("embed_url") as string,
+    embed_url: extractEmbedSrc(formData.get("embed_url") as string),
     imagen_preview: formData.get("imagen_preview") as string,
     publicado: formData.get("publicado") === "on",
+    grupo_id: grupoId,
   }
-  if (categoriaId) data.categoria_id = categoriaId
   const { error } = await supabase.from("videos").insert(data)
   if (error) return { error: error.message }
   registrarActividad(supabase, "video_creado", `Created teaching "${titulo}"`, "videos", slug)
   revalidatePath("/admin/teachings")
   revalidatePath("/teachings")
-  redirect("/admin/teachings")
+  redirect(`/admin/teachings/${grupoId}`)
 }
 
 export async function updateVideo(id: string, formData: FormData) {
   const { supabase } = await checkAdmin()
   const titulo = formData.get("titulo") as string
   const slug = slugify(titulo)
-  const categoriaId = formData.get("categoria_id") as string
+  const grupoId = formData.get("grupo_id") as string
   const data: Record<string, unknown> = {
     titulo,
     slug,
     descripcion: formData.get("descripcion") as string,
-    embed_url: formData.get("embed_url") as string,
+    embed_url: extractEmbedSrc(formData.get("embed_url") as string),
     imagen_preview: formData.get("imagen_preview") as string,
     publicado: formData.get("publicado") === "on",
+    grupo_id: grupoId,
   }
-  if (categoriaId) data.categoria_id = categoriaId
-  else data.categoria_id = null
   const { error } = await supabase.from("videos").update(data).eq("id", id)
   if (error) return { error: error.message }
   registrarActividad(supabase, "video_actualizado", `Updated teaching "${titulo}"`, "videos", slug)
   revalidatePath("/admin/teachings")
   revalidatePath("/teachings")
   revalidatePath(`/teachings/${slug}`)
-  redirect("/admin/teachings")
+  redirect(`/admin/teachings/${grupoId}`)
 }
 
 export async function deleteVideo(id: string, _formData: FormData): Promise<void> {
   const { supabase } = await checkAdmin()
-  const { data: video } = await supabase.from("videos").select("titulo").eq("id", id).single()
+  const { data: video } = await supabase.from("videos").select("titulo, grupo_id").eq("id", id).single()
   await supabase.from("videos").delete().eq("id", id)
   registrarActividad(supabase, "video_eliminado", `Deleted teaching "${video?.titulo || "unknown"}"`, "videos", id)
   revalidatePath("/admin/teachings")
+  if (video?.grupo_id) revalidatePath(`/admin/teachings/${video.grupo_id}`)
   revalidatePath("/teachings")
 }
 
 export async function toggleVideoStatus(id: string, publicado: boolean): Promise<void> {
   const { supabase } = await checkAdmin()
-  const { data: video } = await supabase.from("videos").select("titulo").eq("id", id).single()
+  const { data: video } = await supabase.from("videos").select("titulo, grupo_id").eq("id", id).single()
   await supabase.from("videos").update({ publicado }).eq("id", id)
   const accion = publicado ? "Published" : "Unpublished"
   registrarActividad(supabase, `video_${publicado ? "publicado" : "despublicado"}`, `${accion} teaching "${video?.titulo || "unknown"}"`, "videos", id)
   revalidatePath("/admin/teachings")
+  if (video?.grupo_id) revalidatePath(`/admin/teachings/${video.grupo_id}`)
   revalidatePath("/teachings")
 }

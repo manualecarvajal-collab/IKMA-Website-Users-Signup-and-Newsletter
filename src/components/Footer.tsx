@@ -3,9 +3,9 @@ import Link from "next/link"
 import ContactSection from "./ContactSection"
 import Icon from "@/components/Icon"
 
-export default function Footer({ hide }: { hide?: boolean }) {
+export default function Footer() {
   return (
-    <footer className={`bg-surface-container-low border-t border-outline-variant ${hide ? "hidden" : ""}`}>
+    <footer className="bg-surface-container-low border-t border-outline-variant">
       <ContactSection />
       <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-12 md:py-section-padding grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 md:gap-gutter font-body-md text-body-md">
         <div className="sm:col-span-2">

@@ -13,23 +13,12 @@ interface Video {
   imagen_preview: string | null
   publicado: boolean
   created_at: string
+  grupo_id: string
 }
 
-function toEmbedUrl(url: string): string {
-  if (url.includes("/embed/")) return url
-  const id = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/)?.[1]
-  return id ? `https://www.youtube.com/embed/${id}` : url
-}
-
-function youtubeId(url: string): string | null {
-  const m = url.match(/(?:youtube\.com\/(?:embed\/|watch\?v=)|youtu\.be\/)([a-zA-Z0-9_-]+)/)
-  return m?.[1] ?? null
-}
-
-function thumbnailUrl(v: Video): string {
-  if (v.imagen_preview) return v.imagen_preview
-  const id = youtubeId(v.embed_url)
-  return id ? `https://img.youtube.com/vi/${id}/maxresdefault.jpg` : ""
+function embedSrc(value: string): string {
+  const m = value.match(/src="([^"]+)"/)
+  return m ? m[1] : value
 }
 
 function formatDate(d: string) {
@@ -40,32 +29,38 @@ function formatDate(d: string) {
   })
 }
 
-async function getVideo(slug: string): Promise<Video | null> {
+async function getVideo(slug: string, grupoId: string): Promise<Video | null> {
   const supabase = await createClient()
   const { data } = await supabase
     .from("videos")
     .select("*")
     .eq("slug", slug)
+    .eq("grupo_id", grupoId)
     .eq("publicado", true)
     .single()
   return data as Video | null
 }
 
-async function getRelated(currentSlug: string): Promise<Video[]> {
+async function getRelated(grupoId: string, currentId: string): Promise<Video[]> {
   const supabase = await createClient()
   const { data } = await supabase
     .from("videos")
     .select("*")
+    .eq("grupo_id", grupoId)
     .eq("publicado", true)
-    .neq("slug", currentSlug)
+    .neq("id", currentId)
+    .order("posicion", { ascending: true })
     .order("created_at", { ascending: false })
     .limit(6)
   return (data ?? []) as Video[]
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
-  const { slug } = await params
-  const video = await getVideo(slug)
+export async function generateMetadata({ params }: { params: Promise<{ grupoSlug: string; videoSlug: string }> }): Promise<Metadata> {
+  const { grupoSlug, videoSlug } = await params
+  const supabase = await createClient()
+  const { data: grupo } = await supabase.from("grupos").select("id, nombre").eq("slug", grupoSlug).single()
+  if (!grupo) return { title: "Not Found - IKMA" }
+  const video = await getVideo(videoSlug, grupo.id)
   if (!video) return { title: "Not Found - IKMA" }
   return {
     title: `${video.titulo} - IKMA Teachings`,
@@ -75,12 +70,17 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export const dynamic = "force-dynamic"
 
-export default async function TeachingPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params
-  const video = await getVideo(slug)
+export default async function TeachingPage({ params }: { params: Promise<{ grupoSlug: string; videoSlug: string }> }) {
+  const { grupoSlug, videoSlug } = await params
+  const supabase = await createClient()
+
+  const { data: grupo } = await supabase.from("grupos").select("id, nombre").eq("slug", grupoSlug).single()
+  if (!grupo) notFound()
+
+  const video = await getVideo(videoSlug, grupo.id)
   if (!video) notFound()
 
-  const related = await getRelated(slug)
+  const related = await getRelated(grupo.id, video.id)
 
   return (
     <section className="bg-surface min-h-screen">
@@ -90,11 +90,13 @@ export default async function TeachingPage({ params }: { params: Promise<{ slug:
             <nav className="flex items-center gap-2 font-label-bold text-label-sm text-on-surface-variant mb-6">
               <Link href="/teachings" className="hover:text-primary transition-colors">Teachings</Link>
               <Icon name="chevron_right" size={14} />
+              <Link href={`/teachings/${grupoSlug}`} className="hover:text-primary transition-colors">{grupo.nombre}</Link>
+              <Icon name="chevron_right" size={14} />
               <span className="text-primary truncate">{video.titulo}</span>
             </nav>
             <div className="relative aspect-video bg-surface-container rounded-xl overflow-hidden shadow-lg mb-8">
               <iframe
-                src={toEmbedUrl(video.embed_url)}
+                src={embedSrc(video.embed_url)}
                 title={video.titulo}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
@@ -116,19 +118,20 @@ export default async function TeachingPage({ params }: { params: Promise<{ slug:
           {related.length > 0 && (
             <aside className="lg:col-span-4 flex flex-col gap-6">
               <div className="flex items-center justify-between border-b border-outline-variant pb-2">
-                <h2 className="font-label-bold text-label-sm text-primary uppercase tracking-widest">Related Teachings</h2>
-                <Link href="/teachings" className="text-primary font-label-bold text-label-sm hover:underline">View All</Link>
+                <h2 className="font-label-bold text-label-sm text-primary uppercase tracking-widest">More in {grupo.nombre}</h2>
+                <Link href={`/teachings/${grupoSlug}`} className="text-primary font-label-bold text-label-sm hover:underline">View All</Link>
               </div>
               <div className="flex flex-col gap-6">
                 {related.map((v) => (
-                  <Link key={v.id} href={`/teachings/${v.slug}`} className="flex gap-4 group cursor-pointer">
+                  <Link key={v.id} href={`/teachings/${grupoSlug}/${v.slug}`} className="flex gap-4 group cursor-pointer">
                     <div className="w-32 h-20 flex-shrink-0 bg-surface-container rounded-lg overflow-hidden relative">
-                      <img
-                        src={thumbnailUrl(v)}
-                        alt={v.titulo}
-                        loading="lazy"
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform"
-                      />
+                      {v.imagen_preview ? (
+                        <img src={v.imagen_preview} alt={v.titulo} loading="lazy" className="w-full h-full object-cover group-hover:scale-110 transition-transform" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-surface-container-low">
+                          <Icon name="play_circle" size={24} className="text-on-surface-variant/30" />
+                        </div>
+                      )}
                     </div>
                     <div className="flex flex-col justify-between py-0.5 min-w-0">
                       <h3 className="font-label-bold text-label-sm text-on-surface line-clamp-2 group-hover:text-primary transition-colors">{v.titulo}</h3>

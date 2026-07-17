@@ -58,8 +58,10 @@ export default async function RootLayout({
   }
 
   const headersList = await headers()
-  const pathname = headersList.get("x-invoke-path") || headersList.get("x-pathname") || ""
-  const isAdminPage = pathname.startsWith("/admin")
+  const isAdminPage = headersList.get("x-is-admin") === "1"
+    || headersList.get("x-invoke-path")?.startsWith("/admin")
+    || headersList.get("x-pathname")?.startsWith("/admin")
+    || false
 
   return (
     <html
@@ -74,7 +76,7 @@ export default async function RootLayout({
       <body className="min-h-full flex flex-col bg-background text-on-background selection:bg-primary-container selection:text-on-primary-container">
         <Navbar initialUser={userInfo} />
         <main className="flex-grow">{children}</main>
-        <Footer hide={isAdminPage} />
+        {!isAdminPage && <Footer />}
         <ToastContainer />
         <CookieConsent />
         <TranslateButton />
