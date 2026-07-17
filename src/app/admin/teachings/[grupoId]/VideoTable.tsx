@@ -17,7 +17,7 @@ interface Video {
 }
 
 export function VideoTable({
-  videos: initial,
+  videos,
   grupoId,
   reordenarVideos,
 }: {
@@ -25,37 +25,36 @@ export function VideoTable({
   grupoId: string
   reordenarVideos: (formData: FormData) => Promise<void>
 }) {
-  const [videos, setVideos] = useState(initial)
   const [dragIndex, setDragIndex] = useState<number | null>(null)
   const router = useRouter()
-  const dragItem = useRef<number | null>(null)
+  const from = useRef<number | null>(null)
+  const to = useRef<number | null>(null)
 
   function handleDragStart(e: React.DragEvent, idx: number) {
-    dragItem.current = idx
+    from.current = idx
+    to.current = idx
     setDragIndex(idx)
     e.dataTransfer.effectAllowed = "move"
   }
 
   function handleDragOver(e: React.DragEvent, idx: number) {
     e.preventDefault()
-    const dragged = dragItem.current
-    if (dragged === null || dragged === idx) return
-    const updated = [...videos]
-    const [moved] = updated.splice(dragged, 1)
-    updated.splice(idx, 0, moved)
-    dragItem.current = idx
-    setVideos(updated)
+    to.current = idx
   }
 
   function handleDragEnd() {
     setDragIndex(null)
-    dragItem.current = null
-    const orderedIds = videos.map((v) => v.id)
-    const originalIds = initial.map((v) => v.id)
-    if (orderedIds.join(",") === originalIds.join(",")) return
+    const f = from.current
+    const t = to.current
+    from.current = null
+    to.current = null
+    if (f === null || t === null || f === t) return
+    const ids = videos.map((v) => v.id)
+    const [moved] = ids.splice(f, 1)
+    ids.splice(t, 0, moved)
     const fd = new FormData()
     fd.set("grupo_id", grupoId)
-    fd.set("ids", JSON.stringify(orderedIds))
+    fd.set("ids", JSON.stringify(ids))
     reordenarVideos(fd)
     router.refresh()
   }

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { reordenarVideos } from "@/lib/supabase/admin-actions"
 import { VideoTable } from "./VideoTable"
+import { EditableGroupTitle } from "./EditableGroupTitle"
 
 export default async function AdminGrupoVideosPage(props: { params: Promise<{ grupoId: string }> }) {
   const { grupoId } = await props.params
@@ -26,7 +27,7 @@ export default async function AdminGrupoVideosPage(props: { params: Promise<{ gr
             <Link href="/admin/teachings" className="text-on-surface-variant hover:text-primary transition-colors">
               <svg className="w-[18px] h-[18px] inline" viewBox="0 0 24 24" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
             </Link>
-            <h1 className="font-headline-md text-headline-md text-primary">{grupo.nombre}</h1>
+            <EditableGroupTitle grupoId={grupoId} nombre={grupo.nombre} />
           </div>
           <p className="font-body-md text-body-md text-on-surface-variant">{videos?.length ?? 0} videos in this group</p>
         </div>

@@ -783,6 +783,18 @@ export async function createGrupo(formData: FormData) {
   return { data }
 }
 
+export async function updateGrupo(id: string, formData: FormData) {
+  const { supabase } = await checkAdmin()
+  const nombre = formData.get("nombre") as string
+  if (!nombre?.trim()) return { error: "Group name is required" }
+  const slug = slugifySimple(nombre.trim())
+  const { error } = await supabase.from("grupos").update({ nombre: nombre.trim(), slug }).eq("id", id)
+  if (error) return { error: error.message }
+  registrarActividad(supabase, "grupo_actualizado", `Renamed group to "${nombre.trim()}"`, "grupos", id)
+  revalidatePath("/admin/teachings")
+  revalidatePath(`/admin/teachings/${id}`)
+}
+
 export async function getVideosByGrupo(grupoId: string) {
   const supabase = await createClient()
   const { data } = await supabase

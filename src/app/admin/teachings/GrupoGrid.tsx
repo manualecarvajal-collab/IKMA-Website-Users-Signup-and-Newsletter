@@ -13,7 +13,7 @@ interface Grupo {
 }
 
 export function GrupoGrid({
-  grupos: initial,
+  grupos,
   videoCount,
   createGrupo,
   reordenarGrupos,
@@ -23,40 +23,39 @@ export function GrupoGrid({
   createGrupo: (formData: FormData) => Promise<{ error?: string; data?: { id: string; nombre: string } } | undefined>
   reordenarGrupos: (formData: FormData) => Promise<void>
 }) {
-  const [grupos, setGrupos] = useState(initial)
   const [dragIndex, setDragIndex] = useState<number | null>(null)
   const [openNew, setOpenNew] = useState(false)
   const [newName, setNewName] = useState("")
   const [error, setError] = useState("")
   const [pending, setPending] = useState(false)
   const router = useRouter()
-  const dragItem = useRef<number | null>(null)
+  const from = useRef<number | null>(null)
+  const to = useRef<number | null>(null)
 
   function handleDragStart(e: React.DragEvent, idx: number) {
-    dragItem.current = idx
+    from.current = idx
+    to.current = idx
     setDragIndex(idx)
     e.dataTransfer.effectAllowed = "move"
   }
 
   function handleDragOver(e: React.DragEvent, idx: number) {
     e.preventDefault()
-    const dragged = dragItem.current
-    if (dragged === null || dragged === idx) return
-    const updated = [...grupos]
-    const [moved] = updated.splice(dragged, 1)
-    updated.splice(idx, 0, moved)
-    dragItem.current = idx
-    setGrupos(updated)
+    to.current = idx
   }
 
   function handleDragEnd() {
     setDragIndex(null)
-    dragItem.current = null
-    const orderedIds = grupos.map((g) => g.id)
-    const originalIds = initial.map((g) => g.id)
-    if (orderedIds.join(",") === originalIds.join(",")) return
+    const f = from.current
+    const t = to.current
+    from.current = null
+    to.current = null
+    if (f === null || t === null || f === t) return
+    const ids = grupos.map((g) => g.id)
+    const [moved] = ids.splice(f, 1)
+    ids.splice(t, 0, moved)
     const fd = new FormData()
-    fd.set("ids", JSON.stringify(orderedIds))
+    fd.set("ids", JSON.stringify(ids))
     reordenarGrupos(fd)
     router.refresh()
   }

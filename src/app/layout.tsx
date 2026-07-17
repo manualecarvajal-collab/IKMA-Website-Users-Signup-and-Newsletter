@@ -2,14 +2,13 @@ import type { Metadata } from "next"
 import { Montserrat } from "next/font/google"
 import "./globals.css"
 import Navbar from "@/components/Navbar"
-import Footer from "@/components/Footer"
+import FooterWrapper from "@/components/FooterWrapper"
 import ToastContainer from "@/components/Toast"
 import CookieConsent from "@/components/CookieConsent"
 import TranslateButton from "@/components/TranslateButton"
 import VisitorTracker from "@/components/VisitorTracker"
 import { createClient } from "@/lib/supabase/server"
 import { SpeedInsights } from "@vercel/speed-insights/next"
-import { headers } from "next/headers"
 
 const montserrat = Montserrat({
   variable: "--font-montserrat",
@@ -57,12 +56,6 @@ export default async function RootLayout({
     userInfo = { email: user.email ?? "", role: perfil?.rol ?? "lector" }
   }
 
-  const headersList = await headers()
-  const isAdminPage = headersList.get("x-is-admin") === "1"
-    || headersList.get("x-invoke-path")?.startsWith("/admin")
-    || headersList.get("x-pathname")?.startsWith("/admin")
-    || false
-
   return (
     <html
       lang="en"
@@ -76,7 +69,7 @@ export default async function RootLayout({
       <body className="min-h-full flex flex-col bg-background text-on-background selection:bg-primary-container selection:text-on-primary-container">
         <Navbar initialUser={userInfo} />
         <main className="flex-grow">{children}</main>
-        {!isAdminPage && <Footer />}
+        <FooterWrapper />
         <ToastContainer />
         <CookieConsent />
         <TranslateButton />
