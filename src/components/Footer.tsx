@@ -1,6 +1,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import ContactSection from "./ContactSection"
+import { T } from "@/components/T"
 import Icon from "@/components/Icon"
 
 export default function Footer() {
@@ -11,13 +12,13 @@ export default function Footer() {
         <div className="sm:col-span-2">
           <Image src="/logo.webp" alt="IKMA Logo" width={107} height={32} className="mb-4" />
           <p className="text-on-surface-variant mb-6 max-w-md">
-            We have God&apos;s grace and wisdom to bring solutions to the problems facing our society.
+            <T en="We have God&apos;s grace and wisdom to bring solutions to the problems facing our society." es="Tenemos la gracia y sabiduría de Dios para traer soluciones a los problemas que enfrenta nuestra sociedad." />
           </p>
           <p className="text-on-surface-variant text-sm mb-2">
             <Icon name="mail" size={14} className="align-text-bottom" /> ikma@emmint.com
           </p>
           <p className="text-on-surface-variant text-sm">
-            &copy; 2025 International Kingdom Medical Association. Healing through faith and excellence.
+            &copy; 2025 International Kingdom Medical Association. <T en="Healing through faith and excellence." es="Sanando a través de la fe y la excelencia." />
           </p>
         </div>
         <div>
@@ -28,7 +29,7 @@ export default function Footer() {
                 href="/privacy-policy"
                 className="text-on-surface-variant hover:text-primary hover:underline transition-all duration-200 hover:opacity-80"
               >
-                Privacy Policy
+                <T en="Privacy Policy" es="Política de Privacidad" />
               </Link>
             </li>
             <li>
@@ -36,20 +37,20 @@ export default function Footer() {
                 href="#"
                 className="text-on-surface-variant hover:text-primary hover:underline transition-all duration-200 hover:opacity-80"
               >
-                Terms of Service
+                <T en="Terms of Service" es="Términos del Servicio" />
               </Link>
             </li>
           </ul>
         </div>
         <div>
-          <h4 className="text-on-background font-bold mb-4">Resources</h4>
+          <h4 className="text-on-background font-bold mb-4"><T en="Resources" es="Recursos" /></h4>
           <ul className="space-y-3">
             <li>
               <Link
                 href="#"
                 className="text-on-surface-variant hover:text-primary hover:underline transition-all duration-200 hover:opacity-80"
               >
-                Donor Rights
+                <T en="Donor Rights" es="Derechos del Donante" />
               </Link>
             </li>
             <li>
@@ -57,7 +58,7 @@ export default function Footer() {
                 href="#"
                 className="text-on-surface-variant hover:text-primary hover:underline transition-all duration-200 hover:opacity-80"
               >
-                Annual Report
+                <T en="Annual Report" es="Informe Anual" />
               </Link>
             </li>
           </ul>

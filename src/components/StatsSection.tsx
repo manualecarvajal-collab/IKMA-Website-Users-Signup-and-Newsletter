@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
+import { useLanguage } from "@/lib/useLanguage"
 import Icon from "@/components/Icon"
 
 const stats2022 = [
@@ -75,6 +76,8 @@ function StackSegment({ value, max, color, label }: { value: number; max: number
 }
 
 export default function StatsSection() {
+  const lang = useLanguage()
+  const t = (en: string, es: string) => lang === "es" ? es : en
   const ref = useRef<HTMLDivElement>(null)
   const [visible, setVisible] = useState(false)
 
@@ -99,18 +102,18 @@ export default function StatsSection() {
       <div className="lg:col-span-7 xl:col-span-8 space-y-12">
           <div className="space-y-4">
             <span className="inline-block bg-[#007edc]/10 text-[#007edc] font-bold text-xs tracking-wider uppercase px-4 py-1.5 rounded-full">
-              Statistics
+              {t("Statistics", "Estadísticas")}
             </span>
             <h2 className="text-4xl md:text-5xl font-extrabold text-[#114b7e] leading-tight tracking-tight">
-              IKMA: health<br className="hidden md:inline" /> in numbers
+              {lang === "es" ? <>IKMA: salud<br className="hidden md:inline" /> en números</> : <>IKMA: health<br className="hidden md:inline" /> in numbers</>}
             </h2>
             <p className="font-serif italic text-lg md:text-xl text-[#5fa4e6]">
-              Healthy lives, strong communities.
+              {t("Healthy lives, strong communities.", "Vidas saludables, comunidades fuertes.")}
             </p>
           </div>
 
           <div className="space-y-6">
-            <h3 className="text-xl md:text-2xl font-bold text-[#114b7e]">2022. First medical journey</h3>
+            <h3 className="text-xl md:text-2xl font-bold text-[#114b7e]">{t("2022. First medical journey", "2022. Primer viaje médico")}</h3>
             <div className="space-y-5 bg-slate-50/50 p-6 rounded-2xl border border-outline-variant/10">
               {stats2022.map((s, i) => (
                 <div key={s.label} className="space-y-1.5">
@@ -175,16 +178,16 @@ export default function StatsSection() {
 
         <div className="lg:col-span-5 xl:col-span-4 flex flex-col justify-start h-full space-y-10 lg:space-y-16">
           <div className="space-y-6 text-slate-600 leading-relaxed text-sm md:text-base">
-            <p>IKMA is an organization committed to the apostolic vision of God in the health field in several nations.</p>
-            <p>Its statistics are not mere numbers, they are the reflection of a tireless dedication and genuine commitment to conquer the mountain of medicine and to be governed by our Lord and His Christ.</p>
-            <p>The organization has been a strategic partner for the health system in Falcon, complementing government efforts and providing support to critical areas, mainly in reinforcing spiritual values in health personnel in public administration in Falcon, Venezuela.</p>
+            <p>{t("IKMA is an organization committed to the apostolic vision of God in the health field in several nations.", "IKMA es una organización comprometida con la visión apostólica de Dios en el campo de la salud en varias naciones.")}</p>
+            <p>{t("Its statistics are not mere numbers, they are the reflection of a tireless dedication and genuine commitment to conquer the mountain of medicine and to be governed by our Lord and His Christ.", "Sus estadísticas no son meros números, son el reflejo de una dedicación incansable y un compromiso genuino para conquistar la montaña de la medicina y ser gobernados por nuestro Señor y Su Cristo.")}</p>
+            <p>{t("The organization has been a strategic partner for the health system in Falcon, complementing government efforts and providing support to critical areas, mainly in reinforcing spiritual values in health personnel in public administration in Falcon, Venezuela.", "La organización ha sido un socio estratégico para el sistema de salud en Falcón, complementando los esfuerzos del gobierno y brindando apoyo a áreas críticas, principalmente en el fortalecimiento de los valores espirituales en el personal de salud de la administración pública en Falcón, Venezuela.")}</p>
           </div>
 
           <Link
             href="/outreach"
             className="inline-flex items-center gap-2 bg-primary text-on-primary font-label-bold text-label-bold px-6 py-3 rounded-lg hover:bg-primary-container transition-all w-fit"
           >
-            Read More About Our Outreach
+            {t("Read More About Our Outreach", "Leer más sobre Misiones")}
             <Icon name="arrow_forward" size={14} />
           </Link>
 

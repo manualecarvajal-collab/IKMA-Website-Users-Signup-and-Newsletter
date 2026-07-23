@@ -3,9 +3,12 @@
 import { useActionState, useEffect } from "react"
 import { login } from "@/lib/supabase/actions"
 import { createBrowserClient } from "@supabase/ssr"
+import { useLanguage } from "@/lib/useLanguage"
 import Link from "next/link"
 
 export default function LoginPage() {
+  const lang = useLanguage()
+  const t = (en: string, es: string) => lang === "es" ? es : en
   const [state, action, pending] = useActionState(login, undefined)
 
   useEffect(() => {
@@ -18,38 +21,38 @@ export default function LoginPage() {
     <section className="py-section-padding">
       <div className="max-w-lg mx-auto px-margin-mobile md:px-margin-desktop">
         <div className="bg-surface rounded-xl p-8 md:p-12 shadow-[0_20px_20px_0_rgba(7,68,105,0.04)] border border-outline-variant/20">
-          <h1 className="font-headline-lg text-headline-md text-primary mb-2">Welcome Back</h1>
-          <p className="font-body-md text-body-md text-on-surface-variant mb-8">Sign in to your IKMA account.</p>
+          <h1 className="font-headline-lg text-headline-md text-primary mb-2">{t("Welcome Back", "Bienvenido de nuevo")}</h1>
+          <p className="font-body-md text-body-md text-on-surface-variant mb-8">{t("Sign in to your IKMA account.", "Inicia sesión en tu cuenta IKMA.")}</p>
 
           <form action={action} className="space-y-6">
             <div>
               <label className="block font-label-bold text-label-bold text-on-surface mb-2" htmlFor="email">
-                Email Address
+                {t("Email Address", "Correo electrónico")}
               </label>
               <input
                 className="w-full rounded-md bg-surface border border-outline-variant text-on-surface py-3 px-4 focus:border-primary focus:ring-0 transition-colors"
                 id="email"
                 name="email"
                 type="email"
-                placeholder="jane@example.com"
+                placeholder={t("jane@example.com", "ana@ejemplo.com")}
                 required
               />
             </div>
             <div>
               <label className="block font-label-bold text-label-bold text-on-surface mb-2" htmlFor="password">
-                Password
+                {t("Password", "Contraseña")}
               </label>
               <input
                 className="w-full rounded-md bg-surface border border-outline-variant text-on-surface py-3 px-4 focus:border-primary focus:ring-0 transition-colors"
                 id="password"
                 name="password"
                 type="password"
-                placeholder="Enter your password"
+                placeholder={t("Enter your password", "Ingresa tu contraseña")}
                 required
               />
               <div className="text-right mt-1.5">
                 <Link href="/recuperar" className="font-body-md text-body-md text-primary hover:underline">
-                  Forgot password?
+                  {t("Forgot password?", "¿Olvidaste tu contraseña?")}
                 </Link>
               </div>
             </div>
@@ -63,7 +66,7 @@ export default function LoginPage() {
               disabled={pending}
               className="w-full bg-primary text-on-primary font-label-bold text-label-bold py-3.5 rounded-lg hover:bg-primary/90 transition-all disabled:opacity-50 cursor-pointer"
             >
-              {pending ? "Signing in..." : "Sign In"}
+              {pending ? t("Signing in...", "Iniciando sesión...") : t("Sign In", "Iniciar sesión")}
             </button>
           </form>
 
@@ -95,13 +98,13 @@ export default function LoginPage() {
               <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
               <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
             </svg>
-            Sign in with Google
+            {t("Sign in with Google", "Iniciar sesión con Google")}
           </button>
 
           <p className="font-body-md text-body-md text-on-surface-variant text-center mt-6">
-            Don&apos;t have an account?{" "}
+            {t("Don't have an account?", "¿No tienes cuenta?")}{" "}
             <Link href="/registro" className="text-primary font-semibold hover:underline">
-              Sign up
+              {t("Sign up", "Regístrate")}
             </Link>
           </p>
         </div>

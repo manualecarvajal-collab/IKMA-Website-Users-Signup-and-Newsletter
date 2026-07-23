@@ -63,10 +63,11 @@ export default function TranslateButton() {
     <div className="fixed bottom-6 left-6 z-50">
       <button
         onClick={() => setOpen(!open)}
-        className="w-12 h-12 rounded-full bg-primary text-on-primary shadow-lg hover:bg-primary/90 transition-all flex items-center justify-center cursor-pointer"
+        className="flex items-center gap-2 rounded-full bg-primary text-on-primary shadow-lg hover:bg-primary/90 transition-all pl-3 pr-4 py-2.5 cursor-pointer"
         aria-label="Translate language"
       >
-        <Icon name="public" size={20} />
+        <Icon name="translate" size={20} />
+        <span className="text-sm font-medium">{currentLang === "es" ? "Lenguaje" : "Languages"}</span>
       </button>
 
       {open && (

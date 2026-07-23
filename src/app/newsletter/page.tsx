@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { createClient } from "@/lib/supabase/server"
 import ReadMagazineButton from "@/components/ReadMagazineButton"
+import { T } from "@/components/T"
 import Icon from "@/components/Icon"
 
 export const metadata: Metadata = {
@@ -51,17 +52,17 @@ export default async function NewsletterPage() {
       <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
         <div className="mb-12">
           <h1 className="font-headline-lg text-headline-lg text-primary mb-4">
-            Magazine
+            <T en="Magazine" es="Revista" />
           </h1>
           <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">
-            Browse our collection of magazines. Subscribe to get full access to every issue.
+            <T en="Browse our collection of magazines. Subscribe to get full access to every issue." es="Explora nuestra colección de revistas. Suscríbete para obtener acceso completo a todos los números." />
           </p>
         </div>
 
         {magazines.length === 0 && (
           <div className="text-center py-20">
             <Icon name="mail" size={60} className="text-on-surface-variant/30 mb-4" />
-            <p className="font-body-lg text-body-lg text-on-surface-variant">No magazines published yet.</p>
+            <p className="font-body-lg text-body-lg text-on-surface-variant"><T en="No magazines published yet." es="No hay revistas publicadas aún." /></p>
           </div>
         )}
 

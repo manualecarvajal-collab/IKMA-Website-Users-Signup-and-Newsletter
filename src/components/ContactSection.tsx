@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, FormEvent } from "react"
+import { useLanguage } from "@/lib/useLanguage"
 import Icon from "@/components/Icon"
 
 export default function ContactSection() {
@@ -28,22 +29,24 @@ export default function ContactSection() {
       if (!res.ok) throw new Error("Failed")
       setDone(true)
     } catch {
-      setError("Something went wrong. Please try again.")
+      setError("Algo salió mal. Inténtalo de nuevo.")
     } finally {
       setSending(false)
     }
   }
+  const lang = useLanguage()
+  const t = (en: string, es: string) => lang === "es" ? es : en
   return (
     <>
       <section className="bg-surface-container-low py-24">
         <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop text-center">
           <h2 className="font-headline-xl text-headline-lg text-primary mb-6">
-            Get in Touch
+            {t("Get in Touch", "Contáctanos")}
           </h2>
           <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto">
-             For any inquiries please fill the form below</p>
+             {t("For any inquiries please fill the form below", "Para cualquier consulta, completa el formulario a continuación")}</p>
           <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto">
-             and we’ll get back to you within 24 hours.</p>
+             {t("and we\u2019ll get back to you within 24 hours.", "y te responderemos dentro de 24 horas.")}</p>
         </div>
       </section>
 
@@ -51,13 +54,13 @@ export default function ContactSection() {
         <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
           <div className="max-w-2xl mx-auto bg-surface rounded-xl p-8 md:p-12 shadow-[0_20px_20px_0_rgba(7,68,105,0.04)]">
             <h3 className="font-headline-md text-headline-md text-primary mb-8">
-              Send a Message
+              {t("Send a Message", "Enviar mensaje")}
             </h3>
               {done ? (
                 <div className="space-y-6 text-center py-8">
                   <Icon name="check_circle" size={48} className="text-primary mx-auto" />
-                  <p className="font-headline-md text-headline-md text-primary">Message Sent!</p>
-                  <p className="text-on-surface-variant">We&apos;ll get back to you within 24 hours.</p>
+                  <p className="font-headline-md text-headline-md text-primary">{t("Message Sent!", "¡Mensaje enviado!")}</p>
+                  <p className="text-on-surface-variant">{t("We'll get back to you within 24 hours.", "Te responderemos dentro de 24 horas.")}</p>
                 </div>
               ) : (
               <form className="space-y-6" onSubmit={handleSubmit}>
@@ -67,7 +70,7 @@ export default function ContactSection() {
                       className="block font-label-bold text-label-bold text-on-surface mb-2"
                       htmlFor="contact-first-name"
                     >
-                      First Name
+                      {t("First Name", "Nombre")}
                     </label>
                     <input
                       className="w-full rounded-md bg-surface border border-outline-variant text-on-surface py-3 px-4 focus:border-primary focus:ring-0 transition-colors"
@@ -83,7 +86,7 @@ export default function ContactSection() {
                       className="block font-label-bold text-label-bold text-on-surface mb-2"
                       htmlFor="contact-last-name"
                     >
-                      Last Name
+                      {t("Last Name", "Apellido")}
                     </label>
                     <input
                       className="w-full rounded-md bg-surface border border-outline-variant text-on-surface py-3 px-4 focus:border-primary focus:ring-0 transition-colors"
@@ -99,13 +102,13 @@ export default function ContactSection() {
                     className="block font-label-bold text-label-bold text-on-surface mb-2"
                     htmlFor="contact-email"
                   >
-                    Email Address
+                    {t("Email Address", "Correo electrónico")}
                   </label>
                   <input
                     className="w-full rounded-md bg-surface border border-outline-variant text-on-surface py-3 px-4 focus:border-primary focus:ring-0 transition-colors"
-                      id="contact-email"
-                      name="email"
-                      placeholder="jane@example.com"
+                    id="contact-email"
+                    name="email"
+                    placeholder="ana@ejemplo.com"
                       type="email"
                       required
                   />
@@ -115,17 +118,17 @@ export default function ContactSection() {
                     className="block font-label-bold text-label-bold text-on-surface mb-2"
                     htmlFor="contact-inquiry-type"
                   >
-                    Type of Inquiry
+                    {t("Type of Inquiry", "Tipo de consulta")}
                   </label>
                   <select
                     className="w-full rounded-md bg-surface border border-outline-variant text-on-surface py-3 px-4 focus:border-primary focus:ring-0 transition-colors"
                     id="contact-inquiry-type"
                     name="inquiryType"
                   >
-                    <option value="General Question">General Question</option>
-                    <option value="Medical Funding">Medical Funding</option>
-                    <option value="Membership Question">Membership Question</option>
-                    <option value="Prayer Request">Prayer Request</option>
+                    <option value="General Question">{t("General Question", "Consulta general")}</option>
+                    <option value="Medical Funding">{t("Medical Funding", "Donaciones / Ofrendas")}</option>
+                    <option value="Membership Question">{t("Membership Question", "Consulta sobre membresía")}</option>
+                    <option value="Prayer Request">{t("Prayer Request", "Solicitud de oración")}</option>
                   </select>
                 </div>
                 <div>
@@ -133,13 +136,13 @@ export default function ContactSection() {
                     className="block font-label-bold text-label-bold text-on-surface mb-2"
                     htmlFor="contact-message"
                   >
-                    Your Message
+                    {t("Your Message", "Tu mensaje")}
                   </label>
                   <textarea
                     className="w-full rounded-md bg-surface border border-outline-variant text-on-surface py-3 px-4 focus:border-primary focus:ring-0 transition-colors"
                     id="contact-message"
                     name="message"
-                    placeholder="How can we assist you today?"
+                    placeholder={t("How can we assist you today?", "¿En qué podemos ayudarte?")}
                     rows={5}
                     required
                   />
@@ -152,7 +155,7 @@ export default function ContactSection() {
                   type="submit"
                   disabled={sending}
                 >
-                  <span>{sending ? "Sending..." : "Send Message"}</span>
+                  <span>{sending ? t("Sending...", "Enviando...") : t("Send Message", "Enviar mensaje")}</span>
                   <Icon name="send" />
                 </button>
               </form>
@@ -167,12 +170,13 @@ export default function ContactSection() {
             <Icon name="volunteer_activism" size={48} className="mb-4 text-primary-fixed" />
           </div>
           <h3 className="font-headline-lg text-headline-lg mb-4">
-            Need Prayer?
+            {t("Need Prayer?", "¿Necesitas oración?")}
           </h3>
           <p className="font-body-lg text-body-lg max-w-2xl mx-auto mb-8 text-primary-fixed-dim">
-            Healing encompasses both body and spirit. If you or a loved one are
-            facing difficult times, our dedicated team would be honored to pray
-            for you. Please select &apos;Prayer Request&apos; in the form above.
+            {t(
+              "Healing encompasses both body and spirit. If you or a loved one are facing difficult times, our dedicated team would be honored to pray for you. Please select 'Prayer Request' in the form above.",
+              "La sanidad abarca tanto el cuerpo como el espíritu. Si tú o un ser querido están enfrentando tiempos difíciles, nuestro equipo dedicado se honraría en orar por ustedes. Por favor, selecciona 'Solicitud de oración' en el formulario anterior."
+            )}
           </p>
         </div>
       </section>

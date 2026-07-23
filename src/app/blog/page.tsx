@@ -1,6 +1,7 @@
 import Link from "next/link"
 import type { Metadata } from "next"
 import { createClient } from "@/lib/supabase/server"
+import { T } from "@/components/T"
 import Icon from "@/components/Icon"
 
 export const metadata: Metadata = {
@@ -86,7 +87,7 @@ export default async function BlogPage() {
                       {articles[0].titulo}
                     </h2>
                     <div className="flex items-center text-on-surface-variant font-medium space-x-0.5 flex-shrink-0 text-sm">
-                      <span>Read More</span>
+                      <T en="Read More" es="Leer más" />
                       <Icon name="arrow_forward" size={16} />
                     </div>
                   </div>
@@ -113,7 +114,7 @@ export default async function BlogPage() {
                           {a.titulo}
                         </h3>
                         <p className="text-sm text-on-surface-variant line-clamp-1 mt-0.5">{a.resumen}</p>
-                        <span className="text-xs font-bold text-primary mt-1.5 hover:underline inline-block">Read More</span>
+                        <span className="text-xs font-bold text-primary mt-1.5 hover:underline inline-block"><T en="Read More" es="Leer más" /></span>
                       </div>
                     </Link>
                   ))}
@@ -126,8 +127,8 @@ export default async function BlogPage() {
           <section className="py-12 md:py-section-padding bg-surface">
             <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
               <div className="mb-10">
-                <h2 className="font-headline-lg text-headline-lg text-primary mb-2">All Articles</h2>
-                <p className="font-body-lg text-body-lg text-on-surface-variant">Browse our complete library of medical articles and stories.</p>
+                <h2 className="font-headline-lg text-headline-lg text-primary mb-2"><T en="All Articles" es="Todos los Artículos" /></h2>
+                <p className="font-body-lg text-body-lg text-on-surface-variant"><T en="Browse our complete library of medical articles and stories." es="Explora nuestra biblioteca completa de artículos médicos e historias." /></p>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter">
                 {articles.map((a, i) =>
@@ -167,7 +168,7 @@ export default async function BlogPage() {
           <div className="pb-section-padding bg-surface">
             <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop flex justify-center">
               <button className="bg-secondary-container text-primary font-label-bold px-8 py-3 rounded-lg hover:bg-surface-tint hover:text-on-primary transition-colors duration-300 shadow-[0_4px_20px_rgba(7,68,105,0.04)] cursor-pointer">
-                Load More Articles
+                <T en="Load More Articles" es="Cargar más artículos" />
               </button>
             </div>
           </div>
@@ -181,10 +182,10 @@ export default async function BlogPage() {
                     <Icon name="menu_book" size={36} className="text-primary" />
                     <div>
                       <h2 className="font-headline-lg text-headline-lg text-primary">
-                        Check out our latest posted magazines
+                        <T en="Check out our latest posted magazines" es="Descubre nuestras últimas revistas publicadas" />
                       </h2>
                       <p className="font-body-md text-body-md text-on-surface-variant">
-                        Download the most recent IKMA journals and newsletters.
+                        <T en="Download the most recent IKMA journals and newsletters." es="Descarga las revistas y boletines más recientes de IKMA." />
                       </p>
                     </div>
                   </div>

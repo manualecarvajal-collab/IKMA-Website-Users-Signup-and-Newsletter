@@ -4,6 +4,7 @@ import { resizeImg } from "@/lib/images";
 import { SafeImage } from "@/components/SafeImage";
 import HeroCarousel, { Slide } from "@/components/HeroCarousel";
 import StatsSection from "@/components/StatsSection";
+import { T } from "@/components/T";
 import Icon from "@/components/Icon";
 
 export default async function HomePage() {
@@ -159,10 +160,10 @@ export default async function HomePage() {
         <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
           <div className="mb-12">
             <h2 className="font-headline-lg text-headline-lg text-on-surface mb-2">
-              Last Articles
+              <T en="Last Articles" es="Últimos Artículos" />
             </h2>
             <p className="font-body-lg text-body-lg text-on-surface-variant">
-              Updates from our missions and medical breakthroughs.
+              <T en="Updates from our missions and medical breakthroughs." es="Actualizaciones de nuestras misiones y avances médicos." />
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-gutter">
@@ -181,7 +182,7 @@ export default async function HomePage() {
                 </div>
                 <div className="flex items-center mb-3">
                   <span className="bg-secondary-container text-on-secondary-container font-label-sm text-label-sm px-3 py-1 rounded-full uppercase tracking-wider">
-                    {mainArticle.categoria || "Mission Update"}
+                    {mainArticle.categoria || <T en="Mission Update" es="Actualización" />}
                   </span>
                 </div>
                 <h3 className="font-headline-md text-headline-md text-on-surface mb-3 group-hover:text-primary transition-colors">
@@ -191,7 +192,7 @@ export default async function HomePage() {
                   {mainArticle.resumen}
                 </p>
                 <div className="flex items-center text-primary font-semibold space-x-1">
-                  <span>Read More</span>
+                  <span><T en="Read More" es="Leer más" /></span>
                   <Icon name="arrow_forward" size={18} />
                 </div>
               </Link>
@@ -218,7 +219,7 @@ export default async function HomePage() {
                   </div>
                   <div>
                     <span className="text-[10px] font-bold text-tertiary uppercase tracking-tighter">
-                      {article.categoria || "Article"}
+                      {article.categoria || <T en="Article" es="Artículo" />}
                     </span>
                     <h4 className="font-bold text-on-surface group-hover:text-primary transition-colors line-clamp-1">
                       {article.titulo}
@@ -227,7 +228,7 @@ export default async function HomePage() {
                       {article.resumen}
                     </p>
                     <span className="text-xs font-bold text-primary mt-1 hover:underline inline-block">
-                      Read More
+                      <T en="Read More" es="Leer más" />
                     </span>
                   </div>
                 </Link>
@@ -239,7 +240,7 @@ export default async function HomePage() {
               href="/revista"
               className="bg-surface-container-high text-on-surface font-label-bold text-label-bold px-8 py-3.5 rounded-lg hover:bg-surface-container-highest transition-all inline-block"
             >
-              View all Articles
+              <T en="View all Articles" es="Ver todos los artículos" />
             </Link>
           </div>
         </div>

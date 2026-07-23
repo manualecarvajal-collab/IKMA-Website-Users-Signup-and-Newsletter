@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, Children, type ReactNode } from 'react'
 import Link from 'next/link'
+import { useLanguage } from "@/lib/useLanguage"
 import ParticleGrid from './ParticleGrid'
 
 interface HeroCarouselProps {
@@ -17,6 +18,8 @@ export default function HeroCarousel({
   isAuthenticated = false,
   hideCtas = false,
 }: HeroCarouselProps) {
+  const lang = useLanguage()
+  const t = (en: string, es: string) => lang === "es" ? es : en
   const slides = Children.toArray(children)
   const [current, setCurrent] = useState(0)
 
@@ -57,13 +60,13 @@ export default function HeroCarousel({
                 href={isAuthenticated ? '/suscripcion-exito' : '/registro'}
                 className="flex-1 bg-primary text-on-primary font-bold text-sm py-3 rounded-xl text-center active:scale-95 transition-all shadow-sm"
               >
-                Give
+                {t("Give", "Donar")}
               </Link>
               <Link
                 href={isAuthenticated ? '/suscripcion-exito' : '/registro'}
                 className="flex-1 border-2 border-primary text-primary font-bold text-sm py-3 rounded-xl text-center active:scale-95 transition-all"
               >
-                Newsletter
+                {t("Newsletter", "Boletín")}
               </Link>
             </div>
             <div className="pointer-events-auto hidden md:flex md:flex-row md:flex-wrap items-center justify-start gap-2 sm:gap-3 mb-[2.5vh]">
@@ -71,13 +74,13 @@ export default function HeroCarousel({
                 href={isAuthenticated ? '/suscripcion-exito' : '/registro'}
                 className="bg-primary text-on-primary font-label-bold text-label-bold px-6 py-3 rounded-lg hover:bg-primary/90 transition-all active:scale-95 text-center"
               >
-                Support our Mission
+                {t("Support our Mission", "Apoya Nuestra Misión")}
               </Link>
               <Link
                 href={isAuthenticated ? '/suscripcion-exito' : '/registro'}
                 className="border-2 border-primary text-primary font-label-bold text-label-bold px-6 py-3 rounded-lg hover:bg-primary/5 transition-all active:scale-95 text-center"
               >
-                Subscribe to our Newsletter
+                {t("Subscribe to our Newsletter", "Suscríbete a nuestro Boletín")}
               </Link>
             </div>
           </div>

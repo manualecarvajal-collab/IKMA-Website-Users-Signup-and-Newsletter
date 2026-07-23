@@ -1,5 +1,7 @@
 "use client"
 
+import { useLanguage } from "@/lib/useLanguage"
+
 export default function ReadMagazineButton({
   isAuthenticated,
   isSubscribed,
@@ -9,6 +11,8 @@ export default function ReadMagazineButton({
   isSubscribed: boolean
   revistaId: string
 }) {
+  const lang = useLanguage()
+  const t = (en: string, es: string) => lang === "es" ? es : en
   const handleClick = () => {
     if (!isAuthenticated) {
       window.location.href = "/registro"
@@ -26,7 +30,7 @@ export default function ReadMagazineButton({
       onClick={handleClick}
       className="bg-primary text-on-primary font-label-bold text-label-bold px-6 py-3 rounded-lg hover:bg-primary/90 transition-all w-full cursor-pointer"
     >
-      Read
+      {t("Read", "Leer")}
     </button>
   )
 }
