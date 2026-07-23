@@ -6,22 +6,21 @@ import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
 import { createBrowserClient } from "@supabase/ssr"
 import { signout } from "@/lib/supabase/actions"
-import { useLanguage } from "@/lib/useLanguage"
+import { useTranslations } from "next-intl"
 import Icon from "@/components/Icon"
 
 export default function Navbar({ initialUser }: { initialUser: { email: string; role: string } | null }) {
-  const lang = useLanguage()
-  const t = (en: string, es: string) => lang === "es" ? es : en
+  const t = useTranslations("Navbar")
 
   const aboutLinks = [
-    { href: "/who-we-are", label: t("Who We Are", "Quiénes Somos") },
-    { href: "/our-purpose", label: t("Our Purpose", "Nuestro Propósito") },
+    { href: "/who-we-are", label: t("whoWeAre") },
+    { href: "/our-purpose", label: t("ourPurpose") },
   ]
 
   const resourcesLinks = [
-    { href: "/newsletter", label: t("Magazine", "Revista") },
+    { href: "/newsletter", label: t("magazine") },
     { href: "/blog", label: "Blog" },
-    { href: "/teachings", label: t("Teachings", "Enseñanzas") },
+    { href: "/teachings", label: t("teachings") },
   ]
   const pathname = usePathname()
   const [user, setUser] = useState<{ email: string; role: string } | null>(initialUser)
@@ -108,7 +107,7 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
                   : "text-on-surface-variant hover:text-primary transition-colors hover:bg-primary-container/10 px-2 py-1 rounded-md duration-300 ease-in-out active:scale-95"
               }
             >
-              {t("Home", "Inicio")}
+              {t("home")}
             </Link>
             <div className="relative group">
               <span
@@ -117,7 +116,7 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
                   " flex items-center gap-0.5 cursor-default px-2 py-1 rounded-md group-hover:bg-primary-container/10 duration-300"
                 }
               >
-                {t("About Us", "Sobre Nosotros")}
+                {t("aboutUs")}
                 <Icon name="expand_more" size={14} className="transition-transform duration-300 group-hover:rotate-180" />
               </span>
               <div className="absolute top-full left-0 mt-0 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
@@ -146,7 +145,7 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
                   " flex items-center gap-0.5 cursor-default px-2 py-1 rounded-md group-hover:bg-primary-container/10 duration-300"
                 }
               >
-                {t("Resources", "Recursos")}
+                {t("resources")}
                 <Icon name="expand_more" size={14} className="transition-transform duration-300 group-hover:rotate-180" />
               </span>
               <div className="absolute top-full left-0 mt-0 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
@@ -176,7 +175,7 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
                   : "text-on-surface-variant hover:text-primary transition-colors hover:bg-primary-container/10 px-2 py-1 rounded-md duration-300 ease-in-out active:scale-95"
               }
             >
-              {t("Outreach", "Misiones")}
+              {t("outreach")}
             </Link>
             {user?.role === "administrador" && (
               <Link
@@ -195,7 +194,7 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
                 onClick={handleSignOut}
                 className="hidden md:inline-block bg-white border border-outline-variant text-on-surface font-label-bold text-xs md:text-label-bold rounded-lg hover:bg-surface-container transition-all px-3 py-1.5 md:px-5 md:py-2.5 cursor-pointer"
               >
-                {t("Sign out", "Cerrar sesión")}
+                {t("signOut")}
               </button>
             </>
           ) : (
@@ -204,13 +203,13 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
                 href="/login"
                 className="hidden md:inline-block bg-white border border-outline-variant text-on-surface font-label-bold text-xs md:text-label-bold rounded-lg hover:bg-surface-container transition-all duration-300 ease-in-out active:scale-95 px-3 py-1.5 md:px-5 md:py-2.5"
               >
-                {t("Log in", "Iniciar sesión")}
+                {t("logIn")}
               </Link>
               <Link
                 href="/registro"
                 className="hidden md:inline-block bg-surface-container-high text-on-surface font-label-bold text-xs md:text-label-bold rounded-lg hover:bg-surface-container-highest transition-all duration-300 ease-in-out active:scale-95 px-3 py-1.5 md:px-5 md:py-2.5"
               >
-                {t("Sign up", "Registrarse")}
+                {t("signUp")}
               </Link>
             </>
           )}
@@ -219,9 +218,8 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
             href={user ? "/membresia" : "/registro"}
             className="hidden md:inline-block bg-primary text-on-primary font-label-bold text-xs md:text-label-bold px-4 py-1.5 md:px-6 md:py-2.5 rounded-lg hover:bg-surface hover:text-on-primary-fixed-variant transition-all duration-300 ease-in-out active:scale-95 shadow-sm"
           >
-            {t("Become a member", "Hazte miembro")}
+            {t("becomeMember")}
           </Link>
-          {/* Hamburger */}
           <button
             onClick={() => setMobileOpen((o) => !o)}
             className="md:hidden p-2 rounded-lg hover:bg-surface-container transition-colors cursor-pointer"
@@ -231,7 +229,6 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
           </button>
         </div>
       </div>
-      {/* Mobile Menu */}
       <div
         className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${
           mobileOpen ? "max-h-[40rem] opacity-100" : "max-h-0 opacity-0"
@@ -259,7 +256,7 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
                 " flex items-center justify-between w-full px-4 py-3 rounded-lg font-label-bold text-label-bold transition-colors"
               }
             >
-              {t("About Us", "Sobre Nosotros")}
+              {t("aboutUs")}
               <Icon name="expand_more" size={14} className={`transition-transform duration-300 ${aboutExpanded ? "rotate-180" : ""}`} />
             </button>
             <div
@@ -296,7 +293,7 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
                 " flex items-center justify-between w-full px-4 py-3 rounded-lg font-label-bold text-label-bold transition-colors"
               }
             >
-              {t("Resources", "Recursos")}
+              {t("resources")}
               <Icon name="expand_more" size={14} className={`transition-transform duration-300 ${resourcesExpanded ? "rotate-180" : ""}`} />
             </button>
             <div
@@ -333,7 +330,7 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
               " flex items-center gap-3 px-4 py-3 rounded-lg font-label-bold text-label-bold transition-colors"
             }
           >
-            {t("Outreach", "Misiones")}
+            {t("outreach")}
           </Link>
           {user?.role === "administrador" && (
             <Link
@@ -347,12 +344,12 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
           <hr className="my-3 border-outline-variant/30" />
           {user ? (
             <div className="px-4 space-y-3">
-              <p className="font-body-md text-body-md text-on-surface-variant truncate notranslate">{user.email}</p>
+              <p className="font-body-md text-body-md text-on-surface-variant truncate">{user.email}</p>
               <button
                 onClick={handleSignOut}
                 className="w-full bg-white border border-outline-variant text-on-surface font-label-bold text-label-bold rounded-lg hover:bg-surface-container transition-all px-5 py-2.5 cursor-pointer"
               >
-                {t("Sign out", "Cerrar sesión")}
+                {t("signOut")}
               </button>
             </div>
           ) : (
@@ -362,14 +359,14 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
                 onClick={closeMobile}
                 className="block w-full text-center bg-white border border-outline-variant text-on-surface font-label-bold text-label-bold rounded-lg hover:bg-surface-container transition-all px-5 py-2.5"
               >
-                {t("Log in", "Iniciar sesión")}
+                {t("logIn")}
               </Link>
               <Link
                 href="/registro"
                 onClick={closeMobile}
                 className="block w-full text-center bg-surface-container-high text-on-surface font-label-bold text-label-bold rounded-lg hover:bg-surface-container-highest transition-all px-5 py-2.5"
               >
-                {t("Sign up", "Registrarse")}
+                {t("signUp")}
               </Link>
             </div>
           )}
@@ -378,7 +375,7 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
             onClick={closeMobile}
             className="block w-full text-center bg-primary text-on-primary font-label-bold text-label-bold px-6 py-2.5 rounded-lg transition-all shadow-sm"
           >
-            {t("Become a member", "Hazte miembro")}
+            {t("becomeMember")}
           </Link>
         </div>
       </div>

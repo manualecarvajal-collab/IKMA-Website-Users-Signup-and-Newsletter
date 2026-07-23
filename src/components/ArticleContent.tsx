@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { useLanguage } from "@/lib/useLanguage"
+import { useTranslations } from "next-intl"
 
 interface ArticleContentProps {
   contenidoHtml: string | null
@@ -11,8 +11,7 @@ interface ArticleContentProps {
 }
 
 export default function ArticleContent({ contenidoHtml, resumen, isAuthenticated }: ArticleContentProps) {
-  const lang = useLanguage()
-  const t = (en: string, es: string) => lang === "es" ? es : en
+  const t = useTranslations("ArticleContent")
   const [showFull, setShowFull] = useState(false)
 
   const content = contenidoHtml || `<p>${resumen || ""}</p>`
@@ -46,13 +45,13 @@ export default function ArticleContent({ contenidoHtml, resumen, isAuthenticated
           </div>
           <div className="relative z-20 -mt-8 flex flex-col items-center gap-4 pt-8 pb-12">
             <p className="font-body-md text-body-md text-on-surface-variant text-center max-w-sm">
-              {t("Register to continue reading this article and access our full library.", "Regístrate para seguir leyendo este artículo y acceder a nuestra biblioteca completa.")}
+              {t("registerToRead")}
             </p>
             <Link
               href="/registro"
               className="bg-primary text-on-primary font-label-bold text-label-bold px-6 py-3 rounded-lg hover:bg-primary/90 transition-all inline-block"
             >
-              {t("Sign up for free", "Regístrate gratis")}
+              {t("signUpFree")}
             </Link>
           </div>
         </div>

@@ -1,15 +1,19 @@
 import Link from "next/link"
 import type { Metadata } from "next"
 import { createClient } from "@/lib/supabase/server"
+import { getTranslations } from "next-intl/server"
 import Icon from "@/components/Icon"
 
-export const metadata: Metadata = {
-  title: "Teachings - IKMA Video Library",
-  description:
-    "Explore biblical and medical teachings from the International Kingdom Medical Association — featuring videos on faith, healthcare, and global mission.",
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("Teachings")
+  return {
+    title: t("pageTitle") + " - IKMA",
+    description: t("pageDesc"),
+  }
 }
 
 export default async function TeachingsPage() {
+  const t = await getTranslations("Teachings")
   const supabase = await createClient()
 
   const { data: grupos } = await supabase.from("grupos").select("*").order("posicion", { ascending: true }).order("created_at", { ascending: true })
@@ -31,7 +35,7 @@ export default async function TeachingsPage() {
   if (!grupos || grupos.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="font-body-md text-body-md text-on-surface-variant">No teachings available yet.</p>
+        <p className="font-body-md text-body-md text-on-surface-variant">{t("noTeachings")}</p>
       </div>
     )
   }
@@ -40,10 +44,8 @@ export default async function TeachingsPage() {
     <section className="bg-surface min-h-screen">
       <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-section-padding">
         <div className="mb-12">
-          <h1 className="font-headline-lg text-headline-lg text-primary mb-2">Teachings</h1>
-          <p className="font-body-md text-body-md text-on-surface-variant max-w-2xl">
-            Browse our collection of teachings organized by topic. Select a group to explore its videos.
-          </p>
+          <h1 className="font-headline-lg text-headline-lg text-primary mb-2">{t("pageTitle")}</h1>
+          <p className="font-body-md text-body-md text-on-surface-variant max-w-2xl">{t("pageDesc")}</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
@@ -83,7 +85,7 @@ export default async function TeachingsPage() {
                 <div className="p-5">
                   <div className="flex items-center justify-between mb-1">
                     <h3 className="font-headline-md text-headline-md text-on-surface group-hover:text-primary transition-colors truncate notranslate">{g.nombre}</h3>
-                    <span className="font-label-bold text-label-sm text-on-surface-variant whitespace-nowrap ml-2">{videoCount.get(g.id) ?? 0} videos</span>
+                    <span className="font-label-bold text-label-sm text-on-surface-variant whitespace-nowrap ml-2">{videoCount.get(g.id) ?? 0} {t("videos")}</span>
                   </div>
                   <p className="font-body-md text-body-md text-on-surface-variant text-sm">/{g.slug}</p>
                 </div>

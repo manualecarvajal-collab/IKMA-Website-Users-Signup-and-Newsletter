@@ -1,33 +1,18 @@
-import { createServerClient } from "@supabase/ssr"
 import { NextResponse, type NextRequest } from "next/server"
+import { createServerClient } from "@supabase/ssr"
 
 export async function proxy(request: NextRequest) {
-  const requestHeaders = new Headers(request.headers)
-  requestHeaders.set("x-is-admin", request.nextUrl.pathname.startsWith("/admin") ? "1" : "0")
-
-  let supabaseResponse = NextResponse.next({
-    request: {
-      headers: requestHeaders,
-    },
-  })
+  const response = NextResponse.next()
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        getAll() {
-          return request.cookies.getAll()
-        },
+        getAll() { return request.cookies.getAll() },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
-          supabaseResponse = NextResponse.next({
-            request: {
-              headers: requestHeaders,
-            },
-          })
           cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
+            response.cookies.set(name, value, options)
           )
         },
       },
@@ -36,7 +21,7 @@ export async function proxy(request: NextRequest) {
 
   await supabase.auth.getUser()
 
-  return supabaseResponse
+  return response
 }
 
 export const config = {

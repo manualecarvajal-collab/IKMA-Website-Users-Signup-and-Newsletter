@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
+import { getTranslations, getLocale } from "next-intl/server"
 import ArticleContent from "@/components/ArticleContent"
 import DownloadPopup from "@/components/DownloadPopup"
 import Icon from "@/components/Icon"
@@ -11,9 +12,10 @@ export const dynamic = "force-dynamic"
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
   const article = await getArticle(slug)
+  const t = await getTranslations("BlogDetail")
   return {
     title: article ? `${article.titulo} - IKMA Blog` : "IKMA Blog",
-    description: article?.resumen ?? "Read this article from the International Kingdom Medical Association journal.",
+    description: article?.resumen ?? t("continueReading"),
   }
 }
 
@@ -40,22 +42,37 @@ async function getRelatedArticles(currentSlug: string) {
   return data ?? []
 }
 
-function formatDate(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString("en-US", {
+function formatDate(dateStr: string, locale: string) {
+  return new Date(dateStr).toLocaleDateString(locale, {
     year: "numeric",
     month: "long",
     day: "numeric",
   })
 }
 
+// Get localized field: prefer locale-specific, fall back to English
+function l10n<T extends Record<string, unknown>>(article: T, fieldEn: string, fieldEs: string, locale: string): unknown {
+  if (locale === "es") {
+    return article[fieldEs] || article[fieldEn]
+  }
+  return article[fieldEn]
+}
+
 export default async function ArticlePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
+  const t = await getTranslations("BlogDetail")
+  const locale = await getLocale()
   const article = await getArticle(slug)
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   const { data: perfil } = user ? await supabase.from("perfiles").select("suscripcion_activa").eq("id", user.id).single() : { data: null }
 
   if (!article) notFound()
+
+  // Localized fields
+  const articleTitle = l10n(article, "titulo", "titulo_es", locale) as string
+  const articleSummary = l10n(article, "resumen", "resumen_es", locale) as string | null
+  const articleContent = l10n(article, "contenido_html", "contenido_html_es", locale) as string | null
 
   const relatedArticles = await getRelatedArticles(slug)
 
@@ -80,14 +97,14 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
             <div className="sticky top-28 space-y-6">
               {/* Ad Space */}
               <div className="w-full h-64 rounded-xl border-2 border-dashed border-on-surface/20 bg-surface-container-high/30 flex items-center justify-center text-on-surface-variant/50 text-sm font-medium">
-                Ad Space
+                {t("adSpace")}
               </div>
 
               {magazines && magazines.length > 0 && (
                 <div className="bg-surface-container-low rounded-xl p-5 shadow-sm border border-outline-variant/20">
                   <div className="flex items-center gap-2 mb-4">
                     <Icon name="menu_book" size={20} className="text-primary" />
-                    <h3 className="font-headline-md text-headline-md text-primary text-sm">Latest Magazines</h3>
+                    <h3 className="font-headline-md text-headline-md text-primary text-sm">{t("latestMagazines")}</h3>
                   </div>
                   <div className="space-y-3 mb-4">
                     {magazines.map((m) => (
@@ -137,21 +154,21 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
               </div>
               <div>
                 <p className="font-label-bold text-label-bold text-on-surface notranslate">
-                  {article.autor_nombre || "IKMA Editorial"}
+                  {article.autor_nombre || t("editorial")}
                 </p>
                 <p className="font-body-md text-body-md text-on-surface-variant">
-                  {formatDate(article.fecha_publicacion || article.created_at)}
+                  {formatDate(article.fecha_publicacion || article.created_at, locale)}
                 </p>
               </div>
             </div>
 
-            <h1 className="font-headline-xl text-[clamp(1.625rem,3.25vw,2.6rem)] text-primary mb-6 notranslate">
-              {article.titulo}
+            <h1 className="font-headline-xl text-[clamp(1.625rem,3.25vw,2.6rem)] text-primary mb-6">
+              {articleTitle}
             </h1>
 
             <ArticleContent
-              contenidoHtml={article.contenido_html}
-              resumen={article.resumen}
+              contenidoHtml={articleContent}
+              resumen={articleSummary}
               isAuthenticated={!!user}
             />
           </div>
@@ -160,27 +177,31 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
         {/* Recommended Articles */}
         {relatedArticles.length > 0 && (
           <section className="mt-16 md:mt-24">
-            <h4 className="font-headline-md text-headline-md text-primary mb-2">Recommended Articles</h4>
-            <p className="font-body-md text-body-md text-on-surface-variant mb-8">Continue reading from our journal.</p>
+            <h4 className="font-headline-md text-headline-md text-primary mb-2">{t("recommendedArticles")}</h4>
+            <p className="font-body-md text-body-md text-on-surface-variant mb-8">{t("continueReading")}</p>
             <div className="overflow-x-auto scroll-smooth snap-x snap-mandatory pb-4 -mx-px">
               <div className="flex gap-gutter min-w-min">
-                {relatedArticles.map((a) => (
-                  <Link
-                    key={a.id}
-                    href={`/blog/${a.slug}`}
-                    className="flex flex-col group cursor-pointer bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-[0_12px_24px_rgba(7,68,105,0.06)] hover:-translate-y-0.5 transition-all duration-300 snap-start w-[280px] sm:w-[300px] flex-shrink-0"
-                  >
-                    <div className="w-full aspect-[16/10] overflow-hidden bg-surface-container-high">
-                      <img src={a.imagen_url} alt="" loading="lazy" className="w-full h-full object-cover" />
-                    </div>
-                    <div className="p-4">
-                      <h3 className="font-bold text-on-surface mt-2 group-hover:text-primary transition-colors text-sm leading-tight notranslate">
-                        {a.titulo}
-                      </h3>
-                      <p className="font-body-md text-body-md text-on-surface-variant line-clamp-1 mt-1 text-sm">{a.resumen}</p>
-                    </div>
-                  </Link>
-                ))}
+                {relatedArticles.map((a) => {
+                  const relTitle = l10n(a, "titulo", "titulo_es", locale) as string
+                  const relSummary = l10n(a, "resumen", "resumen_es", locale) as string | null
+                  return (
+                    <Link
+                      key={a.id}
+                      href={`/blog/${a.slug}`}
+                      className="flex flex-col group cursor-pointer bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-[0_12px_24px_rgba(7,68,105,0.06)] hover:-translate-y-0.5 transition-all duration-300 snap-start w-[280px] sm:w-[300px] flex-shrink-0"
+                    >
+                      <div className="w-full aspect-[16/10] overflow-hidden bg-surface-container-high">
+                        <img src={a.imagen_url} alt="" loading="lazy" className="w-full h-full object-cover" />
+                      </div>
+                      <div className="p-4">
+                        <h3 className="font-bold text-on-surface mt-2 group-hover:text-primary transition-colors text-sm leading-tight">
+                          {relTitle}
+                        </h3>
+                        <p className="font-body-md text-body-md text-on-surface-variant line-clamp-1 mt-1 text-sm">{relSummary}</p>
+                      </div>
+                    </Link>
+                  )})
+                }
               </div>
             </div>
           </section>

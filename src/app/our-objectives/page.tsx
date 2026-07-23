@@ -1,5 +1,6 @@
 import Link from "next/link"
 import type { Metadata } from "next"
+import { getTranslations } from "next-intl/server"
 import Icon from "@/components/Icon"
 
 export const metadata: Metadata = {
@@ -8,10 +9,14 @@ export const metadata: Metadata = {
     "Learn about the key objectives and goals of the International Kingdom Medical Association.",
 }
 
-export default function OurObjectivesPage() {
+export default async function OurObjectivesPage() {
+  const t = await getTranslations("OurObjectives")
+  const pillarOneItems = [t("pillarOneItems_0"), t("pillarOneItems_1"), t("pillarOneItems_2")]
+  const pillarTwoItems = [t("pillarTwoItems_0"), t("pillarTwoItems_1"), t("pillarTwoItems_2")]
+  const pillarThreeItems = [t("pillarThreeItems_0"), t("pillarThreeItems_1"), t("pillarThreeItems_2"), t("pillarThreeItems_3")]
+
   return (
     <>
-      {/* Hero */}
       <section className="relative min-h-[85vh] flex items-center pt-20 overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img
@@ -28,49 +33,44 @@ export default function OurObjectivesPage() {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
             </span>
-            Our objectives
+            {t("heroBadge")}
           </div>
           <h1 className="font-headline-xl text-headline-xl text-surface max-w-4xl mb-8 leading-tight">
-            Our Strategic Objectives
+            {t("heroTitle")}
           </h1>
           <p className="font-body-lg text-body-lg text-surface max-w-2xl leading-relaxed">
-            Guided by faith and clinical excellence, we are committed to transforming healthcare across nations through equity, empowerment, and Kingdom solutions.
+            {t("heroDesc")}
           </p>
           <div className="mt-12 flex flex-wrap gap-6">
             <a
               href="/our-purpose"
               className="bg-primary text-on-primary font-label-bold text-label-bold px-8 py-4 rounded-lg hover:bg-primary-container transition-all shadow-xl shadow-primary/20"
             >
-              Explore Our Vision
+              {t("exploreVision")}
             </a>
             <a
               href="#"
               className="flex items-center gap-2 text-primary font-bold py-4 hover:gap-4 transition-all"
             >
               <Icon name="play_circle" />
-              Watch Our Story
+              {t("watchStory")}
             </a>
           </div>
         </div>
       </section>
 
-      {/* Pillar One */}
       <section className="py-section-padding bg-white" id="pillar-one">
         <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
             <div>
               <p className="text-primary font-bold tracking-[0.2em] font-label-bold text-label-sm block mb-6 uppercase border-l-4 border-primary pl-4">
-                PILLAR ONE
+                {t("pillarOne")}
               </p>
               <h2 className="font-headline-lg text-headline-lg text-primary mb-10">
-                Promote health equity for all
+                {t("pillarOneTitle")}
               </h2>
               <ul className="space-y-8">
-                {[
-                  "Promote access to care for safe, effective, affordable, and quality health services, regardless of socioeconomic status",
-                  "Empower communities by fostering practices that maintain mental, physical, and spiritual health in alignment with biblical principles.",
-                  "Foster cooperations through regional, national and international partnership.",
-                ].map((item, i) => (
+                {pillarOneItems.map((item, i) => (
                   <li key={i} className="flex gap-6 items-start group">
                     <span className="flex-shrink-0 w-10 h-10 rounded-lg bg-primary-fixed flex items-center justify-center text-primary font-bold text-lg group-hover:bg-primary group-hover:text-white transition-colors duration-300">
                       {i + 1}
@@ -86,7 +86,7 @@ export default function OurObjectivesPage() {
               <div className="absolute -inset-6 bg-primary-fixed/20 -z-10 rounded-2xl group-hover:bg-primary-fixed/30 transition-all" />
               <img
                 src="/outreach/communities/724073318_122226599612056158_6550501176011429048_n.webp"
-                alt="Healthcare professionals meeting"
+                alt=""
                 className="w-full aspect-[4/3] object-cover rounded-lg shadow-2xl transition-transform duration-500 group-hover:scale-[1.02]"
                 loading="lazy"
               /> 
@@ -95,7 +95,6 @@ export default function OurObjectivesPage() {
         </div>
       </section>
 
-      {/* Quote Divider */}
       <section className="relative py-32 flex items-center justify-center text-center overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img
@@ -110,14 +109,13 @@ export default function OurObjectivesPage() {
           <div className="max-w-4xl mx-auto">
             <Icon name="format_quote" size={72} className="text-white/40 mb-8" />
             <blockquote className="text-white font-headline-lg text-headline-lg md:text-4xl italic leading-tight">
-              &ldquo;Transforming the world through clinical excellence and the spirit of service.&rdquo;
+              {t("quote")}
             </blockquote>
             <div className="mt-8 h-1 w-24 bg-white/30 mx-auto rounded-full" />
           </div>
         </div>
       </section>
 
-      {/* Pillar Two */}
       <section className="py-section-padding bg-surface">
         <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
@@ -125,24 +123,20 @@ export default function OurObjectivesPage() {
               <div className="absolute -inset-6 bg-secondary-fixed/20 -z-10 rounded-2xl group-hover:bg-secondary-fixed/30 transition-all" />
               <img
                 src="/outreach/communities/724265425_122226599258056158_6696920523978700488_n.webp"
-                alt="Medical students studying"
+                alt=""
                 className="w-full aspect-[4/3] object-cover rounded-lg shadow-2xl transition-transform duration-500 group-hover:scale-[1.02]"
                 loading="lazy"
               />
             </div>
             <div className="order-2">
               <p className="text-primary font-bold tracking-[0.2em] font-label-bold text-label-sm block mb-6 uppercase border-l-4 border-primary pl-4">
-                PILLAR TWO
+                {t("pillarTwo")}
               </p>
               <h2 className="font-headline-lg text-headline-lg text-primary mb-10">
-                Equipping health warriors for transformative impact
+                {t("pillarTwoTitle")}
               </h2>
               <ul className="space-y-8">
-                {[
-                  "Establish an academy to train health professionals and students in both biblical and secular medicine topics, bridging the gap between faith and practice.",
-                  "Shaping a generation of health warriors in their training process, preparing them for holistic health ministry",
-                  "Establish support system for low-income undergraduate and graduate students, providing grant and scholarship and nurturing environment for their academical success and spiritual growth.",
-                ].map((item, i) => (
+                {pillarTwoItems.map((item, i) => (
                   <li key={i} className="flex gap-6 items-start group">
                     <span className="flex-shrink-0 w-10 h-10 rounded-lg bg-secondary-container flex items-center justify-center text-primary font-bold text-lg group-hover:bg-primary group-hover:text-white transition-colors duration-300">
                       {i + 4}
@@ -158,25 +152,19 @@ export default function OurObjectivesPage() {
         </div>
       </section>
 
-      {/* Pillar Three */}
       <section className="py-section-padding bg-surface-container-low border-y border-outline-variant/30">
         <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
           <div className="text-center mb-16">
             <p className="text-primary font-bold tracking-[0.2em] font-label-bold text-label-sm block mb-6 uppercase">
-              PILLAR THREE
+              {t("pillarThree")}
             </p>
             <h2 className="font-headline-lg text-headline-lg text-primary mb-6">
-              Bringing Kingdom solutions to the Nations
+              {t("pillarThreeTitle")}
             </h2>
             <div className="h-1.5 w-20 bg-primary mx-auto rounded-full" />
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-            {[
-              "Build specialized outpatient clinics staffed by kingdom-minded healthcare professionals, offering high quality solutions to diverse health issues with compassion and spiritual insight.",
-              "Conducts medical campaign by combining essential outreach and evangelism, demonstrating God's love through action.",
-              "Organize and empower regional committees in partner countries",
-              "Impact men and women in the health field to be transformed. Thus, establishing the government of the Kingdom of God in the hospitals of the nations.",
-            ].map((item, i) => (
+            {pillarThreeItems.map((item, i) => (
               <div
                 key={i}
                 className="bg-white p-10 border border-outline-variant hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 rounded-lg relative overflow-hidden group"
@@ -194,32 +182,31 @@ export default function OurObjectivesPage() {
           <div className="rounded-2xl overflow-hidden h-[500px] shadow-2xl relative">
             <img
               src="/outreach/zumurucuare/706417436_122224596176056158_1440124180007367821_n.webp"
-                alt="Medical mission outreach"
-                className="w-full h-full object-cover"
-                loading="lazy"
+              alt=""
+              className="w-full h-full object-cover"
+              loading="lazy"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-primary/60 to-transparent" />
           </div>
         </div>
       </section>
 
-      {/* CTA */}
       <section className="py-24 bg-primary text-white relative overflow-hidden">
         <div className="absolute top-0 left-0 w-64 h-64 bg-white/5 -translate-x-1/2 -translate-y-1/2 rounded-full" />
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-white/5 translate-x-1/3 translate-y-1/3 rounded-full" />
         <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop text-center relative z-10">
           <h2 className="font-headline-lg text-headline-lg md:text-5xl mb-10 leading-tight">
-            Be part of the global transformation
+            {t("ctaTitle")}
           </h2>
           <p className="font-body-lg text-body-lg text-white/80 max-w-2xl mx-auto mb-12">
-            Your support enables us to provide life-changing healthcare and spiritual ministry to those in greatest need.
+            {t("ctaDesc")}
           </p>
           <div className="flex flex-col sm:flex-row gap-6 justify-center">
             <button className="bg-white text-primary font-label-bold text-label-bold px-8 py-4 rounded-lg shadow-xl hover:bg-primary-fixed transition-all duration-300 cursor-pointer">
-              Support Our Mission
+              {t("supportMission")}
             </button>
             <Link href="/outreach" className="border-2 border-white/40 text-white font-label-bold text-label-bold px-8 py-4 rounded-lg hover:bg-white hover:text-primary transition-all duration-300 cursor-pointer inline-block">
-              Read Our Story
+              {t("readOurStory")}
             </Link>
           </div>
         </div>

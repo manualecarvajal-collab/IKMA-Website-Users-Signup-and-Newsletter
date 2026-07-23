@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import { useTranslations } from "next-intl"
 import Icon from "@/components/Icon"
 import { submitMembership } from "@/lib/supabase/membresia-actions"
 import { countriesByRegion, pricingMatrix, professionSubgroups, memberTypeLabels, paymentOptions } from "./data"
@@ -66,6 +67,7 @@ export default function MembershipForm({
   initialFirstName?: string
   initialLastName?: string
 }) {
+  const t = useTranslations("Membership")
   const [step, setStep] = useState(1)
   const [form, setForm] = useState<FormData>({
     ...initialForm,
@@ -191,9 +193,9 @@ export default function MembershipForm({
   }
 
   const regionLabel = form.region === "A"
-    ? "Region A (Latin America, Africa, Asia)"
+    ? t("regionAOpt")
     : form.region === "B"
-    ? "Region B (North America, Europe, Oceania)"
+    ? t("regionBOpt")
     : ""
 
   const professionLabel = memberTypeLabels[form.memberType]?.label ?? ""
@@ -201,7 +203,7 @@ export default function MembershipForm({
   const renderStepper = () => (
     <div className="mb-8 bg-white p-5 rounded-2xl border border-outline-variant/30 shadow-sm">
       <div className="grid grid-cols-4 gap-2 text-center text-xs md:text-sm font-semibold">
-        {["Membership", "Registration", "Secure Payment", "Confirmation"].map((label, i) => {
+        {[t("stepperMembership"), t("stepperRegistration"), t("stepperPayment"), t("stepperConfirmation")].map((label, i) => {
           const active = step >= i + 1
           return (
             <div
@@ -229,13 +231,10 @@ export default function MembershipForm({
   const renderStep1 = () => (
     <section className="bg-white rounded-3xl border border-outline-variant/30 shadow-md overflow-hidden">
       <div className="p-6 md:p-10 border-b border-outline-variant/30 bg-gradient-to-r from-primary-container/20 to-primary-container/20">
-        <span className="bg-primary-container text-surface text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Step 1 of 4</span>
-        <h2 className="text-2xl md:text-3xl font-extrabold text-on-surface mt-2">Join the IKMA Membership</h2>
+        <span className="bg-primary-container text-surface text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">{t("step1Badge")}</span>
+        <h2 className="text-2xl md:text-3xl font-extrabold text-on-surface mt-2">{t("step1Title")}</h2>
         <p className="text-on-surface-variant mt-2 text-sm md:text-base leading-relaxed">
-          IKMA membership is open to all licensed health professionals, students in health-related
-          fields, and professionals from other disciplines. Here you will connect with colleagues
-          who share an interest in the Kingdom of God, holistic healthcare, socio-medical issues,
-          global health, and regenerative nutrition. Together we will learn to be agents of change.
+          {t("step1Desc")}
         </p>
       </div>
 
@@ -243,34 +242,33 @@ export default function MembershipForm({
         <div>
           <h3 className="text-lg font-bold text-on-surface mb-4 flex items-center gap-2">
             <Icon name="star" size={20} className="text-primary" />
-            Annual Fee Schedule
+            {t("annualFees")}
           </h3>
           <p className="text-xs text-on-surface-variant mb-4">
-            Fees depend on the region where you live or work, based on World Bank classifications
-            (dues may be paid in up to 3 installments).
+            {t("feesDesc")}
           </p>
 
           <div className="grid md:grid-cols-2 gap-6">
             <div className="bg-surface-container-low p-5 rounded-2xl border border-outline-variant/30">
               <h4 className="font-bold text-on-surface text-sm uppercase tracking-wide flex items-center gap-2 text-secondary">
-                <Icon name="location_on" size={16} /> Region A: Low / Middle Income
+                <Icon name="location_on" size={16} /> {t("regionA")}
               </h4>
-              <p className="text-xs text-on-surface-variant mt-1 mb-3">Latin America, Africa, Asia</p>
+              <p className="text-xs text-on-surface-variant mt-1 mb-3">{t("regionADesc")}</p>
               <ul className="space-y-2 text-sm text-on-surface">
                 <li className="flex justify-between border-b border-outline-variant/30 pb-1.5">
-                  <span>1. Licensed Health Professional</span>
+                  <span>{t("licHealthProf")}</span>
                   <span className="font-bold">$60 USD</span>
                 </li>
                 <li className="flex justify-between border-b border-outline-variant/30 pb-1.5">
-                  <span>2. Resident (Post-graduate)</span>
+                  <span>{t("resident")}</span>
                   <span className="font-bold">$50 USD</span>
                 </li>
                 <li className="flex justify-between border-b border-outline-variant/30 pb-1.5">
-                  <span>3. Student</span>
+                  <span>{t("student")}</span>
                   <span className="font-bold text-surface-tint uppercase">Free</span>
                 </li>
                 <li className="flex justify-between">
-                  <span>4. Non-Medical Professional</span>
+                  <span>{t("nonMedical")}</span>
                   <span className="font-bold">$50 USD</span>
                 </li>
               </ul>
@@ -278,24 +276,24 @@ export default function MembershipForm({
 
             <div className="bg-surface-container-low p-5 rounded-2xl border border-outline-variant/30">
               <h4 className="font-bold text-on-surface text-sm uppercase tracking-wide flex items-center gap-2 text-primary">
-                <Icon name="public" size={16} /> Region B: High Income
+                <Icon name="public" size={16} /> {t("regionB")}
               </h4>
-              <p className="text-xs text-on-surface-variant mt-1 mb-3">North America, Europe, Australia, N. Zealand</p>
+              <p className="text-xs text-on-surface-variant mt-1 mb-3">{t("regionBDesc")}</p>
               <ul className="space-y-2 text-sm text-on-surface">
                 <li className="flex justify-between border-b border-outline-variant/30 pb-1.5">
-                  <span>1. Licensed Health Professional</span>
+                  <span>{t("licHealthProf")}</span>
                   <span className="font-bold">$150 USD</span>
                 </li>
                 <li className="flex justify-between border-b border-outline-variant/30 pb-1.5">
-                  <span>2. Resident (Post-graduate)</span>
+                  <span>{t("resident")}</span>
                   <span className="font-bold">$100 USD</span>
                 </li>
                 <li className="flex justify-between border-b border-outline-variant/30 pb-1.5">
-                  <span>3. Student</span>
+                  <span>{t("student")}</span>
                   <span className="font-bold text-surface-tint uppercase">Free</span>
                 </li>
                 <li className="flex justify-between">
-                  <span>4. Non-Medical Professional</span>
+                  <span>{t("nonMedical")}</span>
                   <span className="font-bold">$100 USD</span>
                 </li>
               </ul>
@@ -306,7 +304,7 @@ export default function MembershipForm({
         <hr className="border-outline-variant/30" />
 
         <div>
-          <h3 className="text-lg font-bold text-on-surface mb-4">What is your current professional profile?</h3>
+          <h3 className="text-lg font-bold text-on-surface mb-4">{t("profProfile")}</h3>
           <div className="grid sm:grid-cols-2 gap-4">
             {[1, 2, 3, 4].map((type) => {
               const info = memberTypeLabels[type]
@@ -342,13 +340,13 @@ export default function MembershipForm({
 
         <div className="bg-surface-container-low p-6 rounded-2xl border border-outline-variant/30">
           <label className="block text-sm font-semibold text-on-surface mb-2">
-            {form.memberType === 3
-              ? "What year do you expect to graduate? *"
-              : form.memberType === 4
-              ? ""
-              : form.memberType === 2
-              ? "What year did you complete your basic medical studies? *"
-              : "What year did you obtain your professional degree? *"}
+{form.memberType === 3
+  ? t("gradYearStudent")
+  : form.memberType === 4
+  ? ""
+  : form.memberType === 2
+  ? t("gradYearResident")
+  : t("gradYear")}
           </label>
           {form.memberType !== 4 && (
             <div className="relative max-w-xs">
@@ -379,13 +377,10 @@ export default function MembershipForm({
           />
           <div className="text-xs md:text-sm text-on-surface-variant space-y-2">
             <label htmlFor="rules-consent" className="font-semibold text-on-surface cursor-pointer">
-              I have read and accept the IKMA membership bylaws and regulations.
+              {t("acceptRules")}
             </label>
             <p className="text-on-surface-variant/70 text-xs leading-relaxed">
-              I understand that my data entered on this website will be used for the management of
-              my membership and the activities of the organization. IKMA strictly complies with the
-              General Data Protection Regulation (GDPR) of the European Union. We do not share our
-              associated members data with third parties without their express consent.
+              {t("acceptRulesDesc")}
             </p>
           </div>
         </div>
@@ -401,7 +396,7 @@ export default function MembershipForm({
             onClick={() => goToStep(2)}
             className="bg-primary text-on-primary font-label-bold px-8 py-3.5 rounded-xl shadow-lg transition flex items-center gap-2 group text-sm md:text-base"
           >
-            Continue to Form{" "}
+            {t("continueToForm")}{" "}
             <Icon name="arrow_forward" size={16} className="group-hover:translate-x-1 transition" />
           </button>
         </div>
@@ -416,15 +411,15 @@ export default function MembershipForm({
         className="bg-white rounded-3xl border border-outline-variant/30 shadow-md overflow-hidden"
       >
         <div className="p-6 md:p-10 border-b border-outline-variant/30 bg-gradient-to-r from-primary-container/20 to-primary-container/20">
-          <span className="bg-primary-container text-surface text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Step 2 of 4</span>
-          <h2 className="text-2xl md:text-3xl font-extrabold text-on-surface mt-2">Applicant Details</h2>
-          <p className="text-on-surface-variant mt-2 text-sm">Please complete all fields marked with an asterisk (*) accurately.</p>
+          <span className="bg-primary-container text-surface text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">{t("step2Badge")}</span>
+          <h2 className="text-2xl md:text-3xl font-extrabold text-on-surface mt-2">{t("step2Title")}</h2>
+          <p className="text-on-surface-variant mt-2 text-sm">{t("step2Desc")}</p>
         </div>
 
         <div className="p-6 md:p-10 space-y-8">
           <div className="grid md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-semibold text-on-surface mb-2">I live / work / study in (Region) *</label>
+              <label className="block text-sm font-semibold text-on-surface mb-2">{t("regionLabel")}</label>
               <div className="relative">
                 <select
                   value={form.region}
@@ -432,9 +427,9 @@ export default function MembershipForm({
                   required
                   className="w-full bg-white border border-outline-variant/50 rounded-xl px-4 py-2.5 text-sm outline-none appearance-none"
                 >
-                  <option value="" disabled>Select Region...</option>
-                  <option value="A">Region A (Latin America, Africa, Asia)</option>
-                  <option value="B">Region B (North America, Europe, Oceania)</option>
+                  <option value="" disabled>{t("selectRegion")}</option>
+                  <option value="A">{t("regionAOpt")}</option>
+                  <option value="B">{t("regionBOpt")}</option>
                 </select>
                 <div className="absolute right-3 top-3 pointer-events-none text-on-surface-variant">
                   <Icon name="expand_more" size={14} />
@@ -442,7 +437,7 @@ export default function MembershipForm({
               </div>
             </div>
             <div>
-              <label className="block text-sm font-semibold text-on-surface mb-2">Specific Country *</label>
+              <label className="block text-sm font-semibold text-on-surface mb-2">{t("countryLabel")}</label>
               <div className="relative">
                 <select
                   value={form.country}
@@ -451,7 +446,7 @@ export default function MembershipForm({
                   className="w-full bg-white border border-outline-variant/50 rounded-xl px-4 py-2.5 text-sm outline-none appearance-none"
                 >
                   <option value="" disabled>
-                    {form.region ? "Select Country..." : "Select a region first..."}
+                    {form.region ? t("selectCountry") : t("selectRegionFirst")}
                   </option>
                   {form.region &&
                     countriesByRegion[form.region].map((c) => (
@@ -467,7 +462,7 @@ export default function MembershipForm({
 
           <div className="grid md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-semibold text-on-surface mb-2">Preferred Language *</label>
+              <label className="block text-sm font-semibold text-on-surface mb-2">{t("languageLabel")}</label>
               <div className="relative">
                 <select
                   value={form.language}
@@ -483,7 +478,7 @@ export default function MembershipForm({
               </div>
             </div>
             <div>
-              <label className="block text-sm font-semibold text-on-surface mb-2">Gender *</label>
+              <label className="block text-sm font-semibold text-on-surface mb-2">{t("genderLabel")}</label>
               <div className="relative">
                 <select
                   value={form.gender}
@@ -492,9 +487,9 @@ export default function MembershipForm({
                   className="w-full bg-white border border-outline-variant/50 rounded-xl px-4 py-2.5 text-sm outline-none appearance-none"
                 >
                   <option value="" disabled>Select...</option>
-                  <option value="M">Male</option>
-                  <option value="F">Female</option>
-                  <option value="O">Prefer not to say</option>
+                  <option value="M">{t("male")}</option>
+                  <option value="F">{t("female")}</option>
+                  <option value="O">{t("preferNot")}</option>
                 </select>
                 <div className="absolute right-3 top-3 pointer-events-none text-on-surface-variant">
                   <Icon name="expand_more" size={14} />
@@ -505,7 +500,7 @@ export default function MembershipForm({
 
           <div className="grid md:grid-cols-3 gap-6">
             <div className="md:col-span-1">
-              <label className="block text-sm font-semibold text-on-surface mb-2">Address *</label>
+              <label className="block text-sm font-semibold text-on-surface mb-2">{t("addressLabel")}</label>
               <input
                 type="text"
                 placeholder="Street, Avenue, Building..."
@@ -516,7 +511,7 @@ export default function MembershipForm({
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-on-surface mb-2">City / Town *</label>
+              <label className="block text-sm font-semibold text-on-surface mb-2">{t("cityLabel")}</label>
               <input
                 type="text"
                 placeholder="e.g. Madrid, Lima"
@@ -527,7 +522,7 @@ export default function MembershipForm({
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-on-surface mb-2">Postal Code *</label>
+              <label className="block text-sm font-semibold text-on-surface mb-2">{t("postalLabel")}</label>
               <input
                 type="text"
                 placeholder="ZIP / Postal Code"
@@ -541,13 +536,13 @@ export default function MembershipForm({
 
           <div className="grid md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-semibold text-on-surface mb-2">First Name(s)</label>
+              <label className="block text-sm font-semibold text-on-surface mb-2">{t("firstNameLabel")}</label>
               <div className="w-full bg-surface-container-high border border-outline-variant/30 rounded-xl px-4 py-2.5 text-sm text-on-surface-variant cursor-not-allowed notranslate">
                 {form.firstName}
               </div>
             </div>
             <div>
-              <label className="block text-sm font-semibold text-on-surface mb-2">Last Name(s)</label>
+              <label className="block text-sm font-semibold text-on-surface mb-2">{t("lastNameLabel")}</label>
               <div className="w-full bg-surface-container-high border border-outline-variant/30 rounded-xl px-4 py-2.5 text-sm text-on-surface-variant cursor-not-allowed notranslate">
                 {form.lastName}
               </div>
@@ -556,7 +551,7 @@ export default function MembershipForm({
 
           <div className="grid md:grid-cols-2 gap-6 bg-surface-container-low p-6 rounded-2xl border border-outline-variant/30">
             <div>
-              <label className="block text-sm font-semibold text-on-surface mb-2">Selected Professional Group</label>
+              <label className="block text-sm font-semibold text-on-surface mb-2">{t("profGroupLabel")}</label>
               <input
                 type="text"
                 value={professionLabel}
@@ -565,7 +560,7 @@ export default function MembershipForm({
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-on-surface mb-2">Specialty / Specific Area *</label>
+              <label className="block text-sm font-semibold text-on-surface mb-2">{t("specialtyLabel")}</label>
               <div className="relative">
                 <select
                   value={form.professionSubgroup}
@@ -585,7 +580,7 @@ export default function MembershipForm({
             </div>
             {form.professionSubgroup === "Other..." && (
               <div className="md:col-span-2">
-                <label className="block text-sm font-semibold text-on-surface mb-2">Please specify your profession *</label>
+                <label className="block text-sm font-semibold text-on-surface mb-2">{t("otherProfLabel")}</label>
                 <input
                   type="text"
                   placeholder="e.g. Occupational Therapist, Software Engineer"
@@ -599,7 +594,7 @@ export default function MembershipForm({
 
           <div className="grid md:grid-cols-3 gap-6">
             <div className="md:col-span-1">
-              <label className="block text-sm font-semibold text-on-surface mb-2">Username *</label>
+              <label className="block text-sm font-semibold text-on-surface mb-2">{t("usernameLabel")}</label>
               <input
                 type="text"
                 placeholder="e.g. dr_perez"
@@ -610,13 +605,13 @@ export default function MembershipForm({
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-on-surface mb-2">Email Address *</label>
+              <label className="block text-sm font-semibold text-on-surface mb-2">{t("emailLabel")}</label>
               <div className="w-full bg-surface-container-high border border-outline-variant/50 rounded-xl px-4 py-2.5 text-sm text-on-surface-variant cursor-not-allowed">
                 {form.email}
               </div>
             </div>
             <div>
-              <label className="block text-sm font-semibold text-on-surface mb-2">Contact Phone (with international code)</label>
+              <label className="block text-sm font-semibold text-on-surface mb-2">{t("phoneLabel")}</label>
               <input
                 type="tel"
                 placeholder="+34 600 000 000 or +54 9..."
@@ -628,7 +623,7 @@ export default function MembershipForm({
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-on-surface mb-2">Website / Social Media (LinkedIn, X, IG)</label>
+            <label className="block text-sm font-semibold text-on-surface mb-2">{t("websiteLabel")}</label>
             <input
               type="url"
               placeholder="https://linkedin.com/in/user"
@@ -642,19 +637,17 @@ export default function MembershipForm({
             <div className="bg-secondary-container/20 p-6 rounded-2xl border border-secondary-container space-y-4">
               <div className="flex items-center gap-2 text-secondary font-bold">
                 <Icon name="verified" size={20} />
-                <h4>Professional Verification Required</h4>
+                <h4>{t("verificationTitle")}</h4>
               </div>
               <p className="text-xs text-on-surface-variant leading-relaxed">
-                You have indicated that you are a licensed physician or health professional. Please
-                attach a digital copy of your professional license, certification, or identification
-                credential for approval.
+                {t("verificationDesc")}
               </p>
               <div className="flex items-center justify-center w-full">
                 <label className="flex flex-col items-center justify-center w-full h-36 border-2 border-secondary-container border-dashed rounded-xl cursor-pointer bg-white hover:bg-surface-container-low transition">
                   <div className="flex flex-col items-center justify-center pt-5 pb-6">
                     <Icon name="cloud_upload" size={28} className="text-secondary mb-2" />
-                    <p className="text-sm text-on-surface font-semibold">Upload credential file</p>
-                    <p className="text-xs text-on-surface-variant mt-1">PDF, JPG or PNG (max 5MB)</p>
+                    <p className="text-sm text-on-surface font-semibold">{t("uploadCredential")}</p>
+                    <p className="text-xs text-on-surface-variant mt-1">{t("uploadHint")}</p>
                   </div>
                   <input
                     type="file"
@@ -671,7 +664,7 @@ export default function MembershipForm({
               </div>
               {fileChosen && (
                 <div className="text-xs text-primary font-semibold flex items-center gap-1">
-                  <Icon name="check_circle" size={14} /> File uploaded successfully.
+                  <Icon name="check_circle" size={14} /> {t("uploadSuccess")}
                 </div>
               )}
             </div>
@@ -680,7 +673,7 @@ export default function MembershipForm({
           {form.memberType === 2 && (
             <div className="bg-secondary-container/20 p-6 rounded-2xl border border-secondary-container">
               <label className="block text-sm font-semibold text-on-surface mb-2">
-                Estimated year of residency / specialization completion
+                {t("residencyYear")}
               </label>
               <div className="relative max-w-xs">
                 <select

@@ -3,12 +3,11 @@
 import { useActionState, useEffect } from "react"
 import { signup } from "@/lib/supabase/actions"
 import { createBrowserClient } from "@supabase/ssr"
-import { useLanguage } from "@/lib/useLanguage"
+import { useTranslations } from "next-intl"
 import Link from "next/link"
 
 export default function RegistroPage() {
-  const lang = useLanguage()
-  const t = (en: string, es: string) => lang === "es" ? es : en
+  const t = useTranslations("Registro")
   const [state, action, pending] = useActionState(signup, undefined)
 
   useEffect(() => {
@@ -21,48 +20,48 @@ export default function RegistroPage() {
     <section className="py-section-padding">
       <div className="max-w-lg mx-auto px-margin-mobile md:px-margin-desktop">
         <div className="bg-surface rounded-xl p-8 md:p-12 shadow-[0_20px_20px_0_rgba(7,68,105,0.04)] border border-outline-variant/20">
-          <h1 className="font-headline-lg text-headline-md text-primary mb-2">{t("Create Account", "Crear Cuenta")}</h1>
+          <h1 className="font-headline-lg text-headline-md text-primary mb-2">{t("createAccount")}</h1>
           <p className="font-body-md text-body-md text-on-surface-variant mb-8">
-            {t("Join the IKMA community. Registration is free.", "Únete a la comunidad IKMA. El registro es gratuito.")}
+            {t("joinCommunity")}
           </p>
 
           <form action={action} className="space-y-6">
             <div>
               <label className="block font-label-bold text-label-bold text-on-surface mb-2" htmlFor="nombre_completo">
-                {t("Full Name", "Nombre completo")}
+                {t("fullName")}
               </label>
               <input
                 className="w-full rounded-md bg-surface border border-outline-variant text-on-surface py-3 px-4 focus:border-primary focus:ring-0 transition-colors"
                 id="nombre_completo"
                 name="nombre_completo"
                 type="text"
-                placeholder={t("Dr. Jane Doe", "Dr. Juan Pérez")}
+                placeholder={t("namePlaceholder")}
                 required
               />
             </div>
             <div>
               <label className="block font-label-bold text-label-bold text-on-surface mb-2" htmlFor="email">
-                {t("Email Address", "Correo electrónico")}
+                {t("emailAddress")}
               </label>
               <input
                 className="w-full rounded-md bg-surface border border-outline-variant text-on-surface py-3 px-4 focus:border-primary focus:ring-0 transition-colors"
                 id="email"
                 name="email"
                 type="email"
-                placeholder={t("jane@example.com", "ana@ejemplo.com")}
+                placeholder={t("emailPlaceholder")}
                 required
               />
             </div>
             <div>
               <label className="block font-label-bold text-label-bold text-on-surface mb-2" htmlFor="password">
-                {t("Password", "Contraseña")}
+                {t("password")}
               </label>
               <input
                 className="w-full rounded-md bg-surface border border-outline-variant text-on-surface py-3 px-4 focus:border-primary focus:ring-0 transition-colors"
                 id="password"
                 name="password"
                 type="password"
-                placeholder={t("Create a strong password", "Crea una contraseña segura")}
+                placeholder={t("passwordPlaceholder")}
                 required
                 minLength={6}
               />
@@ -80,7 +79,7 @@ export default function RegistroPage() {
               disabled={pending}
               className="w-full bg-primary text-on-primary font-label-bold text-label-bold py-3.5 rounded-lg hover:bg-primary/90 transition-all disabled:opacity-50 cursor-pointer"
             >
-              {pending ? t("Creating account...", "Creando cuenta...") : t("Create Account", "Crear Cuenta")}
+              {pending ? t("creatingAccount") : t("createAccountBtn")}
             </button>
           </form>
 
@@ -112,13 +111,13 @@ export default function RegistroPage() {
               <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
               <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
             </svg>
-            {t("Sign up with Google", "Registrarse con Google")}
+            {t("signUpGoogle")}
           </button>
 
           <p className="font-body-md text-body-md text-on-surface-variant text-center mt-6">
-            {t("Already have an account?", "¿Ya tienes cuenta?")}{" "}
+            {t("haveAccount")}{" "}
             <Link href="/login" className="text-primary font-semibold hover:underline">
-              {t("Sign in", "Iniciar sesión")}
+              {t("signInLink")}
             </Link>
           </p>
         </div>

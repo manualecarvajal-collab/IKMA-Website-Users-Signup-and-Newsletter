@@ -1,11 +1,14 @@
 import type { Metadata } from "next"
 import { Montserrat } from "next/font/google"
 import "./globals.css"
+import { NextIntlClientProvider } from "next-intl"
+import { getLocale, getMessages } from "next-intl/server"
 import Navbar from "@/components/Navbar"
+import Footer from "@/components/Footer"
 import FooterWrapper from "@/components/FooterWrapper"
 import ToastContainer from "@/components/Toast"
 import CookieConsent from "@/components/CookieConsent"
-import TranslateButton from "@/components/TranslateButton"
+import LocaleSwitch from "@/components/LocaleSwitch"
 import VisitorTracker from "@/components/VisitorTracker"
 import { createClient } from "@/lib/supabase/server"
 import { SpeedInsights } from "@vercel/speed-insights/next"
@@ -43,6 +46,8 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const locale = await getLocale()
+  const messages = await getMessages()
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -58,7 +63,7 @@ export default async function RootLayout({
 
   return (
     <html
-      lang="en"
+      lang={locale}
       className={`${montserrat.variable} h-full antialiased`}
     >
       <head>
@@ -67,12 +72,14 @@ export default async function RootLayout({
         <link rel="preload" as="image" href="/images/Ap Bonny 2.webp" fetchPriority="high" />
       </head>
       <body className="min-h-full flex flex-col bg-background text-on-background selection:bg-primary-container selection:text-on-primary-container">
-        <Navbar initialUser={userInfo} />
-        <main className="flex-grow">{children}</main>
-        <FooterWrapper />
-        <ToastContainer />
-        <CookieConsent />
-        <TranslateButton />
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          <Navbar initialUser={userInfo} />
+          <main className="flex-grow">{children}</main>
+          <FooterWrapper><Footer /></FooterWrapper>
+          <ToastContainer />
+          <CookieConsent />
+          <LocaleSwitch />
+        </NextIntlClientProvider>
         <SpeedInsights />
         <VisitorTracker />
       </body>

@@ -2,6 +2,7 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 import type { Metadata } from "next"
 import { createClient } from "@/lib/supabase/server"
+import { getTranslations, getLocale } from "next-intl/server"
 import Icon from "@/components/Icon"
 
 interface Video {
@@ -15,8 +16,8 @@ interface Video {
   created_at: string
 }
 
-function formatDate(d: string) {
-  return new Date(d).toLocaleDateString("en-US", {
+function formatDate(d: string, locale: string) {
+  return new Date(d).toLocaleDateString(locale, {
     year: "numeric",
     month: "short",
     day: "numeric",
@@ -25,17 +26,20 @@ function formatDate(d: string) {
 
 export async function generateMetadata({ params }: { params: Promise<{ grupoSlug: string }> }): Promise<Metadata> {
   const { grupoSlug } = await params
+  const t = await getTranslations("Teachings")
   const supabase = await createClient()
   const { data: grupo } = await supabase.from("grupos").select("nombre").eq("slug", grupoSlug).single()
   if (!grupo) return { title: "Not Found - IKMA" }
   return {
-    title: `${grupo.nombre} - IKMA Teachings`,
-    description: `Browse teachings in the ${grupo.nombre} group.`,
+    title: `${grupo.nombre} - ${t("pageTitle")}`,
+    description: t("pageDesc"),
   }
 }
 
 export default async function GrupoVideosPage({ params }: { params: Promise<{ grupoSlug: string }> }) {
   const { grupoSlug } = await params
+  const t = await getTranslations("Teachings")
+  const locale = await getLocale()
   const supabase = await createClient()
 
   const { data: grupo } = await supabase.from("grupos").select("*").eq("slug", grupoSlug).single()
@@ -52,7 +56,7 @@ export default async function GrupoVideosPage({ params }: { params: Promise<{ gr
   if (!videos || videos.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="font-body-md text-body-md text-on-surface-variant">No videos in this group yet.</p>
+        <p className="font-body-md text-body-md text-on-surface-variant">{t("noVideos")}</p>
       </div>
     )
   }
@@ -61,14 +65,14 @@ export default async function GrupoVideosPage({ params }: { params: Promise<{ gr
     <section className="bg-surface min-h-screen">
       <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-section-padding">
         <nav className="flex items-center gap-2 font-label-bold text-label-sm text-on-surface-variant mb-8">
-          <Link href="/teachings" className="hover:text-primary transition-colors">Teachings</Link>
+          <Link href="/teachings" className="hover:text-primary transition-colors">{t("pageTitle")}</Link>
           <Icon name="chevron_right" size={14} />
           <span className="text-primary notranslate">{grupo.nombre}</span>
         </nav>
 
         <div className="mb-10">
           <h1 className="font-headline-lg text-headline-lg text-primary mb-2 notranslate">{grupo.nombre}</h1>
-          <p className="font-body-md text-body-md text-on-surface-variant">{videos.length} videos</p>
+          <p className="font-body-md text-body-md text-on-surface-variant">{videos.length} {t("videos")}</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
@@ -101,7 +105,7 @@ export default async function GrupoVideosPage({ params }: { params: Promise<{ gr
                   <p className="font-body-md text-body-md text-on-surface-variant line-clamp-2 mb-4">{v.descripcion}</p>
                 )}
                 <div className="mt-auto flex items-center justify-between pt-4 border-t border-surface-container">
-                  <span className="font-label-bold text-label-sm text-primary">{formatDate(v.created_at)}</span>
+                  <span className="font-label-bold text-label-sm text-primary">{formatDate(v.created_at, locale)}</span>
                   <Icon name="arrow_forward" className="text-on-surface-variant group-hover:text-primary transition-colors" />
                 </div>
               </div>

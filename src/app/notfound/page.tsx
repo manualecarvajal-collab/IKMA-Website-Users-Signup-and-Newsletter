@@ -1,7 +1,9 @@
 import Link from "next/link"
+import { getTranslations } from "next-intl/server"
 import Icon from "@/components/Icon"
 
-export default function NotFoundPage() {
+export default async function NotFoundPage() {
+  const t = await getTranslations("NotFound")
   return (
     <div className="min-h-[70vh] flex flex-col items-center justify-center px-margin-mobile md:px-margin-desktop py-24 text-center">
       <svg
@@ -15,7 +17,6 @@ export default function NotFoundPage() {
             <stop offset="100%" stopColor="#2a5c82" />
           </linearGradient>
         </defs>
-
         <g transform="translate(120,90)">
           <path
             d="M0-25 C-10-55,-55-55,-55-20 C-55,10,0,45,0,55 C0,45,55,10,55-20 C55-55,10-55,0-25Z"
@@ -24,7 +25,6 @@ export default function NotFoundPage() {
             style={{ animationDuration: "1.2s" }}
           />
         </g>
-
         <polyline
           points="20,120 50,120 62,95 80,145 92,120 105,120 110,120 120,100 140,140 150,120 160,120 165,120 180,100 200,125 220,120"
           fill="none"
@@ -37,29 +37,22 @@ export default function NotFoundPage() {
           className="ekg-line"
         />
       </svg>
-
       <style>{`
-        .ekg-line {
-          animation: drawEkg 2s ease-out forwards;
-        }
-        @keyframes drawEkg {
-          to { stroke-dashoffset: 0; }
-        }
+        .ekg-line { animation: drawEkg 2s ease-out forwards; }
+        @keyframes drawEkg { to { stroke-dashoffset: 0; } }
       `}</style>
-
       <h1 className="font-headline-xl text-headline-xl text-primary mb-4">
-        404 — Page Not Found
+        {t("title")}
       </h1>
       <p className="font-body-lg text-body-lg text-on-surface-variant max-w-md mb-10">
-        The page you are looking for does not exist or has been moved. Let us
-        guide you back home.
+        {t("description")}
       </p>
       <Link
         href="/"
         className="inline-flex items-center gap-2 bg-primary text-on-primary font-label-bold text-label-bold px-8 py-4 rounded-lg hover:opacity-90 transition-opacity"
       >
         <Icon name="home" />
-        Back to Homepage
+        {t("backHome")}
       </Link>
     </div>
   )

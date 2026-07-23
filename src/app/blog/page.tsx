@@ -1,7 +1,7 @@
 import Link from "next/link"
 import type { Metadata } from "next"
 import { createClient } from "@/lib/supabase/server"
-import { T } from "@/components/T"
+import { getTranslations, getLocale } from "next-intl/server"
 import Icon from "@/components/Icon"
 
 export const metadata: Metadata = {
@@ -15,6 +15,8 @@ interface Article {
   titulo: string
   slug: string
   resumen: string | null
+  titulo_es?: string | null
+  resumen_es?: string | null
   imagen_url: string | null
   publicado: boolean
   created_at: string
@@ -54,8 +56,10 @@ async function getMagazines(): Promise<Revista[]> {
 }
 
 export default async function BlogPage() {
+  const locale = await getLocale()
   const articles = await getArticles()
   const magazines = await getMagazines()
+  const tBlog = await getTranslations("Blog")
 
   return (
     <>
@@ -78,21 +82,21 @@ export default async function BlogPage() {
                     />
                   </div>
                   <div className="flex items-center mb-3">
-                    <span className="font-label-bold text-label-sm text-tertiary uppercase tracking-wider notranslate">
+                    <span className="font-label-bold text-label-sm text-tertiary uppercase tracking-wider">
                       {articles[0].autor_nombre || "IKMA"}
                     </span>
                   </div>
                   <div className="flex items-center justify-start gap-10 mb-3">
-                    <h2 className="font-headline-md text-headline-md text-on-surface group-hover:text-primary transition-colors notranslate">
-                      {articles[0].titulo}
+                    <h2 className="font-headline-md text-headline-md text-on-surface group-hover:text-primary transition-colors">
+                      {articles[0].titulo_es && locale === "es" ? articles[0].titulo_es : articles[0].titulo}
                     </h2>
                     <div className="flex items-center text-on-surface-variant font-medium space-x-0.5 flex-shrink-0 text-sm">
-                      <T en="Read More" es="Leer más" />
+                      {tBlog("readMore")}
                       <Icon name="arrow_forward" size={16} />
                     </div>
                   </div>
                   <p className="font-body-md text-body-md text-on-surface-variant line-clamp-2 mb-4">
-                    {articles[0].resumen}
+                    {articles[0].resumen_es && locale === "es" ? articles[0].resumen_es : articles[0].resumen}
                   </p>
                 </Link>
                 <div className="flex flex-col space-y-5">
@@ -109,12 +113,12 @@ export default async function BlogPage() {
                         <img src={a.imagen_url  || ""} alt="" loading="lazy" className="w-full h-full object-cover" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <span className="text-[10px] font-bold text-tertiary uppercase tracking-tighter notranslate">{a.autor_nombre || "IKMA"}</span>
-                        <h3 className="font-bold text-on-surface group-hover:text-primary transition-colors text-sm leading-tight mt-0.5 notranslate">
-                          {a.titulo}
+                        <span className="text-[10px] font-bold text-tertiary uppercase tracking-tighter">{a.autor_nombre || "IKMA"}</span>
+                        <h3 className="font-bold text-on-surface group-hover:text-primary transition-colors text-sm leading-tight mt-0.5">
+                          {a.titulo_es && locale === "es" ? a.titulo_es : a.titulo}
                         </h3>
-                        <p className="text-sm text-on-surface-variant line-clamp-1 mt-0.5">{a.resumen}</p>
-                        <span className="text-xs font-bold text-primary mt-1.5 hover:underline inline-block"><T en="Read More" es="Leer más" /></span>
+                        <p className="text-sm text-on-surface-variant line-clamp-1 mt-0.5">{a.resumen_es && locale === "es" ? a.resumen_es : a.resumen}</p>
+                        <span className="text-xs font-bold text-primary mt-1.5 hover:underline inline-block">{tBlog("readMore")}</span>
                       </div>
                     </Link>
                   ))}
@@ -127,8 +131,8 @@ export default async function BlogPage() {
           <section className="py-12 md:py-section-padding bg-surface">
             <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
               <div className="mb-10">
-                <h2 className="font-headline-lg text-headline-lg text-primary mb-2"><T en="All Articles" es="Todos los Artículos" /></h2>
-                <p className="font-body-lg text-body-lg text-on-surface-variant"><T en="Browse our complete library of medical articles and stories." es="Explora nuestra biblioteca completa de artículos médicos e historias." /></p>
+                <h2 className="font-headline-lg text-headline-lg text-primary mb-2">{tBlog("allArticles")}</h2>
+                <p className="font-body-lg text-body-lg text-on-surface-variant">{tBlog("blogSubtitle")}</p>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter">
                 {articles.map((a, i) =>
@@ -149,13 +153,13 @@ export default async function BlogPage() {
                         <img src={a.imagen_url  || ""} alt="" loading="lazy" className="w-full h-full object-cover" />
                       </div>
                       <div className="p-4">
-                    <span className="text-[10px] font-bold text-tertiary uppercase tracking-tighter notranslate">
+                    <span className="text-[10px] font-bold text-tertiary uppercase tracking-tighter">
                       {a.autor_nombre || "IKMA"}
                     </span>
-                        <h3 className="font-bold text-on-surface mt-2 group-hover:text-primary transition-colors text-sm leading-tight notranslate">
-                          {a.titulo}
+                        <h3 className="font-bold text-on-surface mt-2 group-hover:text-primary transition-colors text-sm leading-tight">
+                          {a.titulo_es && locale === "es" ? a.titulo_es : a.titulo}
                         </h3>
-                        <p className="font-body-md text-body-md text-on-surface-variant line-clamp-1 mt-1 text-sm">{a.resumen}</p>
+                        <p className="font-body-md text-body-md text-on-surface-variant line-clamp-1 mt-1 text-sm">{a.resumen_es && locale === "es" ? a.resumen_es : a.resumen}</p>
                       </div>
                     </Link>
                   )
@@ -168,7 +172,7 @@ export default async function BlogPage() {
           <div className="pb-section-padding bg-surface">
             <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop flex justify-center">
               <button className="bg-secondary-container text-primary font-label-bold px-8 py-3 rounded-lg hover:bg-surface-tint hover:text-on-primary transition-colors duration-300 shadow-[0_4px_20px_rgba(7,68,105,0.04)] cursor-pointer">
-                <T en="Load More Articles" es="Cargar más artículos" />
+                {tBlog("loadMore")}
               </button>
             </div>
           </div>
@@ -182,10 +186,10 @@ export default async function BlogPage() {
                     <Icon name="menu_book" size={36} className="text-primary" />
                     <div>
                       <h2 className="font-headline-lg text-headline-lg text-primary">
-                        <T en="Check out our latest posted magazines" es="Descubre nuestras últimas revistas publicadas" />
+                        {tBlog("magazineSection")}
                       </h2>
                       <p className="font-body-md text-body-md text-on-surface-variant">
-                        <T en="Download the most recent IKMA journals and newsletters." es="Descarga las revistas y boletines más recientes de IKMA." />
+                        {tBlog("magazineDesc")}
                       </p>
                     </div>
                   </div>

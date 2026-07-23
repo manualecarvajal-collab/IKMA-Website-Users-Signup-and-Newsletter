@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { promises as fs } from "fs"
 import path from "path"
+import { getTranslations } from "next-intl/server"
 
 export const metadata: Metadata = {
   title: "Venezuela Communities - Outreach - IKMA",
@@ -9,6 +10,7 @@ export const metadata: Metadata = {
 }
 
 export default async function CommunitiesPage() {
+  const t = await getTranslations("OutreachCommunities")
   const imagesDir = path.join(process.cwd(), "public", "outreach", "communities")
   const files = await fs.readdir(imagesDir)
   const images = files
@@ -21,7 +23,7 @@ export default async function CommunitiesPage() {
         <div className="absolute inset-0">
           <img
             src={`/outreach/communities/${images[0]}`}
-            alt="Venezuela Communities outreach"
+            alt=""
             className="w-full h-full object-cover"
             fetchPriority="high"
           />
@@ -29,10 +31,10 @@ export default async function CommunitiesPage() {
         </div>
         <div className="relative z-10 w-full max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop text-center">
           <span className="inline-block px-4 py-1 mb-6 bg-primary-container/70 text-on-primary font-label-bold text-label-bold rounded-full border border-primary-fixed/20 backdrop-blur-sm tracking-wider uppercase">
-            Mission Chronicle
+            {t("badge")}
           </span>
           <h1 className="font-headline-lg text-headline-lg text-white mb-4 leading-tight">
-            Venezuela Communities
+            {t("title")}
           </h1>
         </div>
       </section>
@@ -42,19 +44,13 @@ export default async function CommunitiesPage() {
           <div className="max-w-3xl mx-auto">
             <div className="space-y-6 text-on-surface-variant">
               <p className="font-body-lg text-body-lg leading-relaxed">
-                The deployment of our doctors in the communities of Venezuela has become one
-                of the most powerful and positive experiences for our organization.
+                {t("paragraph1")}
               </p>
               <p className="font-body-lg text-body-lg leading-relaxed">
-                This is not just a multidisciplinary deployment of healthcare professionals
-                from different specialties (dentistry, physical therapy, general medicine,
-                pediatrics...); it is the living manifestation of God&apos;s love through
-                each healthcare professional.
+                {t("paragraph2")}
               </p>
               <p className="font-body-lg text-body-lg leading-relaxed">
-                Beyond the numbers, the true result is measured in lives. Men, women,
-                children, and adolescents have been completely transformed in every
-                consultation.
+                {t("paragraph3")}
               </p>
             </div>
           </div>

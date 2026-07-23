@@ -4,7 +4,7 @@ import { resizeImg } from "@/lib/images";
 import { SafeImage } from "@/components/SafeImage";
 import HeroCarousel, { Slide } from "@/components/HeroCarousel";
 import StatsSection from "@/components/StatsSection";
-import { T } from "@/components/T";
+import { getTranslations, getLocale } from "next-intl/server";
 import Icon from "@/components/Icon";
 
 export default async function HomePage() {
@@ -13,6 +13,8 @@ export default async function HomePage() {
     data: { user },
   } = await supabase.auth.getUser();
   const isAuthenticated = !!user;
+  const locale = await getLocale()
+  const tHome = await getTranslations("Home");
 
   const { data: dbArticles } = await supabase
     .from("articulos")
@@ -160,10 +162,10 @@ export default async function HomePage() {
         <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
           <div className="mb-12">
             <h2 className="font-headline-lg text-headline-lg text-on-surface mb-2">
-              <T en="Last Articles" es="Últimos Artículos" />
+              {tHome("lastArticles")}
             </h2>
             <p className="font-body-lg text-body-lg text-on-surface-variant">
-              <T en="Updates from our missions and medical breakthroughs." es="Actualizaciones de nuestras misiones y avances médicos." />
+              {tHome("blogSubtitle")}
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-gutter">
@@ -182,17 +184,17 @@ export default async function HomePage() {
                 </div>
                 <div className="flex items-center mb-3">
                   <span className="bg-secondary-container text-on-secondary-container font-label-sm text-label-sm px-3 py-1 rounded-full uppercase tracking-wider">
-                    {mainArticle.categoria || <T en="Mission Update" es="Actualización" />}
+                    {mainArticle.categoria || tHome("missionUpdate")}
                   </span>
                 </div>
                 <h3 className="font-headline-md text-headline-md text-on-surface mb-3 group-hover:text-primary transition-colors">
-                  {mainArticle.titulo}
+                  {mainArticle.titulo_es && locale === "es" ? mainArticle.titulo_es : mainArticle.titulo}
                 </h3>
                 <p className="font-body-md text-body-md text-on-surface-variant line-clamp-2 mb-4">
-                  {mainArticle.resumen}
+                  {mainArticle.resumen_es && locale === "es" ? mainArticle.resumen_es : mainArticle.resumen}
                 </p>
                 <div className="flex items-center text-primary font-semibold space-x-1">
-                  <span><T en="Read More" es="Leer más" /></span>
+                  <span>{tHome("readMore")}</span>
                   <Icon name="arrow_forward" size={18} />
                 </div>
               </Link>
@@ -219,16 +221,16 @@ export default async function HomePage() {
                   </div>
                   <div>
                     <span className="text-[10px] font-bold text-tertiary uppercase tracking-tighter">
-                      {article.categoria || <T en="Article" es="Artículo" />}
+                      {article.categoria || tHome("article")}
                     </span>
                     <h4 className="font-bold text-on-surface group-hover:text-primary transition-colors line-clamp-1">
-                      {article.titulo}
+                      {article.titulo_es && locale === "es" ? article.titulo_es : article.titulo}
                     </h4>
                     <p className="text-sm text-on-surface-variant line-clamp-1">
-                      {article.resumen}
+                      {article.resumen_es && locale === "es" ? article.resumen_es : article.resumen}
                     </p>
                     <span className="text-xs font-bold text-primary mt-1 hover:underline inline-block">
-                      <T en="Read More" es="Leer más" />
+                      {tHome("readMore")}
                     </span>
                   </div>
                 </Link>
@@ -240,7 +242,7 @@ export default async function HomePage() {
               href="/revista"
               className="bg-surface-container-high text-on-surface font-label-bold text-label-bold px-8 py-3.5 rounded-lg hover:bg-surface-container-highest transition-all inline-block"
             >
-              <T en="View all Articles" es="Ver todos los artículos" />
+              {tHome("viewAllArticles")}
             </Link>
           </div>
         </div>

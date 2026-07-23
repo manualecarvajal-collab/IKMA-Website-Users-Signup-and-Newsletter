@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import { createClient } from "@/lib/supabase/server"
+import { getTranslations } from "next-intl/server"
 import ReadMagazineButton from "@/components/ReadMagazineButton"
-import { T } from "@/components/T"
 import Icon from "@/components/Icon"
 
 export const metadata: Metadata = {
@@ -38,6 +38,7 @@ function formatDate(dateStr: string) {
 }
 
 export default async function NewsletterPage() {
+  const tMagazine = await getTranslations("Magazine")
   const magazines = await getMagazines()
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -52,17 +53,17 @@ export default async function NewsletterPage() {
       <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
         <div className="mb-12">
           <h1 className="font-headline-lg text-headline-lg text-primary mb-4">
-            <T en="Magazine" es="Revista" />
+            {tMagazine("title")}
           </h1>
           <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">
-            <T en="Browse our collection of magazines. Subscribe to get full access to every issue." es="Explora nuestra colección de revistas. Suscríbete para obtener acceso completo a todos los números." />
+            {tMagazine("subtitle")}
           </p>
         </div>
 
         {magazines.length === 0 && (
           <div className="text-center py-20">
             <Icon name="mail" size={60} className="text-on-surface-variant/30 mb-4" />
-            <p className="font-body-lg text-body-lg text-on-surface-variant"><T en="No magazines published yet." es="No hay revistas publicadas aún." /></p>
+            <p className="font-body-lg text-body-lg text-on-surface-variant">{tMagazine("empty")}</p>
           </div>
         )}
 
@@ -85,7 +86,7 @@ export default async function NewsletterPage() {
                 <p className="font-label-sm text-label-sm text-primary mb-1">
                   {formatDate(m.created_at)}
                 </p>
-                <h3 className="font-headline-md text-headline-md text-on-surface text-sm leading-snug mb-2 notranslate">
+                <h3 className="font-headline-md text-headline-md text-on-surface text-sm leading-snug mb-2">
                   {m.titulo}
                 </h3>
                 {m.descripcion && (

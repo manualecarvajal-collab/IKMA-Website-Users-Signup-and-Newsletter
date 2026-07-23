@@ -65,6 +65,7 @@ const map: Record<string, React.ComponentType<LucideProps>> = {
   visibility: Eye,
   visibility_off: EyeOff,
   volunteer_activism: HeartHandshake,
+  translate: Globe,
   work_history: Briefcase,
 }
 

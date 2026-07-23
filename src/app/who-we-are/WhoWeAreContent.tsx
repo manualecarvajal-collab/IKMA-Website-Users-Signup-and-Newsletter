@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { useLanguage } from "@/lib/useLanguage"
+import { useTranslations, useLocale } from "next-intl"
 import Icon from "@/components/Icon"
 
 const boardMembers = [
@@ -38,8 +38,8 @@ const boardMembers = [
 ]
 
 export default function WhoWeAreContent() {
-  const lang = useLanguage()
-  const t = (en: string, es: string) => lang === "es" ? es : en
+  const tWho = useTranslations("WhoWeAre")
+  const locale = useLocale()
 
   return (
     <>
@@ -55,31 +55,24 @@ export default function WhoWeAreContent() {
             <div className="inline-flex items-center gap-3">
               <span className="w-8 h-1 bg-primary rounded-full" />
               <h2 className="font-label-bold text-label-bold text-primary tracking-wider uppercase">
-                {t("About Us", "Sobre Nosotros")}
+                {tWho("aboutUs")}
               </h2>
             </div>
 
             <h1 className="font-headline-lg text-headline-lg text-primary">
-              {t("Who we are", "Quiénes somos")}
+              {tWho("whoWeAre")}
             </h1>
 
             <div className="space-y-6 text-on-surface-variant max-w-2xl">
               <p className="font-body-lg text-body-md leading-relaxed">
-                International Kingdom Medical Association, IKMA, is a company of
-                Kingdom-minded apostolic health professionals who are deeply
-                committed to integrating God&apos;s Kingdom pattern in our
-                medical practice, seeking to bring God&apos;s ordained solutions
-                to the pressing health challenges of our time, thus bringing
-                healing to the nations.
+                {tWho("heroDesc")}
               </p>
 
               <div className="p-6 md:p-8 bg-surface-container-lowest border border-surface-variant rounded-xl shadow-[0_4px_20px_rgba(26,77,109,0.08)] relative overflow-hidden group">
                 <div className="absolute top-0 left-0 w-1 h-full bg-primary transition-transform duration-300 scale-y-100 group-hover:scale-y-110 origin-top" />
                 <Icon name="volunteer_activism" size={36} className="text-primary-container mb-4 opacity-80" />
                 <p className="font-body-md text-body-md text-on-surface-variant leading-relaxed">
-                  We believe in a holistic approach to healing and well-being of
-                  the mind, body, and spirit — rooted in biblical principles and
-                  compassionate care.
+                  {tWho("heroBelief")}
                 </p>
               </div>
             </div>
@@ -123,62 +116,34 @@ export default function WhoWeAreContent() {
             <div className="mb-8">
               <p className="font-label-bold text-label-bold text-primary tracking-wider uppercase mb-3 flex items-center gap-2">
                 <Icon name="format_quote" size={20} />
-                {t("IKMA Founder's Speech", "Discurso del fundador de IKMA")}
+                {tWho("foundersSpeech")}
               </p>
-                            <h2 className="font-headline-lg text-headline-md text-primary notranslate">
+              <h2 className="font-headline-lg text-headline-md text-primary">
                 Ap. John Magnus Boney
               </h2>
             </div>
 
             <div className="space-y-6 text-on-surface-variant">
               <p className="font-body-lg text-label-sm leading-relaxed">
-                Today, our world faces a range of challenges—both physical and
-                spiritual—that have persisted across generations, as well as new
-                ones that continue to emerge. These include infectious diseases,
-                war, famine, and the everyday struggles of life that impact
-                human well-being.
+                {tWho("founderSpeech_p1")}
               </p>
               <p className="font-body-md text-label-sm leading-relaxed">
-                While the healthcare system exists to support and maintain
-                health, it often presents additional difficulties. Many people
-                encounter barriers such as the high cost of medication,
-                complicated insurance systems, limited access to care in rural
-                areas, and, at times, treatments that do not fully address the
-                root cause of illness. Too often, the focus remains on managing
-                symptoms rather than pursuing true healing by identifying and
-                removing the underlying causes of disease—a task that is
-                complex, but deeply necessary.
+                {tWho("founderSpeech_p2")}
               </p>
               <p className="font-body-md text-label-sm leading-relaxed">
-                As awareness of health grows, people are seeking answers and
-                solutions now more than ever. Unfortunately, this has also led
-                to the rise of false healers and misleading medical
-                claims—offering empty promises that create dependency and
-                disappointment rather than genuine freedom and restoration.
+                {tWho("founderSpeech_p3")}
               </p>
               <p className="font-body-md text-label-sm leading-relaxed font-medium border-l-4 border-primary pl-4 py-1 bg-surface-container-low">
-                We believe that humanity—and the nations of the world—are
-                currently living below the full potential that God has given us.
-                Our mission is to take part in rebuilding, restoring, and
-                renewing the field of medicine so that it fulfills its true
-                purpose: to preserve life and support the flourishing of all
-                people. As it is written in Isaiah 61:4–7, we are called to
-                rebuild what has been broken and restore what has been lost.
+                {tWho("founderSpeech_p4")}
               </p>
               <p className="font-body-md text-label-sm leading-relaxed">
-                We are part of a people who seek to restore humanity to its
-                original design as created by Elohim. We believe in the
-                strength that comes from unity, and in the truth that &ldquo;we
-                can do all things through Christ who strengthens us&rdquo;
-                (Philippians 4:13). Together, under God, we stand in faith and
-                purpose, committed to bringing healing, restoration, and lasting
-                transformation to the world.
+                {tWho("founderSpeech_p5")}
               </p>
             </div>
 
             <div className="mt-10 pt-8 border-t border-surface-variant flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
-                <p className="font-label-bold text-label-bold text-on-surface notranslate">
+                <p className="font-label-bold text-label-bold text-on-surface">
                   Ap. John Magnus Boney
                 </p>
                 <p className="font-label-sm text-label-sm text-outline mt-1">
@@ -201,7 +166,7 @@ export default function WhoWeAreContent() {
       <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
         <div className="mb-12">
           <h2 className="font-headline-lg text-headline-lg text-primary">
-            {t("Our Board of Directors", "Nuestro consejo / junta directiva")}
+            {tWho("aboutUs")}
           </h2>
           <div className="h-1 w-16 bg-primary mt-4 rounded-full" />
         </div>
@@ -228,10 +193,10 @@ export default function WhoWeAreContent() {
               </div>
               <div className="flex flex-col gap-2">
                 <h3 className="font-headline-md text-headline-md text-primary">
-                  {member.name[lang === "es" ? "es" : "en"]}
+                  {member.name[locale === "es" ? "es" : "en"]}
                 </h3>
                 <p className="font-body-md text-body-md text-on-surface-variant leading-relaxed">
-                  {member.role[lang === "es" ? "es" : "en"]}
+                  {member.role[locale === "es" ? "es" : "en"]}
                 </p>
               </div>
             </div>
@@ -242,39 +207,19 @@ export default function WhoWeAreContent() {
 
     {/* Main Partners */}
     <section className="relative overflow-hidden bg-surface-bright pb-12 md:pb-section-padding">
-      <div className="relative w-full h-[500px] md:h-[600px] mb-[-120px]">
-        <div className="grid grid-cols-1 md:grid-cols-2 h-full">
-          <div className="relative overflow-hidden group">
-            <img
-              src="/images/ikma_vzla.webp"
-              alt="IKMA Venezuela"
-              className="w-full h-full object-cover object-[center_30%] transition-transform duration-700 group-hover:scale-105"
-            />
-            <div className="absolute inset-0 bg-primary-container/20 mix-blend-multiply" />
-          </div>
-          <div className="relative overflow-hidden group hidden md:block">
-            <img
-              src="/images/about_img_1.webp"
-              alt="Medical mission"
-              className="w-full h-full object-cover object-[center_30%] transition-transform duration-700 group-hover:scale-105"
-            />
-            <div className="absolute inset-0 bg-primary-container/20 mix-blend-multiply" />
-          </div>
-        </div>
+      <div className="relative w-full h-[500px] md:h-[600px] mb-[-120px] bg-fixed bg-center bg-cover overflow-hidden" style={{ backgroundImage: "url(/1968.jpg)" }}>
+        <div className="absolute inset-0 bg-primary-container/20 mix-blend-multiply" />
         <div className="absolute inset-0 bg-[#003652]/60" />
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-gutter">
           <div className="max-w-container-max mx-auto">
             <span className="inline-block px-4 py-1.5 mb-6 bg-white/90 backdrop-blur-md rounded-full font-label-bold text-label-bold text-primary tracking-wider uppercase">
-              {t("Global Network", "Red Global")}
+              {tWho("globalNetwork")}
             </span>
             <h1 className="font-headline-xl text-headline-xl text-white drop-shadow-lg mb-4">
-              {t("Main partners", "Principales socios")}
+              {tWho("mainPartners")}
             </h1>
             <p className="font-body-lg text-body-md text-white/90 max-w-2xl mx-auto drop-shadow-md">
-              {t(
-                "United by faith and clinical excellence, our global partners enable us to extend life-changing medical care to communities worldwide.",
-                "Unidos por la fe y la excelencia clínica, nuestros socios globales nos permiten extender atención médica transformadora a comunidades en todo el mundo."
-              )}
+              {tWho("partnerDescription")}
             </p>
           </div>
         </div>
@@ -338,15 +283,15 @@ export default function WhoWeAreContent() {
               </div>
               <h3 className="font-headline-md text-body-lg text-primary mb-4">
                 {typeof partner.name === "object" ? (
-                  <>{t(partner.name.en, partner.name.es)} "{partner.namePlace}"</>
+                  <>{partner.name[locale === "es" ? "es" : "en"]} "{partner.namePlace}"</>
                 ) : (
-                  <span className="notranslate">{partner.name}</span>
+                  <>{partner.name}</>
                 )}
               </h3>
               <div className="mt-auto pt-6 border-t border-surface-container-low">
                 <div className="flex items-start gap-3 mb-3">
                   <Icon name="person" size={18} className="text-on-surface-variant mt-0.5" />
-                  <p className="font-headline-lg text-body-md text-on-surface notranslate">
+                  <p className="font-headline-lg text-body-md text-on-surface">
                     {partner.leader}
                   </p>
                 </div>
@@ -372,17 +317,10 @@ export default function WhoWeAreContent() {
           <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
               <h2 className="font-headline-lg text-headline-lg mb-4">
-                {lang === "es" ? (
-                  <>Integridad Clínica. <br />Compasión Basada en la Fe.</>
-                ) : (
-                  <>Clinical Integrity. <br />Faith-Driven Compassion.</>
-                )}
+                {tWho("calloutTitle")}
               </h2>
               <p className="font-body-md text-body-md text-white/80 max-w-lg">
-                {t(
-                  "Our partnership model is built on clinical excellence and shared spiritual values. We collaborate with leaders globally to integrate professional medical standards into community outreach initiatives.",
-                  "Nuestro modelo de asociación se basa en la excelencia clínica y valores espirituales compartidos. Colaboramos con líderes globales para integrar estándares médicos profesionales en iniciativas de alcance comunitario."
-                )}
+                {tWho("partnerDescription2")}
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-6 lg:justify-end">
@@ -390,40 +328,23 @@ export default function WhoWeAreContent() {
                 href="/registro"
                 className="bg-white text-primary font-label-bold text-label-bold px-8 py-4 rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
               >
-                {t("Become a member", "Hazte miembro")}
+                {tWho("becomeMemberBtn")}
                 <Icon name="arrow_forward" />
               </Link>
               <button className="border border-white/40 text-white font-label-bold text-label-bold px-8 py-4 rounded-lg hover:bg-white/10 transition-all cursor-pointer">
-                {t("Support our mission", "Apoya nuestra misión")}
+                {tWho("supportMissionBtn")}
               </button>
             </div>
           </div>
         </div>
 
         {/* Statistics */}
-        {lang === "es" ? (
-          <div className="mt-12 grid grid-cols-1 gap-8">
-            {[
-              { number: "2500+", label: "Personas Impactadas" },
-            ].map((stat, i) => (
-              <div key={i} className="text-center">
-                <p className="font-headline-lg text-headline-lg text-primary">{stat.number}</p>
-                <p className="font-label-bold text-label-bold text-on-surface-variant uppercase">{stat.label}</p>
-              </div>
-            ))}
+        <div className="mt-12 grid grid-cols-1 gap-8">
+          <div className="text-center">
+            <p className="font-headline-lg text-headline-lg text-primary">2500+</p>
+            <p className="font-label-bold text-label-bold text-on-surface-variant uppercase">{tWho("impactedLives")}</p>
           </div>
-        ) : (
-          <div className="mt-12 flex justify-center">
-            {[
-              { number: "12k+", label: "Impacted Lives" },
-            ].map((stat, i) => (
-              <div key={i} className="text-center">
-                <p className="font-headline-lg text-headline-lg text-primary">{stat.number}</p>
-                <p className="font-label-bold text-label-bold text-on-surface-variant uppercase">{stat.label}</p>
-              </div>
-            ))}
-          </div>
-        )}
+        </div>
       </div>
     </section>
     </>

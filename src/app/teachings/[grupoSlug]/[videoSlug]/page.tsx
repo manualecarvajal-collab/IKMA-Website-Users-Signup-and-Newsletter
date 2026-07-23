@@ -2,6 +2,7 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 import type { Metadata } from "next"
 import { createClient } from "@/lib/supabase/server"
+import { getTranslations, getLocale } from "next-intl/server"
 import Icon from "@/components/Icon"
 
 interface Video {
@@ -21,8 +22,8 @@ function embedSrc(value: string): string {
   return m ? m[1] : value
 }
 
-function formatDate(d: string) {
-  return new Date(d).toLocaleDateString("en-US", {
+function formatDate(d: string, locale: string) {
+  return new Date(d).toLocaleDateString(locale, {
     year: "numeric",
     month: "short",
     day: "numeric",
@@ -57,14 +58,15 @@ async function getRelated(grupoId: string, currentId: string): Promise<Video[]> 
 
 export async function generateMetadata({ params }: { params: Promise<{ grupoSlug: string; videoSlug: string }> }): Promise<Metadata> {
   const { grupoSlug, videoSlug } = await params
+  const t = await getTranslations("Teachings")
   const supabase = await createClient()
   const { data: grupo } = await supabase.from("grupos").select("id, nombre").eq("slug", grupoSlug).single()
   if (!grupo) return { title: "Not Found - IKMA" }
   const video = await getVideo(videoSlug, grupo.id)
   if (!video) return { title: "Not Found - IKMA" }
   return {
-    title: `${video.titulo} - IKMA Teachings`,
-    description: video.descripcion ?? "Watch this teaching from IKMA.",
+    title: `${video.titulo} - ${t("pageTitle")}`,
+    description: video.descripcion ?? t("pageDesc"),
   }
 }
 
@@ -72,6 +74,8 @@ export const dynamic = "force-dynamic"
 
 export default async function TeachingPage({ params }: { params: Promise<{ grupoSlug: string; videoSlug: string }> }) {
   const { grupoSlug, videoSlug } = await params
+  const t = await getTranslations("Teachings")
+  const locale = await getLocale()
   const supabase = await createClient()
 
   const { data: grupo } = await supabase.from("grupos").select("id, nombre").eq("slug", grupoSlug).single()
@@ -88,7 +92,7 @@ export default async function TeachingPage({ params }: { params: Promise<{ grupo
         <div className="flex flex-col lg:grid lg:grid-cols-12 gap-gutter">
           <div className="lg:col-span-8">
             <nav className="flex items-center gap-2 font-label-bold text-label-sm text-on-surface-variant mb-6">
-              <Link href="/teachings" className="hover:text-primary transition-colors">Teachings</Link>
+              <Link href="/teachings" className="hover:text-primary transition-colors">{t("pageTitle")}</Link>
               <Icon name="chevron_right" size={14} />
               <Link href={`/teachings/${grupoSlug}`} className="hover:text-primary transition-colors notranslate">{grupo.nombre}</Link>
               <Icon name="chevron_right" size={14} />
@@ -108,7 +112,7 @@ export default async function TeachingPage({ params }: { params: Promise<{ grupo
             <div className="flex items-center gap-4 mb-6">
               <span className="flex items-center gap-2 font-label-bold text-label-sm text-on-surface-variant">
                 <Icon name="calendar_today" size={18} />
-                {formatDate(video.created_at)}
+                {formatDate(video.created_at, locale)}
               </span>
             </div>
             {video.descripcion && (
@@ -118,8 +122,8 @@ export default async function TeachingPage({ params }: { params: Promise<{ grupo
           {related.length > 0 && (
             <aside className="lg:col-span-4 flex flex-col gap-6">
               <div className="flex items-center justify-between border-b border-outline-variant pb-2">
-                <h2 className="font-label-bold text-label-sm text-primary uppercase tracking-widest notranslate">More in {grupo.nombre}</h2>
-                <Link href={`/teachings/${grupoSlug}`} className="text-primary font-label-bold text-label-sm hover:underline">View All</Link>
+                <h2 className="font-label-bold text-label-sm text-primary uppercase tracking-widest notranslate">{t("moreIn")} {grupo.nombre}</h2>
+                <Link href={`/teachings/${grupoSlug}`} className="text-primary font-label-bold text-label-sm hover:underline">{t("viewAll")}</Link>
               </div>
               <div className="flex flex-col gap-6">
                 {related.map((v) => (
@@ -135,7 +139,7 @@ export default async function TeachingPage({ params }: { params: Promise<{ grupo
                     </div>
                     <div className="flex flex-col justify-between py-0.5 min-w-0">
                       <h3 className="font-label-bold text-label-sm text-on-surface line-clamp-2 group-hover:text-primary transition-colors notranslate">{v.titulo}</h3>
-                      <span className="font-label-sm text-label-sm text-on-surface-variant">{formatDate(v.created_at)}</span>
+                      <span className="font-label-sm text-label-sm text-on-surface-variant">{formatDate(v.created_at, locale)}</span>
                     </div>
                   </Link>
                 ))}

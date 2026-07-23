@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { getTranslations } from "next-intl/server";
 import Icon from "@/components/Icon";
 
 export const metadata: Metadata = {
@@ -12,9 +13,9 @@ export const metadata: Metadata = {
 const BASE = "https://lh3.googleusercontent.com/aida-public/";
 
 export default async function DoctorsPage() {
+  const t = await getTranslations("Doctors")
   const supabase = await createClient();
 
-  // Fallback to static data if DB not available
   const { data: dbDoctors } = await supabase
     .from("doctores")
     .select("*")
@@ -23,7 +24,7 @@ export default async function DoctorsPage() {
 
   const doctors = dbDoctors && dbDoctors.length > 0 ? dbDoctors : staticDoctors;
   const specialties = [
-    "All",
+    t("allSpecialty"),
     ...new Set(doctors.map((d) => d.especialidad_principal)),
   ];
 
@@ -32,12 +33,10 @@ export default async function DoctorsPage() {
       <section className="py-12 md:py-section-padding bg-surface-container-low border-b border-outline-variant/30">
         <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop text-center">
           <h1 className="font-headline-xl text-headline-xl text-primary mb-6">
-            Our Doctors
+            {t("pageTitle")}
           </h1>
           <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto">
-            Meet the network of professionals, doctors, and specialists from the
-            Americas, Europe, and Africa who are transforming healthcare.
-            International expertise at your service.
+            {t("pageDesc")}
           </p>
         </div>
       </section>
@@ -47,7 +46,7 @@ export default async function DoctorsPage() {
           <div className="flex items-center gap-2 mb-3 md:mb-0">
             <span className="font-label-bold text-label-bold text-on-surface-variant flex items-center gap-2 shrink-0">
               <Icon name="filter_list" size={20} />
-              <span className="hidden sm:inline">Filter by Specialty:</span>
+              <span className="hidden sm:inline">{t("filterLabel")}</span>
             </span>
           </div>
           <div className="flex gap-2 md:gap-4 overflow-x-auto pb-2 md:pb-0 -mx-margin-mobile md:mx-0 px-margin-mobile md:px-0 scrollbar-none">
@@ -55,7 +54,7 @@ export default async function DoctorsPage() {
               <button
                 key={s}
                 className={
-                  s === "All"
+                  s === t("allSpecialty")
                     ? "bg-primary text-on-primary font-label-bold text-label-bold px-4 py-2 rounded-full shadow-[0_20px_20px_0_rgba(7,68,105,0.04)] transition-all cursor-pointer shrink-0"
                     : "bg-surface-container text-on-surface-variant hover:bg-secondary-container hover:text-on-secondary-container font-label-bold text-label-bold px-4 py-2 rounded-full transition-all border border-outline-variant/50 cursor-pointer shrink-0"
                 }
@@ -110,14 +109,14 @@ export default async function DoctorsPage() {
                   href={`/doctores/${doc.id}`}
                   className="mt-6 w-full bg-surface text-primary border border-primary/20 font-label-bold text-label-bold py-3 rounded-lg hover:bg-secondary-container transition-colors group-hover:border-primary block text-center"
                 >
-                  View Full Profile
+                  {t("viewProfile")}
                 </Link>
               </article>
             ))}
           </div>
           <div className="mt-16 text-center">
             <button className="bg-surface-container-high text-on-surface-variant font-label-bold text-label-bold px-8 py-3 rounded-lg hover:bg-outline-variant/30 transition-colors shadow-sm inline-flex items-center gap-2 cursor-pointer">
-              Load More Professionals{" "}
+              {t("loadMore")}
               <Icon name="expand_more" size={14} />
             </button>
           </div>

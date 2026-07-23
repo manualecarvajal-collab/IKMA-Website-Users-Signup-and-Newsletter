@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
+import { getTranslations } from "next-intl/server"
 import Icon from "@/components/Icon"
 
 const BASE = "https://lh3.googleusercontent.com/aida-public/"
@@ -55,12 +56,13 @@ function Stars({ rating }: { rating: number }) {
 
 export default async function DoctorDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
+  const t = await getTranslations("DoctorDetail")
   const doc = await getDoctor(id)
 
   if (!doc) return (
     <section className="py-section-padding">
-      <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop text-center"><h1 className="font-headline-lg text-headline-lg text-primary">Doctor not found</h1>
-      <Link href="/doctores" className="text-primary hover:underline mt-4 inline-block">&larr; Back to Doctors</Link></div>
+      <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop text-center"><h1 className="font-headline-lg text-headline-lg text-primary">{t("notFound")}</h1>
+      <Link href="/doctores" className="text-primary hover:underline mt-4 inline-block">&larr; {t("backToList")}</Link></div>
     </section>
   )
 
@@ -90,14 +92,14 @@ export default async function DoctorDetailPage({ params }: { params: Promise<{ i
               <div className="flex flex-wrap items-center gap-3 mb-2">
                 <span className="font-label-bold text-label-bold text-tertiary-container bg-tertiary-fixed inline-block px-3 py-1 rounded-sm notranslate">{doc.especialidad_principal}</span>
                 <span className="flex items-center gap-1 font-label-bold text-label-bold text-primary">
-                  <Icon name="verified" size={14} fill="currentColor" /> Verified Professional
+                  <Icon name="verified" size={14} fill="currentColor" /> {t("verified")}
                 </span>
               </div>
               <h1 className="font-headline-md text-headline-md text-primary mb-2 notranslate">{doc.nombre}</h1>
               {doc.rating && (
                 <div className="flex items-center gap-1 mb-3">
                   <Stars rating={doc.rating} />
-                  <span className="font-body-md text-body-md text-on-surface-variant ml-1">{doc.rating} ({doc.num_resenas ?? 0} reviews)</span>
+                  <span className="font-body-md text-body-md text-on-surface-variant ml-1">{doc.rating} ({doc.num_resenas ?? 0} {t("reviews")})</span>
                 </div>
               )}
               {doc.frase && (
@@ -105,7 +107,7 @@ export default async function DoctorDetailPage({ params }: { params: Promise<{ i
               )}
               <div className="flex flex-wrap gap-4">
                 <button className="bg-secondary-container text-primary font-label-bold text-label-bold px-8 py-3 rounded-md hover:bg-secondary-fixed transition-all inline-flex items-center gap-2 cursor-pointer">
-                  <Icon name="mail" size={14} /> Email Consult
+                  <Icon name="mail" size={14} /> {t("emailConsult")}
                 </button>
               </div>
             </div>
@@ -119,10 +121,10 @@ export default async function DoctorDetailPage({ params }: { params: Promise<{ i
           <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-8">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
               {[
-                { value: stats.experience, label: "Years Experience" },
-                { value: stats.patients, label: "Patients Treated" },
-                { value: stats.awards, label: "Awards & Honors" },
-                { value: stats.publications, label: "Publications" },
+                { value: stats.experience, label: t("yearsExp") },
+                { value: stats.patients, label: t("patientsTreated") },
+                { value: stats.awards, label: t("awards") },
+                { value: stats.publications, label: t("publications") },
               ].map((s, i) => (
                 <div key={i}>
                   <p className="font-headline-lg text-headline-lg text-primary-fixed font-bold">{s.value || "—"}</p>
@@ -140,7 +142,7 @@ export default async function DoctorDetailPage({ params }: { params: Promise<{ i
           {doc.acerca_de && (
             <div>
               <h2 className="font-headline-lg text-headline-lg text-primary mb-4 flex items-center gap-3">
-                <Icon name="person" className="text-primary" /> About
+                <Icon name="person" className="text-primary" /> {t("about")}
               </h2>
               <p className="font-body-lg text-body-lg text-on-surface-variant leading-relaxed">{doc.acerca_de}</p>
             </div>
@@ -149,7 +151,7 @@ export default async function DoctorDetailPage({ params }: { params: Promise<{ i
           {experiencia.length > 0 && (
             <div>
               <h2 className="font-headline-lg text-headline-lg text-primary mb-6 flex items-center gap-3">
-                <Icon name="work_history" className="text-primary" /> Professional Experience
+                <Icon name="work_history" className="text-primary" /> {t("profExperience")}
               </h2>
               <div className="space-y-6 relative before:absolute before:left-[19px] before:top-2 before:bottom-2 before:w-0.5 before:bg-outline-variant/50">
                 {experiencia.map((e, i) => (
@@ -171,7 +173,7 @@ export default async function DoctorDetailPage({ params }: { params: Promise<{ i
           {premios.length > 0 && (
             <div className="bg-surface-container-low rounded-md p-8 md:p-8">
               <h2 className="font-headline-lg text-headline-lg text-primary mb-6 flex items-center gap-3">
-                <Icon name="award_star" className="text-primary" /> Awards & Recognition
+                <Icon name="award_star" className="text-primary" /> {t("awardsRecognition")}
               </h2>
               <div className="space-y-4">
                 {premios.map((a, i) => (
@@ -194,13 +196,13 @@ export default async function DoctorDetailPage({ params }: { params: Promise<{ i
         <section className="py-section-padding bg-surface-container-low border-y border-outline-variant/20">
           <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
             <h2 className="font-headline-lg text-headline-lg text-primary mb-8 text-center flex items-center justify-center gap-3">
-              <Icon name="school" className="text-primary" /> Education & Credentials
+              <Icon name="school" className="text-primary" /> {t("educationCredentials")}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-gutter max-w-3xl mx-auto">
               {educacion.length > 0 && (
                 <div className="bg-surface-container-lowest rounded-md p-8 shadow-[0_0_20px_0_rgba(7,68,105,0.04)]">
                   <h3 className="font-headline-md text-headline-md text-primary mb-4 flex items-center gap-2">
-                    <Icon name="school" className="text-primary" /> Education
+                    <Icon name="school" className="text-primary" /> {t("education")}
                   </h3>
                   <ul className="space-y-4">
                     {educacion.map((e, i) => (
@@ -220,7 +222,7 @@ export default async function DoctorDetailPage({ params }: { params: Promise<{ i
               {certificaciones.length > 0 && (
                 <div className="bg-surface-container-lowest rounded-md p-8 shadow-[0_0_20px_0_rgba(7,68,105,0.04)]">
                   <h3 className="font-headline-md text-headline-md text-primary mb-4 flex items-center gap-2">
-                    <Icon name="verified" className="text-primary" /> Certifications
+                    <Icon name="verified" className="text-primary" /> {t("certifications")}
                   </h3>
                   <ul className="space-y-4">
                     {certificaciones.map((c, i) => (
@@ -246,8 +248,8 @@ export default async function DoctorDetailPage({ params }: { params: Promise<{ i
       {testimonios.length > 0 && (
         <section className="py-section-padding">
           <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
-            <h2 className="font-headline-lg text-headline-lg text-primary mb-2 text-center">What Patients Say</h2>
-            <p className="font-body-lg text-body-lg text-on-surface-variant text-center mb-10 max-w-xl mx-auto">Hear from those who have experienced care firsthand.</p>
+            <h2 className="font-headline-lg text-headline-lg text-primary mb-2 text-center">{t("whatPatientsSay")}</h2>
+            <p className="font-body-lg text-body-lg text-on-surface-variant text-center mb-10 max-w-xl mx-auto">{t("patientsSayDesc")}</p>
           </div>
           <div className="bg-secondary-container py-16 md:py-20">
             <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
@@ -279,12 +281,12 @@ export default async function DoctorDetailPage({ params }: { params: Promise<{ i
               <div className="absolute top-0 right-0 w-64 h-64 bg-white rounded-full blur-3xl" />
               <div className="absolute bottom-0 left-0 w-48 h-48 bg-white rounded-full blur-3xl" />
             </div>
-            <h2 className="font-headline-lg text-headline-lg text-primary-fixed font-bold mb-4 relative z-10">Want to make a donation?</h2>
-            <p className="font-body-lg text-body-lg text-primary-fixed/80 mb-8 max-w-lg mx-auto relative z-10">Your generosity brings expert medical care to communities that need it most.</p>
+            <h2 className="font-headline-lg text-headline-lg text-primary-fixed font-bold mb-4 relative z-10">{t("donationTitle")}</h2>
+            <p className="font-body-lg text-body-lg text-primary-fixed/80 mb-8 max-w-lg mx-auto relative z-10">{t("donationDesc")}</p>
             <div className="flex flex-wrap justify-center gap-4 relative z-10">
-              <a className="inline-flex items-center gap-2 bg-white text-primary font-label-bold text-label-bold px-6 py-3 rounded-xl hover:bg-primary-fixed transition-all shadow-[0_0_20px_0_rgba(7,68,105,0.04)]" href="#">Support Now</a>
+              <a className="inline-flex items-center gap-2 bg-white text-primary font-label-bold text-label-bold px-6 py-3 rounded-xl hover:bg-primary-fixed transition-all shadow-[0_0_20px_0_rgba(7,68,105,0.04)]" href="#">{t("supportNow")}</a>
               <Link className="inline-flex items-center gap-2 bg-primary-container text-on-primary font-label-bold text-label-bold px-6 py-3 rounded-xl hover:bg-primary transition-all" href="/doctores">
-                <Icon name="arrow_back" size={14} /> Back to All Doctors
+                <Icon name="arrow_back" size={14} /> {t("backToAllDoctors")}
               </Link>
             </div>
           </div>
