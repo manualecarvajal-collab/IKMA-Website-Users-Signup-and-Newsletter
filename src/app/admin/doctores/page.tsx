@@ -86,7 +86,7 @@ export default async function AdminDoctoresPage(props: {
                   </p>
                 </td>
                 <td className="px-6 py-4 hidden md:table-cell">
-                  <span className="bg-secondary-container text-on-secondary-container font-label-sm text-label-sm px-2.5 py-1 rounded-full">
+                  <span className="bg-secondary-container text-on-secondary-container font-label-sm text-label-sm px-2.5 py-1 rounded-full notranslate">
                     {d.especialidad_principal}
                   </span>
                 </td>

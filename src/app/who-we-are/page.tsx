@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import Link from "next/link"
 import Icon from "@/components/Icon"
 
 export const metadata: Metadata = {
@@ -377,10 +378,13 @@ export default function WhoWeArePage() {
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-6 lg:justify-end">
-              <button className="bg-white text-primary font-label-bold text-label-bold px-8 py-4 rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2 cursor-pointer">
+              <Link
+                href="/registro"
+                className="bg-white text-primary font-label-bold text-label-bold px-8 py-4 rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+              >
                 Become a member
                 <Icon name="arrow_forward" />
-              </button>
+              </Link>
               <button className="border border-white/40 text-white font-label-bold text-label-bold px-8 py-4 rounded-lg hover:bg-white/10 transition-all cursor-pointer">
                 Support our mission
               </button>

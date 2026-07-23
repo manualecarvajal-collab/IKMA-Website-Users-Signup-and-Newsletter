@@ -63,11 +63,11 @@ export default async function GrupoVideosPage({ params }: { params: Promise<{ gr
         <nav className="flex items-center gap-2 font-label-bold text-label-sm text-on-surface-variant mb-8">
           <Link href="/teachings" className="hover:text-primary transition-colors">Teachings</Link>
           <Icon name="chevron_right" size={14} />
-          <span className="text-primary">{grupo.nombre}</span>
+          <span className="text-primary notranslate">{grupo.nombre}</span>
         </nav>
 
         <div className="mb-10">
-          <h1 className="font-headline-lg text-headline-lg text-primary mb-2">{grupo.nombre}</h1>
+          <h1 className="font-headline-lg text-headline-lg text-primary mb-2 notranslate">{grupo.nombre}</h1>
           <p className="font-body-md text-body-md text-on-surface-variant">{videos.length} videos</p>
         </div>
 
@@ -96,7 +96,7 @@ export default async function GrupoVideosPage({ params }: { params: Promise<{ gr
                 </div>
               </div>
               <div className="p-6 flex flex-col flex-grow">
-                <h3 className="font-label-bold text-label-bold text-on-surface line-clamp-2 group-hover:text-primary transition-colors mb-2">{v.titulo}</h3>
+                <h3 className="font-label-bold text-label-bold text-on-surface line-clamp-2 group-hover:text-primary transition-colors mb-2 notranslate">{v.titulo}</h3>
                 {v.descripcion && (
                   <p className="font-body-md text-body-md text-on-surface-variant line-clamp-2 mb-4">{v.descripcion}</p>
                 )}

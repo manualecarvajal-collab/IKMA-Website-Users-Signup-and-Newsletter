@@ -10,6 +10,7 @@ const navItems = [
   { href: "/admin/articulos", label: "Articles", icon: "article" },
   { href: "/admin/teachings", label: "Teachings", icon: "play_circle" },
   { href: "/admin/revistas", label: "Magazines", icon: "menu_book" },
+  { href: "/admin/members", label: "Members", icon: "groups" },
   { href: "/admin/newsletter", label: "Newsletter", icon: "mail" },
 ]
 

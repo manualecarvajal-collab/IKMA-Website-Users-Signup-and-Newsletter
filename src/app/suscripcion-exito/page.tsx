@@ -1,6 +1,5 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import ActivateSubscription from "@/components/ActivateSubscription"
 import Icon from "@/components/Icon"
 
 export const metadata: Metadata = {
@@ -11,7 +10,6 @@ export const metadata: Metadata = {
 export default function SuscripcionExitoPage() {
   return (
     <section className="py-section-padding">
-      <ActivateSubscription />
       <div className="max-w-lg mx-auto px-margin-mobile md:px-margin-desktop text-center">
         <div className="bg-surface rounded-xl p-8 md:p-12 shadow-[0_20px_20px_0_rgba(7,68,105,0.04)] border border-outline-variant/20">
           <Icon name="verified" size={60} className="text-tertiary mb-4" />

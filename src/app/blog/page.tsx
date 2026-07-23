@@ -82,7 +82,7 @@ export default async function BlogPage() {
                     </span>
                   </div>
                   <div className="flex items-center justify-start gap-10 mb-3">
-                    <h2 className="font-headline-md text-headline-md text-on-surface group-hover:text-primary transition-colors">
+                    <h2 className="font-headline-md text-headline-md text-on-surface group-hover:text-primary transition-colors notranslate">
                       {articles[0].titulo}
                     </h2>
                     <div className="flex items-center text-on-surface-variant font-medium space-x-0.5 flex-shrink-0 text-sm">
@@ -109,7 +109,7 @@ export default async function BlogPage() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <span className="text-[10px] font-bold text-tertiary uppercase tracking-tighter notranslate">{a.autor_nombre || "IKMA"}</span>
-                        <h3 className="font-bold text-on-surface group-hover:text-primary transition-colors text-sm leading-tight mt-0.5">
+                        <h3 className="font-bold text-on-surface group-hover:text-primary transition-colors text-sm leading-tight mt-0.5 notranslate">
                           {a.titulo}
                         </h3>
                         <p className="text-sm text-on-surface-variant line-clamp-1 mt-0.5">{a.resumen}</p>
@@ -151,7 +151,7 @@ export default async function BlogPage() {
                     <span className="text-[10px] font-bold text-tertiary uppercase tracking-tighter notranslate">
                       {a.autor_nombre || "IKMA"}
                     </span>
-                        <h3 className="font-bold text-on-surface mt-2 group-hover:text-primary transition-colors text-sm leading-tight">
+                        <h3 className="font-bold text-on-surface mt-2 group-hover:text-primary transition-colors text-sm leading-tight notranslate">
                           {a.titulo}
                         </h3>
                         <p className="font-body-md text-body-md text-on-surface-variant line-clamp-1 mt-1 text-sm">{a.resumen}</p>

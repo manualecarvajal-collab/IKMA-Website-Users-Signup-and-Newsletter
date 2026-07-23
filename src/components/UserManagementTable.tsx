@@ -168,7 +168,7 @@ export default function UserManagementTable({ initialUsers }: { initialUsers: Us
               <div key={u.id} className="p-4 space-y-3">
                   <div className="flex justify-between items-start">
                     <div className="space-y-0.5">
-                      <p className="font-label-bold text-on-surface">{u.nombre_completo || "Unnamed User"}</p>
+                      <p className="font-label-bold text-on-surface notranslate">{u.nombre_completo || "Unnamed User"}</p>
                       <p className="text-xs text-on-surface-variant font-mono break-all">{u.email}</p>
                     </div>
                     {u.rol !== "administrador" && (

@@ -95,7 +95,7 @@ export default async function DoctorsPage() {
                     <h3 className="font-headline-md text-body-md text-on-surface mb-1 group-hover:text-primary transition-colors notranslate">
                       {doc.nombre}
                     </h3>
-                    <span className="font-label-bold text-label-bold text-tertiary-container bg-tertiary-fixed inline-block px-2 py-0.5 rounded-sm">
+                    <span className="font-label-bold text-label-bold text-tertiary-container bg-tertiary-fixed inline-block px-2 py-0.5 rounded-sm notranslate">
                       {doc.especialidad_principal}
                     </span>
                   </div>

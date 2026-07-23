@@ -66,7 +66,7 @@ export default async function AdminRevistasPage(props: { searchParams?: Promise<
                       </div>
                     )}
                     <div>
-                      <p className="font-headline-md text-body-md text-on-surface">{r.titulo}</p>
+                      <p className="font-headline-md text-body-md text-on-surface notranslate">{r.titulo}</p>
                       {r.descripcion && (
                         <p className="font-body-md text-body-md text-on-surface-variant text-sm mt-0.5 line-clamp-1">{r.descripcion}</p>
                       )}

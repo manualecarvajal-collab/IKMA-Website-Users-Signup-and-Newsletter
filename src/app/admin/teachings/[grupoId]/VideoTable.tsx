@@ -93,7 +93,7 @@ export function VideoTable({
                 </svg>
               </td>
               <td className="px-6 py-4">
-                <p className="font-label-bold text-label-bold text-on-surface">{v.titulo}</p>
+                <p className="font-label-bold text-label-bold text-on-surface notranslate">{v.titulo}</p>
                 <p className="font-body-md text-body-md text-on-surface-variant text-sm mt-0.5">/{v.slug}</p>
               </td>
               <td className="px-6 py-4 hidden md:table-cell">

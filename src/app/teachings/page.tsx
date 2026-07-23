@@ -82,7 +82,7 @@ export default async function TeachingsPage() {
                 </div>
                 <div className="p-5">
                   <div className="flex items-center justify-between mb-1">
-                    <h3 className="font-headline-md text-headline-md text-on-surface group-hover:text-primary transition-colors truncate">{g.nombre}</h3>
+                    <h3 className="font-headline-md text-headline-md text-on-surface group-hover:text-primary transition-colors truncate notranslate">{g.nombre}</h3>
                     <span className="font-label-bold text-label-sm text-on-surface-variant whitespace-nowrap ml-2">{videoCount.get(g.id) ?? 0} videos</span>
                   </div>
                   <p className="font-body-md text-body-md text-on-surface-variant text-sm">/{g.slug}</p>

@@ -84,7 +84,7 @@ export default async function NewsletterPage() {
                 <p className="font-label-sm text-label-sm text-primary mb-1">
                   {formatDate(m.created_at)}
                 </p>
-                <h3 className="font-headline-md text-headline-md text-on-surface text-sm leading-snug mb-2">
+                <h3 className="font-headline-md text-headline-md text-on-surface text-sm leading-snug mb-2 notranslate">
                   {m.titulo}
                 </h3>
                 {m.descripcion && (

@@ -105,7 +105,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                           </div>
                         )}
                         <div className="min-w-0">
-                          <h4 className="font-label-bold text-label-sm text-on-surface truncate">{m.titulo}</h4>
+                          <h4 className="font-label-bold text-label-sm text-on-surface truncate notranslate">{m.titulo}</h4>
                           {m.descripcion && (
                             <p className="font-body-md text-body-md text-on-surface-variant text-xs mt-0.5 line-clamp-2">{m.descripcion}</p>
                           )}
@@ -145,7 +145,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
               </div>
             </div>
 
-            <h1 className="font-headline-xl text-[clamp(1.625rem,3.25vw,2.6rem)] text-primary mb-6">
+            <h1 className="font-headline-xl text-[clamp(1.625rem,3.25vw,2.6rem)] text-primary mb-6 notranslate">
               {article.titulo}
             </h1>
 
@@ -174,7 +174,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                       <img src={a.imagen_url} alt="" loading="lazy" className="w-full h-full object-cover" />
                     </div>
                     <div className="p-4">
-                      <h3 className="font-bold text-on-surface mt-2 group-hover:text-primary transition-colors text-sm leading-tight">
+                      <h3 className="font-bold text-on-surface mt-2 group-hover:text-primary transition-colors text-sm leading-tight notranslate">
                         {a.titulo}
                       </h3>
                       <p className="font-body-md text-body-md text-on-surface-variant line-clamp-1 mt-1 text-sm">{a.resumen}</p>

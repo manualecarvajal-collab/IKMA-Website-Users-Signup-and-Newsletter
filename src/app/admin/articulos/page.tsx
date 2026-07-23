@@ -57,7 +57,7 @@ export default async function AdminArticulosPage(props: { searchParams?: Promise
             {articulos?.map((a) => (
               <tr key={a.id} className="border-b border-outline-variant/10 hover:bg-surface-container-low/50 transition-colors">
                 <td className="px-6 py-4">
-                  <p className="font-headline-md text-body-md text-on-surface">{a.titulo}</p>
+                  <p className="font-headline-md text-body-md text-on-surface notranslate">{a.titulo}</p>
                   <p className="font-body-md text-body-md text-on-surface-variant text-sm mt-0.5">/{a.slug}</p>
                 </td>
                 <td className="px-6 py-4 hidden md:table-cell">

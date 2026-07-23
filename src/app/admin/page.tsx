@@ -92,7 +92,7 @@ export default async function AdminDashboard() {
       </header>
 
       {/* Content Body */}
-      <div className="p-6 max-w-[1200px] w-full mr-auto space-y-6">
+      <div className="w-full max-w-full px-4 sm:px-6 md:px-8 py-6 space-y-6">
         {/* Quick Stats Section */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Total Articles Card */}
@@ -118,7 +118,7 @@ export default async function AdminDashboard() {
                   {articulosRecientes.map((a) => (
                     <li key={a.slug} className="text-[12px] text-[#41474d] font-medium leading-4 tracking-[0.02em] flex items-center gap-2">
                       <span className="w-1 h-1 rounded-full bg-[#003652]"></span>
-                      {a.titulo}
+                      <span className="notranslate">{a.titulo}</span>
                     </li>
                   ))}
                 </ul>
@@ -168,7 +168,7 @@ export default async function AdminDashboard() {
                 </div>
               </div>
               {ultimaRevista && (
-                <p className="text-[13px] font-semibold text-[#003652] mt-3 leading-5 line-clamp-2">{ultimaRevista.titulo}</p>
+                <p className="text-[13px] font-semibold text-[#003652] mt-3 leading-5 line-clamp-2 notranslate">{ultimaRevista.titulo}</p>
               )}
               <div className="mt-4 pt-4 border-t border-[#c1c7ce] mt-auto">
                 <Link href="/admin/revistas" className="text-[#003652] text-[14px] font-semibold leading-5 tracking-[0.01em] flex items-center gap-1 hover:underline">
@@ -190,22 +190,22 @@ export default async function AdminDashboard() {
                 <span className="text-4xl font-bold text-[#003652]">{videosTotal ?? 0}</span>
               </div>
             </div>
-            <div className="p-6 flex-1 flex flex-col">
-              <div className="relative mt-2 rounded-lg overflow-hidden aspect-video bg-[#0D2636]">
-                {ultimoVideo?.imagen_preview ? (
-                  <img src={ultimoVideo.imagen_preview} alt={ultimoVideo.titulo} className="absolute inset-0 w-full h-full object-cover" />
-                ) : (
-                  <div className="absolute inset-0 bg-gradient-to-br from-[#cae6ff]/10 to-[#0D2636]/60"></div>
-                )}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                    <Icon name="play_arrow" size={32} className="text-white" />
+              <div className="p-6 flex-1 flex flex-col">
+                <div className="relative mt-2 rounded-lg overflow-hidden aspect-video bg-[#0D2636]">
+                  {ultimoVideo?.imagen_preview ? (
+                    <img src={ultimoVideo.imagen_preview} alt={ultimoVideo.titulo} className="absolute inset-0 w-full h-full object-cover" />
+                  ) : (
+                    <div className="absolute inset-0 bg-gradient-to-br from-[#cae6ff]/10 to-[#0D2636]/60"></div>
+                  )}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                      <Icon name="play_arrow" size={32} className="text-white" />
+                    </div>
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent">
+                    <p className="text-white text-[10px] font-medium truncate notranslate">{ultimoVideo?.titulo || "No teachings yet"}</p>
                   </div>
                 </div>
-                <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent">
-                  <p className="text-white text-[10px] font-medium truncate">{ultimoVideo?.titulo || "No teachings yet"}</p>
-                </div>
-              </div>
               <div className="mt-4 pt-4 border-t border-[#c1c7ce] mt-auto">
                 <Link href="/admin/teachings" className="text-[#003652] text-[14px] font-semibold leading-5 tracking-[0.01em] flex items-center gap-1 hover:underline">
                   Manage
@@ -316,7 +316,7 @@ export default async function AdminDashboard() {
                           <span className="text-[14px] text-[#1A1C1E] leading-5">{a.descripcion}</span>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-[#41474d] text-[14px] leading-5">{a.usuario_nombre || "—"}</td>
+                      <td className="px-6 py-4 text-[#41474d] text-[14px] leading-5"><span className="notranslate">{a.usuario_nombre || "—"}</span></td>
                       <td className="px-6 py-4 text-[#41474d] text-[14px] leading-5 whitespace-nowrap">
                         {a.created_at ? new Date(a.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "—"}
                       </td>

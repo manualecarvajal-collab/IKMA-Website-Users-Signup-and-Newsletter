@@ -17,6 +17,8 @@ graphify-out/
 /CLAUDE.md
 /coverage
 /Diseño/
+Diseño de Membresia/
+public/stripe-prices.md
 *.dll
 *.dmg
 .DS_Store

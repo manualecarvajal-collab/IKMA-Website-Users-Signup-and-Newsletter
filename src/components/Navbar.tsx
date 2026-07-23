@@ -19,17 +19,6 @@ const resourcesLinks = [
   { href: "/teachings", label: "Teachings" },
 ]
 
-const memberRegions = [
-  { href: "#", label: "North America / Europe / Australia" },
-  { href: "#", label: "Africa / Central and South America / Asia" },
-]
-
-const memberLinks = [
-  { href: "#", label: "Medical professional", sublinks: memberRegions },
-  { href: "#", label: "Non-medical" },
-  { href: "#", label: "Student" },
-]
-
 export default function Navbar({ initialUser }: { initialUser: { email: string; role: string } | null }) {
   const pathname = usePathname()
   const [user, setUser] = useState<{ email: string; role: string } | null>(initialUser)
@@ -38,9 +27,6 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
   const [mobileOpen, setMobileOpen] = useState(false)
   const [aboutExpanded, setAboutExpanded] = useState(false)
   const [resourcesExpanded, setResourcesExpanded] = useState(false)
-  const [memberExpanded, setMemberExpanded] = useState(false)
-  const [medProExpanded, setMedProExpanded] = useState(false)
-
   const [scrolled, setScrolled] = useState(false)
   const closeMobile = () => setMobileOpen(false)
 
@@ -226,47 +212,12 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
             </>
           )}
           <span className="w-px h-6 bg-outline-variant hidden md:block" />
-          <div className="relative group hidden md:block">
-            <span className="bg-primary text-on-primary font-label-bold text-xs md:text-label-bold px-4 py-1.5 md:px-6 md:py-2.5 rounded-lg hover:bg-surface hover:text-on-primary-fixed-variant transition-all duration-300 ease-in-out cursor-default shadow-sm flex items-center gap-1">
-              Become a member
-              <Icon name="expand_more" size={14} className="transition-transform duration-300 group-hover:rotate-180" />
-            </span>
-            <div className="absolute top-full right-0 mt-0 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-              <div className="bg-white rounded-lg shadow-lg border border-outline-variant/30 py-2 min-w-[220px]">
-                {memberLinks.map((m) =>
-                  m.sublinks ? (
-                    <div key={m.label} className="relative group/sub">
-                      <span className="flex items-center justify-between px-4 py-2.5 font-body-md text-on-surface-variant cursor-default">
-                        {m.label}
-                        <Icon name="chevron_right" size={14} />
-                      </span>
-                      <div className="absolute right-full top-0 mr-2 opacity-0 invisible group-hover/sub:opacity-100 group-hover/sub:visible transition-all duration-200">
-                        <div className="bg-white rounded-lg shadow-lg border border-outline-variant/30 py-2 min-w-[260px]">
-                          {m.sublinks.map((s) => (
-                            <Link
-                              key={s.label}
-                              href={s.href}
-                              className="block px-4 py-2.5 font-body-md text-on-surface-variant hover:text-primary hover:bg-primary-container/10 transition-colors whitespace-nowrap"
-                            >
-                              {s.label}
-                            </Link>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <Link
-                      key={m.label}
-                      href={m.href}
-                      className="block px-4 py-2.5 font-body-md text-on-surface-variant hover:text-primary hover:bg-primary-container/10 transition-colors"
-                    >
-                      {m.label}
-                    </Link>
-                  )
-                )}
-              </div>
-            </div>
-          </div>
+          <Link
+            href={user ? "/membresia" : "/registro"}
+            className="hidden md:inline-block bg-primary text-on-primary font-label-bold text-xs md:text-label-bold px-4 py-1.5 md:px-6 md:py-2.5 rounded-lg hover:bg-surface hover:text-on-primary-fixed-variant transition-all duration-300 ease-in-out active:scale-95 shadow-sm"
+          >
+            Become a member
+          </Link>
           {/* Hamburger */}
           <button
             onClick={() => setMobileOpen((o) => !o)}
@@ -393,7 +344,7 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
           <hr className="my-3 border-outline-variant/30" />
           {user ? (
             <div className="px-4 space-y-3">
-              <p className="font-body-md text-body-md text-on-surface-variant truncate">{user.email}</p>
+              <p className="font-body-md text-body-md text-on-surface-variant truncate notranslate">{user.email}</p>
               <button
                 onClick={handleSignOut}
                 className="w-full bg-white border border-outline-variant text-on-surface font-label-bold text-label-bold rounded-lg hover:bg-surface-container transition-all px-5 py-2.5 cursor-pointer"
@@ -419,56 +370,13 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
               </Link>
             </div>
           )}
-          <div className="px-4 pt-2">
-            <button
-              onClick={() => setMemberExpanded((o) => !o)}
-              className="flex items-center justify-between w-full bg-primary text-on-primary font-label-bold text-label-bold px-6 py-2.5 rounded-lg transition-all shadow-sm"
-            >
-              Become a member
-              <Icon name="expand_more" size={14} className={`transition-transform duration-300 ${memberExpanded ? "rotate-180" : ""}`} />
-            </button>
-            <div className={`overflow-hidden transition-all duration-300 ease-in-out ${memberExpanded ? "max-h-96 opacity-100" : "max-h-0 opacity-0"}`}>
-              <div className="pl-4 space-y-1 mt-1">
-                <div>
-                  <button
-                    onClick={() => setMedProExpanded((o) => !o)}
-                    className="flex items-center justify-between w-full px-4 py-2.5 rounded-lg font-body-md text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors"
-                  >
-                    Medical professional
-                    <Icon name="expand_more" size={14} className={`transition-transform duration-300 ${medProExpanded ? "rotate-180" : ""}`} />
-                  </button>
-                  <div className={`overflow-hidden transition-all duration-300 ease-in-out ${medProExpanded ? "max-h-40 opacity-100" : "max-h-0 opacity-0"}`}>
-                    <div className="pl-6 space-y-1">
-                      {memberRegions.map((r) => (
-                        <Link
-                          key={r.label}
-                          href={r.href}
-                          onClick={() => { closeMobile(); setMemberExpanded(false); setMedProExpanded(false) }}
-                          className="block px-4 py-2 rounded-lg font-body-md text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors"
-                        >
-                          {r.label}
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-                <Link
-                  href="#"
-                  onClick={() => { closeMobile(); setMemberExpanded(false) }}
-                  className="block px-4 py-2.5 rounded-lg font-body-md text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors"
-                >
-                  Non-medical
-                </Link>
-                <Link
-                  href="#"
-                  onClick={() => { closeMobile(); setMemberExpanded(false) }}
-                  className="block px-4 py-2.5 rounded-lg font-body-md text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors"
-                >
-                  Student
-                </Link>
-              </div>
-            </div>
-          </div>
+          <Link
+            href={user ? "/membresia" : "/registro"}
+            onClick={closeMobile}
+            className="block w-full text-center bg-primary text-on-primary font-label-bold text-label-bold px-6 py-2.5 rounded-lg transition-all shadow-sm"
+          >
+            Become a member
+          </Link>
         </div>
       </div>
     </nav>

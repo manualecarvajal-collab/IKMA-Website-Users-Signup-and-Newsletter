@@ -88,7 +88,7 @@ export default async function DoctorDetailPage({ params }: { params: Promise<{ i
             </div>
             <div className="flex-1 pt-2">
               <div className="flex flex-wrap items-center gap-3 mb-2">
-                <span className="font-label-bold text-label-bold text-tertiary-container bg-tertiary-fixed inline-block px-3 py-1 rounded-sm">{doc.especialidad_principal}</span>
+                <span className="font-label-bold text-label-bold text-tertiary-container bg-tertiary-fixed inline-block px-3 py-1 rounded-sm notranslate">{doc.especialidad_principal}</span>
                 <span className="flex items-center gap-1 font-label-bold text-label-bold text-primary">
                   <Icon name="verified" size={14} fill="currentColor" /> Verified Professional
                 </span>
@@ -159,7 +159,7 @@ export default async function DoctorDetailPage({ params }: { params: Promise<{ i
                     </div>
                     <div className="bg-surface-container-low rounded-md p-8 flex-1">
                       <p className="font-label-bold text-label-bold text-tertiary-container">{e.period}</p>
-                      <p className="font-headline-md text-headline-md text-primary mt-1">{e.title}</p>
+                      <p className="font-headline-md text-headline-md text-primary mt-1 notranslate">{e.title}</p>
                       <p className="font-body-md text-body-md text-on-surface-variant mt-1 notranslate">{e.org}</p>
                     </div>
                   </div>
@@ -178,8 +178,8 @@ export default async function DoctorDetailPage({ params }: { params: Promise<{ i
                   <div key={i} className="flex items-start gap-3">
                     <Icon name="emoji_events" size={20} className="text-amber-600" />
                     <div>
-                      <p className="font-headline-md text-headline-md text-on-surface">{a.title}</p>
-                      <p className="font-body-md text-body-md text-on-surface-variant">{a.org} — {a.year}</p>
+                      <p className="font-headline-md text-headline-md text-on-surface notranslate">{a.title}</p>
+                      <p className="font-body-md text-body-md text-on-surface-variant notranslate">{a.org} — {a.year}</p>
                     </div>
                   </div>
                 ))}
@@ -209,8 +209,8 @@ export default async function DoctorDetailPage({ params }: { params: Promise<{ i
                           <Icon name="school" size={14} className="text-primary" />
                         </div>
                         <div>
-                          <p className="font-body-md text-body-md text-on-surface font-semibold">{e.degree}</p>
-                          <p className="text-on-surface-variant">{e.school}</p>
+                          <p className="font-body-md text-body-md text-on-surface font-semibold notranslate">{e.degree}</p>
+                          <p className="text-on-surface-variant notranslate">{e.school}</p>
                         </div>
                       </li>
                     ))}
@@ -229,8 +229,8 @@ export default async function DoctorDetailPage({ params }: { params: Promise<{ i
                           <Icon name="verified" size={14} className="text-primary" fill="currentColor" />
                         </div>
                         <div>
-                          <p className="font-body-md text-body-md text-on-surface font-semibold">{c.cert}</p>
-                          <p className="text-on-surface-variant">{c.issuer}</p>
+                          <p className="font-body-md text-body-md text-on-surface font-semibold notranslate">{c.cert}</p>
+                          <p className="text-on-surface-variant notranslate">{c.issuer}</p>
                         </div>
                       </li>
                     ))}

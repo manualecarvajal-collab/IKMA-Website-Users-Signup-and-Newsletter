@@ -5,7 +5,7 @@ import {
   HeartHandshake, HeartPulse, Home, Hospital, ImagePlus, Info, LayoutDashboard,
   Mail, Menu, MinusCircle, MonitorPlay, Newspaper, PenSquare, Pencil, Play,
   PlayCircle, Plus, PlusCircle, Quote, RefreshCw, Save, Search, Send, Star,
-  Stethoscope, Trash2, Trophy, Upload, User, UserMinus, UserPlus, X, MapPin,
+  Stethoscope, Trash2, Trophy, Upload, User,   UserMinus, UserPlus, Users, X, MapPin,
   type LucideProps,
 } from "lucide-react"
 
@@ -31,6 +31,7 @@ const map: Record<string, React.ComponentType<LucideProps>> = {
   edit: Pencil,
   edit_note: PenSquare,
   emoji_events: Trophy,
+  groups: Users,
   expand_more: ChevronDown,
   filter_list: Filter,
   format_quote: Quote,

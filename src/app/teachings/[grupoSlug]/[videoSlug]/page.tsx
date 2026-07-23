@@ -90,9 +90,9 @@ export default async function TeachingPage({ params }: { params: Promise<{ grupo
             <nav className="flex items-center gap-2 font-label-bold text-label-sm text-on-surface-variant mb-6">
               <Link href="/teachings" className="hover:text-primary transition-colors">Teachings</Link>
               <Icon name="chevron_right" size={14} />
-              <Link href={`/teachings/${grupoSlug}`} className="hover:text-primary transition-colors">{grupo.nombre}</Link>
+              <Link href={`/teachings/${grupoSlug}`} className="hover:text-primary transition-colors notranslate">{grupo.nombre}</Link>
               <Icon name="chevron_right" size={14} />
-              <span className="text-primary truncate">{video.titulo}</span>
+              <span className="text-primary truncate notranslate">{video.titulo}</span>
             </nav>
             <div className="relative aspect-video bg-surface-container rounded-xl overflow-hidden shadow-lg mb-8">
               <iframe
@@ -104,7 +104,7 @@ export default async function TeachingPage({ params }: { params: Promise<{ grupo
                 className="w-full h-full"
               />
             </div>
-            <h1 className="font-headline-md text-headline-md text-primary mb-4">{video.titulo}</h1>
+            <h1 className="font-headline-md text-headline-md text-primary mb-4 notranslate">{video.titulo}</h1>
             <div className="flex items-center gap-4 mb-6">
               <span className="flex items-center gap-2 font-label-bold text-label-sm text-on-surface-variant">
                 <Icon name="calendar_today" size={18} />
@@ -118,7 +118,7 @@ export default async function TeachingPage({ params }: { params: Promise<{ grupo
           {related.length > 0 && (
             <aside className="lg:col-span-4 flex flex-col gap-6">
               <div className="flex items-center justify-between border-b border-outline-variant pb-2">
-                <h2 className="font-label-bold text-label-sm text-primary uppercase tracking-widest">More in {grupo.nombre}</h2>
+                <h2 className="font-label-bold text-label-sm text-primary uppercase tracking-widest notranslate">More in {grupo.nombre}</h2>
                 <Link href={`/teachings/${grupoSlug}`} className="text-primary font-label-bold text-label-sm hover:underline">View All</Link>
               </div>
               <div className="flex flex-col gap-6">
@@ -134,7 +134,7 @@ export default async function TeachingPage({ params }: { params: Promise<{ grupo
                       )}
                     </div>
                     <div className="flex flex-col justify-between py-0.5 min-w-0">
-                      <h3 className="font-label-bold text-label-sm text-on-surface line-clamp-2 group-hover:text-primary transition-colors">{v.titulo}</h3>
+                      <h3 className="font-label-bold text-label-sm text-on-surface line-clamp-2 group-hover:text-primary transition-colors notranslate">{v.titulo}</h3>
                       <span className="font-label-sm text-label-sm text-on-surface-variant">{formatDate(v.created_at)}</span>
                     </div>
                   </Link>

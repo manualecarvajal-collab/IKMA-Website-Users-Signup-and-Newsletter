@@ -34,7 +34,7 @@ export default function NewsletterList({ newsletters }: { newsletters: Newslette
           ) : (
             newsletters.map((nl) => (
               <tr key={nl.id} className="border-b border-outline-variant/10 hover:bg-surface-container-low/50 transition-colors">
-                <td className="font-body-md text-body-md text-on-surface py-4 pr-4">{nl.titulo}</td>
+                <td className="font-body-md text-body-md text-on-surface py-4 pr-4 notranslate">{nl.titulo}</td>
                 <td className="font-body-md text-body-md text-on-surface-variant py-4 px-4">{nl.destinatarios}</td>
                 <td className="font-body-md text-body-md text-on-surface-variant py-4 px-4">
                   {new Date(nl.created_at).toLocaleDateString("en-US", {

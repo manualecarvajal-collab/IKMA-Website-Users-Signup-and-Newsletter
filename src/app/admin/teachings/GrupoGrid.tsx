@@ -144,7 +144,7 @@ export function GrupoGrid({
                 {videoCount[g.id] ?? 0} videos
               </span>
             </div>
-            <h3 className="font-headline-md text-headline-md text-on-surface group-hover:text-primary transition-colors mb-1 truncate">{g.nombre}</h3>
+            <h3 className="font-headline-md text-headline-md text-on-surface group-hover:text-primary transition-colors mb-1 truncate notranslate">{g.nombre}</h3>
             <p className="font-body-md text-body-md text-on-surface-variant text-sm">/{g.slug}</p>
           </Link>
         ))}
