@@ -50,7 +50,9 @@
     "give": "Give",
     "newsletter": "Newsletter",
     "supportMission": "Support our Mission",
-    "subscribeNewsletter": "Subscribe to our Newsletter"
+    "subscribeNewsletter": "Subscribe to our Newsletter",
+    "joinFamilyTitle": "Join the family",
+    "joinFamilySubtitle": "Become a member today"
   },
   "Cookie": {
     "title": "Cookies and Tracking",
@@ -122,9 +124,9 @@
   },
   "OurPurpose": {
     "heroTitle": "Our Purpose, Mission, and Values",
-    "paragraph1": "We are a collective of medically trained professionals who believe we have been called and entrusted with a purpose by God (Elohim). Guided by the principles reflected in Romans 8:29\u201330, we view our work as more than a profession\u2014it is a calling to serve others with integrity, humility, compassion, and excellence.",
-    "paragraph2": "We believe that God has equipped us with the capacity for discipline, innovation, critical thinking, and scientific discovery. These gifts enable us to pursue excellence in healthcare, advance medical knowledge, and develop responsible solutions that address the needs of individuals and communities.",
-    "paragraph3": "Our mission is to integrate faith, science, and service in ways that promote healing, dignity, and lasting well-being. We are committed to delivering ethical, evidence-based, and impactful solutions through the following areas of focus:",
+    "paragraph1": "We are a network of healthcare professionals called and entrusted by God (Elohim) with a spiritual purpose. Grounded in Romans 8:29\u201330, we understand the practice of medicine as more than a profession\u2014it is a sacred vocation to serve our neighbor with humility, compassion, and excellence.",
+    "paragraph2": "We recognize that God has endowed us with intelligence, discipline, and capacity for innovation. We promote critical thinking and scientific development as tools to achieve excellence in comprehensive clinical care, advance modern medical knowledge, and develop ethical and responsible solutions that respond to the real needs of every community.",
+    "paragraph3": "Our commitment: to integrate faith, science, and service to restore dignity, promote healing, and generate lasting well-being. We offer ethical, evidence-based, high-impact medical solutions, focused on the following areas:",
     "ourCommitment": "Our Commitment",
     "commitmentText": "In all that we do, we are committed to upholding the highest standards of scientific rigor, ethical responsibility, and compassionate service. Through the integration of faith, medicine, education, research, and community engagement, we aim to contribute to a healthcare system that not only treats illness but also restores hope, preserves dignity, and promotes the long-term well-being of individuals and communities."
   },
@@ -141,7 +143,7 @@
     "founderSpeech_p5": "We are part of a people who seek to restore humanity to its original design as created by Elohim. We believe in the strength that comes from unity, and in the truth that &ldquo;we can do all things through Christ who strengthens us&rdquo; (Philippians 4:13). Together, under God, we stand in faith and purpose, committed to bringing healing, restoration, and lasting transformation to the world.",
     "globalNetwork": "Global Network",
     "mainPartners": "Main partners",
-    "partnerDescription": "United by faith and clinical excellence, our global partners enable us to extend life-changing medical care to communities worldwide.",
+    "partnerDescription": "We are a network of healthcare professionals grounded in the biblical principles of the Kingdom of God, sent to the healthcare field to establish God's model on earth.",
     "becomeMemberBtn": "Subscribe today",
     "supportMissionBtn": "Support our mission",
     "calloutTitle": "Professional Excellence with Spiritual Purpose!",
@@ -165,8 +167,8 @@
     "magazineDesc": "Download the most recent IKMA journals and newsletters."
   },
   "Magazine": {
-    "title": "Magazine",
-    "subtitle": "Browse our collection of magazines. Subscribe to get full access to every issue.",
+    "title": "IKMA Digital Magazine",
+    "subtitle": "Explore our digital collection of publications. An essential resource for healthcare professionals worldwide, leaders, and visionaries seeking excellence with purpose in the field of medicine. Subscribe now and download every edition.",
     "empty": "No magazines published yet."
   },
   "OurObjectives": {

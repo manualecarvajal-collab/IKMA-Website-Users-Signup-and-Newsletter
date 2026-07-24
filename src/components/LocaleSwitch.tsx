@@ -17,7 +17,6 @@ export default function LocaleSwitch() {
 
   const switchLocale = (code: string) => {
     if (code === currentLocale) { setOpen(false); return }
-    document.cookie = `googtrans=/en/${code}; path=/; max-age=31536000`
     document.cookie = `NEXT_LOCALE=${code}; path=/; max-age=31536000`
     window.location.reload()
   }

@@ -14,7 +14,7 @@ interface HeroCarouselProps {
 
 export default function HeroCarousel({
   children,
-  interval = 10000,
+  interval = 6000,
   isAuthenticated = false,
   hideCtas = false,
 }: HeroCarouselProps) {

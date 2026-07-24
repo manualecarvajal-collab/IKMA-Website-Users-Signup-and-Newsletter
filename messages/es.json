@@ -50,7 +50,9 @@
     "give": "Donar",
     "newsletter": "Boletín",
     "supportMission": "Apoya Nuestra Misión",
-    "subscribeNewsletter": "Suscríbete a nuestro Boletín"
+    "subscribeNewsletter": "Suscríbete a nuestro Boletín",
+    "joinFamilyTitle": "Únete a la familia",
+    "joinFamilySubtitle": "Hazte miembro hoy"
   },
   "Cookie": {
     "title": "Cookies y Seguimiento",
@@ -122,9 +124,9 @@
   },
   "OurPurpose": {
     "heroTitle": "Nuestro Propósito, Misión y Valores",
-    "paragraph1": "Somos un colectivo de profesionales capacitados en medicina que creemos haber sido llamados y encomendados con un propósito por Dios (Elohim). Guiados por los principios reflejados en Romanos 8:29\u201330, vemos nuestro trabajo como más que una profesión\u2014es un llamado a servir a otros con integridad, humildad, compasión y excelencia.",
-    "paragraph2": "Creemos que Dios nos ha equipado con la capacidad para la disciplina, la innovación, el pensamiento crítico y el descubrimiento científico. Estos dones nos permiten buscar la excelencia en la atención médica, avanzar el conocimiento médico y desarrollar soluciones responsables que aborden las necesidades de individuos y comunidades.",
-    "paragraph3": "Nuestra misión es integrar la fe, la ciencia y el servicio de maneras que promuevan la sanidad, la dignidad y el bienestar duradero. Estamos comprometidos a ofrecer soluciones éticas, basadas en evidencia y de impacto a través de las siguientes áreas de enfoque:",
+    "paragraph1": "Somos una red de profesionales de la salud convocados y encomendados por Dios (Elohim) con un propósito espiritual. Fundamentados en Romanos 8:29-30, entendemos el ejercicio médico más allá de una profesión: es una vocación sagrada para servir al prójimo con humildad, compasión y excelencia.",
+    "paragraph2": "Reconocemos que Dios nos ha dotado de inteligencia, disciplina y capacidad de innovación. Promovemos el pensamiento crítico y el desarrollo científico como herramientas para alcanzar la excelencia en la atención clínica integral, impulsar el avance del conocimiento médico moderno y desarrollar soluciones éticas y responsables que respondan a las necesidades reales de cada comunidad.",
+    "paragraph3": "Nuestro compromiso: Integrar la fe, la ciencia y el servicio para restaurar la dignidad, promover la sanación y generar un bienestar duradero. Ofrecemos soluciones médicas éticas, fundamentadas en la evidencia y de alto impacto, enfocadas en las siguientes áreas:",
     "ourCommitment": "Nuestro Compromiso",
     "commitmentText": "En todo lo que hacemos, nos comprometemos a mantener los más altos estándares de rigor científico, responsabilidad ética y servicio compasivo. A través de la integración de la fe, la medicina, la educación, la investigación y la participación comunitaria, aspiramos a contribuir a un sistema de salud que no solo trate enfermedades, sino que también restaure la esperanza, preserve la dignidad y promueva el bienestar a largo plazo de individuos y comunidades."
   },
@@ -141,7 +143,7 @@
     "founderSpeech_p5": "Somos parte de un pueblo que busca restaurar la humanidad a su diseño original creado por Elohim. Creemos en la fortaleza que viene de la unidad, y en la verdad de que 'todo lo podemos en Cristo que nos fortalece' (Filipenses 4:13). Juntos, bajo Dios, estamos firmes en fe y propósito, comprometidos a traer sanidad, restauración y transformación duradera al mundo.",
     "globalNetwork": "Red Global",
     "mainPartners": "Principales socios",
-    "partnerDescription": "Unidos por la fe y la excelencia clínica, nuestros socios globales nos permiten extender atención médica transformadora a comunidades en todo el mundo.",
+    "partnerDescription": "Somos una red de profesionales de la salud fundamentados en los principios bíblicos del Reino de Dios enviados al campo de salud para establecer el modelo de Dios en la tierra",
     "becomeMemberBtn": "Suscríbete hoy",
     "supportMissionBtn": "Apoya nuestra misión",
     "calloutTitle": "¡Excelencia Profesional con Propósito Espiritual!",
@@ -165,8 +167,8 @@
     "magazineDesc": "Descarga las revistas y boletines más recientes de IKMA."
   },
   "Magazine": {
-    "title": "Revista",
-    "subtitle": "Explora nuestra colección de revistas. Suscríbete para obtener acceso completo a todos los números.",
+    "title": "Revista Digital IKMA",
+    "subtitle": "Explora nuestra colección digital de publicaciones. Un recurso imprescindible para profesionales de la salud en todo el mundo, líderes y visionarios que buscan excelencia con propósito en el campo de la medicina. Suscríbete ahora y descarga todas las ediciones",
     "empty": "No hay revistas publicadas aún."
   },
   "OurObjectives": {

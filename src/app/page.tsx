@@ -15,6 +15,7 @@ export default async function HomePage() {
   const isAuthenticated = !!user;
   const locale = await getLocale()
   const tHome = await getTranslations("Home");
+  const tHero = await getTranslations("Hero");
 
   const { data: dbArticles } = await supabase
     .from("articulos")
@@ -154,6 +155,41 @@ export default async function HomePage() {
             </div>
           </div>
         </div>
+        </Slide>
+        <Slide>
+          <div className="relative w-full h-full">
+            <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop flex flex-col md:flex-row h-full">
+              <div className="absolute inset-0 md:hidden overflow-hidden">
+                <img
+                  src="/Unete%20a%20la%20familia.png"
+                  alt=""
+                  loading="lazy"
+                  className="w-full h-full object-cover object-[center_70%]"
+                />
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent from-[5%] to-white" />
+              </div>
+
+              <div className="relative z-10 w-full md:w-[55%] flex flex-col justify-end md:justify-center py-8 md:py-0 flex-1 md:flex-none mb-[10vh] md:mb-0">
+                <div className="max-w-[420px] text-center md:text-left">
+                  <h2 className="text-primary md:text-[#334D96] text-3xl md:text-[clamp(36px,4vw,64px)] font-[800] leading-tight mb-3">
+                    {tHero("joinFamilyTitle")}
+                  </h2>
+                  <p className="text-primary/80 md:text-[#717377] text-lg md:text-[clamp(20px,1.5vw,28px)] font-[600]">
+                    {tHero("joinFamilySubtitle")}
+                  </p>
+                </div>
+              </div>
+
+              <div className="hidden md:block md:w-[34%] md:relative overflow-hidden flex-shrink-0">
+                <img
+                  src="/Unete%20a%20la%20familia.png"
+                  alt="Únete a la familia"
+                  loading="lazy"
+                  className="md:absolute md:inset-0 md:h-full w-full object-cover object-[center_70%] pointer-events-none md:rounded-none"
+                />
+              </div>
+            </div>
+          </div>
         </Slide>
       </HeroCarousel>
 
