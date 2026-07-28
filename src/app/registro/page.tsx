@@ -83,6 +83,10 @@ export default function RegistroPage() {
             </button>
           </form>
 
+          <p className="font-body-sm text-body-sm text-on-surface-variant/70 mt-4">
+            {t("passwordRequirements")}
+          </p>
+
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-outline-variant/30" />

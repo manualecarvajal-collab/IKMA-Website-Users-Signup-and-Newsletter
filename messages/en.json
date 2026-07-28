@@ -127,7 +127,8 @@
     "createAccountBtn": "Create Account",
     "signUpGoogle": "Sign up with Google",
     "haveAccount": "Already have an account?",
-    "signInLink": "Sign in"
+    "signInLink": "Sign in",
+    "passwordRequirements": "Password must be at least 8 characters with at least one uppercase letter, one lowercase letter, and one number."
   },
   "OurPurpose": {
     "heroTitle": "Our Purpose, Mission, and Values",

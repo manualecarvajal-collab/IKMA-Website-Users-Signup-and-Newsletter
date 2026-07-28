@@ -127,7 +127,8 @@
     "createAccountBtn": "Crear Cuenta",
     "signUpGoogle": "Registrarse con Google",
     "haveAccount": "¿Ya tienes cuenta?",
-    "signInLink": "Iniciar sesión"
+    "signInLink": "Iniciar sesión",
+    "passwordRequirements": "La contraseña debe tener al menos 8 caracteres con al menos una letra mayúscula, una letra minúscula y un número."
   },
   "OurPurpose": {
     "heroTitle": "Nuestro Propósito, Misión y Valores",
