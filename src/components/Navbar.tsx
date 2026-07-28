@@ -87,7 +87,7 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
       scrolled ? "bg-white/70 backdrop-blur-lg shadow-[0_20px_20px_0_rgba(7,68,105,0.04)]" : "bg-transparent"
     } ${isAdmin ? "hidden" : ""}`}>
       <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop flex justify-between items-center h-20">
-        <div className="flex items-center gap-[clamp(0.75rem,2vw,1.5rem)]">
+        <div className="flex items-center gap-[clamp(0.75rem,2vw,1.5rem)] flex-1">
           <Link href="/" className="flex items-center">
             <Image
               src="/logo.webp"
@@ -193,7 +193,7 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
             )}
           </div>
         </div>
-        <div className="flex items-center gap-[clamp(0.25rem,0.8vw,0.75rem)] ml-auto">
+        <div className="flex items-center gap-[clamp(0.25rem,0.8vw,0.75rem)]">
           {user ? (
             <>
               <button
