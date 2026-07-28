@@ -193,7 +193,7 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
             )}
           </div>
         </div>
-        <div className="flex items-center gap-[clamp(0.25rem,0.8vw,0.75rem)]">
+        <div className="flex items-center gap-[clamp(0.25rem,0.8vw,0.75rem)] ml-auto">
           {user ? (
             <>
               <button
