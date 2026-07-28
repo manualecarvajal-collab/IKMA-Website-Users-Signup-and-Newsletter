@@ -19,7 +19,24 @@ export async function proxy(request: NextRequest) {
     }
   )
 
-  await supabase.auth.getUser()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  // After email confirmation, Supabase redirects to homepage.
+  // Redirect new users to /membresia instead.
+  if (user && request.nextUrl.pathname === "/") {
+    const { data: perfil } = await supabase
+      .from("perfiles")
+      .select("suscripcion_activa")
+      .eq("id", user.id)
+      .single()
+
+    // If user has no active subscription, send them to membership page
+    if (perfil && !perfil.suscripcion_activa) {
+      const redirectUrl = request.nextUrl.clone()
+      redirectUrl.pathname = "/membresia"
+      return NextResponse.redirect(redirectUrl)
+    }
+  }
 
   return response
 }
