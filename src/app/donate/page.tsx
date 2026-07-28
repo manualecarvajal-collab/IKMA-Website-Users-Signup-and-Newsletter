@@ -45,9 +45,6 @@ export default function DonatePage() {
       <div className="max-w-2xl mx-auto px-margin-mobile md:px-margin-desktop">
         <div className="bg-surface rounded-xl p-8 md:p-12 shadow-[0_20px_20px_0_rgba(7,68,105,0.04)] border border-outline-variant/20">
           <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-primary-container/20 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Icon name="favorite" size={32} className="text-primary" />
-            </div>
             <h1 className="font-headline-lg text-headline-md text-primary mb-2">
               Support This Mission
             </h1>
