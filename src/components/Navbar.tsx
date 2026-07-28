@@ -199,6 +199,14 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
             </>
           ) : null}
           <span className="w-px h-6 bg-outline-variant hidden md:block" />
+          {!user && (
+            <Link
+              href="/login"
+              className="hidden md:inline-block text-primary font-label-bold text-xs md:text-label-bold px-2 py-1.5 md:px-3 md:py-2.5 hover:underline transition-all duration-300 ease-in-out active:scale-95"
+            >
+              {t("logIn")}
+            </Link>
+          )}
           <Link
             href={user ? "/donate" : "/registro"}
             className="hidden md:inline-block bg-primary text-on-primary font-label-bold text-xs md:text-label-bold px-4 py-1.5 md:px-6 md:py-2.5 rounded-lg hover:bg-surface hover:text-on-primary-fixed-variant transition-all duration-300 ease-in-out active:scale-95 shadow-sm"
@@ -338,6 +346,15 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
               </button>
             </div>
           ) : null}
+          {!user && (
+            <Link
+              href="/login"
+              onClick={closeMobile}
+              className="block w-full text-center text-primary font-label-bold text-label-bold px-6 py-2.5 hover:underline transition-all"
+            >
+              {t("logIn")}
+            </Link>
+          )}
           <Link
             href={user ? "/donate" : "/registro"}
             onClick={closeMobile}
