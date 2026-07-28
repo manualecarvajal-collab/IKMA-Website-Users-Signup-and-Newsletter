@@ -40,6 +40,44 @@ export async function submitMembership(data: {
   if (!user) return { error: "You must be logged in to submit a membership application." }
 
   const adminSupabase = await createAdminClient()
+
+  // Reuse existing pending/rejected solicitud instead of creating a new one
+  const { data: existente } = await adminSupabase
+    .from("solicitudes_membresia")
+    .select("id, estado")
+    .eq("usuario_id", user.id)
+    .in("estado", ["pendiente", "rechazada"])
+    .maybeSingle()
+
+  if (existente) {
+    const { data: solicitud, error } = await adminSupabase
+      .from("solicitudes_membresia")
+      .update({
+        tipo_miembro: data.tipoMiembro,
+        region: data.region,
+        pais: data.pais,
+        language: data.language,
+        genero: data.genero,
+        direccion: data.direccion,
+        ciudad: data.ciudad,
+        codigo_postal: data.codigoPostal,
+        subgrupo_profesional: data.subgrupoProfesional,
+        otra_profesion: data.otraProfesion,
+        username: data.username,
+        telefono: data.telefono,
+        sitio_web: data.sitioWeb,
+        anio_grado: data.anioGrado,
+        anio_residencia: data.anioResidencia,
+        archivo_licencia_url: data.archivoLicenciaUrl,
+        estado: "pendiente",
+      })
+      .eq("id", existente.id)
+      .select("id")
+      .single()
+    if (error) return { error: "Could not update membership request. Please try again." }
+    return { success: "ok", id: solicitud.id }
+  }
+
   const { data: solicitud, error } = await adminSupabase
     .from("solicitudes_membresia")
     .insert({
@@ -65,6 +103,6 @@ export async function submitMembership(data: {
     .select("id")
     .single()
 
-  if (error) return { error: error.message }
+  if (error) return { error: "Could not submit membership request. Please try again." }
   return { success: "ok", id: solicitud.id }
 }

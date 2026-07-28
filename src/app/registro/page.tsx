@@ -12,7 +12,7 @@ export default function RegistroPage() {
 
   useEffect(() => {
     if (state?.success === "ok") {
-      window.location.href = "/"
+      window.location.href = "/membresia"
     }
   }, [state])
 

@@ -19,11 +19,14 @@ export async function signup(prevState: { error?: string; success?: string } | u
     return { error: "Password must contain at least one uppercase letter, one lowercase letter, and one number" }
   }
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
       data: { nombre_completo },
+      emailRedirectTo: `${siteUrl}/membresia`,
     },
   })
 

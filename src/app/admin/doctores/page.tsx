@@ -5,10 +5,12 @@ import { DeleteButton } from "@/components/DeleteButton";
 import { ToggleStatus } from "@/components/ToggleStatus";
 import { ListFilters } from "@/components/ListFilters";
 import Icon from "@/components/Icon";
+import { getTranslations } from "next-intl/server";
 
 export default async function AdminDoctoresPage(props: {
   searchParams?: Promise<Record<string, string>>;
 }) {
+  const t = await getTranslations("Admin");
   const searchParams = await props.searchParams;
   const supabase = await createClient();
 
@@ -28,18 +30,17 @@ export default async function AdminDoctoresPage(props: {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
           <h1 className="font-headline-lg text-headline-lg text-primary">
-            Doctors
+            {t("doctors")}
           </h1>
           <p className="font-body-md text-body-md text-on-surface-variant">
-            Manage doctor profiles
+            {t("doctorsDesc")}
           </p>
         </div>
         <Link
           href="/admin/doctores/nuevo"
           className="w-full sm:w-auto bg-primary text-on-primary font-label-bold text-label-bold px-5 py-2.5 rounded-lg hover:bg-primary-container hover:text-on-primary-container transition-colors inline-flex items-center justify-center gap-2"
         >
-          <Icon name="add" size={14} /> New
-          Doctor
+          <Icon name="add" size={14} /> {t("newDoctor")}
         </Link>
       </div>
 
@@ -51,16 +52,16 @@ export default async function AdminDoctoresPage(props: {
           <thead>
             <tr className="bg-surface-container-low border-b border-outline-variant/20">
               <th className="text-left font-label-bold text-label-sm text-on-surface-variant uppercase tracking-wider px-6 py-4">
-                Name
+                {t("name")}
               </th>
               <th className="text-left font-label-bold text-label-sm text-on-surface-variant uppercase tracking-wider px-6 py-4 hidden md:table-cell">
-                Specialty
+                {t("specialty")}
               </th>
               <th className="text-left font-label-bold text-label-sm text-on-surface-variant uppercase tracking-wider px-6 py-4 hidden sm:table-cell">
-                Status
+                {t("status")}
               </th>
               <th className="text-right font-label-bold text-label-sm text-on-surface-variant uppercase tracking-wider px-6 py-4">
-                Actions
+                {t("actions")}
               </th>
             </tr>
           </thead>
@@ -71,7 +72,7 @@ export default async function AdminDoctoresPage(props: {
                   colSpan={4}
                   className="px-6 py-12 text-center font-body-md text-body-md text-on-surface-variant"
                 >
-                  No doctors yet.
+                  {t("noDoctors")}
                 </td>
               </tr>
             )}
@@ -107,7 +108,7 @@ export default async function AdminDoctoresPage(props: {
                     </Link>
                     <DeleteButton
                       action={deleteDoctor.bind(null, String(d.id))}
-                      label="Doctor"
+                      label={t("doctor")}
                     />
                   </div>
                 </td>

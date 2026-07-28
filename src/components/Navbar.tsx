@@ -197,28 +197,13 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
                 {t("signOut")}
               </button>
             </>
-          ) : (
-            <>
-              <Link
-                href="/login"
-                className="hidden md:inline-block bg-white border border-outline-variant text-on-surface font-label-bold text-xs md:text-label-bold rounded-lg hover:bg-surface-container transition-all duration-300 ease-in-out active:scale-95 px-3 py-1.5 md:px-5 md:py-2.5"
-              >
-                {t("logIn")}
-              </Link>
-              <Link
-                href="/registro"
-                className="hidden md:inline-block bg-surface-container-high text-on-surface font-label-bold text-xs md:text-label-bold rounded-lg hover:bg-surface-container-highest transition-all duration-300 ease-in-out active:scale-95 px-3 py-1.5 md:px-5 md:py-2.5"
-              >
-                {t("signUp")}
-              </Link>
-            </>
-          )}
+          ) : null}
           <span className="w-px h-6 bg-outline-variant hidden md:block" />
           <Link
-            href={user ? "/membresia" : "/registro"}
+            href={user ? "/donate" : "/registro"}
             className="hidden md:inline-block bg-primary text-on-primary font-label-bold text-xs md:text-label-bold px-4 py-1.5 md:px-6 md:py-2.5 rounded-lg hover:bg-surface hover:text-on-primary-fixed-variant transition-all duration-300 ease-in-out active:scale-95 shadow-sm"
           >
-            {t("becomeMember")}
+            {user ? t("supportMission") : t("becomeMember")}
           </Link>
           <button
             onClick={() => setMobileOpen((o) => !o)}
@@ -352,30 +337,13 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
                 {t("signOut")}
               </button>
             </div>
-          ) : (
-            <div className="px-4 space-y-3">
-              <Link
-                href="/login"
-                onClick={closeMobile}
-                className="block w-full text-center bg-white border border-outline-variant text-on-surface font-label-bold text-label-bold rounded-lg hover:bg-surface-container transition-all px-5 py-2.5"
-              >
-                {t("logIn")}
-              </Link>
-              <Link
-                href="/registro"
-                onClick={closeMobile}
-                className="block w-full text-center bg-surface-container-high text-on-surface font-label-bold text-label-bold rounded-lg hover:bg-surface-container-highest transition-all px-5 py-2.5"
-              >
-                {t("signUp")}
-              </Link>
-            </div>
-          )}
+          ) : null}
           <Link
-            href={user ? "/membresia" : "/registro"}
+            href={user ? "/donate" : "/registro"}
             onClick={closeMobile}
             className="block w-full text-center bg-primary text-on-primary font-label-bold text-label-bold px-6 py-2.5 rounded-lg transition-all shadow-sm"
           >
-            {t("becomeMember")}
+            {user ? t("supportMission") : t("becomeMember")}
           </Link>
         </div>
       </div>

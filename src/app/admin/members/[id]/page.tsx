@@ -6,7 +6,8 @@ import Icon from "@/components/Icon"
 
 async function signedLicenseUrl(path: string): Promise<string> {
   const admin = await createAdminClient()
-  const { data } = await admin.storage.from("membership-licenses").createSignedUrl(path, 60 * 60 * 24 * 7)
+  // A7: Generate short-lived signed URL (60s) for sensitive medical license documents
+  const { data } = await admin.storage.from("membership-licenses").createSignedUrl(path, 60)
   return data?.signedUrl ?? path
 }
 

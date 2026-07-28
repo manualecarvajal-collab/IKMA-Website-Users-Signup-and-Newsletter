@@ -56,7 +56,9 @@ export default async function NewsletterPage() {
             {tMagazine("title")}
           </h1>
           <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">
-            {tMagazine("subtitle")}
+            {tMagazine.rich("subtitle", {
+              link: (chunks) => <a href="/membresia" className="text-primary font-semibold hover:underline">{chunks}</a>,
+            })}
           </p>
         </div>
 

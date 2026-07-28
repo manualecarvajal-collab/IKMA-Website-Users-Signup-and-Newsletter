@@ -1,8 +1,10 @@
 import Link from "next/link"
 import { createClient, createAdminClient } from "@/lib/supabase/server"
 import Icon from "@/components/Icon"
+import { getTranslations } from "next-intl/server"
 
 export default async function AdminDashboard() {
+  const t = await getTranslations("Admin")
   const supabase = await createClient()
 
   // Stats
@@ -65,7 +67,7 @@ export default async function AdminDashboard() {
   const barras = Array.from({ length: 14 }, (_, i) => {
     const d = new Date()
     d.setDate(d.getDate() - (13 - i))
-    const label = i === 13 ? "Today" : d.toLocaleDateString("en-US", { month: "2-digit", day: "2-digit" })
+    const label = i === 13 ? t("today") : d.toLocaleDateString("en-US", { month: "2-digit", day: "2-digit" })
     const count = countsPorDia[label] || 0
     return { label, h: Math.min(Math.round((count / 100) * 100), 100), isToday: i === 13 }
   })
@@ -75,9 +77,9 @@ export default async function AdminDashboard() {
       {/* Header */}
       <header className="h-20 bg-white border-b border-[#c1c7ce] flex items-center justify-between px-6 sticky top-0 z-40">
         <div>
-          <h1 className="text-[24px] font-semibold text-[#003652] leading-8 tracking-tight">Dashboard</h1>
+          <h1 className="text-[24px] font-semibold text-[#003652] leading-8 tracking-tight">{t("dashboardTitle")}</h1>
           <p className="text-[12px] text-[#41474d] leading-4 tracking-[0.02em] font-medium">
-            Welcome back, here&apos;s what&apos;s happening today.
+            {t("dashboardSubtitle")}
           </p>
         </div>
         <div className="flex items-center gap-4">
@@ -86,7 +88,7 @@ export default async function AdminDashboard() {
             className="bg-[#003652] text-white px-6 py-2 rounded-lg text-[14px] font-semibold leading-5 tracking-[0.01em] hover:bg-[#1a4d6d] transition-all duration-200 flex items-center gap-2"
           >
             <Icon name="person_add" size={20} className="font-light" />
-            Users
+            {t("users")}
           </Link>
         </div>
       </header>
@@ -102,15 +104,15 @@ export default async function AdminDashboard() {
                 <Icon name="description" size={28} />
               </div>
               <span className="text-[#41474d] text-[12px] font-medium leading-4 tracking-[0.02em] bg-[#eceeef] px-2 py-1 rounded">
-                Last 30 days
+                {t("last30Days")}
               </span>
             </div>
             <div className="p-6 pt-0 flex-1 flex flex-col">
               <div className="space-y-1">
-                <h3 className="text-[#41474d] text-[14px] font-semibold leading-5 tracking-[0.01em]">Total Articles</h3>
+                <h3 className="text-[#41474d] text-[14px] font-semibold leading-5 tracking-[0.01em]">{t("totalArticles")}</h3>
                 <div className="flex items-baseline gap-2">
                   <span className="text-4xl font-bold text-[#003652]">{articulosTotal ?? 0}</span>
-                  <span className="text-[#003652] text-[12px] font-medium leading-4 tracking-[0.02em]">Published</span>
+                  <span className="text-[#003652] text-[12px] font-medium leading-4 tracking-[0.02em]">{t("published")}</span>
                 </div>
               </div>
               {articulosRecientes && articulosRecientes.length > 0 && (
@@ -125,7 +127,7 @@ export default async function AdminDashboard() {
               )}
               <div className="pt-4 border-t border-[#c1c7ce] flex justify-between items-center mt-auto">
                 <Link href="/admin/articulos" className="text-[#003652] text-[14px] font-semibold leading-5 tracking-[0.01em] flex items-center gap-1 hover:underline">
-                  Manage
+                  {t("manage")}
                   <Icon name="arrow_forward" size={16} />
                 </Link>
                 <div className="flex -space-x-2">
@@ -143,7 +145,7 @@ export default async function AdminDashboard() {
                 <Icon name="menu_book" size={28} />
               </div>
               <div className="text-right">
-                <h3 className="text-[#41474d] text-[14px] font-semibold leading-5 tracking-[0.01em]">Total Magazines</h3>
+                <h3 className="text-[#41474d] text-[14px] font-semibold leading-5 tracking-[0.01em]">{t("totalMagazines")}</h3>
                 <span className="text-4xl font-bold text-[#003652]">{revistasTotal ?? 0}</span>
               </div>
             </div>
@@ -164,7 +166,7 @@ export default async function AdminDashboard() {
                   </div>
                 )}
                 <div className="absolute bottom-2 left-2 bg-[#003652]/90 text-white px-2 py-1 rounded text-[10px] uppercase font-bold tracking-widest">
-                  {ultimaRevista ? "Latest Issue" : "No Issues"}
+                  {ultimaRevista ? t("latestIssue") : t("noIssues")}
                 </div>
               </div>
               {ultimaRevista && (
@@ -172,7 +174,7 @@ export default async function AdminDashboard() {
               )}
               <div className="mt-4 pt-4 border-t border-[#c1c7ce] mt-auto">
                 <Link href="/admin/revistas" className="text-[#003652] text-[14px] font-semibold leading-5 tracking-[0.01em] flex items-center gap-1 hover:underline">
-                  Manage
+                  {t("manage")}
                   <Icon name="arrow_forward" size={16} />
                 </Link>
               </div>
@@ -186,7 +188,7 @@ export default async function AdminDashboard() {
                 <Icon name="smart_display" size={28} />
               </div>
               <div className="text-right">
-                <h3 className="text-[#41474d] text-[14px] font-semibold leading-5 tracking-[0.01em]">Total Teachings</h3>
+                <h3 className="text-[#41474d] text-[14px] font-semibold leading-5 tracking-[0.01em]">{t("totalTeachings")}</h3>
                 <span className="text-4xl font-bold text-[#003652]">{videosTotal ?? 0}</span>
               </div>
             </div>
@@ -203,12 +205,12 @@ export default async function AdminDashboard() {
                     </div>
                   </div>
                   <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent">
-                    <p className="text-white text-[10px] font-medium truncate notranslate">{ultimoVideo?.titulo || "No teachings yet"}</p>
+                    <p className="text-white text-[10px] font-medium truncate notranslate">{ultimoVideo?.titulo || t("noTeachingsYet")}</p>
                   </div>
                 </div>
               <div className="mt-4 pt-4 border-t border-[#c1c7ce] mt-auto">
                 <Link href="/admin/teachings" className="text-[#003652] text-[14px] font-semibold leading-5 tracking-[0.01em] flex items-center gap-1 hover:underline">
-                  Manage
+                  {t("manage")}
                   <Icon name="arrow_forward" size={16} />
                 </Link>
               </div>
@@ -222,15 +224,15 @@ export default async function AdminDashboard() {
           <div className="bg-white rounded-xl p-6 shadow-[0_4px_20px_rgba(26,77,109,0.08)] h-96 relative overflow-hidden">
             <div className="flex justify-between items-center mb-8">
               <div>
-                <h2 className="text-[24px] font-semibold text-[#003652] leading-8 tracking-tight">System Activity</h2>
-                <p className="text-[#41474d] text-[12px] font-medium leading-4 tracking-[0.02em]">Usage metrics over the last 14 days</p>
+                <h2 className="text-[24px] font-semibold text-[#003652] leading-8 tracking-tight">{t("systemActivity")}</h2>
+                <p className="text-[#41474d] text-[12px] font-medium leading-4 tracking-[0.02em]">{t("systemActivityDesc")}</p>
               </div>
               <div className="flex gap-4 text-[12px] font-medium text-[#41474d]">
                 <div className="flex items-center gap-1">
-                  <span className="font-semibold text-[#003652]">Y:</span> Visitors
+                  <span className="font-semibold text-[#003652]">Y:</span> {t("visitors")}
                 </div>
                 <div className="flex items-center gap-1">
-                  <span className="font-semibold text-[#003652]">X:</span> Month/Day
+                  <span className="font-semibold text-[#003652]">X:</span> {t("monthDay")}
                 </div>
               </div>
             </div>
@@ -264,18 +266,18 @@ export default async function AdminDashboard() {
           {/* Activity History */}
           <div className="bg-white rounded-xl shadow-[0_4px_20px_rgba(26,77,109,0.08)] overflow-hidden">
             <div className="p-6 border-b border-[#c1c7ce] flex justify-between items-center">
-              <h2 className="text-[24px] font-semibold text-[#003652] leading-8 tracking-tight">Activity History</h2>
+              <h2 className="text-[24px] font-semibold text-[#003652] leading-8 tracking-tight">{t("activityHistory")}</h2>
               <span className="text-[12px] font-medium text-[#41474d] bg-[#f2f4f5] px-2 py-1 rounded">
-                Latest
+                {t("latest")}
               </span>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-left">
                 <thead className="bg-[#f2f4f5]">
                   <tr>
-                    <th className="px-6 py-4 text-[14px] font-semibold text-[#41474d] uppercase tracking-wider leading-5">Action</th>
-                    <th className="px-6 py-4 text-[14px] font-semibold text-[#41474d] uppercase tracking-wider leading-5">User</th>
-                    <th className="px-6 py-4 text-[14px] font-semibold text-[#41474d] uppercase tracking-wider leading-5">Date</th>
+                    <th className="px-6 py-4 text-[14px] font-semibold text-[#41474d] uppercase tracking-wider leading-5">{t("action")}</th>
+                    <th className="px-6 py-4 text-[14px] font-semibold text-[#41474d] uppercase tracking-wider leading-5">{t("user")}</th>
+                    <th className="px-6 py-4 text-[14px] font-semibold text-[#41474d] uppercase tracking-wider leading-5">{t("date")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#c1c7ce]">
@@ -325,7 +327,7 @@ export default async function AdminDashboard() {
                   {(!actividades || actividades.length === 0) && (
                     <tr>
                       <td colSpan={3} className="px-6 py-8 text-center text-[#41474d] text-sm">
-                        No activity recorded yet. Actions will appear here as you manage the site.
+                        {t("noActivity")}
                       </td>
                     </tr>
                   )}

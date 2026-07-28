@@ -88,6 +88,26 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
   const authorAvatar = article.autor_avatar_url ||
     `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(article.autor_nombre || "IKMA")}&backgroundColor=074469&textColor=ffffff`
 
+  // Server-side paywall — subscribers get full access, free users get last 4 articles
+  const isSubscribed = !!perfil?.suscripcion_activa
+
+  let puedeVerCompleto = isSubscribed
+  if (!isSubscribed) {
+    const { data: latestArticles } = await supabase
+      .from("articulos")
+      .select("slug")
+      .eq("publicado", true)
+      .order("fecha_publicacion", { ascending: false })
+      .limit(4)
+    const latestSlugs = (latestArticles ?? []).map((a) => a.slug)
+    puedeVerCompleto = latestSlugs.includes(slug)
+  }
+
+  const primerParrafo = articleContent
+    ? articleContent.slice(0, Math.max(articleContent.indexOf("</p>") + 4, 0))
+    : null
+  const contenidoAEnviar = puedeVerCompleto ? articleContent : primerParrafo
+
   return (
     <article className="py-section-padding">
       <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
@@ -167,9 +187,9 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
             </h1>
 
             <ArticleContent
-              contenidoHtml={articleContent}
+              contenidoHtml={contenidoAEnviar}
               resumen={articleSummary}
-              isAuthenticated={!!user}
+              isAuthenticated={puedeVerCompleto}
             />
           </div>
         </div>

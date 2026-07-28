@@ -5,8 +5,10 @@ import { DeleteButton } from "@/components/DeleteButton"
 import { ToggleStatus } from "@/components/ToggleStatus"
 import { ListFilters } from "@/components/ListFilters"
 import Icon from "@/components/Icon"
+import { getTranslations } from "next-intl/server"
 
 export default async function AdminArticulosPage(props: { searchParams?: Promise<Record<string, string>> }) {
+  const t = await getTranslations("Admin")
   const searchParams = await props.searchParams
   const supabase = await createClient()
 
@@ -25,14 +27,14 @@ export default async function AdminArticulosPage(props: { searchParams?: Promise
     <div className="p-4 sm:p-6 md:p-8">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="font-headline-lg text-headline-lg text-primary">Articles</h1>
-          <p className="font-body-md text-body-md text-on-surface-variant">Manage journal articles and blog posts</p>
+          <h1 className="font-headline-lg text-headline-lg text-primary">{t("articles")}</h1>
+          <p className="font-body-md text-body-md text-on-surface-variant">{t("articlesDesc")}</p>
         </div>
         <Link
           href="/admin/articulos/nuevo"
           className="w-full sm:w-auto bg-primary text-on-primary font-label-bold text-label-bold px-5 py-2.5 rounded-lg hover:bg-primary-container hover:text-on-primary-container transition-colors inline-flex items-center justify-center gap-2"
         >
-          <Icon name="add" size={14} /> New Article
+          <Icon name="add" size={14} /> {t("newArticle")}
         </Link>
       </div>
 
@@ -43,16 +45,16 @@ export default async function AdminArticulosPage(props: { searchParams?: Promise
         <table className="w-full">
           <thead>
             <tr className="bg-surface-container-low border-b border-outline-variant/20">
-              <th className="text-left font-label-bold text-label-sm text-on-surface-variant uppercase tracking-wider px-6 py-4">Title</th>
-              <th className="text-left font-label-bold text-label-sm text-on-surface-variant uppercase tracking-wider px-6 py-4 hidden md:table-cell">Author</th>
-              <th className="text-left font-label-bold text-label-sm text-on-surface-variant uppercase tracking-wider px-6 py-4 hidden sm:table-cell">Status</th>
-              <th className="text-left font-label-bold text-label-sm text-on-surface-variant uppercase tracking-wider px-6 py-4 hidden md:table-cell">Date</th>
-              <th className="text-right font-label-bold text-label-sm text-on-surface-variant uppercase tracking-wider px-6 py-4">Actions</th>
+              <th className="text-left font-label-bold text-label-sm text-on-surface-variant uppercase tracking-wider px-6 py-4">{t("title")}</th>
+              <th className="text-left font-label-bold text-label-sm text-on-surface-variant uppercase tracking-wider px-6 py-4 hidden md:table-cell">{t("author")}</th>
+              <th className="text-left font-label-bold text-label-sm text-on-surface-variant uppercase tracking-wider px-6 py-4 hidden sm:table-cell">{t("status")}</th>
+              <th className="text-left font-label-bold text-label-sm text-on-surface-variant uppercase tracking-wider px-6 py-4 hidden md:table-cell">{t("date")}</th>
+              <th className="text-right font-label-bold text-label-sm text-on-surface-variant uppercase tracking-wider px-6 py-4">{t("actions")}</th>
             </tr>
           </thead>
           <tbody>
             {articulos?.length === 0 && (
-              <tr><td colSpan={5} className="px-6 py-12 text-center font-body-md text-body-md text-on-surface-variant">No articles yet. Create your first one!</td></tr>
+              <tr><td colSpan={5} className="px-6 py-12 text-center font-body-md text-body-md text-on-surface-variant">{t("noArticles")}</td></tr>
             )}
             {articulos?.map((a) => (
               <tr key={a.id} className="border-b border-outline-variant/10 hover:bg-surface-container-low/50 transition-colors">

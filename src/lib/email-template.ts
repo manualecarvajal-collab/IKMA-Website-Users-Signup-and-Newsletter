@@ -7,7 +7,12 @@ export function buildNewsletterHtml(config: {
   contenido_html: string
   imagen_url?: string | null
   from_name: string
+  email?: string
 }) {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+  const unsubscribeUrl = config.email
+    ? `${siteUrl}/api/unsubscribe?email=${encodeURIComponent(config.email)}`
+    : ""
   return `
     <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; border: 1px solid #e0e0e0;">
       <div style="background-color: #074469; padding: 32px 24px; text-align: center;">
@@ -31,6 +36,7 @@ export function buildNewsletterHtml(config: {
       <div style="background-color: #f9f9f9; padding: 24px; text-align: center; color: #938f99; font-size: 12px;">
         <p style="margin: 0;">&copy; 2026 IKMA. All rights reserved.</p>
         <p style="margin: 8px 0 0;">You are receiving this email because you are a registered subscriber.</p>
+        ${unsubscribeUrl ? `<p style="margin: 8px 0 0;"><a href="${unsubscribeUrl}" style="color: #938f99;">Unsubscribe</a></p>` : ""}
       </div>
     </div>
   `
@@ -43,7 +49,12 @@ export function buildMagazineHtml(config: {
   imagen_portada?: string | null
   archivo_url: string
   from_name: string
+  email?: string
 }) {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+  const unsubscribeUrl = config.email
+    ? `${siteUrl}/api/unsubscribe?email=${encodeURIComponent(config.email)}`
+    : ""
   return `
     <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; border: 1px solid #e0e0e0;">
       <div style="background-color: #074469; padding: 32px 24px; text-align: center;">
@@ -76,6 +87,7 @@ export function buildMagazineHtml(config: {
       <div style="background-color: #f9f9f9; padding: 24px; text-align: center; color: #938f99; font-size: 12px;">
         <p style="margin: 0;">&copy; 2026 IKMA. All rights reserved.</p>
         <p style="margin: 8px 0 0;">You are receiving this email because you are a registered subscriber.</p>
+        ${unsubscribeUrl ? `<p style="margin: 8px 0 0;"><a href="${unsubscribeUrl}" style="color: #938f99;">Unsubscribe</a></p>` : ""}
       </div>
     </div>
   `

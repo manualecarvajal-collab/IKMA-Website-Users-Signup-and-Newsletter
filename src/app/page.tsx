@@ -55,13 +55,8 @@ export default async function HomePage() {
                   &ldquo;
                 </span>
 
-                <p className="text-primary md:text-[#334D96] text-sm sm:text-base md:text-[clamp(13px,1.2vw,19px)] leading-snug md:leading-[1.5] -mt-2 md:-mt-3">
-                  <span className="font-[700]">Mankind and the nations are operating below </span>
-                  <span className="font-[500] italic">our God-given potential.</span>
-                  <span className="font-[700]"> Our mission/purpose is to </span>
-                  <span className="font-[900]">rebuild, restore, and renew the medical field</span>
-                  <span className="font-[700]"> </span>
-                  <span className="font-[500]">to its role of preserving and supporting the flourishing of mankind.</span>
+                <p className="text-primary md:text-[#334D96] text-sm sm:text-base md:text-[clamp(13px,1.2vw,19px)] leading-snug md:leading-[1.5] -mt-2 md:-mt-3 font-[500]">
+                  {tHero("banner1Quote")}
                 </p>
 
                 <div className="text-center md:text-right -mt-1">
@@ -75,7 +70,7 @@ export default async function HomePage() {
                 </div>
 
                 <p className="text-primary/70 md:text-[#717377] text-[10px] md:text-xs font-[700] mt-2 md:mt-3 tracking-[0.2em] uppercase">
-                  APOSTLE JOHN BONEY
+                  {tHero("banner1Author")}
                 </p>
               </div>
             </div>
@@ -117,14 +112,8 @@ export default async function HomePage() {
                   &ldquo;
                 </span>
 
-                <p className="text-primary md:text-[#334D96] text-sm sm:text-base md:text-[clamp(13px,1.2vw,19px)] leading-snug md:leading-[1.5] -mt-2 md:-mt-3">
-                  <span className="font-[600]">The root of all diseases has a </span>
-                  <span className="font-[600]">spiritual component </span>
-                  <span className="font-[800]">that affects the soul, body, </span>
-                  <span className="font-[800]">and mind.</span>
-                  <span className="font-[600]"> God&rsquo;s Word reminds </span>
-                  <span className="font-[600]">us in Proverbs 20:27, </span>
-                  <span className="font-[600] italic">&ldquo;The human spirit is the lamp of the Lord that sheds light on one&rsquo;s inmost being.&rdquo;</span>
+                <p className="text-primary md:text-[#334D96] text-sm sm:text-base md:text-[clamp(13px,1.2vw,19px)] leading-snug md:leading-[1.5] -mt-2 md:-mt-3 font-[600]">
+                  {tHero("banner2Quote")}
                 </p>
 
                 <div className="text-center md:text-right -mt-1">
@@ -138,7 +127,7 @@ export default async function HomePage() {
                 </div>
 
                 <p className="text-primary/70 md:text-[#717377] text-[10px] md:text-xs font-[700] mt-2 md:mt-3 tracking-[0.2em] uppercase">
-                  FRANCISCO HERNÁNDEZ
+                  {tHero("banner2Author")}
                 </p>
               </div>
             </div>

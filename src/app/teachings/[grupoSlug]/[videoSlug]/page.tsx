@@ -4,6 +4,7 @@ import type { Metadata } from "next"
 import { createClient } from "@/lib/supabase/server"
 import { getTranslations, getLocale } from "next-intl/server"
 import Icon from "@/components/Icon"
+import VideoPaywall from "./VideoPaywall"
 
 interface Video {
   id: string
@@ -17,9 +18,17 @@ interface Video {
   grupo_id: string
 }
 
-function embedSrc(value: string): string {
-  const m = value.match(/src="([^"]+)"/)
-  return m ? m[1] : value
+const DOMINIOS_PERMITIDOS = ["www.youtube.com", "youtube.com", "youtu.be", "player.vimeo.com", "subsplash.com"]
+
+function embedSrcSeguro(value: string): string | null {
+  const src = value.match(/src="([^"]+)"/)?.[1] ?? value
+  try {
+    const u = new URL(src)
+    if (u.protocol !== "https:") return null
+    return DOMINIOS_PERMITIDOS.includes(u.hostname) ? u.toString() : null
+  } catch {
+    return null
+  }
 }
 
 function formatDate(d: string, locale: string) {
@@ -78,6 +87,13 @@ export default async function TeachingPage({ params }: { params: Promise<{ grupo
   const locale = await getLocale()
   const supabase = await createClient()
 
+  // Check subscription for video paywall
+  const { data: { user } } = await supabase.auth.getUser()
+  const { data: perfil } = user
+    ? await supabase.from("perfiles").select("suscripcion_activa").eq("id", user.id).single()
+    : { data: null }
+  const isSubscribed = !!perfil?.suscripcion_activa
+
   const { data: grupo } = await supabase.from("grupos").select("id, nombre").eq("slug", grupoSlug).single()
   if (!grupo) notFound()
 
@@ -99,14 +115,25 @@ export default async function TeachingPage({ params }: { params: Promise<{ grupo
               <span className="text-primary truncate notranslate">{video.titulo}</span>
             </nav>
             <div className="relative aspect-video bg-surface-container rounded-xl overflow-hidden shadow-lg mb-8">
-              <iframe
-                src={embedSrc(video.embed_url)}
-                title={video.titulo}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                referrerPolicy="strict-origin-when-cross-origin"
-                className="w-full h-full"
-              />
+              {isSubscribed ? (
+                embedSrcSeguro(video.embed_url) ? (
+                  <iframe
+                    src={embedSrcSeguro(video.embed_url)!}
+                    title={video.titulo}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    referrerPolicy="strict-origin-when-cross-origin"
+                    sandbox="allow-scripts allow-same-origin allow-presentation"
+                    className="w-full h-full"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-surface-container-low text-on-surface-variant font-label-bold text-label-sm">
+                    Video no disponible
+                  </div>
+                )
+              ) : (
+                <VideoPaywall />
+              )}
             </div>
             <h1 className="font-headline-md text-headline-md text-primary mb-4 notranslate">{video.titulo}</h1>
             <div className="flex items-center gap-4 mb-6">

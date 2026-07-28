@@ -41,12 +41,11 @@ export default function ContactSection() {
       <section className="bg-surface-container-low py-24">
         <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop text-center">
           <h2 className="font-headline-xl text-headline-lg text-primary mb-6">
-            {t("getInTouch")}
+            {t("heroTitle")}
           </h2>
           <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto">
-             {t("formInquiry1")}</p>
-          <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto">
-             {t("formInquiry2")}</p>
+            {t("heroDescription")}
+          </p>
         </div>
       </section>
 

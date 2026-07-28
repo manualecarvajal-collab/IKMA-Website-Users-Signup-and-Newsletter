@@ -1,8 +1,17 @@
 import { NextResponse } from "next/server"
-import { createClient } from "@supabase/supabase-js"
+import { createClient, createAdminClient } from "@/lib/supabase/server"
 
 export async function POST(request: Request) {
   try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+
+    const { data: perfil } = await supabase.from("perfiles").select("rol").eq("id", user.id).single()
+    if (perfil?.rol !== "administrador") {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+    }
+
     const { name: fileName, type: fileType } = await request.json()
 
     if (!fileName) {
@@ -16,15 +25,11 @@ export async function POST(request: Request) {
     const ext = fileName.split(".").pop()
     const storagePath = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
 
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
-      { auth: { autoRefreshToken: false, persistSession: false } }
-    )
+    const admin = await createAdminClient()
 
-    const { data, error } = await supabase.storage
+    const { data, error } = await admin.storage
       .from("revistas-pdf")
-      .createSignedUploadUrl(storagePath, { upsert: true })
+      .createSignedUploadUrl(storagePath)
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 })
@@ -32,7 +37,7 @@ export async function POST(request: Request) {
 
     const {
       data: { publicUrl },
-    } = supabase.storage.from("revistas-pdf").getPublicUrl(storagePath)
+    } = admin.storage.from("revistas-pdf").getPublicUrl(storagePath)
 
     return NextResponse.json({ signedUrl: data.signedUrl, publicUrl })
   } catch (err) {

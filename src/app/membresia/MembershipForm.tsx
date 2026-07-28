@@ -27,6 +27,7 @@ type FormData = {
   gradYear: string
   residencyYear: string
   rulesConsent: boolean
+  newsletterConsent: boolean
   consentStatutory: boolean
   consentDataProcessing: boolean
   licenseFile: File | null
@@ -53,6 +54,7 @@ const initialForm: FormData = {
   gradYear: "",
   residencyYear: "",
   rulesConsent: false,
+  newsletterConsent: true,
   consentStatutory: false,
   consentDataProcessing: false,
   licenseFile: null,
@@ -192,6 +194,35 @@ export default function MembershipForm({
     }
   }
 
+  const handleFreeSubmit = async () => {
+    setSubmitting(true)
+    setSubmitError(null)
+    try {
+      await submitMembership({
+        tipoMiembro: 3,
+        region: "A",
+        pais: "",
+        language: form.language || "en",
+        genero: null,
+        direccion: null,
+        ciudad: null,
+        codigoPostal: null,
+        subgrupoProfesional: null,
+        otraProfesion: null,
+        username: null,
+        telefono: null,
+        sitioWeb: null,
+        anioGrado: null,
+        anioResidencia: null,
+        archivoLicenciaUrl: null,
+      })
+      window.location.href = "/"
+    } catch (e) {
+      setSubmitError(e instanceof Error ? e.message : "Something went wrong")
+      setSubmitting(false)
+    }
+  }
+
   const regionLabel = form.region === "A"
     ? t("regionAOpt")
     : form.region === "B"
@@ -264,8 +295,8 @@ export default function MembershipForm({
                   <span className="font-bold">$50 USD</span>
                 </li>
                 <li className="flex justify-between border-b border-outline-variant/30 pb-1.5">
-                  <span>{t("student")}</span>
-                  <span className="font-bold text-surface-tint uppercase">Free</span>
+                  <span>{t("freeMembership")}</span>
+                  <span className="font-bold text-amber-600 uppercase">Free</span>
                 </li>
                 <li className="flex justify-between">
                   <span>{t("nonMedical")}</span>
@@ -289,8 +320,8 @@ export default function MembershipForm({
                   <span className="font-bold">$100 USD</span>
                 </li>
                 <li className="flex justify-between border-b border-outline-variant/30 pb-1.5">
-                  <span>{t("student")}</span>
-                  <span className="font-bold text-surface-tint uppercase">Free</span>
+                  <span>{t("freeMembership")}</span>
+                  <span className="font-bold text-amber-600 uppercase">Free</span>
                 </li>
                 <li className="flex justify-between">
                   <span>{t("nonMedical")}</span>
@@ -305,18 +336,30 @@ export default function MembershipForm({
 
         <div>
           <h3 className="text-lg font-bold text-on-surface mb-4">{t("profProfile")}</h3>
-          <div className="grid sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
             {[1, 2, 3, 4].map((type) => {
               const info = memberTypeLabels[type]
               const icons = ["stethoscope", "school", "menu_book", "work_history"]
               const active = form.memberType === type
+              const isFree = type === 3
               return (
                 <label
                   key={type}
-                  className={`relative flex flex-col p-5 bg-white border-2 rounded-2xl cursor-pointer transition shadow-sm ${
-                    active ? "border-primary bg-primary-container/10" : "border-outline-variant/30 hover:border-primary/50"
+                  className={`relative flex flex-col p-4 md:p-5 bg-white border-2 rounded-2xl cursor-pointer transition shadow-sm ${
+                    isFree
+                      ? active
+                        ? "border-amber-400 bg-amber-50 shadow-md ring-2 ring-amber-200"
+                        : "border-amber-300 bg-amber-50/50 hover:border-amber-400"
+                      : active
+                      ? "border-primary bg-primary-container/10"
+                      : "border-outline-variant/30 hover:border-primary/50"
                   }`}
                 >
+                  {isFree && (
+                    <span className="absolute -top-2.5 left-4 bg-amber-400 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                      Free
+                    </span>
+                  )}
                   <input
                     type="radio"
                     name="memberType"
@@ -325,30 +368,27 @@ export default function MembershipForm({
                     onChange={() => set("memberType", type)}
                     className="absolute right-4 top-4 text-primary h-4 w-4"
                   />
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className={`p-2 rounded-lg ${active ? "bg-primary-container text-surface-bright" : "bg-surface-container-high text-on-surface-variant"}`}>
-                      <Icon name={icons[type - 1]} size={20} />
+                  <div className="flex items-center gap-2 mb-2 mt-1">
+                    <div className={`p-1.5 rounded-lg ${active ? "bg-primary-container text-surface-bright" : "bg-surface-container-high text-on-surface-variant"}`}>
+                      <Icon name={icons[type - 1]} size={18} />
                     </div>
-                    <span className="font-bold text-on-surface text-sm">{info.label}</span>
+                    <span className="font-bold text-on-surface text-xs md:text-sm leading-tight">{info.label}</span>
                   </div>
-                  <span className="text-xs text-on-surface-variant">{info.desc}</span>
+                  <span className="text-[11px] md:text-xs text-on-surface-variant leading-snug">{info.desc}</span>
+                  {isFree && (
+                    <span className="mt-2 text-[11px] md:text-xs font-bold text-amber-600">$0 — No payment required</span>
+                  )}
                 </label>
               )
             })}
           </div>
         </div>
 
-        <div className="bg-surface-container-low p-6 rounded-2xl border border-outline-variant/30">
-          <label className="block text-sm font-semibold text-on-surface mb-2">
-{form.memberType === 3
-  ? t("gradYearStudent")
-  : form.memberType === 4
-  ? ""
-  : form.memberType === 2
-  ? t("gradYearResident")
-  : t("gradYear")}
-          </label>
-          {form.memberType !== 4 && (
+        {form.memberType !== 3 && form.memberType !== 4 && (
+          <div className="bg-surface-container-low p-6 rounded-2xl border border-outline-variant/30">
+            <label className="block text-sm font-semibold text-on-surface mb-2">
+              {form.memberType === 2 ? t("gradYearResident") : t("gradYear")}
+            </label>
             <div className="relative max-w-xs">
               <select
                 value={form.gradYear}
@@ -364,8 +404,28 @@ export default function MembershipForm({
                 <Icon name="expand_more" size={14} />
               </div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
+
+        {form.memberType === 3 && (
+          <div className="bg-amber-50 p-5 rounded-2xl border border-amber-200 flex gap-4">
+            <input
+              type="checkbox"
+              id="newsletter-consent"
+              checked={form.newsletterConsent}
+              onChange={(e) => set("newsletterConsent", e.target.checked)}
+              className="mt-1 h-5 w-5 text-amber-600 border-outline-variant/50 rounded cursor-pointer shrink-0"
+            />
+            <div className="text-xs md:text-sm text-on-surface-variant space-y-2">
+              <label htmlFor="newsletter-consent" className="font-semibold text-on-surface cursor-pointer">
+                Stay connected with IKMA
+              </label>
+              <p className="text-on-surface-variant/70 text-xs leading-relaxed">
+                I authorize IKMA to send me newsletters, updates, and additional content about our mission and activities to my email address. You can unsubscribe at any time.
+              </p>
+            </div>
+          </div>
+        )}
 
         <div className="bg-primary-container/20 p-5 rounded-2xl border border-primary-container flex gap-4">
           <input
@@ -392,13 +452,24 @@ export default function MembershipForm({
         )}
 
         <div className="flex justify-end pt-4">
-          <button
-            onClick={() => goToStep(2)}
-            className="bg-primary text-on-primary font-label-bold px-8 py-3.5 rounded-xl shadow-lg transition flex items-center gap-2 group text-sm md:text-base"
-          >
-            {t("continueToForm")}{" "}
-            <Icon name="arrow_forward" size={16} className="group-hover:translate-x-1 transition" />
-          </button>
+          {form.memberType === 3 ? (
+            <button
+              onClick={handleFreeSubmit}
+              disabled={submitting || !form.rulesConsent}
+              className="bg-primary text-on-primary font-label-bold px-8 py-3.5 rounded-xl shadow-lg transition flex items-center gap-2 group text-sm md:text-base disabled:opacity-50 cursor-pointer"
+            >
+              {submitting ? "Setting up..." : "Activate Free Membership"}{" "}
+              <Icon name="arrow_forward" size={16} className="group-hover:translate-x-1 transition" />
+            </button>
+          ) : (
+            <button
+              onClick={() => goToStep(2)}
+              className="bg-primary text-on-primary font-label-bold px-8 py-3.5 rounded-xl shadow-lg transition flex items-center gap-2 group text-sm md:text-base"
+            >
+              {t("continueToForm")}{" "}
+              <Icon name="arrow_forward" size={16} className="group-hover:translate-x-1 transition" />
+            </button>
+          )}
         </div>
       </div>
     </section>

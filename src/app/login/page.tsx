@@ -1,6 +1,6 @@
 "use client"
 
-import { useActionState, useEffect } from "react"
+import { useActionState, useEffect, useState, useRef } from "react"
 import { login } from "@/lib/supabase/actions"
 import { createBrowserClient } from "@supabase/ssr"
 import { useTranslations } from "next-intl"
@@ -9,12 +9,61 @@ import Link from "next/link"
 export default function LoginPage() {
   const t = useTranslations("Login")
   const [state, action, pending] = useActionState(login, undefined)
+  const [savedEmail, setSavedEmail] = useState("")
+  const [rememberMe, setRememberMe] = useState(false)
+  const [checkingSession, setCheckingSession] = useState(true)
+  const checkedRef = useRef(false)
 
+  // Auto-redirect if already logged in
+  useEffect(() => {
+    if (checkedRef.current) return
+    checkedRef.current = true
+
+    const supabase = createBrowserClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        window.location.href = "/"
+        return
+      }
+      setCheckingSession(false)
+    })
+
+    // Restore saved email from localStorage
+    try {
+      const stored = localStorage.getItem("ikma_saved_email")
+      if (stored) {
+        setSavedEmail(stored)
+        setRememberMe(true)
+      }
+    } catch {}
+  }, [])
+
+  // Redirect on successful login
   useEffect(() => {
     if (state?.success) {
+      // Save email if "Remember me" is checked
+      if (rememberMe && savedEmail) {
+        try { localStorage.setItem("ikma_saved_email", savedEmail) } catch {}
+      } else {
+        try { localStorage.removeItem("ikma_saved_email") } catch {}
+      }
       window.location.href = "/"
     }
-  }, [state])
+  }, [state, rememberMe, savedEmail])
+
+  if (checkingSession) {
+    return (
+      <section className="py-section-padding min-h-[60vh] flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 mx-auto mb-3 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+          <p className="font-body-md text-body-md text-on-surface-variant">{t("checkingSession")}</p>
+        </div>
+      </section>
+    )
+  }
 
   return (
     <section className="py-section-padding">
@@ -34,6 +83,8 @@ export default function LoginPage() {
                 name="email"
                 type="email"
                 placeholder={t("emailPlaceholder")}
+                value={savedEmail}
+                onChange={(e) => setSavedEmail(e.target.value)}
                 required
               />
             </div>
@@ -49,8 +100,17 @@ export default function LoginPage() {
                 placeholder={t("passwordPlaceholder")}
                 required
               />
-              <div className="text-right mt-1.5">
-                <Link href="/recuperar" className="font-body-md text-body-md text-primary hover:underline">
+              <div className="flex items-center justify-between mt-2">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                    className="w-4 h-4 rounded border-outline-variant/50 text-primary focus:ring-primary/30"
+                  />
+                  <span className="font-body-md text-body-md text-on-surface-variant text-sm">{t("rememberMe")}</span>
+                </label>
+                <Link href="/recuperar" className="font-body-md text-body-md text-primary hover:underline text-sm">
                   {t("forgotPassword")}
                 </Link>
               </div>
