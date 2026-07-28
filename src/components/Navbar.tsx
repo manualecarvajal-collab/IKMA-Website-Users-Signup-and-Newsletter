@@ -360,7 +360,7 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
         </div>
       </div>
     </nav>
-    {user?.role === "administrador" && (
+    {user?.role === "administrador" && !isAdmin && (
       <Link
         href="/admin"
         className="fixed bottom-6 right-6 z-50 bg-primary text-on-primary font-label-bold text-label-bold px-6 py-4 rounded-2xl shadow-[0_8px_30px_0_rgba(7,68,105,0.3)] hover:bg-primary/90 hover:shadow-[0_8px_40px_0_rgba(7,68,105,0.4)] transition-all active:scale-95 flex items-center gap-2"
