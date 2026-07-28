@@ -55,30 +55,30 @@ export default function HeroCarousel({
           <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop pb-0 md:pb-8">
             <div className="md:hidden pointer-events-auto flex flex-row gap-3 w-full">
               <Link
-                href={isAuthenticated ? '/suscripcion-exito' : '/registro'}
+                href="/donate"
                 className="flex-1 bg-primary text-on-primary font-bold text-sm py-3 rounded-xl text-center active:scale-95 transition-all shadow-sm"
               >
                 {t("give")}
               </Link>
               <Link
-                href={isAuthenticated ? '/suscripcion-exito' : '/registro'}
+                href={isAuthenticated ? '/membresia' : '/registro'}
                 className="flex-1 border-2 border-primary text-primary font-bold text-sm py-3 rounded-xl text-center active:scale-95 transition-all"
               >
-                {t("newsletter")}
+                {isAuthenticated ? t("changeMembership") : t("newsletter")}
               </Link>
             </div>
             <div className="pointer-events-auto hidden md:flex md:flex-row md:flex-wrap items-center justify-start gap-2 sm:gap-3 mb-[2.5vh]">
               <Link
-                href={isAuthenticated ? '/suscripcion-exito' : '/registro'}
+                href="/donate"
                 className="bg-primary text-on-primary font-label-bold text-label-bold px-6 py-3 rounded-lg hover:bg-primary/90 transition-all active:scale-95 text-center"
               >
                 {t("supportMission")}
               </Link>
               <Link
-                href={isAuthenticated ? '/suscripcion-exito' : '/registro'}
+                href={isAuthenticated ? '/membresia' : '/registro'}
                 className="border-2 border-primary text-primary font-label-bold text-label-bold px-6 py-3 rounded-lg hover:bg-primary/5 transition-all active:scale-95 text-center"
               >
-                {t("subscribeNewsletter")}
+                {isAuthenticated ? t("changeMembership") : t("subscribeNewsletter")}
               </Link>
             </div>
           </div>
