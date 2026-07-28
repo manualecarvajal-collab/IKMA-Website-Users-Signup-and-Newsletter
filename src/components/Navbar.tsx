@@ -3,7 +3,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
-import { useEffect, useState } from "react"
+import { Fragment, useEffect, useState } from "react"
 import { createBrowserClient } from "@supabase/ssr"
 import { signout } from "@/lib/supabase/actions"
 import { useTranslations } from "next-intl"
@@ -83,22 +83,22 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
   const isResourcesActive = resourcesLinks.some((l) => pathname.startsWith(l.href))
 
   return (
+    <>
     <nav className={`top-0 sticky z-50 transition-all duration-300 md:bg-white/70 md:backdrop-blur-lg md:shadow-[0_20px_20px_0_rgba(7,68,105,0.04)] ${
       scrolled ? "bg-white/70 backdrop-blur-lg shadow-[0_20px_20px_0_rgba(7,68,105,0.04)]" : "bg-transparent"
     } ${isAdmin ? "hidden" : ""}`}>
-      <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop flex justify-between items-center h-20">
-        <div className="flex items-center justify-between gap- px-10 [clamp(0.75rem,2vw,1.5rem)] flex-1">
-          <Link href="/" className="flex items-center">
-            <Image
-              src="/logo.webp"
-              alt="IKMA Logo"
-              width={160}
-              height={48}
-              className="h-10 w-auto"
-              priority
-            />
-          </Link>
-          <div className="hidden md:flex items-center justify-between flex-1 font-body-md text-[clamp(0.75rem,1.2vw,1rem)]">
+      <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop flex items-center h-20">
+        <Link href="/" className="flex items-center flex-shrink-0">
+          <Image
+            src="/logo.webp"
+            alt="IKMA Logo"
+            width={160}
+            height={48}
+            className="h-10 w-auto"
+            priority
+          />
+        </Link>
+        <div className="hidden md:flex items-center justify-center flex-1 font-body-md text-[clamp(0.75rem,1.2vw,1rem)]">
             <Link
               href="/"
               className={
@@ -183,17 +183,8 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
             >
               {t("events")}
             </Link>
-            {user?.role === "administrador" && (
-              <Link
-                href="/admin"
-                className="text-primary font-label-bold flex items-center gap-1 bg-primary-container/20 px-3 py-1.5 rounded-full hover:bg-primary-container/40 transition-colors"
-              >
-                <Icon name="dashboard" size={14} /> Admin
-              </Link>
-            )}
           </div>
-        </div>
-        <div className="flex items-center gap-[clamp(0.25rem,0.8vw,0.75rem)]">
+        <div className="flex items-center gap-[clamp(0.25rem,0.8vw,0.75rem)] flex-shrink-0">
           {user ? (
             <>
               <button
@@ -338,15 +329,6 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
           >
             {t("events")}
           </Link>
-          {user?.role === "administrador" && (
-            <Link
-              href="/admin"
-              onClick={closeMobile}
-              className="flex items-center gap-3 px-4 py-3 rounded-lg text-primary font-label-bold bg-primary-container/20"
-            >
-              <Icon name="dashboard" size={14} /> Admin
-            </Link>
-          )}
           <hr className="my-3 border-outline-variant/30" />
           {user ? (
             <div className="px-4 space-y-3">
@@ -378,5 +360,14 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
         </div>
       </div>
     </nav>
+    {user?.role === "administrador" && (
+      <Link
+        href="/admin"
+        className="fixed bottom-6 right-6 z-50 bg-primary text-on-primary font-label-bold text-label-bold px-6 py-4 rounded-2xl shadow-[0_8px_30px_0_rgba(7,68,105,0.3)] hover:bg-primary/90 hover:shadow-[0_8px_40px_0_rgba(7,68,105,0.4)] transition-all active:scale-95 flex items-center gap-2"
+      >
+        <Icon name="dashboard" size={20} /> Admin
+      </Link>
+    )}
+    </>
   )
 }
