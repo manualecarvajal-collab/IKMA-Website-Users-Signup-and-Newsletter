@@ -177,6 +177,12 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
             >
               {t("outreach")}
             </Link>
+            <Link
+              href="#"
+              className="text-on-surface-variant hover:text-primary transition-colors hover:bg-primary-container/10 px-2 py-1 rounded-md duration-300 ease-in-out active:scale-95"
+            >
+              {t("events")}
+            </Link>
             {user?.role === "administrador" && (
               <Link
                 href="/admin"
@@ -324,6 +330,13 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
             }
           >
             {t("outreach")}
+          </Link>
+          <Link
+            href="#"
+            onClick={closeMobile}
+            className="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-label-bold text-label-bold transition-colors"
+          >
+            {t("events")}
           </Link>
           {user?.role === "administrador" && (
             <Link
