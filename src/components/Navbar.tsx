@@ -21,6 +21,7 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
     { href: "/newsletter", label: t("magazine") },
     { href: "/blog", label: "Blog" },
     { href: "/teachings", label: t("teachings") },
+    { href: "#", label: t("events") },
   ]
   const pathname = usePathname()
   const [user, setUser] = useState<{ email: string; role: string } | null>(initialUser)
@@ -178,10 +179,14 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
               {t("outreach")}
             </Link>
             <Link
-              href="#"
-              className="text-on-surface-variant hover:text-primary transition-colors hover:bg-primary-container/10 px-2 py-1 rounded-md duration-300 ease-in-out active:scale-95"
+              href="/contact-us"
+              className={
+                isActive("/contact-us")
+                  ? "text-primary border-b-2 border-primary pb-1"
+                  : "text-on-surface-variant hover:text-primary transition-colors hover:bg-primary-container/10 px-2 py-1 rounded-md duration-300 ease-in-out active:scale-95"
+              }
             >
-              {t("events")}
+              {t("contact")}
             </Link>
           </div>
         <div className="flex items-center gap-[clamp(0.25rem,0.8vw,0.75rem)] flex-shrink-0 ml-auto">
@@ -323,11 +328,16 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
             {t("outreach")}
           </Link>
           <Link
-            href="#"
+            href="/contact-us"
             onClick={closeMobile}
-            className="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-label-bold text-label-bold transition-colors"
+            className={
+              (isActive("/contact-us")
+                ? "text-primary bg-primary-container/20"
+                : "text-on-surface-variant hover:bg-surface-container hover:text-on-surface") +
+              " flex items-center gap-3 px-4 py-3 rounded-lg font-label-bold text-label-bold transition-colors"
+            }
           >
-            {t("events")}
+            {t("contact")}
           </Link>
           <hr className="my-3 border-outline-variant/30" />
           {user ? (

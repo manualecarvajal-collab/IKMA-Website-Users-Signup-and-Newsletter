@@ -442,6 +442,24 @@ export default function MembershipForm({
             <p className="text-on-surface-variant/70 text-xs leading-relaxed">
               {t("acceptRulesDesc")}
             </p>
+            <div className="flex flex-col gap-1 pt-1">
+              <a
+                href="/Estatutos de Membresía- IKMA 2026.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary underline hover:text-primary/80 text-xs"
+              >
+                📄 Estatutos de Membresía IKMA 2026
+              </a>
+              <a
+                href="/Rules Applicable to IKMA Membership.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary underline hover:text-primary/80 text-xs"
+              >
+                📄 Rules Applicable to IKMA Membership
+              </a>
+            </div>
           </div>
         </div>
 

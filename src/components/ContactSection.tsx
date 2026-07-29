@@ -4,6 +4,20 @@ import { useState, FormEvent } from "react"
 import { useTranslations } from "next-intl"
 import Icon from "@/components/Icon"
 
+function ContactHeroBg() {
+  return (
+    <div className="absolute inset-0 overflow-hidden">
+      <img
+        src="/images/contact-hero.webp"
+        alt=""
+        className="w-full h-full object-cover"
+        loading="lazy"
+      />
+      <div className="absolute inset-0 bg-white/70 backdrop-blur-[2px]" />
+    </div>
+  )
+}
+
 export default function ContactSection() {
   const t = useTranslations("Contact")
   const [sending, setSending] = useState(false)
@@ -38,8 +52,9 @@ export default function ContactSection() {
 
   return (
     <>
-      <section className="bg-surface-container-low py-24">
-        <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop text-center">
+      <section className="relative py-24">
+        <ContactHeroBg />
+        <div className="relative z-10 max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop text-center">
           <h2 className="font-headline-xl text-headline-lg text-primary mb-6">
             {t("heroTitle")}
           </h2>
@@ -49,7 +64,7 @@ export default function ContactSection() {
         </div>
       </section>
 
-      <section className="pb-12 md:pb-section-padding">
+      <section className="pb-12 pt-12 md:pb-section-padding">
         <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
           <div className="max-w-2xl mx-auto bg-surface rounded-xl p-8 md:p-12 shadow-[0_20px_20px_0_rgba(7,68,105,0.04)]">
             <h3 className="font-headline-md text-headline-md text-primary mb-8">
