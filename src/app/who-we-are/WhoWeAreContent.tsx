@@ -52,34 +52,29 @@ export default function WhoWeAreContent() {
       <div className="relative z-10 w-full max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-gutter items-center">
           <div className="col-span-1 lg:col-span-6 flex flex-col space-y-8">
-            <div className="inline-flex items-center gap-3">
-              <span className="w-8 h-1 bg-primary rounded-full" />
-              <h2 className="font-label-bold text-label-bold text-primary tracking-wider uppercase">
-                {tWho("aboutUs")}
-              </h2>
-            </div>
-
-            <h1 className="font-headline-lg text-headline-lg text-primary">
-              {tWho("whoWeAre")}
-            </h1>
-
             <div className="space-y-6 text-on-surface-variant max-w-2xl">
-              <p className="font-body-lg text-body-md leading-relaxed">
-                {tWho("heroDesc")}
+              <div className="inline-flex items-center gap-3">
+                <span className="w-8 h-1 bg-primary rounded-full" />
+                <h2 className="font-label-bold text-label-bold text-primary tracking-wider uppercase">
+                  Vision
+                </h2>
+              </div>
+              <h1 className="font-headline-lg text-headline-lg text-primary">
+                A World Fulfilled and Restored
+              </h1>
+
+              <p className="font-body-lg text-body-md leading-relaxed text-justify">
+                Living and serving under the full favor of God, we envision a community of medical professionals who integrate academic excellence, the guidance of the Holy Spirit, innovative technology, and creative approaches to care for the physical, spiritual, and emotional well-being of individuals, families, and communities. Through this holistic approach, we will bring healing to the whole person—heart, mind, body, and spirit—while strengthening families, restoring communities, and transforming society. We will help restore people's relationship with God and align every area of life with His divine order and original design for creation.
               </p>
 
-              <div className="p-6 md:p-8 bg-surface-container-lowest border border-surface-variant rounded-xl shadow-[0_4px_20px_rgba(26,77,109,0.08)] relative overflow-hidden group">
-                <div className="absolute top-0 left-0 w-1 h-full bg-primary transition-transform duration-300 scale-y-100 group-hover:scale-y-110 origin-top" />
-                <Icon name="volunteer_activism" size={36} className="text-primary-container mb-4 opacity-80" />
-                <p className="font-body-md text-body-md text-on-surface-variant leading-relaxed">
-                  {tWho("heroBelief")}
-                </p>
-              </div>
+              <p className="font-body-lg text-body-md leading-relaxed text-justify">
+                As God's purposes are revealed and embraced, the full potential of individuals, families, nations, and creation will be unlocked, enabling them to flourish and fulfill His intended destiny.
+              </p>
             </div>
           </div>
 
           <div className="col-span-1 lg:col-span-6 relative h-full min-h-[400px] flex items-center justify-center">
-            <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden shadow-[0_4px_20px_rgba(26,77,109,0.08)] bg-surface-container-low">
+            <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-[0_4px_20px_rgba(26,77,109,0.08)] bg-surface-container-low">
               <img
                 src="/quienes-somos.png"
                 alt="IKMA medical professionals"
