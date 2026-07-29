@@ -98,7 +98,7 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
             priority
           />
         </Link>
-        <div className="hidden md:flex items-center justify-center flex-1 font-body-md text-[clamp(0.75rem,1.2vw,1rem)]">
+        <div className="hidden md:flex items-center justify-center gap-4 flex-1 font-body-md text-[clamp(0.75rem,1.2vw,1rem)]">
             <Link
               href="/"
               className={
@@ -184,7 +184,7 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
               {t("events")}
             </Link>
           </div>
-        <div className="flex items-center gap-[clamp(0.25rem,0.8vw,0.75rem)] flex-shrink-0">
+        <div className="flex items-center gap-[clamp(0.25rem,0.8vw,0.75rem)] flex-shrink-0 ml-auto">
           {user ? (
             <>
               <button

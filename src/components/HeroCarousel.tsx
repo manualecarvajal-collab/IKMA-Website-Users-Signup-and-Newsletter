@@ -56,7 +56,7 @@ export default function HeroCarousel({
             <div className="md:hidden pointer-events-auto flex flex-row gap-3 w-full">
               <Link
                 href="/donate"
-                className="flex-1 bg-primary text-on-primary font-bold text-sm py-3 rounded-xl text-center active:scale-95 transition-all shadow-sm"
+                className="flex-1 bg-primary text-on-primary font-bold text-sm py-3 rounded-xl flex items-center justify-center active:scale-95 transition-all shadow-sm"
               >
                 {t("give")}
               </Link>
