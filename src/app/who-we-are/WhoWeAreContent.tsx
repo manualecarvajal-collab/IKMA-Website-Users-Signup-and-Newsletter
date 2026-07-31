@@ -52,41 +52,65 @@ export default function WhoWeAreContent() {
       <div className="relative z-10 w-full max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-gutter items-center">
           <div className="col-span-1 lg:col-span-6 flex flex-col space-y-8">
+            <div className="inline-flex items-center gap-3">
+              <span className="w-8 h-1 bg-primary rounded-full" />
+              <h2 className="font-label-bold text-label-bold text-primary tracking-wider uppercase">About Us</h2>
+            </div>
+            <h1 className="font-headline-lg text-headline-lg text-primary">Who we are</h1>
             <div className="space-y-6 text-on-surface-variant max-w-2xl">
-              <div className="inline-flex items-center gap-3">
-                <span className="w-8 h-1 bg-primary rounded-full" />
-                <h2 className="font-label-bold text-label-bold text-primary tracking-wider uppercase">
-                  Vision
-                </h2>
+              <p className="font-body-lg text-body-md leading-relaxed">International Kingdom Medical Association, IKMA, is a company of Kingdom-minded apostolic health professionals who are deeply committed to integrating God's Kingdom pattern in our medical practice, seeking to bring God's ordained solutions to the pressing health challenges of our time, thus bringing healing to the nations.</p>
+              <div className="p-6 md:p-8 bg-surface-container-lowest border border-surface-variant rounded-xl shadow-[0_4px_20px_rgba(26,77,109,0.08)] relative overflow-hidden group">
+                <div className="absolute top-0 left-0 w-1 h-full bg-primary transition-transform duration-300 scale-y-100 group-hover:scale-y-110 origin-top" />
+                <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary-container mb-4 opacity-80" aria-hidden="true">
+                  <path d="M19.414 14.414C21 12.828 22 11.5 22 9.5a5.5 5.5 0 0 0-9.591-3.676.6.6 0 0 1-.818.001A5.5 5.5 0 0 0 2 9.5c0 2.3 1.5 4 3 5.5l5.535 5.362a2 2 0 0 0 2.879.052 2.12 2.12 0 0 0-.004-3 2.124 2.124 0 1 0 3-3 2.124 2.124 0 0 0 3.004 0 2 2 0 0 0 0-2.828l-1.881-1.882a2.41 2.41 0 0 0-3.409 0l-1.71 1.71a2 2 0 0 1-2.828 0 2 2 0 0 1 0-2.828l2.823-2.762" />
+                </svg>
+                <p className="font-body-md text-body-md text-on-surface-variant leading-relaxed">We believe in a holistic approach to healing and well-being of the mind, body, and spirit — rooted in biblical principles and compassionate care.</p>
               </div>
-              <h1 className="font-headline-lg text-headline-lg text-primary">
-                A World Fulfilled and Restored
-              </h1>
-
-              <p className="font-body-lg text-body-md leading-relaxed text-justify">
-                Living and serving under the full favor of God, we envision a community of medical professionals who integrate academic excellence, the guidance of the Holy Spirit, innovative technology, and creative approaches to care for the physical, spiritual, and emotional well-being of individuals, families, and communities. Through this holistic approach, we will bring healing to the whole person—heart, mind, body, and spirit—while strengthening families, restoring communities, and transforming society. We will help restore people's relationship with God and align every area of life with His divine order and original design for creation.
-              </p>
-
-              <p className="font-body-lg text-body-md leading-relaxed text-justify">
-                As God's purposes are revealed and embraced, the full potential of individuals, families, nations, and creation will be unlocked, enabling them to flourish and fulfill His intended destiny.
-              </p>
             </div>
           </div>
 
           <div className="col-span-1 lg:col-span-6 relative h-full min-h-[400px] flex items-center justify-center">
-            <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-[0_4px_20px_rgba(26,77,109,0.08)] bg-surface-container-low">
+            <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden shadow-[0_4px_20px_rgba(26,77,109,0.08)] bg-surface-container-low">
               <img
-                src="/quienes-somos.png"
                 alt="IKMA medical professionals"
                 className="absolute inset-0 w-full h-full object-cover opacity-90 hover:opacity-100 transition-opacity duration-700"
                 loading="lazy"
+                src="/quienes-somos.png"
               />
               <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 to-transparent mix-blend-multiply" />
             </div>
-
             <div className="absolute -top-10 -right-10 w-24 h-24 bg-surface-container-lowest rounded-full shadow-[0_4px_20px_rgba(26,77,109,0.08)] flex items-center justify-center animate-bounce">
               <Icon name="public" size={30} className="text-primary" />
             </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    {/* Our Vision */}
+    <section className="bg-surface-container-low">
+      <div className="grid grid-cols-1 lg:grid-cols-2">
+        <div className="relative h-full min-h-[400px] overflow-hidden">
+          <img
+            src="/event.jpg"
+            alt="IKMA event"
+            className="absolute inset-0 w-full h-full object-cover"
+            loading="lazy"
+          />
+        </div>
+        <div className="py-12 md:py-section-padding pl-margin-mobile lg:pl-12 pr-margin-mobile md:pr-[max(48px,calc((100vw-1200px)/2+48px))] flex flex-col justify-center">
+          <div className="inline-flex items-center gap-3 mb-4">
+            <span className="w-8 h-1 bg-primary rounded-full" />
+            <h2 className="font-label-bold text-label-bold text-primary tracking-wider uppercase">Our Vision</h2>
+          </div>
+          <h1 className="font-headline-lg text-headline-lg text-primary mb-8">A World Fulfilled and Restored</h1>
+          <div className="space-y-6 text-on-surface-variant">
+            <p className="font-body-lg text-body-md leading-relaxed text-justify">
+              Living and serving under the full favor of God, we envision a community of medical professionals who integrate academic excellence, the guidance of the Holy Spirit, innovative technology, and creative approaches to care for the physical, spiritual, and emotional well-being of individuals, families, and communities. Through this holistic approach, we will bring healing to the whole person—heart, mind, body, and spirit—while strengthening families, restoring communities, and transforming society. We will help restore people&rsquo;s relationship with God and align every area of life with His divine order and original design for creation.
+            </p>
+            <p className="font-body-lg text-body-md leading-relaxed text-justify">
+              As God&rsquo;s purposes are revealed and embraced, the full potential of individuals, families, nations, and creation will be unlocked, enabling them to flourish and fulfill His intended destiny.
+            </p>
           </div>
         </div>
       </div>
@@ -118,7 +142,7 @@ export default function WhoWeAreContent() {
               </h2>
             </div>
 
-            <div className="space-y-6 text-on-surface-variant">
+            <div className="space-y-6 text-on-surface-variant text-justify">
               <p className="font-body-lg text-label-sm leading-relaxed">
                 {tWho("founderSpeech_p1")}
               </p>
@@ -337,7 +361,7 @@ export default function WhoWeAreContent() {
         <div className="mt-12 grid grid-cols-1 gap-8">
           <div className="text-center">
             <p className="font-headline-lg text-headline-lg text-primary">2500+</p>
-            <p className="font-label-bold text-label-bold text-on-surface-variant uppercase">{tWho("impactedLives")}</p>
+            <p className="font-label-boldbel-bold text-label-bold text-on-surface-variant uppercase">{tWho("impactedLives")}</p>
           </div>
         </div>
       </div>
