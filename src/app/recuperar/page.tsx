@@ -36,13 +36,10 @@ export default function RecuperarPage() {
             {state?.error && (
               <p className="font-body-md text-body-md text-error bg-error-container/20 rounded-md px-4 py-3">{state.error}</p>
             )}
-            {state?.success && (
-              <p className="font-body-md text-body-md text-on-primary-fixed-variant bg-tertiary-fixed-dim rounded-md px-4 py-3">{state.success}</p>
-            )}
 
             <button
               type="submit"
-              disabled={pending || !!state?.success}
+              disabled={pending}
               className="w-full bg-primary text-on-primary font-label-bold text-label-bold py-3.5 rounded-lg hover:bg-primary/90 transition-all disabled:opacity-50 cursor-pointer"
             >
               {pending ? t("sending") : t("sendResetLink")}
