@@ -79,7 +79,7 @@ export async function resetPassword(prevState: { error?: string; success?: strin
   })
 
   if (error) return { error: error.message }
-  return { success: "Check your email for a password reset link." }
+  redirect(`/verificar-codigo?email=${encodeURIComponent(email)}`)
 }
 
 export async function verificarCodigo(prevState: { error?: string } | undefined, formData: FormData) {
