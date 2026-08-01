@@ -15,13 +15,14 @@ export async function createClient() {
           return cookieStore.getAll()
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) =>
+          cookiesToSet.forEach(({ name, value, options }) => {
+            const isDelete = (options.maxAge ?? 0) <= 0 || value === ""
             cookieStore.set(name, value, {
               ...options,
-              maxAge: SESSION_MAX_AGE,
+              ...(isDelete ? {} : { maxAge: SESSION_MAX_AGE }),
               sameSite: "lax",
             })
-          )
+          })
         },
       },
     }

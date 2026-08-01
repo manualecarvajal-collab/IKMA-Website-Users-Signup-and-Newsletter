@@ -12,6 +12,7 @@ export async function POST(request: Request) {
   const { error } = await supabase.auth.exchangeCodeForSession(code)
 
   if (error) {
+    console.error("[/api/auth/exchange] exchange error:", error.message)
     return NextResponse.json({ ok: false, message: error.message }, { status: 400 })
   }
 
