@@ -22,11 +22,6 @@ export default function ActualizarPasswordPage() {
   const formRef = useRef<HTMLFormElement>(null)
 
   useEffect(() => {
-    const supabase = createBrowserClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
-
     (async () => {
       try {
         const params = new URLSearchParams(window.location.search)
@@ -38,6 +33,21 @@ export default function ActualizarPasswordPage() {
         const hashParams = new URLSearchParams(window.location.hash.slice(1))
         const accessToken = hashParams.get("access_token")
 
+        if (code) {
+          const res = await fetch("/api/auth/exchange", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code }),
+          })
+          if (!res.ok) throw new Error("code exchange failed")
+          window.history.replaceState({}, "", "/actualizar-password")
+        }
+
+        const supabase = createBrowserClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        );
+
         if (accessToken) {
           await supabase.auth.setSession({
             access_token: accessToken,
@@ -45,8 +55,6 @@ export default function ActualizarPasswordPage() {
           })
         } else if (tokenHash && type) {
           await supabase.auth.verifyOtp({ token_hash: tokenHash, type: type as OtpType })
-        } else if (code) {
-          await supabase.auth.exchangeCodeForSession(code)
         }
 
         window.history.replaceState({}, "", "/actualizar-password")
