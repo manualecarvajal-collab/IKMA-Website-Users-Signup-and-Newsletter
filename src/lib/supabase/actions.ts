@@ -89,7 +89,7 @@ export async function verificarCodigo(prevState: { error?: string } | undefined,
   const token = (formData.get("token") as string)?.trim()
 
   if (!email || !token) {
-    return { error: "Enter your email and the 6-digit code from the email." }
+    return { error: "Enter your email and the code from the email." }
   }
 
   const { error } = await supabase.auth.verifyOtp({

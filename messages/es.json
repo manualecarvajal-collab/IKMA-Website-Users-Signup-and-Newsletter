@@ -431,7 +431,7 @@
   },
   "VerificarCodigo": {
     "title": "Verificar Código",
-    "description": "Ingresa tu correo electrónico y el código de 6 dígitos que recibiste por correo para restablecer tu contraseña.",
+    "description": "Ingresa tu correo electrónico y el código que recibiste por correo para restablecer tu contraseña.",
     "emailLabel": "Correo electrónico",
     "emailPlaceholder": "ana@ejemplo.com",
     "codeLabel": "Código de verificación",

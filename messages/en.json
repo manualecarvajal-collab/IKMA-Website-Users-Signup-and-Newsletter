@@ -431,7 +431,7 @@
   },
   "VerificarCodigo": {
     "title": "Verify Code",
-    "description": "Enter your email address and the 6-digit code you received by email to reset your password.",
+    "description": "Enter your email address and the code you received by email to reset your password.",
     "emailLabel": "Email Address",
     "emailPlaceholder": "jane@example.com",
     "codeLabel": "Verification code",
