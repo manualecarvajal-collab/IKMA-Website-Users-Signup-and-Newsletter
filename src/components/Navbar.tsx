@@ -15,6 +15,7 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
   const aboutLinks = [
     { href: "/who-we-are", label: t("whoWeAre") },
     { href: "/our-purpose", label: t("ourPurpose") },
+    { href: "/our-objectives", label: t("ourObjectives") },
   ]
 
   const resourcesLinks = [

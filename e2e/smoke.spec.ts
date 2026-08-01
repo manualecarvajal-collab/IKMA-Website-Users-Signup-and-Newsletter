@@ -19,6 +19,8 @@ const PUBLIC_ROUTES = [
   { path: "/recuperar", title: /Reset|Restablecer/i },
   { path: "/newsletter", title: /IKMA/i },
   { path: "/privacy-policy", title: /IKMA/i },
+  { path: "/terms-of-service", title: /IKMA/i },
+  { path: "/donor-rights", title: /IKMA/i },
   { path: "/cookies", title: /IKMA/i },
 ]
 

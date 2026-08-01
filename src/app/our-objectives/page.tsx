@@ -41,6 +41,9 @@ export default async function OurObjectivesPage() {
           <p className="font-body-lg text-body-lg text-surface max-w-2xl leading-relaxed">
             {t("heroDesc")}
           </p>
+          <p className="font-body-md text-body-md text-surface/70 max-w-2xl leading-relaxed mt-4">
+            {t("heroMeta")}
+          </p>
           <div className="mt-12 flex flex-wrap gap-6">
             <a
               href="/our-purpose"
@@ -49,7 +52,7 @@ export default async function OurObjectivesPage() {
               {t("exploreVision")}
             </a>
             <a
-              href="#"
+              href="/teachings"
               className="flex items-center gap-2 text-primary font-bold py-4 hover:gap-4 transition-all"
             >
               <Icon name="play_circle" />
@@ -202,9 +205,9 @@ export default async function OurObjectivesPage() {
             {t("ctaDesc")}
           </p>
           <div className="flex flex-col sm:flex-row gap-6 justify-center">
-            <button className="bg-white text-primary font-label-bold text-label-bold px-8 py-4 rounded-lg shadow-xl hover:bg-primary-fixed transition-all duration-300 cursor-pointer">
+            <Link href="/donate" className="bg-white text-primary font-label-bold text-label-bold px-8 py-4 rounded-lg shadow-xl hover:bg-primary-fixed transition-all duration-300 cursor-pointer inline-block">
               {t("supportMission")}
-            </button>
+            </Link>
             <Link href="/outreach" className="border-2 border-white/40 text-white font-label-bold text-label-bold px-8 py-4 rounded-lg hover:bg-white hover:text-primary transition-all duration-300 cursor-pointer inline-block">
               {t("readOurStory")}
             </Link>

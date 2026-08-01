@@ -34,7 +34,7 @@ export default async function Footer() {
             </li>
             <li>
               <Link
-                href="#"
+                href="/terms-of-service"
                 className="text-on-surface-variant hover:text-primary hover:underline transition-all duration-200 hover:opacity-80"
               >
                 {t("termsOfService")}
@@ -47,18 +47,10 @@ export default async function Footer() {
           <ul className="space-y-3">
             <li>
               <Link
-                href="#"
+                href="/donor-rights"
                 className="text-on-surface-variant hover:text-primary hover:underline transition-all duration-200 hover:opacity-80"
               >
                 {t("donorRights")}
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="#"
-                className="text-on-surface-variant hover:text-primary hover:underline transition-all duration-200 hover:opacity-80"
-              >
-                {t("annualReport")}
               </Link>
             </li>
           </ul>

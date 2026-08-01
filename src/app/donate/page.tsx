@@ -137,6 +137,21 @@ export default function DonatePage() {
             <p className="text-center font-body-sm text-body-sm text-on-surface-variant/60">
               You will be redirected to PayPal to complete your donation securely.
             </p>
+
+            <div className="border-t border-outline-variant/30 pt-6">
+              <p className="text-center font-body-sm text-body-sm text-on-surface-variant/70 leading-relaxed">
+                Donations to IKMA LLC are voluntary and support our mission of advancing
+                health equity, education, and holistic transformation. IKMA LLC is a
+                for-profit limited liability company and is not recognized as a tax-exempt
+                charitable organization under Section 501(c)(3) of the Internal Revenue
+                Code, so your donation may not be tax-deductible. Donations are generally
+                non-refundable. Please review our{" "}
+                <a href="/donor-rights" className="text-primary hover:underline">
+                  Donor Rights Policy
+                </a>{" "}
+                for full details.
+              </p>
+            </div>
           </div>
         </div>
       </div>
