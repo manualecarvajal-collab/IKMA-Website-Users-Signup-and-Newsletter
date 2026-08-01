@@ -429,6 +429,16 @@
     "successMessage": "Check your email for the reset link.",
     "errorMessage": "Something went wrong. Please try again."
   },
+  "VerificarCodigo": {
+    "title": "Verify Code",
+    "description": "Enter your email address and the 6-digit code you received by email to reset your password.",
+    "emailLabel": "Email Address",
+    "emailPlaceholder": "jane@example.com",
+    "codeLabel": "Verification code",
+    "verifying": "Verifying...",
+    "verifyCode": "Verify Code",
+    "resendLink": "Request a new code"
+  },
   "ActualizarPassword": {
     "title": "Set New Password",
     "description": "Choose a new password for your account.",

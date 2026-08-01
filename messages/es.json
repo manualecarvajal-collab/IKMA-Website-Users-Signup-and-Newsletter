@@ -429,6 +429,16 @@
     "successMessage": "Revisa tu correo para el enlace de restablecimiento.",
     "errorMessage": "Algo salió mal. Inténtalo de nuevo."
   },
+  "VerificarCodigo": {
+    "title": "Verificar Código",
+    "description": "Ingresa tu correo electrónico y el código de 6 dígitos que recibiste por correo para restablecer tu contraseña.",
+    "emailLabel": "Correo electrónico",
+    "emailPlaceholder": "ana@ejemplo.com",
+    "codeLabel": "Código de verificación",
+    "verifying": "Verificando...",
+    "verifyCode": "Verificar Código",
+    "resendLink": "Solicitar un nuevo código"
+  },
   "ActualizarPassword": {
     "title": "Establecer Nueva Contraseña",
     "description": "Elige una nueva contraseña para tu cuenta.",

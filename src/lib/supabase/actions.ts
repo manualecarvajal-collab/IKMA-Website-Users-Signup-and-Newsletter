@@ -82,6 +82,30 @@ export async function resetPassword(prevState: { error?: string; success?: strin
   return { success: "Check your email for a password reset link." }
 }
 
+export async function verificarCodigo(prevState: { error?: string } | undefined, formData: FormData) {
+  const supabase = await createClient()
+
+  const email = formData.get("email") as string
+  const token = (formData.get("token") as string)?.trim()
+
+  if (!email || !token) {
+    return { error: "Enter your email and the 6-digit code from the email." }
+  }
+
+  const { error } = await supabase.auth.verifyOtp({
+    email,
+    token,
+    type: "recovery",
+  })
+
+  if (error) {
+    console.error("[verificarCodigo] verifyOtp error:", error.message)
+    return { error: error.message }
+  }
+
+  redirect("/actualizar-password")
+}
+
 export async function updatePassword(prevState: { error?: string; success?: string } | undefined, formData: FormData) {
   const supabase = await createClient()
   const password = formData.get("password") as string
