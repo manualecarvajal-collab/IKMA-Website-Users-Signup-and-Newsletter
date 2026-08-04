@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
+import { esMembresiaGratisUsuario } from "@/lib/supabase/free-membership"
 import { getTranslations, getLocale } from "next-intl/server"
 import ArticleContent from "@/components/ArticleContent"
 import DownloadPopup from "@/components/DownloadPopup"
@@ -65,7 +66,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
   const article = await getArticle(slug)
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  const { data: perfil } = user ? await supabase.from("perfiles").select("suscripcion_activa, membresia_gratis").eq("id", user.id).single() : { data: null }
+  const { data: perfil } = user ? await supabase.from("perfiles").select("suscripcion_activa").eq("id", user.id).single() : { data: null }
 
   if (!article) notFound()
 
@@ -153,7 +154,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                   <DownloadPopup
                     isAuthenticated={!!user}
                     isSubscribed={!!perfil?.suscripcion_activa}
-                    isFreeMember={!!perfil?.membresia_gratis}
+                    isFreeMember={user ? await esMembresiaGratisUsuario(supabase, user.id) : false}
                     revistaId={latestMagazineId}
                   />
                 </div>

@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { createClient } from "@/lib/supabase/server"
+import { esMembresiaGratisUsuario } from "@/lib/supabase/free-membership"
 import { getTranslations } from "next-intl/server"
 import ReadMagazineButton from "@/components/ReadMagazineButton"
 import Icon from "@/components/Icon"
@@ -44,11 +45,11 @@ export default async function NewsletterPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   const { data: perfil } = user
-    ? await supabase.from("perfiles").select("suscripcion_activa, membresia_gratis").eq("id", user.id).single()
+    ? await supabase.from("perfiles").select("suscripcion_activa").eq("id", user.id).single()
     : { data: null }
   const isAuthenticated = !!user
   const isSubscribed = !!perfil?.suscripcion_activa
-  const esFree = !!perfil?.membresia_gratis
+  const esFree = user ? await esMembresiaGratisUsuario(supabase, user.id) : false
 
   // Free members can read the first published edition.
   // Same ordering as the server: fecha_publicacion ASC, then created_at ASC.

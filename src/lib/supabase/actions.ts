@@ -4,12 +4,17 @@ import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 
-export async function signup(prevState: { error?: string; success?: string } | undefined, formData: FormData) {
+export async function signup(
+  prevState: { error?: string; success?: string; next?: string } | undefined,
+  formData: FormData
+) {
   const supabase = await createClient()
 
   const nombre_completo = formData.get("nombre_completo") as string
   const email = formData.get("email") as string
   const password = formData.get("password") as string
+  const tipo = (formData.get("tipo") as string) ?? ""
+  const region = (formData.get("region") as string) ?? ""
 
   if (!password || password.length < 8) {
     return { error: "Password must be at least 8 characters long" }
@@ -31,15 +36,26 @@ export async function signup(prevState: { error?: string; success?: string } | u
   })
 
   if (error) {
+    if (error.code === "user_already_exists" || /already registered|email taken/i.test(error.message)) {
+      return { error: "This email is already registered. Please sign in." }
+    }
     return { error: error.message }
   }
 
+  // Supabase returns a user with no identities when the email already exists
+  if (data.user && (!data.user.identities || data.user.identities.length === 0)) {
+    return { error: "This email is already registered. Please sign in." }
+  }
+
   if (data.user && !data.session) {
-    redirect(`/verificar-codigo?flow=signup&email=${encodeURIComponent(email)}`)
+    const params = new URLSearchParams({ flow: "signup", email })
+    if (tipo) params.set("tipo", tipo)
+    if (region) params.set("region", region)
+    redirect(`/verificar-codigo?${params.toString()}`)
   }
 
   revalidatePath("/", "layout")
-  return { success: "ok" }
+  return { success: "ok", next: tipo ? `/membresia?tipo=${tipo}&region=${region || "A"}` : "/membresia" }
 }
 
 export async function login(prevState: { error?: string; success?: boolean } | undefined, formData: FormData) {
@@ -109,6 +125,8 @@ export async function verificarCodigo(prevState: { error?: string } | undefined,
   // Sanitize: strip any non-digit characters (emails sometimes wrap/pad the code)
   const token = (formData.get("token") as string)?.replace(/[^0-9]/g, "")
   const flow = (formData.get("flow") as string) || "recovery"
+  const tipo = (formData.get("tipo") as string) ?? ""
+  const region = (formData.get("region") as string) ?? ""
 
   if (!email || !token) {
     return { error: "Enter your email and the code from the email." }
@@ -130,7 +148,10 @@ export async function verificarCodigo(prevState: { error?: string } | undefined,
     const error = await verifyOtp()
     if (error) return { error }
 
-    redirect("/membresia")
+    const params = new URLSearchParams()
+    if (tipo) params.set("tipo", tipo)
+    if (region) params.set("region", region)
+    redirect(`/membresia${params.toString() ? `?${params.toString()}` : ""}`)
   }
 
   if (flow === "newsletter") {

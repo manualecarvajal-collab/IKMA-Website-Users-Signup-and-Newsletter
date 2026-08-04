@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache"
 import { checkAdmin } from "@/lib/supabase/admin-helpers"
 import { createClient, createAdminClient } from "@/lib/supabase/server"
 import { buildMagazineHtml, buildNewsletterHtml } from "@/lib/email-template"
+import { esMembresiaGratis, mergeFreeMembers } from "@/lib/supabase/free-membership"
 
 // ─── EMAIL CONFIG ────────────────────────────────────────
 
@@ -123,7 +124,7 @@ export async function sendMagazineToEmail(revistaId: string, userId: string): Pr
   const admin = await createAdminClient()
   const { data: perfil } = await admin
     .from("perfiles")
-    .select("nombre_completo, suscripcion_activa, membresia_gratis")
+    .select("nombre_completo, suscripcion_activa")
     .eq("id", user.id)
     .single()
 
@@ -131,10 +132,11 @@ export async function sendMagazineToEmail(revistaId: string, userId: string): Pr
 
   if (!perfil.suscripcion_activa) {
     // Free members may receive only the first published edition by email
-    const puedeEnviar = perfil.membresia_gratis && (await esPrimeraRevista(admin, revista.id))
+    const esFree = await esMembresiaGratis(admin, user.id)
+    const puedeEnviar = esFree && (await esPrimeraRevista(admin, revista.id))
     if (!puedeEnviar) {
       return {
-        error: perfil.membresia_gratis
+        error: esFree
           ? "This magazine is only available to active subscribers."
           : `Subscription not active for ${user.email}. Please refresh the page.`,
       }
@@ -192,11 +194,13 @@ export async function sendMagazineToSubscribers(revistaId: string, excludeEmails
   const admin = await createAdminClient()
   // Paid subscribers always; free members only when sending the first published edition
   const esPrimera = await esPrimeraRevista(admin, revista.id)
-  let { data: suscriptores } = await admin
+  let suscriptores = (await admin
     .from("perfiles")
-    .select("id, nombre_completo, suscripcion_activa")
-    .or("suscripcion_activa.eq.true,membresia_gratis.eq.true")
-  suscriptores = (suscriptores ?? []).filter((s) => esPrimera || s.suscripcion_activa)
+    .select("id, nombre_completo")
+    .eq("suscripcion_activa", true)).data ?? []
+  if (esPrimera) {
+    suscriptores = await mergeFreeMembers(admin, suscriptores)
+  }
 
   if (!suscriptores?.length) return { error: "No subscribers" }
 
@@ -269,10 +273,10 @@ export async function sendNewsletter(
 
   const admin = await createAdminClient()
 
-  const { data: suscriptores } = await admin
+  const suscriptores = await mergeFreeMembers(admin, (await admin
     .from("perfiles")
     .select("id, nombre_completo")
-    .or("suscripcion_activa.eq.true,membresia_gratis.eq.true")
+    .eq("suscripcion_activa", true)).data ?? [])
 
   if (!suscriptores?.length) return { error: "No active subscribers" }
 

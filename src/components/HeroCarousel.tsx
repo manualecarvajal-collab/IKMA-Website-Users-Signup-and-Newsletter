@@ -61,7 +61,7 @@ export default function HeroCarousel({
                 {t("give")}
               </Link>
               <Link
-                href={isAuthenticated ? '/membresia' : '/registro'}
+                href="/membresia"
                 className="flex-1 border-2 border-primary text-primary font-bold text-sm py-3 rounded-xl text-center active:scale-95 transition-all"
               >
                 {isAuthenticated ? t("changeMembership") : t("newsletter")}
@@ -75,7 +75,7 @@ export default function HeroCarousel({
                 {t("supportMission")}
               </Link>
               <Link
-                href={isAuthenticated ? '/membresia' : '/registro'}
+                href="/membresia"
                 className="border-2 border-primary text-primary font-label-bold text-label-bold px-6 py-3 rounded-lg hover:bg-primary/5 transition-all active:scale-95 text-center"
               >
                 {isAuthenticated ? t("changeMembership") : t("subscribeNewsletter")}

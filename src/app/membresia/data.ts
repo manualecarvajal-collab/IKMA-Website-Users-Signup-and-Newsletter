@@ -38,7 +38,7 @@ export const professionSubgroups: Record<number, string[]> = {
 export const memberTypeLabels: Record<number, { label: string; desc: string }> = {
   1: { label: "Licensed Health Professional", desc: "Physicians, nurses, specialists with an active license." },
   2: { label: "Resident / Specialist", desc: "Graduates completing residency or specialization programs." },
-  3: { label: "Free Membership", desc: "Access the latest articles and join our newsletter — completely free." },
+  3: { label: "Student", desc: "Access the latest articles and join our newsletter — completely free." },
   4: { label: "Non-Medical Professional", desc: "Support the health mission from other professional fields." },
 }
 

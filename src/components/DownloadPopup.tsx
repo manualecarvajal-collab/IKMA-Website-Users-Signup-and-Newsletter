@@ -43,7 +43,7 @@ export default function DownloadPopup({
 
   const handleClick = async () => {
     if (!isAuthenticated) {
-      router.push("/registro")
+      router.push("/membresia")
       return
     }
 

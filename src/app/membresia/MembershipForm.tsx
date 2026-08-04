@@ -64,15 +64,23 @@ export default function MembershipForm({
   initialEmail = "",
   initialFirstName = "",
   initialLastName = "",
+  initialMemberType,
+  initialRegion,
+  isAuthenticated = true,
 }: {
   initialEmail?: string
   initialFirstName?: string
   initialLastName?: string
+  initialMemberType?: number
+  initialRegion?: string
+  isAuthenticated?: boolean
 }) {
   const t = useTranslations("Membership")
   const [step, setStep] = useState(1)
   const [form, setForm] = useState<FormData>({
     ...initialForm,
+    memberType: initialMemberType ?? 1,
+    region: initialRegion ?? "",
     email: initialEmail,
     firstName: initialFirstName,
     lastName: initialLastName,
@@ -98,6 +106,10 @@ export default function MembershipForm({
     setForm((prev) => ({ ...prev, [field]: value }))
 
   const goToStep = (target: number) => {
+    if (target > 1 && !isAuthenticated) {
+      window.location.href = `/registro?tipo=${form.memberType}&region=${form.region}`
+      return
+    }
     if (target === 2 && !form.rulesConsent) {
       setFormP2Error("Please read and accept the IKMA membership rules to continue.")
       return
@@ -195,6 +207,10 @@ export default function MembershipForm({
   }
 
   const handleFreeSubmit = async () => {
+    if (!isAuthenticated) {
+      window.location.href = "/registro?tipo=3&region=A"
+      return
+    }
     setSubmitting(true)
     setSubmitError(null)
     try {
@@ -295,7 +311,7 @@ export default function MembershipForm({
                   <span className="font-bold">$50 USD</span>
                 </li>
                 <li className="flex justify-between border-b border-outline-variant/30 pb-1.5">
-                  <span>{t("freeMembership")}</span>
+                  <span>{t("student")}</span>
                   <span className="font-bold text-amber-600 uppercase">Free</span>
                 </li>
                 <li className="flex justify-between">
@@ -320,7 +336,7 @@ export default function MembershipForm({
                   <span className="font-bold">$100 USD</span>
                 </li>
                 <li className="flex justify-between border-b border-outline-variant/30 pb-1.5">
-                  <span>{t("freeMembership")}</span>
+                  <span>{t("student")}</span>
                   <span className="font-bold text-amber-600 uppercase">Free</span>
                 </li>
                 <li className="flex justify-between">
@@ -337,9 +353,9 @@ export default function MembershipForm({
         <div>
           <h3 className="text-lg font-bold text-on-surface mb-4">{t("profProfile")}</h3>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-            {[1, 2, 3, 4].map((type) => {
+            {([3, 1, 2, 4] as const).map((type) => {
               const info = memberTypeLabels[type]
-              const icons = ["stethoscope", "school", "menu_book", "work_history"]
+              const icons = { 1: "stethoscope", 2: "school", 3: "menu_book", 4: "work_history" } as const
               const active = form.memberType === type
               const isFree = type === 3
               return (
@@ -370,7 +386,7 @@ export default function MembershipForm({
                   />
                   <div className="flex items-center gap-2 mb-2 mt-1">
                     <div className={`p-1.5 rounded-lg ${active ? "bg-primary-container text-surface-bright" : "bg-surface-container-high text-on-surface-variant"}`}>
-                      <Icon name={icons[type - 1]} size={18} />
+                      <Icon name={icons[type]} size={18} />
                     </div>
                     <span className="font-bold text-on-surface text-xs md:text-sm leading-tight">{info.label}</span>
                   </div>
@@ -476,7 +492,7 @@ export default function MembershipForm({
               disabled={submitting || !form.rulesConsent}
               className="bg-primary text-on-primary font-label-bold px-8 py-3.5 rounded-xl shadow-lg transition flex items-center gap-2 group text-sm md:text-base disabled:opacity-50 cursor-pointer"
             >
-              {submitting ? "Setting up..." : "Activate Free Membership"}{" "}
+              {submitting ? "Setting up..." : "Activate Student Membership"}{" "}
               <Icon name="arrow_forward" size={16} className="group-hover:translate-x-1 transition" />
             </button>
           ) : (

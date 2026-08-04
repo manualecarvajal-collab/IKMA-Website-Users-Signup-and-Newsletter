@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server"
 import { createServerClient } from "@supabase/ssr"
+import { esMembresiaGratisUsuario } from "@/lib/supabase/free-membership"
 
 export async function proxy(request: NextRequest) {
   const response = NextResponse.next()
@@ -26,12 +27,13 @@ export async function proxy(request: NextRequest) {
   if (user && request.nextUrl.pathname === "/") {
     const { data: perfil } = await supabase
       .from("perfiles")
-      .select("suscripcion_activa, membresia_gratis")
+      .select("suscripcion_activa")
       .eq("id", user.id)
       .single()
+    const esFree = await esMembresiaGratisUsuario(supabase, user.id)
 
     // If user has no active subscription and no free membership, send them to membership page
-    if (perfil && !perfil.suscripcion_activa && !perfil.membresia_gratis) {
+    if (perfil && !perfil.suscripcion_activa && !esFree) {
       const redirectUrl = request.nextUrl.clone()
       redirectUrl.pathname = "/membresia"
       return NextResponse.redirect(redirectUrl)

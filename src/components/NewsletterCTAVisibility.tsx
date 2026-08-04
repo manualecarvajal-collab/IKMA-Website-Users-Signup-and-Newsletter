@@ -7,6 +7,7 @@ const HIDDEN_PATHS = [
   "/login",
   "/registro",
   "/verificar-codigo",
+  "/membresia",
   "/recuperar",
   "/actualizar-password",
   "/crear-contrasena",

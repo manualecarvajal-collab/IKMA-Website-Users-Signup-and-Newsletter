@@ -3,15 +3,28 @@
 import { revalidatePath } from "next/cache"
 import { checkAdmin, registrarActividad } from "@/lib/supabase/admin-helpers"
 import { createAdminClient } from "@/lib/supabase/server"
+import { getFreeMemberIds } from "@/lib/supabase/free-membership"
 
 export async function getAllUsers() {
   const { supabase } = await checkAdmin()
   const admin = await createAdminClient()
-  const { data: perfiles } = await admin
+
+  // membresia_gratis only exists after migration 00029; retry without it so a
+  // missing column never breaks the whole user list (roles would default to "lector")
+  let perfiles: { id: string; nombre_completo: string | null; suscripcion_activa: boolean | null; membresia_gratis?: boolean | null; rol: string | null }[] | null = null
+  let error: unknown = null
+  ;({ data: perfiles, error } = await admin
     .from("perfiles")
-    .select("id, nombre_completo, suscripcion_activa, membresia_gratis, rol")
+    .select("id, nombre_completo, suscripcion_activa, membresia_gratis, rol"))
+  if (error) {
+    ;({ data: perfiles, error } = await admin
+      .from("perfiles")
+      .select("id, nombre_completo, suscripcion_activa, rol"))
+  }
 
   const perfilesMap = new Map((perfiles ?? []).map(p => [p.id, p]))
+  // Source of truth for free membership: solicitudes_membresia (tipo 3, aprobada)
+  const freeIds = await getFreeMemberIds(admin)
   const { data: authData } = await admin.auth.admin.listUsers()
   const authUsers = authData?.users ?? []
 
@@ -25,7 +38,7 @@ export async function getAllUsers() {
         nombre_completo: perfil?.nombre_completo || (u.user_metadata?.nombre_completo as string) || "",
         email: u.email || "No email",
         suscripcion_activa: perfil?.suscripcion_activa ?? false,
-        membresia_gratis: perfil?.membresia_gratis ?? false,
+        membresia_gratis: (perfil?.membresia_gratis ?? false) || freeIds.has(u.id),
         rol: perfil?.rol || "lector",
         created_at: u.created_at,
       }

@@ -5,7 +5,17 @@ import { verificarCodigo } from "@/lib/supabase/actions"
 import Link from "next/link"
 import { useTranslations } from "next-intl"
 
-export default function VerificarCodigoForm({ initialEmail, flow = "recovery" }: { initialEmail: string; flow?: string }) {
+export default function VerificarCodigoForm({
+  initialEmail,
+  flow = "recovery",
+  initialTipo = "",
+  initialRegion = "",
+}: {
+  initialEmail: string
+  flow?: string
+  initialTipo?: string
+  initialRegion?: string
+}) {
   const [state, action, pending] = useActionState(verificarCodigo, undefined)
   const [token, setToken] = useState("")
   const t = useTranslations("VerificarCodigo")
@@ -27,6 +37,8 @@ export default function VerificarCodigoForm({ initialEmail, flow = "recovery" }:
 
           <form action={action} className="space-y-6">
             <input type="hidden" name="flow" value={flow} />
+            <input type="hidden" name="tipo" value={initialTipo} />
+            <input type="hidden" name="region" value={initialRegion} />
 
             <div>
               <label className="block font-label-bold text-label-bold text-on-surface mb-2" htmlFor="email">

@@ -15,7 +15,7 @@ export default function ReadMagazineButton({
   const handleClick = () => {
     if (!canRead) {
       if (!isAuthenticated) {
-        window.location.href = "/registro"
+        window.location.href = "/membresia"
       } else {
         window.location.href = "/suscripcion-exito"
       }

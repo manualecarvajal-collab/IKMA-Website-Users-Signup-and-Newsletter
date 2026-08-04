@@ -5,16 +5,25 @@ import { signup } from "@/lib/supabase/actions"
 import { createBrowserClient } from "@supabase/ssr"
 import { useTranslations } from "next-intl"
 import Link from "next/link"
+import { useSearchParams } from "next/navigation"
 
 export default function RegistroPage() {
   const t = useTranslations("Registro")
+  const searchParams = useSearchParams()
+  const tipo = searchParams.get("tipo") ?? ""
+  const region = searchParams.get("region") ?? ""
+
+  const membershipNext = tipo
+    ? `/membresia?tipo=${tipo}&region=${region || "A"}`
+    : "/membresia"
+
   const [state, action, pending] = useActionState(signup, undefined)
 
   useEffect(() => {
     if (state?.success === "ok") {
-      window.location.href = "/membresia"
+      window.location.href = state.next ?? membershipNext
     }
-  }, [state])
+  }, [state, membershipNext])
 
   return (
     <section className="py-section-padding">
@@ -26,6 +35,8 @@ export default function RegistroPage() {
           </p>
 
           <form action={action} className="space-y-6">
+            <input type="hidden" name="tipo" value={tipo} />
+            <input type="hidden" name="region" value={region} />
             <div>
               <label className="block font-label-bold text-label-bold text-on-surface mb-2" htmlFor="nombre_completo">
                 {t("fullName")}
@@ -104,7 +115,9 @@ export default function RegistroPage() {
               )
               supabase.auth.signInWithOAuth({
                 provider: "google",
-                options: { redirectTo: `${location.origin}/auth/callback` },
+                options: {
+                  redirectTo: `${location.origin}/auth/callback?next=${encodeURIComponent(membershipNext)}`,
+                },
               })
             }}
             className="w-full flex items-center justify-center gap-3 bg-surface border border-outline-variant/50 text-on-surface font-label-bold text-label-bold py-3 rounded-lg hover:bg-surface-container transition-all cursor-pointer"

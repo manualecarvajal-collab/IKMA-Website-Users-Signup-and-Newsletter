@@ -2,6 +2,7 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 import type { Metadata } from "next"
 import { createClient } from "@/lib/supabase/server"
+import { esMembresiaGratisUsuario } from "@/lib/supabase/free-membership"
 import { getTranslations, getLocale } from "next-intl/server"
 import Icon from "@/components/Icon"
 import VideoPaywall from "./VideoPaywall"
@@ -91,10 +92,10 @@ export default async function TeachingPage({ params }: { params: Promise<{ grupo
   // Check subscription for video paywall
   const { data: { user } } = await supabase.auth.getUser()
   const { data: perfil } = user
-    ? await supabase.from("perfiles").select("suscripcion_activa, membresia_gratis").eq("id", user.id).single()
+    ? await supabase.from("perfiles").select("suscripcion_activa").eq("id", user.id).single()
     : { data: null }
   const isSubscribed = !!perfil?.suscripcion_activa
-  const esFree = !!perfil?.membresia_gratis
+  const esFree = user ? await esMembresiaGratisUsuario(supabase, user.id) : false
 
   const { data: grupo } = await supabase.from("grupos").select("id, nombre, gratis").eq("slug", grupoSlug).single()
   if (!grupo) notFound()

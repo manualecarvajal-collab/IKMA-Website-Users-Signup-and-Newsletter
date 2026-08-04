@@ -48,7 +48,7 @@ export default function ArticleContent({ contenidoHtml, resumen, isAuthenticated
               {t("registerToRead")}
             </p>
             <Link
-              href="/registro"
+              href="/membresia"
               className="bg-primary text-on-primary font-label-bold text-label-bold px-6 py-3 rounded-lg hover:bg-primary/90 transition-all inline-block"
             >
               {t("signUpFree")}

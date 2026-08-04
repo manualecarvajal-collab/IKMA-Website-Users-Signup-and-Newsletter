@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { createClient, createAdminClient } from "@/lib/supabase/server"
+import { esMembresiaGratisUsuario } from "@/lib/supabase/free-membership"
 
 function extractPdfPath(archivoUrl: string): string {
   const marker = "/object/public/revistas-pdf/"
@@ -25,7 +26,7 @@ export async function GET(request: Request) {
 
   const { data: perfil } = await supabase
     .from("perfiles")
-    .select("suscripcion_activa, membresia_gratis")
+    .select("suscripcion_activa")
     .eq("id", user.id)
     .single()
 
@@ -41,7 +42,7 @@ export async function GET(request: Request) {
 
   // Paid subscribers: any magazine. Free members: only the first published edition.
   let puedeLeer = !!perfil?.suscripcion_activa
-  if (!puedeLeer && perfil?.membresia_gratis) {
+  if (!puedeLeer && (await esMembresiaGratisUsuario(supabase, user.id))) {
     const { data: primera } = await supabase
       .from("revistas")
       .select("id")

@@ -162,7 +162,7 @@ export default function LoginPage() {
               )
               supabase.auth.signInWithOAuth({
                 provider: "google",
-                options: { redirectTo: `${location.origin}/auth/callback` },
+                options: { redirectTo: `${location.origin}/auth/callback?next=${encodeURIComponent("/")}` },
               })
             }}
             className="w-full flex items-center justify-center gap-3 bg-surface border border-outline-variant/50 text-on-surface font-label-bold text-label-bold py-3 rounded-lg hover:bg-surface-container transition-all cursor-pointer"
@@ -178,7 +178,7 @@ export default function LoginPage() {
 
           <p className="font-body-md text-body-md text-on-surface-variant text-center mt-6">
             {t("noAccount")}{" "}
-            <Link href="/registro" className="text-primary font-semibold hover:underline">
+            <Link href="/membresia" className="text-primary font-semibold hover:underline">
               {t("signUpLink")}
             </Link>
           </p>

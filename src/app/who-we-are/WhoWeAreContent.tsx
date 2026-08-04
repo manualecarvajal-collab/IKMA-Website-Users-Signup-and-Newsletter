@@ -345,7 +345,7 @@ export default function WhoWeAreContent() {
             </div>
             <div className="flex flex-col sm:flex-row gap-6 lg:justify-end">
               <Link
-                href="/registro"
+                href="/membresia"
                 className="bg-white text-primary font-label-bold text-label-bold px-8 py-4 rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
               >
                 {tWho("becomeMemberBtn")}

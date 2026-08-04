@@ -5,6 +5,48 @@ import { createClient, createAdminClient } from "@/lib/supabase/server"
 const TIPOS_VALIDOS = [1, 2, 3, 4]
 const REGIONES_VALIDAS = ["A", "B"]
 
+export async function grantFreeMembership(
+  userId: string
+): Promise<{ success?: string; error?: string; id?: string }> {
+  const adminSupabase = await createAdminClient()
+
+  const activarMembresiaGratis = async () => {
+    await adminSupabase.from("perfiles").update({ membresia_gratis: true }).eq("id", userId)
+  }
+
+  const camposSolicitud = {
+    tipo_miembro: 3,
+    region: "A",
+    pais: "",
+    language: "en",
+    estado: "aprobada",
+  }
+
+  const { data: existente } = await adminSupabase
+    .from("solicitudes_membresia")
+    .select("id")
+    .eq("usuario_id", userId)
+    .in("estado", ["pendiente", "rechazada", "aprobada"])
+    .eq("tipo_miembro", 3)
+    .maybeSingle()
+
+  if (existente) {
+    await adminSupabase.from("solicitudes_membresia").update(camposSolicitud).eq("id", existente.id)
+    await activarMembresiaGratis()
+    return { success: "ok", id: existente.id }
+  }
+
+  const { data: solicitud, error } = await adminSupabase
+    .from("solicitudes_membresia")
+    .insert({ usuario_id: userId, ...camposSolicitud })
+    .select("id")
+    .single()
+
+  if (error) return { error: "Could not submit membership request. Please try again." }
+  await activarMembresiaGratis()
+  return { success: "ok", id: solicitud.id }
+}
+
 export async function submitMembership(data: {
   tipoMiembro: number
   region: string
@@ -22,7 +64,7 @@ export async function submitMembership(data: {
   anioGrado: number | null
   anioResidencia: number | null
   archivoLicenciaUrl: string | null
-}) {
+}): Promise<{ success?: string; error?: string; id?: string }> {
   if (!TIPOS_VALIDOS.includes(data.tipoMiembro)) {
     return { error: "Invalid member type" }
   }
@@ -46,9 +88,8 @@ export async function submitMembership(data: {
   const esGratis = data.tipoMiembro === 3
   const estado = esGratis ? "aprobada" : "pendiente"
 
-  const activarMembresiaGratis = async () => {
-    if (!esGratis) return
-    await adminSupabase.from("perfiles").update({ membresia_gratis: true }).eq("id", user.id)
+  if (esGratis) {
+    return grantFreeMembership(user.id)
   }
 
   const camposSolicitud = {
@@ -87,7 +128,6 @@ export async function submitMembership(data: {
       .select("id")
       .single()
     if (error) return { error: "Could not update membership request. Please try again." }
-    await activarMembresiaGratis()
     return { success: "ok", id: solicitud.id }
   }
 
@@ -98,6 +138,5 @@ export async function submitMembership(data: {
     .single()
 
   if (error) return { error: "Could not submit membership request. Please try again." }
-  await activarMembresiaGratis()
   return { success: "ok", id: solicitud.id }
 }
