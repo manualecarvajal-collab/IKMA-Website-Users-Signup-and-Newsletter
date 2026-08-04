@@ -1,4 +1,5 @@
 import {
+  AlignCenter, AlignJustify, AlignLeft, AlignRight,
   ArrowLeft, ArrowRight, Award, BadgeCheck, Bell, BookOpen, Briefcase, Building,
   Calendar, Check, CheckCircle, ChevronDown, ChevronRight, ClipboardList,
   Eye, EyeOff, FilePlus, FileText, Filter, FlaskConical, Globe, GraduationCap,
@@ -34,6 +35,10 @@ const map: Record<string, React.ComponentType<LucideProps>> = {
   groups: Users,
   expand_more: ChevronDown,
   filter_list: Filter,
+  format_align_center: AlignCenter,
+  format_align_justify: AlignJustify,
+  format_align_left: AlignLeft,
+  format_align_right: AlignRight,
   format_quote: Quote,
   home: Home,
   info: Info,

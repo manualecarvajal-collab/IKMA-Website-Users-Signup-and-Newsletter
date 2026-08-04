@@ -172,3 +172,66 @@ Esto evita tener dos archivos de middleware (Next.js solo permite uno).
   en middleware y usa cookie como fuente de verdad.
 - Si en el futuro se quiere SEO multilingüe con rutas `/es/...`,
   se puede agregar sin cambiar los mensajes JSON.
+
+---
+
+## Flujos OTP (newsletter, signup, recuperación) + editor Tiptap robusto — 2026-08-04
+
+### Contexto
+
+Supabase enviaba magic links (URLs) en vez de códigos OTP. Se cambió a códigos
+numéricos de 6-8 dígitos y se unificaron los tres flujos en `/verificar-codigo`.
+
+### Templates de email (Supabase Dashboard → Auth → Emails)
+
+- **Confirm signup**: plantilla con `{{ .Token }}` (código) + `{{ .ConfirmationURL }}`
+  como fallback de link.
+- **Magic Link by Email**: igual, `{{ .Token }}` + `{{ .ConfirmationURL }}`.
+- El código funciona para newsletter (`solicitarCodigoNewsletter`) y signup.
+
+### Flujo signup con verificación por código
+
+1. `signup()` en `src/lib/supabase/actions.ts` — si `data.user && !data.session`
+   (confirmación pendiente), redirige a `/verificar-codigo?flow=signup&email=...`.
+2. `verificarCodigo()` — branch `flow === "signup"`: `verifyOtp({ type: "email" })`
+   con fallback a `type: "signup"` → `redirect("/membresia")`.
+3. `VerificarCodigoForm.tsx` — soporta `isSignup` y el texto `descriptionSignup`
+   (keys añadidas en `messages/en.json` y `messages/es.json`).
+
+### Bug: "please match the same format"
+
+El `pattern="[0-9]{6,8}"` + `maxLength` en el input rechazaba códigos de 8 dígitos
+(84870028). Fix: input controlado con `onChange` que filtra no-dígitos
+(`replace(/[^0-9]/g, "")`) y `.slice(0, 10)`; sin `pattern` ni `maxLength`.
+El server action además sanitiza con `replace(/[^0-9]/g, "")`.
+
+### NewsletterCTA oculto en rutas de auth
+
+Nuevo `src/components/NewsletterCTAWrapper.tsx` que renderiza `NewsletterCTA` salvo en:
+`/login`, `/registro`, `/verificar-codigo`, `/recuperar`, `/actualizar-password`,
+`/crear-contrasena`, `/auth`. `layout.tsx` lo usa en vez del CTA directo.
+
+### Editor Tiptap: alineación + whitespace preservado
+
+| Archivo | Cambio |
+|---------|--------|
+| `package.json` | **Nueva dep**: `@tiptap/extension-text-align@^3.27.1` |
+| `src/components/TiptapEditor.tsx` | `TextAlign.configure({ types: ["heading","paragraph"], alignments: ["left","center","right","justify"] })`; 4 botones de alineación con estado activo; `whitespace-pre-wrap`; `ToolbarButton` movido fuera del componente (evita "Cannot create components during render") |
+| `src/components/ArticleContent.tsx` | `whitespace-pre-wrap` en los 3 divs de contenido |
+| `src/components/ArticleForm.tsx` | `whitespace-pre-wrap` en el preview |
+| `src/app/globals.css` | CSS `.prose` custom: `p { margin: 0 0 1.25em }`, `p:empty { height: 1.25em }`, márgenes h1-h3, ul/ol/li, img, `a`, blockquote |
+
+### Notas
+
+- `@tailwindcss/typography` **NO está instalado** — las clases `prose` son no-ops;
+  el espaciado real viene del CSS `.prose` custom en globals.css.
+- Causa raíz de párrafos pegados: Tailwind Preflight elimina márgenes de `<p>` y los
+  `<p></p>` vacíos colapsan a 0 de altura. El CSS custom los restaura.
+- Prettier formatea mal los párrafos con `whitespace-pre-wrap`; los autores deben
+  evitar saltos de línea por tema.
+
+### Knowledge graph
+
+Grafo regenerado (2026-08-04): 605 nodos, 1012 edges, 55 comunidades.
+Nuevos nodos: `ToolbarButton()`, `NewsletterCTA`, `GroupFreeToggle`,
+`CrearContrasenaForm()`, `crearContrasena()`, `EventsPage`, foto Dalia.

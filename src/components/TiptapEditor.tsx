@@ -5,6 +5,7 @@ import StarterKit from "@tiptap/starter-kit"
 import LinkExtension from "@tiptap/extension-link"
 import ImageExtension from "@tiptap/extension-image"
 import TextAlign from "@tiptap/extension-text-align"
+import Icon from "@/components/Icon"
 import { useEffect } from "react"
 
 interface TiptapEditorProps {
@@ -13,18 +14,29 @@ interface TiptapEditorProps {
   onImageUpload?: (file: File) => Promise<string>
 }
 
-function ToolbarButton({ onClick, active, label }: { onClick: () => void; active?: boolean; label: string }) {
+function ToolbarButton({
+  onClick,
+  active,
+  label,
+  children,
+}: {
+  onClick: () => void
+  active?: boolean
+  label?: string
+  children?: React.ReactNode
+}) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
+      title={label}
+      className={`px-2.5 py-1.5 rounded text-sm font-medium transition-colors flex items-center justify-center ${
         active
           ? "bg-primary text-on-primary"
           : "text-on-surface-variant hover:bg-surface-container hover:text-on-surface"
       }`}
     >
-      {label}
+      {children ?? label}
     </button>
   )
 }
@@ -120,23 +132,31 @@ export default function TiptapEditor({ content, onChange, onImageUpload }: Tipta
         <ToolbarButton
           onClick={() => editor.chain().focus().setTextAlign("left").run()}
           active={editor.isActive({ textAlign: "left" })}
-          label="Align Left"
-        />
+          label="Align left"
+        >
+          <Icon name="format_align_left" size={18} />
+        </ToolbarButton>
         <ToolbarButton
           onClick={() => editor.chain().focus().setTextAlign("center").run()}
           active={editor.isActive({ textAlign: "center" })}
-          label="Align Center"
-        />
+          label="Align center"
+        >
+          <Icon name="format_align_center" size={18} />
+        </ToolbarButton>
         <ToolbarButton
           onClick={() => editor.chain().focus().setTextAlign("right").run()}
           active={editor.isActive({ textAlign: "right" })}
-          label="Align Right"
-        />
+          label="Align right"
+        >
+          <Icon name="format_align_right" size={18} />
+        </ToolbarButton>
         <ToolbarButton
           onClick={() => editor.chain().focus().setTextAlign("justify").run()}
           active={editor.isActive({ textAlign: "justify" })}
-          label="Align Justify"
-        />
+          label="Align justify"
+        >
+          <Icon name="format_align_justify" size={18} />
+        </ToolbarButton>
         <span className="w-px h-6 bg-outline-variant mx-1 self-center" />
         <ToolbarButton
           onClick={setLink}

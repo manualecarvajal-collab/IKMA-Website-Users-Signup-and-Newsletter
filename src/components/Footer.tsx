@@ -10,7 +10,7 @@ export default async function Footer() {
     <footer className="bg-surface-container-low border-t border-outline-variant">
       <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-12 md:py-section-padding grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 md:gap-gutter font-body-md text-body-md">
         <div className="sm:col-span-2">
-          <Image src="/logo.webp" alt="IKMA Logo" width={107} height={32} className="mb-4" />
+          <Image src="/logo.webp" alt="IKMA Logo" width={107} height={45} className="mb-4" />
           <p className="text-on-surface-variant mb-6 max-w-md">
             {t("missionStatement")}
           </p>

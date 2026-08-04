@@ -93,8 +93,8 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
           <Image
             src="/logo.webp"
             alt="IKMA Logo"
-            width={160}
-            height={48}
+            width={94}
+            height={40}
             className="h-10 w-auto"
             priority
           />

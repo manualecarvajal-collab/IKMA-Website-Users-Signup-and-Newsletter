@@ -31,7 +31,8 @@ const boardMembers = [
     role: { en: "CEO-/ manager, board member", es: "Psiquiatra | Dir. Ejecutiva, Gerente y Miembro de la Junta Directiva" },
   },
   {
-    img: null,
+    img: "/images/Dalia.webp",
+    zoom: true,
     name: { en: "Dalia Beltran", es: "Dalia Beltrán" },
     role: { en: "Secretary, certified medical and judicial translator", es: "Secr. y Traductora Médica y Judicial Certificada" },
   },
@@ -201,7 +202,7 @@ export default function WhoWeAreContent() {
                   <img
                     src={member.img}
                     alt={member.name.en}
-                    className="w-full h-full object-cover"
+                    className={`w-full h-full object-cover ${member.zoom ? "scale-[1.35]" : ""}`}
                     loading="lazy"
                   />
                 ) : (
