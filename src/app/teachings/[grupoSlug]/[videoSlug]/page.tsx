@@ -14,6 +14,7 @@ interface Video {
   embed_url: string
   imagen_preview: string | null
   publicado: boolean
+  gratis: boolean
   created_at: string
   grupo_id: string
 }
@@ -90,15 +91,20 @@ export default async function TeachingPage({ params }: { params: Promise<{ grupo
   // Check subscription for video paywall
   const { data: { user } } = await supabase.auth.getUser()
   const { data: perfil } = user
-    ? await supabase.from("perfiles").select("suscripcion_activa").eq("id", user.id).single()
+    ? await supabase.from("perfiles").select("suscripcion_activa, membresia_gratis").eq("id", user.id).single()
     : { data: null }
   const isSubscribed = !!perfil?.suscripcion_activa
+  const esFree = !!perfil?.membresia_gratis
 
-  const { data: grupo } = await supabase.from("grupos").select("id, nombre").eq("slug", grupoSlug).single()
+  const { data: grupo } = await supabase.from("grupos").select("id, nombre, gratis").eq("slug", grupoSlug).single()
   if (!grupo) notFound()
 
   const video = await getVideo(videoSlug, grupo.id)
   if (!video) notFound()
+
+  // Paid subscribers: everything. Free members: videos marked gratis or in a gratis group.
+  // Anonymous visitors: only videos marked gratis.
+  const canWatch = isSubscribed || !!video.gratis || (esFree && !!grupo.gratis)
 
   const related = await getRelated(grupo.id, video.id)
 
@@ -115,7 +121,7 @@ export default async function TeachingPage({ params }: { params: Promise<{ grupo
               <span className="text-primary truncate notranslate">{video.titulo}</span>
             </nav>
             <div className="relative aspect-video bg-surface-container rounded-xl overflow-hidden shadow-lg mb-8">
-              {isSubscribed ? (
+              {canWatch ? (
                 embedSrcSeguro(video.embed_url) ? (
                   <iframe
                     src={embedSrcSeguro(video.embed_url)!}

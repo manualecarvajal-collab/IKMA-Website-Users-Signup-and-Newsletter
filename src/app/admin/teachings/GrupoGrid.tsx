@@ -9,6 +9,7 @@ interface Grupo {
   id: string
   nombre: string
   slug: string
+  gratis: boolean
   created_at: string
 }
 
@@ -26,6 +27,7 @@ export function GrupoGrid({
   const [dragIndex, setDragIndex] = useState<number | null>(null)
   const [openNew, setOpenNew] = useState(false)
   const [newName, setNewName] = useState("")
+  const [newGratis, setNewGratis] = useState(false)
   const [error, setError] = useState("")
   const [pending, setPending] = useState(false)
   const router = useRouter()
@@ -66,6 +68,7 @@ export function GrupoGrid({
     setError("")
     const fd = new FormData()
     fd.set("nombre", newName.trim())
+    fd.set("gratis", newGratis ? "on" : "")
     const result = await createGrupo(fd)
     if (result?.error) {
       setError(result.error)
@@ -73,13 +76,14 @@ export function GrupoGrid({
       return
     }
     setNewName("")
+    setNewGratis(false)
     setOpenNew(false)
     setPending(false)
     if (result?.data) {
       router.push(`/admin/teachings/${result.data.id}`)
     }
     router.refresh()
-  }, [newName, createGrupo, router])
+  }, [newName, newGratis, createGrupo, router])
 
   return (
     <>
@@ -91,26 +95,37 @@ export function GrupoGrid({
             <Icon name="add" size={14} /> Create New Group
           </button>
         ) : (
-          <div className="flex items-center gap-2 max-w-lg">
-            <input
-              value={newName}
-              onChange={(e) => { setNewName(e.target.value); setError("") }}
-              placeholder="Group name"
-              autoFocus
-              className="flex-1 bg-surface-container-low border border-outline-variant/50 rounded-lg px-4 py-2.5 font-body-md text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30"
-            />
-            {error && <p className="text-error text-sm whitespace-nowrap">{error}</p>}
-            <button onClick={handleNewGroup} disabled={pending || !newName.trim()}
-              className="bg-primary text-on-primary font-label-bold text-label-bold px-4 py-2.5 rounded-lg hover:bg-primary-container hover:text-on-primary-container transition-colors disabled:opacity-50 whitespace-nowrap"
-            >
-              {pending ? "Creating..." : "Create"}
-            </button>
-            <button onClick={() => { setOpenNew(false); setNewName(""); setError("") }}
-              className="bg-surface-container-high text-on-surface-variant font-label-bold text-label-bold px-4 py-2.5 rounded-lg hover:bg-outline-variant/30 transition-colors"
-            >
-              Cancel
-            </button>
-          </div>
+          <>
+            <div className="flex items-center gap-2 max-w-lg">
+              <input
+                value={newName}
+                onChange={(e) => { setNewName(e.target.value); setError("") }}
+                placeholder="Group name"
+                autoFocus
+                className="flex-1 bg-surface-container-low border border-outline-variant/50 rounded-lg px-4 py-2.5 font-body-md text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30"
+              />
+              {error && <p className="text-error text-sm whitespace-nowrap">{error}</p>}
+              <button onClick={handleNewGroup} disabled={pending || !newName.trim()}
+                className="bg-primary text-on-primary font-label-bold text-label-bold px-4 py-2.5 rounded-lg hover:bg-primary-container hover:text-on-primary-container transition-colors disabled:opacity-50 whitespace-nowrap"
+              >
+                {pending ? "Creating..." : "Create"}
+              </button>
+              <button onClick={() => { setOpenNew(false); setNewName(""); setNewGratis(false); setError("") }}
+                className="bg-surface-container-high text-on-surface-variant font-label-bold text-label-bold px-4 py-2.5 rounded-lg hover:bg-outline-variant/30 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+            <label className="mt-3 flex items-center gap-2 text-sm text-on-surface-variant cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={newGratis}
+                onChange={(e) => setNewGratis(e.target.checked)}
+                className="h-4 w-4 rounded border-outline-variant/50 text-primary focus:ring-primary/30"
+              />
+              Free for members (all videos in this group are included in the Free membership)
+            </label>
+          </>
         )}
       </div>
 
@@ -140,9 +155,16 @@ export function GrupoGrid({
                   <Icon name="folder" size={22} className="text-primary" />
                 </div>
               </div>
-              <span className="font-label-bold text-label-sm text-on-surface-variant">
-                {videoCount[g.id] ?? 0} videos
-              </span>
+              <div className="flex items-center gap-2">
+                {g.gratis && (
+                  <span className="inline-block bg-amber-100 text-amber-700 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                    Free
+                  </span>
+                )}
+                <span className="font-label-bold text-label-sm text-on-surface-variant">
+                  {videoCount[g.id] ?? 0} videos
+                </span>
+              </div>
             </div>
             <h3 className="font-headline-md text-headline-md text-on-surface group-hover:text-primary transition-colors mb-1 truncate notranslate">{g.nombre}</h3>
             <p className="font-body-md text-body-md text-on-surface-variant text-sm">/{g.slug}</p>

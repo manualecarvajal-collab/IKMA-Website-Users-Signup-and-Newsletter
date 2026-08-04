@@ -11,6 +11,7 @@ interface User {
   nombre_completo: string
   email: string
   suscripcion_activa: boolean
+  membresia_gratis: boolean
   rol: string
   created_at: string
 }
@@ -134,7 +135,7 @@ export default function UserManagementTable({ initialUsers }: { initialUsers: Us
                               : "bg-surface-container-high text-on-surface-variant border-outline-variant/30 hover:bg-surface-container-highest"
                           }`}
                         >
-                          {u.suscripcion_activa ? "ACTIVE SUBSCRIBER" : "FREE USER"}
+                          {u.suscripcion_activa ? "ACTIVE SUBSCRIBER" : u.membresia_gratis ? "FREE MEMBER" : "FREE USER"}
                         </button>
                       )}
                     </td>
@@ -199,7 +200,7 @@ export default function UserManagementTable({ initialUsers }: { initialUsers: Us
                           : "bg-surface-container-high text-on-surface-variant border-outline-variant/30"
                       }`}
                     >
-                      {u.suscripcion_activa ? "ACTIVE SUBSCRIBER" : "FREE USER"}
+                      {u.suscripcion_activa ? "ACTIVE SUBSCRIBER" : u.membresia_gratis ? "FREE MEMBER" : "FREE USER"}
                     </button>
                   )}
                 </div>
@@ -213,7 +214,7 @@ export default function UserManagementTable({ initialUsers }: { initialUsers: Us
         <div className="bg-primary-container/30 border border-primary/20 p-4 rounded-xl flex items-start gap-3">
           <Icon name="info" size={18} className="text-primary" />
           <p className="text-sm text-on-primary-container font-body-md">
-            You have unsaved changes. Make sure to click <strong>"Save Changes"</strong> before leaving this page.
+            You have unsaved changes. Make sure to click <strong>&quot;Save Changes&quot;</strong> before leaving this page.
           </p>
         </div>
       )}

@@ -12,10 +12,12 @@ import Icon from "@/components/Icon"
 export default function DownloadPopup({
   isAuthenticated,
   isSubscribed,
+  isFreeMember,
   revistaId,
 }: {
   isAuthenticated: boolean
   isSubscribed: boolean
+  isFreeMember: boolean
   revistaId?: string
 }) {
   const t = useTranslations("Download")
@@ -45,7 +47,8 @@ export default function DownloadPopup({
       return
     }
 
-    if (!isSubscribed) {
+    // Free members skip the upsell popup; the server validates the first-edition rule
+    if (!isSubscribed && !isFreeMember) {
       setTimeLeft(600)
       setOpen(true)
       return

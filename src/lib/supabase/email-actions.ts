@@ -78,6 +78,19 @@ async function signedPdfUrl(archivoUrl: string): Promise<string> {
   return data?.signedUrl ?? archivoUrl
 }
 
+// True if the magazine is the first published edition (the one included in the Free membership)
+async function esPrimeraRevista(client: Awaited<ReturnType<typeof createAdminClient>>, revistaId: string): Promise<boolean> {
+  const { data } = await client
+    .from("revistas")
+    .select("id")
+    .eq("publicado", true)
+    .order("fecha_publicacion", { ascending: true })
+    .order("created_at", { ascending: true })
+    .limit(1)
+    .maybeSingle()
+  return data?.id === revistaId
+}
+
 async function sendEmail(config: Record<string, string>, to: string, subject: string, html: string) {
   return fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -101,7 +114,7 @@ export async function sendMagazineToEmail(revistaId: string, userId: string): Pr
 
   const { data: revista } = await supabase
     .from("revistas")
-    .select("titulo, descripcion, archivo_url, imagen_portada")
+    .select("id, titulo, descripcion, archivo_url, imagen_portada")
     .eq("id", revistaId)
     .single()
 
@@ -110,14 +123,22 @@ export async function sendMagazineToEmail(revistaId: string, userId: string): Pr
   const admin = await createAdminClient()
   const { data: perfil } = await admin
     .from("perfiles")
-    .select("nombre_completo, suscripcion_activa")
+    .select("nombre_completo, suscripcion_activa, membresia_gratis")
     .eq("id", user.id)
     .single()
 
   if (!perfil) return { error: "Profile not found" }
 
   if (!perfil.suscripcion_activa) {
-    return { error: `Subscription not active for ${user.email}. Please refresh the page.` }
+    // Free members may receive only the first published edition by email
+    const puedeEnviar = perfil.membresia_gratis && (await esPrimeraRevista(admin, revista.id))
+    if (!puedeEnviar) {
+      return {
+        error: perfil.membresia_gratis
+          ? "This magazine is only available to active subscribers."
+          : `Subscription not active for ${user.email}. Please refresh the page.`,
+      }
+    }
   }
 
   const email = user.email
@@ -162,17 +183,20 @@ export async function sendMagazineToSubscribers(revistaId: string, excludeEmails
 
   const { data: revista } = await supabase
     .from("revistas")
-    .select("titulo, descripcion, archivo_url, imagen_portada")
+    .select("id, titulo, descripcion, archivo_url, imagen_portada")
     .eq("id", revistaId)
     .single()
 
   if (!revista) return { error: "Magazine not found" }
 
   const admin = await createAdminClient()
-  const { data: suscriptores } = await admin
+  // Paid subscribers always; free members only when sending the first published edition
+  const esPrimera = await esPrimeraRevista(admin, revista.id)
+  let { data: suscriptores } = await admin
     .from("perfiles")
-    .select("id, nombre_completo")
-    .eq("suscripcion_activa", true)
+    .select("id, nombre_completo, suscripcion_activa")
+    .or("suscripcion_activa.eq.true,membresia_gratis.eq.true")
+  suscriptores = (suscriptores ?? []).filter((s) => esPrimera || s.suscripcion_activa)
 
   if (!suscriptores?.length) return { error: "No subscribers" }
 
@@ -248,7 +272,7 @@ export async function sendNewsletter(
   const { data: suscriptores } = await admin
     .from("perfiles")
     .select("id, nombre_completo")
-    .eq("suscripcion_activa", true)
+    .or("suscripcion_activa.eq.true,membresia_gratis.eq.true")
 
   if (!suscriptores?.length) return { error: "No active subscribers" }
 

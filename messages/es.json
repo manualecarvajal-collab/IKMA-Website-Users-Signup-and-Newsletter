@@ -24,8 +24,18 @@
     "privacyPolicy": "Política de Privacidad",
     "termsOfService": "Términos del Servicio",
     "resources": "Recursos",
-    "donorRights": "Derechos del Donante",
+    "donationPolicy": "Política de Donación",
     "annualReport": "Informe Anual"
+  },
+  "NewsletterCTA": {
+    "eyebrow": "Boletín",
+    "title": "Historias de fe y sanidad, directo a tu correo",
+    "description": "Únete a nuestra lista y recibe la revista de IKMA, testimonios y novedades de la misión.",
+    "emailLabel": "Correo electrónico",
+    "emailPlaceholder": "tu@correo.com",
+    "subscribe": "Suscribirme",
+    "sending": "Enviando...",
+    "microcopy": "Un código único para verificar · Sin spam · Cancela cuando quieras"
   },
   "Contact": {
     "heroTitle": "Estamos Aquí para Ayudarte",
@@ -115,7 +125,8 @@
     "signIn": "Iniciar sesión",
     "signInGoogle": "Iniciar sesión con Google",
     "noAccount": "¿No tienes cuenta?",
-    "signUpLink": "Regístrate"
+    "signUpLink": "Regístrate",
+    "passwordCreated": "¡Contraseña creada! Inicia sesión con tu nueva contraseña."
   },
   "Registro": {
     "createAccount": "Crear Cuenta",
@@ -231,6 +242,10 @@
     "viewDetails": "Ver Detalles",
     "generalDeployment": "Despliegue general",
     "may2025": "Mayo 2025"
+  },
+  "Events": {
+    "emptyTitle": "No hay eventos a\u00fan. Te invitamos a disfrutar de los eventos anteriores en la p\u00e1gina de Teachings.",
+    "viewTeachings": "Ver Teachings"
   },
   "OutreachCommunities": {
     "badge": "Cr\u00f3nica de la Misi\u00f3n",
@@ -432,6 +447,8 @@
   "VerificarCodigo": {
     "title": "Verificar Código",
     "description": "Ingresa tu correo electrónico y el código que recibiste por correo para restablecer tu contraseña.",
+    "descriptionNewsletter": "Ingresa tu correo y el código único que te enviamos para crear tu cuenta y confirmar tu suscripción.",
+    "descriptionSignup": "Ingresa el código de verificación que enviamos a tu correo para completar la creación de tu cuenta.",
     "emailLabel": "Correo electrónico",
     "emailPlaceholder": "ana@ejemplo.com",
     "codeLabel": "Código de verificación",
@@ -455,6 +472,17 @@
     "invalidLinkTitle": "Enlace Inválido o Expirado",
     "invalidLink": "Este enlace de restablecimiento de contraseña es inválido o ha expirado. Por favor solicita un nuevo enlace.",
     "requestNewLink": "Solicitar un Nuevo Enlace"
+  },
+  "CrearContrasena": {
+    "title": "Crea una Contraseña",
+    "description": "¡Casi listo! Crea una contraseña para",
+    "passwordLabel": "Contraseña",
+    "passwordPlaceholder": "Al menos 8 caracteres",
+    "confirmPasswordLabel": "Confirmar Contraseña",
+    "confirmPasswordPlaceholder": "Reingresa tu contraseña",
+    "mismatch": "Las contraseñas no coinciden.",
+    "creating": "Creando...",
+    "createPassword": "Crear Contraseña"
   },
   "BlogDetail": {
     "latestMagazines": "Últimas Revistas",

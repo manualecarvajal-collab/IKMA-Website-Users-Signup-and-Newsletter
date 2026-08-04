@@ -12,7 +12,17 @@ export default function LoginPage() {
   const [savedEmail, setSavedEmail] = useState("")
   const [rememberMe, setRememberMe] = useState(false)
   const [checkingSession, setCheckingSession] = useState(true)
+  const [accountCreated, setAccountCreated] = useState(false)
   const checkedRef = useRef(false)
+
+  // Show success banner when arriving from password creation
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get("creada") !== "1") return
+    window.history.replaceState({}, "", "/login")
+    const id = window.setTimeout(() => setAccountCreated(true), 0)
+    return () => window.clearTimeout(id)
+  }, [])
 
   // Auto-redirect if already logged in
   useEffect(() => {
@@ -71,6 +81,12 @@ export default function LoginPage() {
         <div className="bg-surface rounded-xl p-8 md:p-12 shadow-[0_20px_20px_0_rgba(7,68,105,0.04)] border border-outline-variant/20">
           <h1 className="font-headline-lg text-headline-md text-primary mb-2">{t("welcomeBack")}</h1>
           <p className="font-body-md text-body-md text-on-surface-variant mb-8">{t("signInAccount")}</p>
+
+          {accountCreated && (
+            <div className="mb-6 bg-tertiary-fixed-dim rounded-md px-4 py-3">
+              <p className="font-body-md text-body-md text-on-primary-fixed-variant">{t("passwordCreated")}</p>
+            </div>
+          )}
 
           <form action={action} className="space-y-6">
             <div>

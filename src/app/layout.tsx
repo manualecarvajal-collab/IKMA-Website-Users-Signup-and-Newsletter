@@ -6,6 +6,7 @@ import { getLocale, getMessages } from "next-intl/server"
 import Navbar from "@/components/Navbar"
 import Footer from "@/components/Footer"
 import FooterWrapper from "@/components/FooterWrapper"
+import NewsletterCTAWrapper from "@/components/NewsletterCTAWrapper"
 import ToastContainer from "@/components/Toast"
 import CookieConsent from "@/components/CookieConsent"
 import LocaleSwitch from "@/components/LocaleSwitch"
@@ -75,7 +76,10 @@ export default async function RootLayout({
         <NextIntlClientProvider locale={locale} messages={messages}>
           <Navbar initialUser={userInfo} />
           <main className="flex-grow">{children}</main>
-          <FooterWrapper><Footer /></FooterWrapper>
+          <FooterWrapper>
+            <NewsletterCTAWrapper isAuthenticated={!!user} />
+            <Footer />
+          </FooterWrapper>
           <ToastContainer />
           <CookieConsent />
           <LocaleSwitch />

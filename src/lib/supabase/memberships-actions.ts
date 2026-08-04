@@ -9,12 +9,17 @@ export async function approveMembership(id: string): Promise<void> {
   const admin = await createAdminClient()
   const { data: solicitud } = await admin
     .from("solicitudes_membresia")
-    .select("usuario_id")
+    .select("usuario_id, tipo_miembro")
     .eq("id", id)
     .single()
   await admin.from("solicitudes_membresia").update({ estado: "aprobada" }).eq("id", id)
   if (solicitud?.usuario_id) {
-    await admin.from("perfiles").update({ suscripcion_activa: true }).eq("id", solicitud.usuario_id)
+    if (solicitud.tipo_miembro === 3) {
+      // Free membership: activates the free plan, NOT the paid subscription
+      await admin.from("perfiles").update({ membresia_gratis: true }).eq("id", solicitud.usuario_id)
+    } else {
+      await admin.from("perfiles").update({ suscripcion_activa: true }).eq("id", solicitud.usuario_id)
+    }
   }
   await registrarActividad(supabase, "membresia_aprobada", `Membership ${id.slice(0, 8)} approved`, "solicitudes_membresia", id)
   revalidatePath("/admin/members")

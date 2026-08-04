@@ -50,7 +50,7 @@ export default async function Footer() {
                 href="/donor-rights"
                 className="text-on-surface-variant hover:text-primary hover:underline transition-all duration-200 hover:opacity-80"
               >
-                {t("donorRights")}
+                {t("donationPolicy")}
               </Link>
             </li>
           </ul>

@@ -25,22 +25,36 @@ export async function GET(request: Request) {
 
   const { data: perfil } = await supabase
     .from("perfiles")
-    .select("suscripcion_activa")
+    .select("suscripcion_activa, membresia_gratis")
     .eq("id", user.id)
     .single()
 
-  if (!perfil?.suscripcion_activa) {
-    return NextResponse.json({ error: "Active subscription required" }, { status: 403 })
-  }
-
   const { data: revista } = await supabase
     .from("revistas")
-    .select("archivo_url")
+    .select("id, archivo_url")
     .eq("id", revistaId)
     .single()
 
   if (!revista?.archivo_url) {
     return NextResponse.json({ error: "Magazine not found" }, { status: 404 })
+  }
+
+  // Paid subscribers: any magazine. Free members: only the first published edition.
+  let puedeLeer = !!perfil?.suscripcion_activa
+  if (!puedeLeer && perfil?.membresia_gratis) {
+    const { data: primera } = await supabase
+      .from("revistas")
+      .select("id")
+      .eq("publicado", true)
+      .order("fecha_publicacion", { ascending: true })
+      .order("created_at", { ascending: true })
+      .limit(1)
+      .maybeSingle()
+    puedeLeer = primera?.id === revista.id
+  }
+
+  if (!puedeLeer) {
+    return NextResponse.json({ error: "Active subscription required" }, { status: 403 })
   }
 
   const pdfPath = extractPdfPath(revista.archivo_url)

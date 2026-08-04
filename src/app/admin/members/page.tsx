@@ -14,7 +14,7 @@ const statusColors: Record<string, string> = {
 const memberLabels: Record<number, string> = {
   1: "Licensed Health Professional",
   2: "Resident (Post-graduate)",
-  3: "Student",
+  3: "Free Membership",
   4: "Associate (Non-health)",
 }
 

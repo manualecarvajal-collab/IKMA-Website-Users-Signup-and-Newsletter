@@ -11,6 +11,7 @@ interface Video {
   embed_url: string | null
   imagen_preview: string | null
   publicado: boolean
+  gratis: boolean
   grupo_id: string
 }
 
@@ -74,6 +75,11 @@ export function VideoForm({
       <div className="flex items-center gap-3">
         <input name="publicado" type="checkbox" defaultChecked={video?.publicado ?? false} className="w-4 h-4 rounded border-outline-variant/50 text-primary focus:ring-primary/30" />
         <label className="font-body-md text-body-md text-on-surface">Published</label>
+      </div>
+
+      <div className="flex items-center gap-3">
+        <input name="gratis" type="checkbox" defaultChecked={video?.gratis ?? false} className="w-4 h-4 rounded border-outline-variant/50 text-primary focus:ring-primary/30" />
+        <label className="font-body-md text-body-md text-on-surface">Free video (no subscription required)</label>
       </div>
 
       <div className="flex flex-col sm:flex-row gap-4">

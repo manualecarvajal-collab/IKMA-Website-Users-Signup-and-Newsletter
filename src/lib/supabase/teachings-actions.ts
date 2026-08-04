@@ -37,7 +37,8 @@ export async function createGrupo(formData: FormData) {
   const nombre = formData.get("nombre") as string
   if (!nombre?.trim()) return { error: "Group name is required" }
   const slug = slugifySimple(nombre.trim())
-  const { data, error } = await supabase.from("grupos").insert({ nombre: nombre.trim(), slug }).select("id, nombre").single()
+  const gratis = formData.get("gratis") === "on"
+  const { data, error } = await supabase.from("grupos").insert({ nombre: nombre.trim(), slug, gratis }).select("id, nombre").single()
   if (error) {
     if (error.code === "23505") return { error: "Group already exists" }
     return { error: error.message }
@@ -52,7 +53,8 @@ export async function updateGrupo(id: string, formData: FormData) {
   const nombre = formData.get("nombre") as string
   if (!nombre?.trim()) return { error: "Group name is required" }
   const slug = slugifySimple(nombre.trim())
-  const { error } = await supabase.from("grupos").update({ nombre: nombre.trim(), slug }).eq("id", id)
+  const gratis = formData.get("gratis") === "on"
+  const { error } = await supabase.from("grupos").update({ nombre: nombre.trim(), slug, gratis }).eq("id", id)
   if (error) return { error: error.message }
   await registrarActividad(supabase, "grupo_actualizado", `Renamed group to "${nombre.trim()}"`, "grupos", id)
   revalidatePath("/admin/teachings")
@@ -102,6 +104,7 @@ export async function createVideo(formData: FormData) {
     embed_url: extractEmbedSrc(formData.get("embed_url") as string),
     imagen_preview: formData.get("imagen_preview") as string,
     publicado: formData.get("publicado") === "on",
+    gratis: formData.get("gratis") === "on",
     grupo_id: grupoId,
   }
   const { error } = await supabase.from("videos").insert(data)
@@ -124,6 +127,7 @@ export async function updateVideo(id: string, formData: FormData) {
     embed_url: extractEmbedSrc(formData.get("embed_url") as string),
     imagen_preview: formData.get("imagen_preview") as string,
     publicado: formData.get("publicado") === "on",
+    gratis: formData.get("gratis") === "on",
     grupo_id: grupoId,
   }
   const { error } = await supabase.from("videos").update(data).eq("id", id)

@@ -26,12 +26,12 @@ export async function proxy(request: NextRequest) {
   if (user && request.nextUrl.pathname === "/") {
     const { data: perfil } = await supabase
       .from("perfiles")
-      .select("suscripcion_activa")
+      .select("suscripcion_activa, membresia_gratis")
       .eq("id", user.id)
       .single()
 
-    // If user has no active subscription, send them to membership page
-    if (perfil && !perfil.suscripcion_activa) {
+    // If user has no active subscription and no free membership, send them to membership page
+    if (perfil && !perfil.suscripcion_activa && !perfil.membresia_gratis) {
       const redirectUrl = request.nextUrl.clone()
       redirectUrl.pathname = "/membresia"
       return NextResponse.redirect(redirectUrl)

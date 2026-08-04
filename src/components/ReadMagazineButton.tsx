@@ -4,21 +4,21 @@ import { useTranslations } from "next-intl"
 
 export default function ReadMagazineButton({
   isAuthenticated,
-  isSubscribed,
+  canRead,
   revistaId,
 }: {
   isAuthenticated: boolean
-  isSubscribed: boolean
+  canRead: boolean
   revistaId: string
 }) {
   const t = useTranslations("ReadMagazine")
   const handleClick = () => {
-    if (!isAuthenticated) {
-      window.location.href = "/registro"
-      return
-    }
-    if (!isSubscribed) {
-      window.location.href = "/suscripcion-exito"
+    if (!canRead) {
+      if (!isAuthenticated) {
+        window.location.href = "/registro"
+      } else {
+        window.location.href = "/suscripcion-exito"
+      }
       return
     }
     window.open(`/api/download-magazine?id=${revistaId}`, "_blank")

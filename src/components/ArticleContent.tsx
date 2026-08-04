@@ -22,7 +22,7 @@ export default function ArticleContent({ contenidoHtml, resumen, isAuthenticated
   if (showFull || isAuthenticated) {
     return (
       <div
-        className="prose prose-lg max-w-none"
+        className="prose prose-lg max-w-none whitespace-pre-wrap"
         dangerouslySetInnerHTML={{ __html: content }}
       />
     )
@@ -31,7 +31,7 @@ export default function ArticleContent({ contenidoHtml, resumen, isAuthenticated
   return (
     <div className="relative">
       <div
-        className="prose prose-lg max-w-none"
+        className="prose prose-lg max-w-none whitespace-pre-wrap"
         dangerouslySetInnerHTML={{ __html: firstParagraph }}
       />
       {restContent && (
@@ -39,7 +39,7 @@ export default function ArticleContent({ contenidoHtml, resumen, isAuthenticated
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-surface/60 to-surface z-10 pointer-events-none" />
           <div className="blur-sm select-none opacity-50 max-h-40 overflow-hidden">
             <div
-              className="prose prose-lg max-w-none"
+              className="prose prose-lg max-w-none whitespace-pre-wrap"
               dangerouslySetInnerHTML={{ __html: restContent }}
             />
           </div>

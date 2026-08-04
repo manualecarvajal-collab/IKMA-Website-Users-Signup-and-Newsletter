@@ -9,7 +9,7 @@ export async function getAllUsers() {
   const admin = await createAdminClient()
   const { data: perfiles } = await admin
     .from("perfiles")
-    .select("id, nombre_completo, suscripcion_activa, rol")
+    .select("id, nombre_completo, suscripcion_activa, membresia_gratis, rol")
 
   const perfilesMap = new Map((perfiles ?? []).map(p => [p.id, p]))
   const { data: authData } = await admin.auth.admin.listUsers()
@@ -25,6 +25,7 @@ export async function getAllUsers() {
         nombre_completo: perfil?.nombre_completo || (u.user_metadata?.nombre_completo as string) || "",
         email: u.email || "No email",
         suscripcion_activa: perfil?.suscripcion_activa ?? false,
+        membresia_gratis: perfil?.membresia_gratis ?? false,
         rol: perfil?.rol || "lector",
         created_at: u.created_at,
       }

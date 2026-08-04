@@ -65,7 +65,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
   const article = await getArticle(slug)
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  const { data: perfil } = user ? await supabase.from("perfiles").select("suscripcion_activa").eq("id", user.id).single() : { data: null }
+  const { data: perfil } = user ? await supabase.from("perfiles").select("suscripcion_activa, membresia_gratis").eq("id", user.id).single() : { data: null }
 
   if (!article) notFound()
 
@@ -153,6 +153,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                   <DownloadPopup
                     isAuthenticated={!!user}
                     isSubscribed={!!perfil?.suscripcion_activa}
+                    isFreeMember={!!perfil?.membresia_gratis}
                     revistaId={latestMagazineId}
                   />
                 </div>

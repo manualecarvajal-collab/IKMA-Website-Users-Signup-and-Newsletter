@@ -24,8 +24,18 @@
     "privacyPolicy": "Privacy Policy",
     "termsOfService": "Terms of Service",
     "resources": "Resources",
-    "donorRights": "Donor Rights",
+    "donationPolicy": "Donation Policy",
     "annualReport": "Annual Report"
+  },
+  "NewsletterCTA": {
+    "eyebrow": "Newsletter",
+    "title": "Stories of faith and healing, straight to your inbox",
+    "description": "Join our list and receive the IKMA magazine, testimonies and mission updates.",
+    "emailLabel": "Email Address",
+    "emailPlaceholder": "you@example.com",
+    "subscribe": "Subscribe",
+    "sending": "Sending...",
+    "microcopy": "One-time code to verify · No spam · Unsubscribe anytime"
   },
   "Contact": {
     "heroTitle": "We're Here to Help",
@@ -115,7 +125,8 @@
     "signIn": "Sign In",
     "signInGoogle": "Sign in with Google",
     "noAccount": "Don't have an account?",
-    "signUpLink": "Sign up"
+    "signUpLink": "Sign up",
+    "passwordCreated": "Password created! Sign in with your new account."
   },
   "Registro": {
     "createAccount": "Create Account",
@@ -231,6 +242,10 @@
     "viewDetails": "View Details",
     "generalDeployment": "General deployment",
     "may2025": "May 2025"
+  },
+  "Events": {
+    "emptyTitle": "No events yet. We invite you to enjoy the previous events on the Teachings page.",
+    "viewTeachings": "View Teachings"
   },
   "OutreachCommunities": {
     "badge": "Mission Chronicle",
@@ -432,6 +447,8 @@
   "VerificarCodigo": {
     "title": "Verify Code",
     "description": "Enter your email address and the code you received by email to reset your password.",
+    "descriptionNewsletter": "Enter your email and the one-time code we sent you to create your account and confirm your subscription.",
+    "descriptionSignup": "Enter the verification code we sent to your email to complete your account creation.",
     "emailLabel": "Email Address",
     "emailPlaceholder": "jane@example.com",
     "codeLabel": "Verification code",
@@ -455,6 +472,17 @@
     "invalidLinkTitle": "Invalid or Expired Link",
     "invalidLink": "This password reset link is invalid or has expired. Please request a new link.",
     "requestNewLink": "Request a New Link"
+  },
+  "CrearContrasena": {
+    "title": "Create a Password",
+    "description": "Almost done! Create a password for",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "At least 8 characters",
+    "confirmPasswordLabel": "Confirm Password",
+    "confirmPasswordPlaceholder": "Re-enter your password",
+    "mismatch": "Passwords do not match.",
+    "creating": "Creating...",
+    "createPassword": "Create Password"
   },
   "BlogDetail": {
     "latestMagazines": "Latest Magazines",

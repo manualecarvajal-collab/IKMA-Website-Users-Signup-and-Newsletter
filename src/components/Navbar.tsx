@@ -22,7 +22,6 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
     { href: "/newsletter", label: t("magazine") },
     { href: "/blog", label: "Blog" },
     { href: "/teachings", label: t("teachings") },
-    { href: "#", label: t("events") },
   ]
   const pathname = usePathname()
   const [user, setUser] = useState<{ email: string; role: string } | null>(initialUser)
@@ -170,6 +169,17 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
               </div>
             </div>
             <Link
+              href="/events"
+              className={
+                (isActive("/events")
+                  ? "text-primary border-b-2 border-primary pb-1"
+                  : "text-on-surface-variant hover:text-primary transition-colors hover:bg-primary-container/10 px-2 py-1 rounded-md duration-300 ease-in-out active:scale-95") +
+                " cursor-default"
+              }
+            >
+              {t("events")}
+            </Link>
+            <Link
               href="/outreach"
               className={
                 isActive("/outreach")
@@ -316,6 +326,18 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
               </div>
             </div>
           </div>
+          <Link
+            href="/events"
+            onClick={closeMobile}
+            className={
+              (isActive("/events")
+                ? "text-primary bg-primary-container/20"
+                : "text-on-surface-variant hover:bg-surface-container hover:text-on-surface") +
+              " flex items-center gap-3 px-4 py-3 rounded-lg font-label-bold text-label-bold transition-colors cursor-default"
+            }
+          >
+            {t("events")}
+          </Link>
           <Link
             href="/outreach"
             onClick={closeMobile}

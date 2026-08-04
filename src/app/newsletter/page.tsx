@@ -17,6 +17,7 @@ interface Revista {
   archivo_url: string | null
   imagen_portada: string | null
   publicado: boolean
+  fecha_publicacion: string
   created_at: string
 }
 
@@ -43,10 +44,20 @@ export default async function NewsletterPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   const { data: perfil } = user
-    ? await supabase.from("perfiles").select("suscripcion_activa").eq("id", user.id).single()
+    ? await supabase.from("perfiles").select("suscripcion_activa, membresia_gratis").eq("id", user.id).single()
     : { data: null }
   const isAuthenticated = !!user
   const isSubscribed = !!perfil?.suscripcion_activa
+  const esFree = !!perfil?.membresia_gratis
+
+  // Free members can read the first published edition.
+  // Same ordering as the server: fecha_publicacion ASC, then created_at ASC.
+  const primeraRevistaId = magazines.length
+    ? [...magazines].sort((a, b) =>
+        (new Date(a.fecha_publicacion ?? a.created_at).getTime() - new Date(b.fecha_publicacion ?? b.created_at).getTime()) ||
+        (new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+      )[0].id
+    : null
 
   return (
     <section className="py-section-padding">
@@ -98,7 +109,7 @@ export default async function NewsletterPage() {
                 )}
                 <ReadMagazineButton
                   isAuthenticated={isAuthenticated}
-                  isSubscribed={isSubscribed}
+                  canRead={isSubscribed || (esFree && m.id === primeraRevistaId)}
                   revistaId={m.id}
                 />
               </div>

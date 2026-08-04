@@ -4,6 +4,7 @@ import { useEditor, EditorContent } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
 import LinkExtension from "@tiptap/extension-link"
 import ImageExtension from "@tiptap/extension-image"
+import TextAlign from "@tiptap/extension-text-align"
 import { useEffect } from "react"
 
 interface TiptapEditorProps {
@@ -12,18 +13,38 @@ interface TiptapEditorProps {
   onImageUpload?: (file: File) => Promise<string>
 }
 
+function ToolbarButton({ onClick, active, label }: { onClick: () => void; active?: boolean; label: string }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
+        active
+          ? "bg-primary text-on-primary"
+          : "text-on-surface-variant hover:bg-surface-container hover:text-on-surface"
+      }`}
+    >
+      {label}
+    </button>
+  )
+}
+
 export default function TiptapEditor({ content, onChange, onImageUpload }: TiptapEditorProps) {
   const editor = useEditor({
     extensions: [
       StarterKit,
       LinkExtension.configure({ openOnClick: false }),
       ImageExtension,
+      TextAlign.configure({
+        types: ["heading", "paragraph"],
+        alignments: ["left", "center", "right", "justify"],
+      }),
     ],
     content,
     onUpdate: ({ editor }) => onChange(editor.getHTML()),
     editorProps: {
       attributes: {
-        class: "prose prose-sm sm:prose max-w-none focus:outline-none min-h-[300px] px-4 py-4",
+        class: "prose prose-sm sm:prose max-w-none focus:outline-none min-h-[300px] px-4 py-4 whitespace-pre-wrap",
       },
     },
   })
@@ -61,20 +82,6 @@ export default function TiptapEditor({ content, onChange, onImageUpload }: Tipta
     }
   }
 
-  const ToolbarButton = ({ onClick, active, label }: { onClick: () => void; active?: boolean; label: string }) => (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
-        active
-          ? "bg-primary text-on-primary"
-          : "text-on-surface-variant hover:bg-surface-container hover:text-on-surface"
-      }`}
-    >
-      {label}
-    </button>
-  )
-
   return (
     <div className="border border-outline-variant rounded-lg overflow-hidden bg-surface">
       <div className="flex flex-wrap gap-0.5 p-2 border-b border-outline-variant bg-surface-container-low">
@@ -108,6 +115,27 @@ export default function TiptapEditor({ content, onChange, onImageUpload }: Tipta
           onClick={() => editor.chain().focus().toggleOrderedList().run()}
           active={editor.isActive("orderedList")}
           label="1. List"
+        />
+        <span className="w-px h-6 bg-outline-variant mx-1 self-center" />
+        <ToolbarButton
+          onClick={() => editor.chain().focus().setTextAlign("left").run()}
+          active={editor.isActive({ textAlign: "left" })}
+          label="Align Left"
+        />
+        <ToolbarButton
+          onClick={() => editor.chain().focus().setTextAlign("center").run()}
+          active={editor.isActive({ textAlign: "center" })}
+          label="Align Center"
+        />
+        <ToolbarButton
+          onClick={() => editor.chain().focus().setTextAlign("right").run()}
+          active={editor.isActive({ textAlign: "right" })}
+          label="Align Right"
+        />
+        <ToolbarButton
+          onClick={() => editor.chain().focus().setTextAlign("justify").run()}
+          active={editor.isActive({ textAlign: "justify" })}
+          label="Align Justify"
         />
         <span className="w-px h-6 bg-outline-variant mx-1 self-center" />
         <ToolbarButton

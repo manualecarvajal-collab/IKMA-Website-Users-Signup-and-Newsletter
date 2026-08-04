@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server"
 import { reordenarVideos } from "@/lib/supabase/admin-actions"
 import { VideoTable } from "./VideoTable"
 import { EditableGroupTitle } from "./EditableGroupTitle"
+import { GroupFreeToggle } from "./GroupFreeToggle"
 
 export default async function AdminGrupoVideosPage(props: { params: Promise<{ grupoId: string }> }) {
   const { grupoId } = await props.params
@@ -30,6 +31,7 @@ export default async function AdminGrupoVideosPage(props: { params: Promise<{ gr
             <EditableGroupTitle grupoId={grupoId} nombre={grupo.nombre} />
           </div>
           <p className="font-body-md text-body-md text-on-surface-variant">{videos?.length ?? 0} videos in this group</p>
+          <GroupFreeToggle grupoId={grupoId} nombre={grupo.nombre} gratis={grupo.gratis ?? false} />
         </div>
         <Link
           href={`/admin/teachings/${grupoId}/nuevo`}

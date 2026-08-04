@@ -117,7 +117,7 @@ export function ArticleForm({
             </p>
           )}
           <div
-            className="prose prose-lg max-w-none"
+            className="prose prose-lg max-w-none whitespace-pre-wrap"
             dangerouslySetInnerHTML={{ __html: previewContent || "<p>Start writing your article content...</p>" }}
           />
         </div>
