@@ -25,13 +25,16 @@ export async function signup(
   }
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+  const redirectParams = new URLSearchParams({ step: "2" })
+  if (tipo) redirectParams.set("tipo", tipo)
+  if (region) redirectParams.set("region", region)
 
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
       data: { nombre_completo },
-      emailRedirectTo: `${siteUrl}/membresia`,
+      emailRedirectTo: `${siteUrl}/membresia?${redirectParams.toString()}`,
     },
   })
 
@@ -55,7 +58,7 @@ export async function signup(
   }
 
   revalidatePath("/", "layout")
-  return { success: "ok", next: tipo ? `/membresia?tipo=${tipo}&region=${region || "A"}` : "/membresia" }
+  return { success: "ok", next: tipo ? `/membresia?step=2&tipo=${tipo}&region=${region || "A"}` : "/membresia?step=2" }
 }
 
 export async function login(prevState: { error?: string; success?: boolean } | undefined, formData: FormData) {
@@ -148,10 +151,10 @@ export async function verificarCodigo(prevState: { error?: string } | undefined,
     const error = await verifyOtp()
     if (error) return { error }
 
-    const params = new URLSearchParams()
+    const params = new URLSearchParams({ step: "2" })
     if (tipo) params.set("tipo", tipo)
     if (region) params.set("region", region)
-    redirect(`/membresia${params.toString() ? `?${params.toString()}` : ""}`)
+    redirect(`/membresia?${params.toString()}`)
   }
 
   if (flow === "newsletter") {

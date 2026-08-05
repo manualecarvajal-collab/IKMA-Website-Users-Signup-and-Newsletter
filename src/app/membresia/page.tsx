@@ -16,7 +16,7 @@ const REGIONES_VALIDAS = ["A", "B"]
 export default async function MembresiaPage({
   searchParams,
 }: {
-  searchParams: Promise<{ tipo?: string; region?: string }>
+  searchParams: Promise<{ tipo?: string; region?: string; step?: string }>
 }) {
   const supabase = await createClient()
   const {
@@ -26,6 +26,7 @@ export default async function MembresiaPage({
   const params = await searchParams
   const tipo = TIPOS_VALIDOS.includes(Number(params.tipo)) ? Number(params.tipo) : null
   const region = REGIONES_VALIDAS.includes(params.region ?? "") ? (params.region as string) : null
+  const startFormStep = params.step === "2" && !!user
 
   // Free membership chosen before registering: grant it and land on the homepage
   if (tipo === 3) {
@@ -56,6 +57,7 @@ export default async function MembresiaPage({
       initialMemberType={tipo ?? undefined}
       initialRegion={region ?? undefined}
       isAuthenticated={!!user}
+      initialStep={startFormStep ? 2 : 1}
     />
   )
 }

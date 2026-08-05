@@ -67,6 +67,7 @@ export default function MembershipForm({
   initialMemberType,
   initialRegion,
   isAuthenticated = true,
+  initialStep = 1,
 }: {
   initialEmail?: string
   initialFirstName?: string
@@ -74,9 +75,10 @@ export default function MembershipForm({
   initialMemberType?: number
   initialRegion?: string
   isAuthenticated?: boolean
+  initialStep?: number
 }) {
   const t = useTranslations("Membership")
-  const [step, setStep] = useState(1)
+  const [step, setStep] = useState(initialStep)
   const [form, setForm] = useState<FormData>({
     ...initialForm,
     memberType: initialMemberType ?? 1,
