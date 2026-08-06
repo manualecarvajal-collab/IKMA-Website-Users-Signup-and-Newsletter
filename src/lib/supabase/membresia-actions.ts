@@ -1,50 +1,94 @@
 "use server"
 
 import { createClient, createAdminClient } from "@/lib/supabase/server"
+import { sendStudentWelcomeEmail } from "@/lib/supabase/email-actions"
 
 const TIPOS_VALIDOS = [1, 2, 3, 4]
 const REGIONES_VALIDAS = ["A", "B"]
 
-export async function grantFreeMembership(
-  userId: string
-): Promise<{ success?: string; error?: string; id?: string }> {
-  const adminSupabase = await createAdminClient()
+export async function submitStudentMembership(data: {
+  region: string
+  pais: string
+  universidad: string
+  carrera: string
+  anioIngreso: string
+  anioEgreso: string
+  telefono: string
+  language: string
+}): Promise<{ success?: string; error?: string; id?: string }> {
+  const region = data.region?.trim()
+  const pais = data.pais?.trim()
+  const universidad = data.universidad?.trim()
+  const carrera = data.carrera?.trim()
+  const telefono = data.telefono?.trim()
+  const anioIngreso = Number(data.anioIngreso)
+  const anioEgreso = Number(data.anioEgreso)
 
-  const activarMembresiaGratis = async () => {
-    await adminSupabase.from("perfiles").update({ membresia_gratis: true }).eq("id", userId)
+  if (!REGIONES_VALIDAS.includes(region)) return { error: "Invalid region" }
+  if (!pais) return { error: "Country of residence is required" }
+  if (!universidad) return { error: "University name is required" }
+  if (!carrera) return { error: "Career/field of study is required" }
+  if (!telefono) return { error: "Phone number is required" }
+  if (!anioIngreso || !anioEgreso || anioIngreso > anioEgreso) {
+    return { error: "Invalid entry or graduation year" }
   }
 
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { error: "You must be logged in to submit a membership application." }
+
+  const adminSupabase = await createAdminClient()
+
+  // Students start "en revision" (pendiente): no access until an admin approves
   const camposSolicitud = {
     tipo_miembro: 3,
-    region: "A",
-    pais: "",
-    language: "en",
-    estado: "aprobada",
+    region,
+    pais,
+    language: data.language || "en",
+    universidad,
+    carrera,
+    anio_ingreso: anioIngreso,
+    anio_egreso: anioEgreso,
+    telefono,
+    estado: "pendiente",
   }
 
   const { data: existente } = await adminSupabase
     .from("solicitudes_membresia")
     .select("id")
-    .eq("usuario_id", userId)
-    .in("estado", ["pendiente", "rechazada", "aprobada"])
+    .eq("usuario_id", user.id)
+    .in("estado", ["pendiente", "rechazada"])
     .eq("tipo_miembro", 3)
     .maybeSingle()
 
+  let solicitudId: string
   if (existente) {
-    await adminSupabase.from("solicitudes_membresia").update(camposSolicitud).eq("id", existente.id)
-    await activarMembresiaGratis()
-    return { success: "ok", id: existente.id }
+    const { data: solicitud, error } = await adminSupabase
+      .from("solicitudes_membresia")
+      .update(camposSolicitud)
+      .eq("id", existente.id)
+      .select("id")
+      .single()
+    if (error) return { error: "Could not submit membership request. Please try again." }
+    solicitudId = solicitud.id
+  } else {
+    const { data: solicitud, error } = await adminSupabase
+      .from("solicitudes_membresia")
+      .insert({ usuario_id: user.id, ...camposSolicitud })
+      .select("id")
+      .single()
+    if (error) return { error: "Could not submit membership request. Please try again." }
+    solicitudId = solicitud.id
   }
 
-  const { data: solicitud, error } = await adminSupabase
-    .from("solicitudes_membresia")
-    .insert({ usuario_id: userId, ...camposSolicitud })
-    .select("id")
-    .single()
+  // Welcome email with the review disclaimer, in the user's language
+  const lang = data.language === "es" ? "es" : "en"
+  const nombre = (user.user_metadata?.nombre_completo as string) || user.email?.split("@")[0] || ""
+  await sendStudentWelcomeEmail({ email: user.email ?? "", nombre, lang })
 
-  if (error) return { error: "Could not submit membership request. Please try again." }
-  await activarMembresiaGratis()
-  return { success: "ok", id: solicitud.id }
+  return { success: "ok", id: solicitudId }
 }
 
 export async function submitMembership(data: {
@@ -84,13 +128,9 @@ export async function submitMembership(data: {
 
   const adminSupabase = await createAdminClient()
 
-  // Free membership activates immediately; paid types wait for approval/payment
-  const esGratis = data.tipoMiembro === 3
-  const estado = esGratis ? "aprobada" : "pendiente"
-
-  if (esGratis) {
-    return grantFreeMembership(user.id)
-  }
+  // Student membership (tipo 3) is submitted through submitStudentMembership
+  // (manual review). Paid types start "pendiente" and wait for payment/approval.
+  const estado = "pendiente"
 
   const camposSolicitud = {
     tipo_miembro: data.tipoMiembro,
@@ -118,6 +158,7 @@ export async function submitMembership(data: {
     .select("id")
     .eq("usuario_id", user.id)
     .in("estado", ["pendiente", "rechazada"])
+    .eq("tipo_miembro", data.tipoMiembro)
     .maybeSingle()
 
   if (existente) {

@@ -1,7 +1,6 @@
 import type { Metadata } from "next"
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
-import { grantFreeMembership } from "@/lib/supabase/membresia-actions"
 import MembershipForm from "./MembershipForm"
 
 export const dynamic = "force-dynamic"
@@ -28,12 +27,8 @@ export default async function MembresiaPage({
   const region = REGIONES_VALIDAS.includes(params.region ?? "") ? (params.region as string) : null
   const startFormStep = params.step === "2" && !!user
 
-  // Free membership chosen before registering: grant it and land on the homepage
-  if (tipo === 3) {
-    if (!user) redirect(`/registro?tipo=3&region=${region ?? "A"}`)
-    await grantFreeMembership(user.id)
-    redirect("/")
-  }
+  // Student membership (tipo 3) uses its own application form with manual review
+  if (tipo === 3) redirect("/membresia/estudiante")
 
   let fullName = ""
   if (user) {

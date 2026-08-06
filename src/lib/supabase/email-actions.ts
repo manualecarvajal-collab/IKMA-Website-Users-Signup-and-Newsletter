@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache"
 import { checkAdmin } from "@/lib/supabase/admin-helpers"
 import { createClient, createAdminClient } from "@/lib/supabase/server"
-import { buildMagazineHtml, buildNewsletterHtml } from "@/lib/email-template"
+import { buildMagazineHtml, buildNewsletterHtml, buildStudentWelcomeHtml } from "@/lib/email-template"
 import { esMembresiaGratis, mergeFreeMembers } from "@/lib/supabase/free-membership"
 
 // ─── EMAIL CONFIG ────────────────────────────────────────
@@ -106,6 +106,42 @@ async function sendEmail(config: Record<string, string>, to: string, subject: st
       html,
     }),
   })
+}
+
+export async function sendStudentWelcomeEmail(input: {
+  email: string
+  nombre: string
+  lang?: "en" | "es"
+}): Promise<{ success?: string; error?: string }> {
+  const admin = await createAdminClient()
+  const { data: configRows } = await admin.from("app_config").select("key, value")
+  const config: Record<string, string> = {}
+  for (const row of configRows ?? []) config[row.key] = row.value
+
+  const es = input.lang === "es"
+  const subject = es
+    ? "Solicitud de membresía recibida — IKMA"
+    : "Membership application received — IKMA"
+
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from: `${config.email_from_name || "IKMA"} <${config.email_from_email || "onboarding@resend.dev"}>`,
+      to: input.email,
+      subject,
+      html: buildStudentWelcomeHtml({ nombre: input.nombre, lang: input.lang }),
+    }),
+  })
+
+  if (!res.ok) {
+    console.error("[sendStudentWelcomeEmail] resend error:", res.status, await res.text())
+    return { error: "Failed to send welcome email" }
+  }
+  return { success: "ok" }
 }
 
 export async function sendMagazineToEmail(revistaId: string, userId: string): Promise<{ success?: string; error?: string }> {

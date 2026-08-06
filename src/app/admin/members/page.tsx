@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/server"
 import { approveMembership, rejectMembership, deleteMembership } from "@/lib/supabase/admin-actions"
 import { DeleteButton } from "@/components/DeleteButton"
 import Icon from "@/components/Icon"
+import MemberStatusSelect from "./MemberStatusSelect"
 
 const statusColors: Record<string, string> = {
   pendiente: "bg-amber-100 text-amber-800",
@@ -77,9 +78,13 @@ export default async function AdminMembersPage() {
                   <span className="text-sm text-on-surface-variant notranslate">{s.region} — {s.pais}</span>
                 </td>
                 <td className="px-6 py-4">
-                  <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold ${statusColors[s.estado] || "bg-surface-container-high text-on-surface-variant"}`}>
-                    {s.estado}
-                  </span>
+                  {s.tipo_miembro === 3 ? (
+                    <MemberStatusSelect solicitudId={s.id} estado={s.estado} />
+                  ) : (
+                    <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold ${statusColors[s.estado] || "bg-surface-container-high text-on-surface-variant"}`}>
+                      {s.estado}
+                    </span>
+                  )}
                 </td>
                 <td className="px-6 py-4 hidden sm:table-cell">
                   <span className="text-sm text-on-surface-variant">
@@ -88,7 +93,7 @@ export default async function AdminMembersPage() {
                 </td>
                 <td className="px-6 py-4 text-right">
                   <div className="flex items-center justify-end gap-2">
-                    {s.estado === "pendiente" && (
+                    {s.estado === "pendiente" && s.tipo_miembro !== 3 && (
                       <>
                         <form action={approveMembership.bind(null, s.id)}>
                           <button type="submit" className="text-green-600 hover:text-green-800 p-1.5" title="Approve">

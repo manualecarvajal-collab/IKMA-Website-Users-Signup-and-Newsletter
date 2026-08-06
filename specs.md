@@ -235,3 +235,111 @@ Nuevo `src/components/NewsletterCTAWrapper.tsx` que renderiza `NewsletterCTA` sa
 Grafo regenerado (2026-08-04): 605 nodos, 1012 edges, 55 comunidades.
 Nuevos nodos: `ToolbarButton()`, `NewsletterCTA`, `GroupFreeToggle`,
 `CrearContrasenaForm()`, `crearContrasena()`, `EventsPage`, foto Dalia.
+
+---
+
+## Verificación de membresías + fix upload-license — 2026-08-06
+
+### Verificación de BD (migraciones 00001–00029) — PRODUCCIÓN
+
+Confirmado contra la BD real con service role (solo lectura) + SQL editor:
+
+- `solicitudes_membresia`: 24 columnas ✓, unique `username` ✓ (test de insert duplicado → 409),
+  trigger `set_updated_at_membresia` ✓ (updated_at cambia tras UPDATE)
+- 3 policies RLS (SELECT usuario-propio + SELECT/UPDATE admin) ✓
+- `perfiles`: `stripe_customer_id`, `newsletter_optout`, `membresia_gratis` ✓
+- `grupos.gratis` ✓ · bucket `membership-licenses` privado (10MB, pdf/jpeg/png) ✓
+- 9 índices (00026 + 00012 + 00013) ✓
+
+### Endpoints (producción, verificado en vivo)
+
+| Endpoint | Estado |
+|---|---|
+| `POST /api/upload-license` sin sesión | 401 ✓ |
+| `POST /api/stripe/membership-checkout` sin sesión | 401 ✓ |
+| `POST /api/stripe/webhook` sin firma | 400 ✓ |
+
+### Fix: `/api/upload-license` bloqueaba a solicitantes no-admin
+
+- **Bug**: el endpoint exigía `rol === "administrador"` (403), pero quien sube su
+  licencia es el miembro solicitante (tipo 1) desde el formulario.
+- **Fix**: cualquier usuario autenticado puede pedir un signed upload URL; la ruta
+  es aleatoria y el endpoint solo la emite (no lista/lee el bucket).
+- Desplegado en producción; verificado 401 sin sesión.
+
+### Hero / CTAs (despliegue 2026-08-06)
+
+- Desktop CTA: "Become a member today" (antes "Subscribe to our Newsletter").
+- Mobile CTA: "Sign up" (antes "Newsletter"). Cambios solo en `messages/*.json`.
+
+---
+
+## Membresía de estudiante con revisión manual — 2026-08-06
+
+### Objetivo
+
+La membresía de estudiante (tipo 3, gratuita) dejó de activarse automáticamente.
+El usuario registra → verifica OTP → llena un **formulario nuevo de estudiante** → ve una
+pantalla de "gracias / en revisión". No tiene acceso hasta que el admin lo apruebe.
+
+### Flujo de usuario
+
+1. Registro (`/registro?tipo=3`) → OTP (`/verificar-codigo`) → `/membresia/estudiante`.
+2. Formulario nuevo (solo 6 campos): País de residencia · Nombre de la Universidad ·
+   Carrera · Año de ingreso · Año de egreso · Teléfono. (Nombre y email ya existen.)
+3. Al enviar → `submitStudentMembership()` crea/actualiza la solicitud con
+   `estado = "pendiente"` (en revisión), **sin** activar `membresia_gratis`.
+4. Envía correo de bienvenida (Resend) con disclaimer de revisión, en el idioma del
+   usuario (EN/ES).
+5. Redirige a `/membresia/estudiante/gracias` (mensaje de agradecimiento).
+6. El usuario puede iniciar sesión; navega como visitante (proxy ya no lo redirige)
+   hasta que el admin apruebe.
+
+### Admin (panel Miembros)
+
+- Lista (`/admin/members`): para filas tipo 3, el badge de estado se reemplaza por un
+  botón dropdown `MemberStatusSelect.tsx`:
+  - estado por defecto: **"En revisión"** (estado `pendiente`)
+  - opciones desde "En revisión": **Aprobado** (→`aprobada`) / **Negado** (→`rechazada`)
+  - después de decidir solo permite alternar entre Aprobado/Negado.
+- Detalle (`/admin/members/[id]`): nueva sección "Student Information" con universidad,
+  carrera, año de ingreso y año de egreso.
+- `approveMembership` (tipo 3) → `membresia_gratis = true`; `rejectMembership` (tipo 3) →
+  `membresia_gratis = false` (revoca el acceso si se niega una ya aprobada).
+
+### Migración 00030 (`00030_student_manual_review.sql`)
+
+```sql
+alter table public.solicitudes_membresia add column if not exists universidad text;
+alter table public.solicitudes_membresia add column if not exists carrera text;
+alter table public.solicitudes_membresia add column if not exists anio_ingreso int;
+alter table public.solicitudes_membresia add column if not exists anio_egreso int;
+```
+
+### Archivos
+
+| Archivo | Cambio |
+|---|---|
+| `supabase/migrations/00030_student_manual_review.sql` | **Nuevo** — 4 columnas académicas |
+| `src/app/membresia/estudiante/page.tsx` | **Nuevo** — página del formulario (redirect si no user / si ya aprobado / si pendiente) |
+| `src/app/membresia/estudiante/StudentForm.tsx` | **Nuevo** — formulario (6 campos) → `submitStudentMembership` |
+| `src/app/membresia/estudiante/gracias/page.tsx` | **Nuevo** — pantalla "gracias / en revisión" |
+| `src/app/admin/members/MemberStatusSelect.tsx` | **Nuevo** — botón 3 estados (dropdown) |
+| `src/lib/supabase/membresia-actions.ts` | `submitStudentMembership` nuevo; `submitMembership` ya no auto-activa tipo 3; se elimina `grantFreeMembership` |
+| `src/lib/supabase/email-actions.ts` | `sendStudentWelcomeEmail` nuevo |
+| `src/lib/email-template.ts` | `buildStudentWelcomeHtml` nuevo (EN/ES + disclaimer) |
+| `src/lib/supabase/memberships-actions.ts` | `rejectMembership` revoca `membresia_gratis` en tipo 3 (toggle) |
+| `src/lib/supabase/actions.ts` | signup/verificardirige tipo 3 → `/membresia/estudiante` |
+| `src/app/registro/page.tsx`, `src/app/membresia/page.tsx`, `MembershipForm.tsx` | tipo 3 → `/membresia/estudiante` |
+| `src/proxy.ts` | Estudiante pendiente/rechazado navega como invitado (sin redirigir a /membresia) |
+| `src/app/admin/members/page.tsx` | Dropdown en filas tipo 3; botones approve/reject solo para no-estudiantes |
+| `src/app/admin/members/[id]/page.tsx` | Sección "Student Information" |
+| `messages/en.json`, `messages/es.json` | Namespace `StudentMembership` |
+
+### Notas
+
+- Acceso de estudiante = `membresia_gratis` (mirror en `perfiles`) y la solicitud
+  `tipo 3` con estado `aprobada`; esto ya alimenta `esMembresiaGratisUsuario` para el
+  acceso a revista/videos gratuitos.
+- Antes de desplegar, aplicar la migración 00030 en el SQL editor de Supabase.
+- Pendiente opcional: correo al aprobar/negar (hoy solo se envía el de bienvenida).

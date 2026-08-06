@@ -32,8 +32,18 @@ export async function proxy(request: NextRequest) {
       .single()
     const esFree = await esMembresiaGratisUsuario(supabase, user.id)
 
+    // Students with a pending/rejected application browse like a guest
+    // (session started, but no student access until the admin approves).
+    const { data: solicitudEstudiante } = await supabase
+      .from("solicitudes_membresia")
+      .select("estado")
+      .eq("usuario_id", user.id)
+      .eq("tipo_miembro", 3)
+      .maybeSingle()
+    const enRevision = solicitudEstudiante && ["pendiente", "rechazada"].includes(solicitudEstudiante.estado)
+
     // If user has no active subscription and no free membership, send them to membership page
-    if (perfil && !perfil.suscripcion_activa && !esFree) {
+    if (perfil && !perfil.suscripcion_activa && !esFree && !enRevision) {
       const redirectUrl = request.nextUrl.clone()
       redirectUrl.pathname = "/membresia"
       return NextResponse.redirect(redirectUrl)

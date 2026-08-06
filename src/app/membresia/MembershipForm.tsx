@@ -209,36 +209,8 @@ export default function MembershipForm({
   }
 
   const handleFreeSubmit = async () => {
-    if (!isAuthenticated) {
-      window.location.href = "/registro?tipo=3&region=A"
-      return
-    }
-    setSubmitting(true)
-    setSubmitError(null)
-    try {
-      await submitMembership({
-        tipoMiembro: 3,
-        region: "A",
-        pais: "",
-        language: form.language || "en",
-        genero: null,
-        direccion: null,
-        ciudad: null,
-        codigoPostal: null,
-        subgrupoProfesional: null,
-        otraProfesion: null,
-        username: null,
-        telefono: null,
-        sitioWeb: null,
-        anioGrado: null,
-        anioResidencia: null,
-        archivoLicenciaUrl: null,
-      })
-      window.location.href = "/"
-    } catch (e) {
-      setSubmitError(e instanceof Error ? e.message : "Something went wrong")
-      setSubmitting(false)
-    }
+    // Student membership uses its own application form (manual review)
+    window.location.href = "/membresia/estudiante"
   }
 
   const regionLabel = form.region === "A"
@@ -491,10 +463,9 @@ export default function MembershipForm({
           {form.memberType === 3 ? (
             <button
               onClick={handleFreeSubmit}
-              disabled={submitting || !form.rulesConsent}
-              className="bg-primary text-on-primary font-label-bold px-8 py-3.5 rounded-xl shadow-lg transition flex items-center gap-2 group text-sm md:text-base disabled:opacity-50 cursor-pointer"
+              className="bg-primary text-on-primary font-label-bold px-8 py-3.5 rounded-xl shadow-lg transition flex items-center gap-2 group text-sm md:text-base"
             >
-              {submitting ? "Setting up..." : "Activate Student Membership"}{" "}
+              Continue as Student{" "}
               <Icon name="arrow_forward" size={16} className="group-hover:translate-x-1 transition" />
             </button>
           ) : (

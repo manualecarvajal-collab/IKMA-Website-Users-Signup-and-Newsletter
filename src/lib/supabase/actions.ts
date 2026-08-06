@@ -28,13 +28,16 @@ export async function signup(
   const redirectParams = new URLSearchParams({ step: "2" })
   if (tipo) redirectParams.set("tipo", tipo)
   if (region) redirectParams.set("region", region)
+  const studentNext = tipo === "3" ? "/membresia/estudiante" : null
 
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
       data: { nombre_completo },
-      emailRedirectTo: `${siteUrl}/membresia?${redirectParams.toString()}`,
+      emailRedirectTo: studentNext
+        ? `${siteUrl}${studentNext}`
+        : `${siteUrl}/membresia?${redirectParams.toString()}`,
     },
   })
 
@@ -58,7 +61,10 @@ export async function signup(
   }
 
   revalidatePath("/", "layout")
-  return { success: "ok", next: tipo ? `/membresia?step=2&tipo=${tipo}&region=${region || "A"}` : "/membresia?step=2" }
+  return {
+    success: "ok",
+    next: studentNext ?? `/membresia?step=2&tipo=${tipo}&region=${region || "A"}`,
+  }
 }
 
 export async function login(prevState: { error?: string; success?: boolean } | undefined, formData: FormData) {
@@ -150,6 +156,9 @@ export async function verificarCodigo(prevState: { error?: string } | undefined,
   if (flow === "signup") {
     const error = await verifyOtp()
     if (error) return { error }
+
+    // Student applications go straight to the student form (manual review)
+    if (tipo === "3") redirect("/membresia/estudiante")
 
     const params = new URLSearchParams({ step: "2" })
     if (tipo) params.set("tipo", tipo)

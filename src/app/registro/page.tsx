@@ -13,9 +13,11 @@ export default function RegistroPage() {
   const tipo = searchParams.get("tipo") ?? ""
   const region = searchParams.get("region") ?? ""
 
-  const membershipNext = tipo
-    ? `/membresia?step=2&tipo=${tipo}&region=${region || "A"}`
-    : "/membresia?step=2"
+  const membershipNext = tipo === "3"
+    ? "/membresia/estudiante"
+    : tipo
+      ? `/membresia?step=2&tipo=${tipo}&region=${region || "A"}`
+      : "/membresia?step=2"
 
   const [state, action, pending] = useActionState(signup, undefined)
 

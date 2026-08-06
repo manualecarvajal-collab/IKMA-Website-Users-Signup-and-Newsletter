@@ -4,13 +4,6 @@ import { createAdminClient } from "@/lib/supabase/server"
 import { approveMembership, rejectMembership } from "@/lib/supabase/admin-actions"
 import Icon from "@/components/Icon"
 
-async function signedLicenseUrl(path: string): Promise<string> {
-  const admin = await createAdminClient()
-  // A7: Generate short-lived signed URL (60s) for sensitive medical license documents
-  const { data } = await admin.storage.from("membership-licenses").createSignedUrl(path, 60)
-  return data?.signedUrl ?? path
-}
-
 const statusColors: Record<string, string> = {
   pendiente: "bg-amber-100 text-amber-800",
   aprobada: "bg-green-100 text-green-800",
@@ -46,11 +39,6 @@ export default async function MemberDetailPage(props: { params: Promise<{ id: st
     .eq("id", solicitud.usuario_id)
     .single()
 
-  let licenciaUrl: string | null = null
-  if (solicitud.archivo_licencia_url) {
-    licenciaUrl = await signedLicenseUrl(solicitud.archivo_licencia_url)
-  }
-
   return (
     <div className="p-4 sm:p-6 md:p-8 max-w-3xl">
       <Link href="/admin/members" className="inline-flex items-center gap-1 text-sm text-primary hover:underline mb-6">
@@ -78,27 +66,17 @@ export default async function MemberDetailPage(props: { params: Promise<{ id: st
             <Row label="Language" value={solicitud.language} />
           </Section>
 
-          <Section title="Professional Information">
-            <Row label="Profession Subgroup" value={solicitud.subgrupo_profesional} />
-            <Row label="Other Profession" value={solicitud.otra_profesion} />
-            <Row label="Graduation Year" value={solicitud.anio_grado?.toString()} />
-            <Row label="Residency Year" value={solicitud.anio_residencia?.toString()} />
-            <Row label="Username" value={solicitud.username} />
-            {licenciaUrl && (
-              <Row label="License File" value={licenciaUrl} isFile />
-            )}
+          <Section title="Student Information">
+            <Row label="University" value={solicitud.universidad} />
+            <Row label="Career / Field of Study" value={solicitud.carrera} />
+            <Row label="Year of Entry" value={solicitud.anio_ingreso?.toString()} />
+            <Row label="Year of Graduation" value={solicitud.anio_egreso?.toString()} />
           </Section>
 
           <Section title="Personal Details">
             <Row label="Gender" value={solicitud.genero} />
             <Row label="Phone" value={solicitud.telefono} />
             <Row label="Website" value={solicitud.sitio_web} />
-          </Section>
-
-          <Section title="Address">
-            <Row label="Address" value={solicitud.direccion} />
-            <Row label="City" value={solicitud.ciudad} />
-            <Row label="Postal Code" value={solicitud.codigo_postal} />
           </Section>
 
           <Section title="Timestamps">

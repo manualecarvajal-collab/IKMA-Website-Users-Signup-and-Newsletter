@@ -1,10 +1,10 @@
 import type { SupabaseClient } from "@supabase/supabase-js"
 
 // Free membership (tipo 3, estado "aprobada") is recorded in
-// solicitudes_membresia by grantFreeMembership / approveMembership.
+// solicitudes_membresia by the student application flow (manual admin review).
 // perfiles.membresia_gratis is only a denormalized mirror added by migration
-// 00029 (not applied in production yet), so we always derive the status from
-// solicitudes_membresia to avoid silent failures when the column is missing.
+// 00029, so we always derive the status from solicitudes_membresia to avoid
+// silent failures when the column is missing.
 
 export async function getFreeMemberIds(admin: SupabaseClient): Promise<Set<string>> {
   const { data } = await admin
