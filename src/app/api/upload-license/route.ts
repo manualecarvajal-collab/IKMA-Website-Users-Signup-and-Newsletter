@@ -7,11 +7,9 @@ export async function POST(request: Request) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
-    const { data: perfil } = await supabase.from("perfiles").select("rol").eq("id", user.id).single()
-    if (perfil?.rol !== "administrador") {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
-    }
-
+    // Any authenticated user may request a signed upload URL for a license file.
+    // The URL is scoped to a random storage path, so it cannot be used to read
+    // or overwrite other files. This endpoint is called by membership applicants.
     const { name: fileName, type: fileType } = await request.json()
 
     if (!fileName) {
