@@ -341,5 +341,31 @@ alter table public.solicitudes_membresia add column if not exists anio_egreso in
 - Acceso de estudiante = `membresia_gratis` (mirror en `perfiles`) y la solicitud
   `tipo 3` con estado `aprobada`; esto ya alimenta `esMembresiaGratisUsuario` para el
   acceso a revista/videos gratuitos.
-- Antes de desplegar, aplicar la migración 00030 en el SQL editor de Supabase.
 - Pendiente opcional: correo al aprobar/negar (hoy solo se envía el de bienvenida).
+
+### Despliegue y ajustes post-migración (2026-08-06)
+
+- Migración 00030 **aplicada en producción** (SQL editor). Verificado vía PostgREST:
+  `solicitudes_membresia` tiene `universidad`, `carrera`, `anio_ingreso`, `anio_egreso`.
+- Desplegado vía `vercel --prod` → alias `https://www.ikmaglobal.com`.
+  Verificado en vivo: `/membresia/estudiante` y `/membresia/estudiante/gracias` responden 200.
+
+#### Región en el formulario de estudiante
+
+- El formulario de estudiante ahora pide elegir región (**A o B**) antes del país.
+- `StudentForm.tsx`: selector `region` (A/B) → se pasa a `submitStudentMembership`.
+- `submitStudentMembership` valida `region` contra `REGIONES_VALIDAS = ["A", "B"]`
+  (antes forzaba `"A"`); se guarda en la columna `region` ya existente (sin migración).
+- `messages/en.json` + `es.json`: claves `region`, `selectRegion`, `regionAOpt`, `regionBOpt`
+  en namespace `StudentMembership`.
+
+#### `/suscripcion-exito` — quitar descripción
+
+- Se eliminó el párrafo `description` (EN y ES) del namespace `SubscriptionSuccess`;
+  ahora es string vacío y no se renderiza nada.
+
+#### Panel admin Membresos — secciones retiradas
+
+- `/admin/members/[id]` ya no muestra las secciones **"Professional Information"** ni
+  **"Address"**. Se eliminó `signedLicenseUrl`/`licenciaUrl` (código muerto).
+- El detalle queda: Membership → Student Information → Personal Details → Timestamps.

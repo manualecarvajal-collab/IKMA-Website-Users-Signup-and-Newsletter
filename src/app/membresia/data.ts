@@ -3,7 +3,8 @@ export const countriesByRegion: Record<string, string[]> = {
     "Argentina", "Bolivia", "Brazil", "Chile", "Colombia", "Costa Rica", "Ecuador", "El Salvador",
     "Guatemala", "Honduras", "Mexico", "Nicaragua", "Panama", "Paraguay", "Peru", "Dominican Republic",
     "Uruguay", "Venezuela", "South Africa", "Egypt", "Kenya", "Morocco", "Nigeria", "India", "Philippines",
-    "Thailand", "Vietnam", "Indonesia",
+    "Thailand", "Vietnam", "Indonesia", "Uganda", "Rwanda", "Burundi", "Tanzania", "Ethiopia",
+    "Democratic Republic of Congo", "Cuba", "Haiti",
   ],
   B: [
     "Spain", "United States", "Canada", "Germany", "France", "Italy", "United Kingdom", "Switzerland",
@@ -37,7 +38,7 @@ export const professionSubgroups: Record<number, string[]> = {
 
 export const memberTypeLabels: Record<number, { label: string; desc: string }> = {
   1: { label: "Licensed Health Professional", desc: "Physicians, nurses, specialists with an active license." },
-  2: { label: "Resident / Specialist", desc: "Graduates completing residency or specialization programs." },
+  2: { label: "Resident / Post graduate", desc: "Graduates completing residency or specialization programs." },
   3: { label: "Student", desc: "Access the latest articles and join our newsletter — completely free." },
   4: { label: "Non-Medical Professional", desc: "Support the health mission from other professional fields." },
 }

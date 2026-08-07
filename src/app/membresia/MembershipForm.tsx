@@ -256,6 +256,15 @@ export default function MembershipForm({
         <h2 className="text-2xl md:text-3xl font-extrabold text-on-surface mt-2">{t("step1Title")}</h2>
         <p className="text-on-surface-variant mt-2 text-sm md:text-base leading-relaxed">
           {t("step1Desc")}
+          <a
+            href={t("step1LinkUrl")}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-semibold text-primary underline underline-offset-2 hover:text-primary/80"
+          >
+            {t("step1ClickHere")}
+          </a>
+          .
         </p>
       </div>
 
@@ -432,6 +441,14 @@ export default function MembershipForm({
             <p className="text-on-surface-variant/70 text-xs leading-relaxed">
               {t("acceptRulesDesc")}
             </p>
+            <a
+              href="/terms-of-service"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary underline hover:text-primary/80 text-xs"
+            >
+              {t("termsOfUseLink")}
+            </a>
             <div className="flex flex-col gap-1 pt-1">
               <a
                 href="/Estatutos de Membresía- IKMA 2026.pdf"
@@ -459,6 +476,9 @@ export default function MembershipForm({
           </div>
         )}
 
+        <p className="text-on-surface-variant/60 text-xs leading-relaxed">
+          {t("step1Disclaimer")}
+        </p>
         <div className="flex justify-end pt-4">
           {form.memberType === 3 ? (
             <button
@@ -639,22 +659,14 @@ export default function MembershipForm({
             </div>
             <div>
               <label className="block text-sm font-semibold text-on-surface mb-2">{t("specialtyLabel")}</label>
-              <div className="relative">
-                <select
-                  value={form.professionSubgroup}
-                  onChange={(e) => set("professionSubgroup", e.target.value)}
-                  required
-                  className="w-full bg-white border border-outline-variant/50 rounded-xl px-4 py-2.5 text-sm outline-none appearance-none"
-                >
-                  <option value="" disabled>Select...</option>
-                  {(professionSubgroups[form.memberType] || []).map((sub) => (
-                    <option key={sub} value={sub}>{sub}</option>
-                  ))}
-                </select>
-                <div className="absolute right-3 top-3 pointer-events-none text-on-surface-variant">
-                  <Icon name="expand_more" size={14} />
-                </div>
-              </div>
+              <input
+                type="text"
+                value={form.professionSubgroup}
+                onChange={(e) => set("professionSubgroup", e.target.value)}
+                required
+                placeholder={professionSubgroups[form.memberType]?.[0] ? "e.g. " + professionSubgroups[form.memberType].filter(s => s !== "Other...").join(", ") : ""}
+                className="w-full bg-white border border-outline-variant/50 rounded-xl px-4 py-2.5 text-sm outline-none"
+              />
             </div>
             {form.professionSubgroup === "Other..." && (
               <div className="md:col-span-2">
@@ -720,13 +732,49 @@ export default function MembershipForm({
               <p className="text-xs text-on-surface-variant leading-relaxed">
                 {t("verificationDesc")}
               </p>
-              <div className="flex items-center justify-center w-full">
-                <label className="flex flex-col items-center justify-center w-full h-36 border-2 border-secondary-container border-dashed rounded-xl cursor-pointer bg-white hover:bg-surface-container-low transition">
-                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                    <Icon name="cloud_upload" size={28} className="text-secondary mb-2" />
-                    <p className="text-sm text-on-surface font-semibold">{t("uploadCredential")}</p>
-                    <p className="text-xs text-on-surface-variant mt-1">{t("uploadHint")}</p>
+              {fileChosen && form.licenseFile ? (
+                <div className="flex items-center justify-between gap-3 bg-white border border-secondary/40 rounded-xl px-4 py-3">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <Icon name="description" size={20} className="text-secondary shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-xs font-semibold text-on-surface truncate">{form.licenseFile.name}</p>
+                      <p className="text-[11px] text-on-surface-variant">{(form.licenseFile.size / 1024).toFixed(0)} KB</p>
+                    </div>
                   </div>
+                  <button
+                    type="button"
+                    onClick={() => { set("licenseFile", null); setFileChosen(false) }}
+                    className="flex items-center gap-1 text-xs font-semibold text-error hover:text-primary px-2 py-1.5 rounded-lg hover:bg-error-container/40 transition"
+                  >
+                    <Icon name="delete" size={14} />
+                    {t("uploadRemove")}
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center justify-center w-full">
+                  <label className="flex flex-col items-center justify-center w-full h-36 border-2 border-secondary-container border-dashed rounded-xl cursor-pointer bg-white hover:bg-surface-container-low transition">
+                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                      <Icon name="cloud_upload" size={28} className="text-secondary mb-2" />
+                      <p className="text-sm text-on-surface font-semibold">{t("uploadCredential")}</p>
+                      <p className="text-xs text-on-surface-variant mt-1">{t("uploadHint")}</p>
+                    </div>
+                    <input
+                      type="file"
+                      accept=".pdf,.jpg,.jpeg,.png"
+                      className="hidden"
+                      onChange={(e) => {
+                        if (e.target.files?.length) {
+                          set("licenseFile", e.target.files[0])
+                          setFileChosen(true)
+                        }
+                      }}
+                    />
+                  </label>
+                </div>
+              )}
+              {fileChosen && form.licenseFile && (
+                <label className="flex items-center justify-center gap-1.5 text-xs text-primary font-semibold cursor-pointer hover:text-primary/80 transition w-fit">
+                  {t("uploadReplace")}
                   <input
                     type="file"
                     accept=".pdf,.jpg,.jpeg,.png"
@@ -739,11 +787,6 @@ export default function MembershipForm({
                     }}
                   />
                 </label>
-              </div>
-              {fileChosen && (
-                <div className="text-xs text-primary font-semibold flex items-center gap-1">
-                  <Icon name="check_circle" size={14} /> {t("uploadSuccess")}
-                </div>
               )}
             </div>
           )}
