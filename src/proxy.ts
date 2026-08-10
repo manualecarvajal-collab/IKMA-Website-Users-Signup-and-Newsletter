@@ -42,8 +42,18 @@ export async function proxy(request: NextRequest) {
       .maybeSingle()
     const enRevision = solicitudEstudiante && ["pendiente", "rechazada"].includes(solicitudEstudiante.estado)
 
+    // User already paid and is waiting for admin approval — do not bounce them
+    // back to the membership form; they can browse the public homepage.
+    const { data: solicitudPagada } = await supabase
+      .from("solicitudes_membresia")
+      .select("id")
+      .eq("usuario_id", user.id)
+      .eq("estado", "pagada")
+      .maybeSingle()
+    const porVerificar = !!solicitudPagada
+
     // If user has no active subscription and no free membership, send them to membership page
-    if (perfil && !perfil.suscripcion_activa && !esFree && !enRevision) {
+    if (perfil && !perfil.suscripcion_activa && !esFree && !enRevision && !porVerificar) {
       const redirectUrl = request.nextUrl.clone()
       redirectUrl.pathname = "/membresia"
       return NextResponse.redirect(redirectUrl)

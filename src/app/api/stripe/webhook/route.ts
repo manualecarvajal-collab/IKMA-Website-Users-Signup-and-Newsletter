@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { getStripe } from "@/lib/stripe/server"
 import { createAdminClient } from "@/lib/supabase/server"
-import { sendPaymentConfirmedEmail } from "@/lib/supabase/email-actions"
+import { enviarCorreoPagoConfirmado } from "@/lib/supabase/payment-email"
 
 export async function POST(req: Request) {
   const stripe = getStripe()
@@ -59,28 +59,12 @@ export async function POST(req: Request) {
         errores = true
       }
 
-      // Only users whose payment was recorded without errors get the confirmation email
+      // Only users whose payment was recorded without errors get the confirmation email.
+      // The send is awaited (the module never throws) so Vercel doesn't kill the
+      // background task before Resend receives it; the slim module keeps the
+      // response far below Stripe's delivery timeout.
       if (!errores && solicitudId) {
-        try {
-          const { data: solicitud } = await supabase
-            .from("solicitudes_membresia")
-            .select("language")
-            .eq("id", solicitudId)
-            .single()
-          const { data: { user } } = await supabase.auth.admin.getUserById(userId)
-          const email = user?.email
-          if (email) {
-            const nombre =
-              (user?.user_metadata?.nombre_completo as string) || email.split("@")[0] || ""
-            await sendPaymentConfirmedEmail({
-              email,
-              nombre,
-              lang: solicitud?.language === "es" ? "es" : "en",
-            })
-          }
-        } catch (err) {
-          console.error("[webhook] confirmation email error:", err)
-        }
+        await enviarCorreoPagoConfirmado(userId, solicitudId)
       }
       break
     }
