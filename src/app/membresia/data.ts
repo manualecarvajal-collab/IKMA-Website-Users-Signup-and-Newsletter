@@ -49,17 +49,18 @@ export const paymentOptions = [
   { value: 3, label: "3 installments", desc: "Every 4 months" },
 ]
 
+// Live mode prices (2026-08)
 export const PRICE_IDS: Record<number, Record<string, Record<number, string>>> = {
   1: {
-    A: { 1: "price_1Tw6uS4088hCzJhb8Km3UZET", 2: "price_1Tw6uS4088hCzJhbZFfQsn3u", 3: "price_1Tw6uS4088hCzJhbU2piafJZ" },
-    B: { 1: "price_1Tw6uS4088hCzJhbsh7vKoLF", 2: "price_1Tw6uS4088hCzJhb2EYvrgte", 3: "price_1Tw6uS4088hCzJhbUWoLYgIE" },
+    A: { 1: "price_1U2YE33HQOpcbsNlNYb30VGy", 2: "price_1U2YE33HQOpcbsNls2Swc7Tk", 3: "price_1U2YE33HQOpcbsNlYK0QlEeb" },
+    B: { 1: "price_1U2YE23HQOpcbsNlQHpyh4ej", 2: "price_1U2YE23HQOpcbsNlHxSReaDp", 3: "price_1U2YE13HQOpcbsNlLW3WbPik" },
   },
   2: {
-    A: { 1: "price_1Tw6lT4088hCzJhbFMlRWj9H", 2: "price_1Tw6lT4088hCzJhbmWIRHXNA", 3: "price_1Tw6lT4088hCzJhbqAcBA8Lc" },
-    B: { 1: "price_1Tw6lT4088hCzJhbBLLVvi60", 2: "price_1Tw6lT4088hCzJhbuZDLwlSP", 3: "price_1Tw6lT4088hCzJhbaTq27lxI" },
+    A: { 1: "price_1U2YE33HQOpcbsNlhR9qhVW3", 2: "price_1U2YE23HQOpcbsNlHrHBgQ5v", 3: "price_1U2YE33HQOpcbsNlqZytAmTI" },
+    B: { 1: "price_1U2YE23HQOpcbsNlo7FiZUIK", 2: "price_1U2YE13HQOpcbsNli1FBeuoz", 3: "price_1U2YE13HQOpcbsNlNUeGjbUM" },
   },
   4: {
-    A: { 1: "price_1Tw6yh4088hCzJhb3LNRbUHU", 2: "price_1Tw6yh4088hCzJhbCZB9OSDd", 3: "price_1Tw6yh4088hCzJhby1TeSE3g" },
-    B: { 1: "price_1Tw6yh4088hCzJhbUoSnexEC", 2: "price_1Tw6yh4088hCzJhbANZMuprM", 3: "price_1Tw6yh4088hCzJhbfNF3RaJT" },
+    A: { 1: "price_1U2YE33HQOpcbsNl7d2azGNv", 2: "price_1U2YE33HQOpcbsNlxyYHHuQe", 3: "price_1U2YE23HQOpcbsNlJRLR46qI" },
+    B: { 1: "price_1U2YE23HQOpcbsNl2EZNRUIt", 2: "price_1U2YE13HQOpcbsNlIBDasmIL", 3: "price_1U2YE13HQOpcbsNlSROVZhKq" },
   },
 }
