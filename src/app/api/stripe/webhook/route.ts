@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { getStripe } from "@/lib/stripe/server"
 import { createAdminClient } from "@/lib/supabase/server"
+import { sendPaymentConfirmedEmail } from "@/lib/supabase/email-actions"
 
 export async function POST(req: Request) {
   const stripe = getStripe()
@@ -32,21 +33,55 @@ export async function POST(req: Request) {
 
       if (!userId) return NextResponse.json({ received: true })
 
+      let errores = false
       if (solicitudId) {
-        await supabase
+        const { error } = await supabase
           .from("solicitudes_membresia")
           .update({ estado: "pagada" })
           .eq("id", solicitudId)
+        if (error) {
+          console.error("[webhook] solicitud update error:", error.message)
+          errores = true
+        }
       }
 
-      await supabase
+      // Access is granted only after an admin approves the membership.
+      // Here we only record the customer id so renewals/cancellations still work.
+      const { error: perfilError } = await supabase
         .from("perfiles")
         .update({
-          suscripcion_activa: true,
           stripe_customer_id: session.customer,
           updated_at: new Date().toISOString(),
         })
         .eq("id", userId)
+      if (perfilError) {
+        console.error("[webhook] perfiles update error:", perfilError.message)
+        errores = true
+      }
+
+      // Only users whose payment was recorded without errors get the confirmation email
+      if (!errores && solicitudId) {
+        try {
+          const { data: solicitud } = await supabase
+            .from("solicitudes_membresia")
+            .select("language")
+            .eq("id", solicitudId)
+            .single()
+          const { data: { user } } = await supabase.auth.admin.getUserById(userId)
+          const email = user?.email
+          if (email) {
+            const nombre =
+              (user?.user_metadata?.nombre_completo as string) || email.split("@")[0] || ""
+            await sendPaymentConfirmedEmail({
+              email,
+              nombre,
+              lang: solicitud?.language === "es" ? "es" : "en",
+            })
+          }
+        } catch (err) {
+          console.error("[webhook] confirmation email error:", err)
+        }
+      }
       break
     }
 

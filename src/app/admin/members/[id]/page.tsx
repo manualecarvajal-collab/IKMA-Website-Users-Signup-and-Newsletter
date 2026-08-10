@@ -11,11 +11,24 @@ const statusColors: Record<string, string> = {
   pagada: "bg-blue-100 text-blue-800",
 }
 
+const statusLabels: Record<string, string> = {
+  pendiente: "En revisión",
+  aprobada: "Aprobado",
+  rechazada: "Rechazado",
+  pagada: "Por verificar",
+}
+
 const memberLabels: Record<number, string> = {
   1: "Licensed Health Professional",
   2: "Resident (Post-graduate)",
   3: "Student",
   4: "Associate (Non-health)",
+}
+
+const paymentMethodLabels: Record<string, string> = {
+  card: "Card (Stripe)",
+  zelle: "Zelle",
+  paypal: "PayPal",
 }
 
 export default async function MemberDetailPage(props: { params: Promise<{ id: string }> }) {
@@ -52,8 +65,8 @@ export default async function MemberDetailPage(props: { params: Promise<{ id: st
               <h1 className="text-2xl font-bold text-on-surface notranslate">{perfil?.nombre_completo || "Unknown"}</h1>
               <p className="text-sm text-on-surface-variant mt-1">{email}</p>
             </div>
-            <span className={`shrink-0 px-3 py-1 rounded-full text-xs font-semibold capitalize ${statusColors[solicitud.estado]}`}>
-              {solicitud.estado}
+            <span className={`shrink-0 px-3 py-1 rounded-full text-xs font-semibold ${statusColors[solicitud.estado]}`}>
+              {statusLabels[solicitud.estado] || solicitud.estado}
             </span>
           </div>
         </div>
@@ -64,6 +77,20 @@ export default async function MemberDetailPage(props: { params: Promise<{ id: st
             <Row label="Region" value={solicitud.region === "A" ? "A (Latin America, Africa, Asia)" : "B (North America, Europe, Oceania)"} />
             <Row label="Country" value={solicitud.pais} />
             <Row label="Language" value={solicitud.language} />
+          </Section>
+
+          <Section title="Payment">
+            <Row
+              label="Method"
+              value={
+                solicitud.metodo_pago
+                  ? paymentMethodLabels[solicitud.metodo_pago] || solicitud.metodo_pago
+                  : solicitud.tipo_miembro === 3
+                    ? "Free (Student)"
+                    : "Not specified"
+              }
+            />
+            <Row label="Zelle Reference" value={solicitud.referencia_zelle_email} />
           </Section>
 
           <Section title="Student Information">
@@ -84,7 +111,7 @@ export default async function MemberDetailPage(props: { params: Promise<{ id: st
             <Row label="Last Updated" value={new Date(solicitud.updated_at).toLocaleString("en-US")} />
           </Section>
 
-          {solicitud.estado === "pendiente" && (
+          {["pendiente", "pagada"].includes(solicitud.estado) && (
             <div className="flex gap-4 pt-4 border-t border-outline-variant/20">
               <form action={approveMembership.bind(null, solicitud.id)}>
                 <button type="submit" className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2.5 rounded-xl transition text-sm">

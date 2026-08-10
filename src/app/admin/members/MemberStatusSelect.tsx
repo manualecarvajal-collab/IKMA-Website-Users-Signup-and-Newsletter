@@ -9,7 +9,7 @@ const stateLabels: Record<string, string> = {
   pendiente: "En revisión",
   aprobada: "Aprobado",
   rechazada: "Negado",
-  pagada: "Pagado",
+  pagada: "Por verificar",
 }
 
 const stateStyles: Record<string, string> = {

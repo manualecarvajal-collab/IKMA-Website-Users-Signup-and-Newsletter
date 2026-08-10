@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache"
 import { checkAdmin } from "@/lib/supabase/admin-helpers"
 import { createClient, createAdminClient } from "@/lib/supabase/server"
-import { buildMagazineHtml, buildNewsletterHtml, buildStudentWelcomeHtml } from "@/lib/email-template"
+import { buildMagazineHtml, buildMembershipDecisionHtml, buildMembershipProcessingHtml, buildNewsletterHtml, buildPaymentConfirmedHtml, buildStudentWelcomeHtml } from "@/lib/email-template"
 import { esMembresiaGratis, mergeFreeMembers } from "@/lib/supabase/free-membership"
 
 // ─── EMAIL CONFIG ────────────────────────────────────────
@@ -142,6 +142,96 @@ export async function sendStudentWelcomeEmail(input: {
     return { error: "Failed to send welcome email" }
   }
   return { success: "ok" }
+}
+
+async function loadEmailConfig(): Promise<Record<string, string>> {
+  const admin = await createAdminClient()
+  const { data: configRows } = await admin.from("app_config").select("key, value")
+  const config: Record<string, string> = {}
+  for (const row of configRows ?? []) config[row.key] = row.value
+  return config
+}
+
+async function sendMembershipEmail(input: {
+  email: string
+  nombre: string
+  lang?: "en" | "es"
+  subject: string
+  html: string
+}): Promise<{ success?: string; error?: string }> {
+  if (!process.env.RESEND_API_KEY) {
+    console.error("[sendMembershipEmail] RESEND_API_KEY not configured")
+    return { error: "Resend API key not configured" }
+  }
+  const config = await loadEmailConfig()
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from: `${config.email_from_name || "IKMA"} <${config.email_from_email || "onboarding@resend.dev"}>`,
+      to: input.email,
+      subject: input.subject,
+      html: input.html,
+    }),
+  })
+  if (!res.ok) {
+    console.error("[sendMembershipEmail] resend error:", res.status, await res.text())
+    return { error: "Failed to send email" }
+  }
+  return { success: "ok" }
+}
+
+export async function sendPaymentConfirmedEmail(input: {
+  email: string
+  nombre: string
+  lang?: "en" | "es"
+}): Promise<{ success?: string; error?: string }> {
+  const es = input.lang === "es"
+  return sendMembershipEmail({
+    email: input.email,
+    nombre: input.nombre,
+    lang: input.lang,
+    subject: es ? "Pago recibido — IKMA" : "Payment received — IKMA",
+    html: buildPaymentConfirmedHtml({ nombre: input.nombre, lang: input.lang }),
+  })
+}
+
+export async function sendMembershipProcessingEmail(input: {
+  email: string
+  nombre: string
+  lang?: "en" | "es"
+}): Promise<{ success?: string; error?: string }> {
+  const es = input.lang === "es"
+  return sendMembershipEmail({
+    email: input.email,
+    nombre: input.nombre,
+    lang: input.lang,
+    subject: es ? "Solicitud recibida — IKMA" : "Application received — IKMA",
+    html: buildMembershipProcessingHtml({ nombre: input.nombre, lang: input.lang }),
+  })
+}
+
+export async function sendMembershipDecisionEmail(input: {
+  email: string
+  nombre: string
+  lang?: "en" | "es"
+  decision: "aprobada" | "rechazada"
+}): Promise<{ success?: string; error?: string }> {
+  const es = input.lang === "es"
+  const subject =
+    input.decision === "aprobada"
+      ? es ? "Membresía aprobada — IKMA" : "Membership approved — IKMA"
+      : es ? "Membresía no aprobada — IKMA" : "Membership not approved — IKMA"
+  return sendMembershipEmail({
+    email: input.email,
+    nombre: input.nombre,
+    lang: input.lang,
+    subject,
+    html: buildMembershipDecisionHtml({ nombre: input.nombre, lang: input.lang, decision: input.decision }),
+  })
 }
 
 export async function sendMagazineToEmail(revistaId: string, userId: string): Promise<{ success?: string; error?: string }> {

@@ -31,6 +31,7 @@ type FormData = {
   consentStatutory: boolean
   consentDataProcessing: boolean
   licenseFile: File | null
+  zelleEmail: string
 }
 
 const initialForm: FormData = {
@@ -58,6 +59,7 @@ const initialForm: FormData = {
   consentStatutory: false,
   consentDataProcessing: false,
   licenseFile: null,
+  zelleEmail: "",
 }
 
 export default function MembershipForm({
@@ -126,7 +128,7 @@ export default function MembershipForm({
     setStep(target)
   }
 
-  const submitFormData = async () => {
+  const submitFormData = async (metodoPago?: "card" | "zelle" | "paypal", referenciaZelle?: string) => {
     if (form.consentStatutory) {
       set("consentStatutory", form.consentStatutory)
     }
@@ -168,6 +170,8 @@ export default function MembershipForm({
       anioGrado: form.gradYear ? parseInt(form.gradYear) : null,
       anioResidencia: form.residencyYear ? parseInt(form.residencyYear) : null,
       archivoLicenciaUrl,
+      metodoPago,
+      referenciaZelle,
     })
 
     if (result?.error) {
@@ -183,7 +187,7 @@ export default function MembershipForm({
 
     try {
       if (paymentMethod === "card" && price > 0) {
-        const result = await submitFormData()
+        const result = await submitFormData("card")
         const { url } = await fetch("/api/stripe/membership-checkout", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -198,8 +202,18 @@ export default function MembershipForm({
         if (!url) throw new Error("Failed to create checkout session")
 
         window.location.href = url
+      } else if (paymentMethod === "zelle" && price > 0) {
+        const zelleEmail = form.zelleEmail.trim()
+        if (!zelleEmail) throw new Error("Please enter your Zelle sender email.")
+        if (!/^\S+@\S+\.\S+$/.test(zelleEmail)) throw new Error("Please enter a valid email address.")
+
+        await submitFormData("zelle", zelleEmail)
+        setStep(4)
+      } else if (paymentMethod === "paypal") {
+        throw new Error("PayPal payments are coming soon. Please select another payment method.")
       } else {
-        await submitFormData()
+        if (price > 0) await submitFormData("card")
+        else await submitFormData()
         setStep(4)
       }
     } catch (e) {
@@ -449,24 +463,6 @@ export default function MembershipForm({
             >
               {t("termsOfUseLink")}
             </a>
-            <div className="flex flex-col gap-1 pt-1">
-              <a
-                href="/Estatutos de Membresía- IKMA 2026.pdf"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary underline hover:text-primary/80 text-xs"
-              >
-                📄 Estatutos de Membresía IKMA 2026
-              </a>
-              <a
-                href="/Rules Applicable to IKMA Membership.pdf"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary underline hover:text-primary/80 text-xs"
-              >
-                📄 Rules Applicable to IKMA Membership
-              </a>
-            </div>
           </div>
         </div>
 
@@ -977,23 +973,21 @@ export default function MembershipForm({
               ))}
             </div>
 
-            {paymentMethod === "card" && (
-              <div className="bg-surface-container-low p-6 rounded-2xl border border-outline-variant/30 text-center space-y-3">
-                <Icon name="lock" size={28} className="text-primary mx-auto" />
-                <p className="text-sm text-on-surface-variant leading-relaxed">
+            <div className="grid">
+              <div className={`[grid-area:1/1] ${paymentMethod === "card" ? "" : "invisible"} bg-surface-container-low p-6 rounded-2xl border border-outline-variant/30 text-center space-y-3 flex flex-col items-center justify-center`}>
+                <img src="/mastercard_logo.jpg" alt="Mastercard" className="h-8 w-auto object-contain" />
+                <h3 className="text-base md:text-lg font-bold text-on-surface leading-relaxed">
                   You will be redirected to our secure payment page to complete the transaction via Stripe.
                   Your card details are processed directly by Stripe — we never see or store them.
-                </p>
+                </h3>
               </div>
-            )}
 
-            {paymentMethod === "paypal" && (
-              <div className="p-6 bg-amber-50 border border-amber-200 rounded-2xl text-center space-y-4">
-                <Icon name="send" size={36} className="text-amber-500" />
-                <p className="text-sm text-on-surface-variant leading-relaxed">
+              <div className={`[grid-area:1/1] ${paymentMethod === "paypal" ? "" : "invisible"} p-6 bg-amber-50 border border-amber-200 rounded-2xl text-center space-y-4 flex flex-col items-center justify-center`}>
+                <img src="/PayPal_Logo.png" alt="PayPal" className="h-8 w-auto object-contain" />
+                <h3 className="text-base md:text-lg font-bold text-on-surface leading-relaxed">
                   Click the button below to be redirected to PayPal. Once the transaction is
                   complete, you will return here to finalize your registration.
-                </p>
+                </h3>
                 <button
                   type="button"
                   className="bg-amber-500 hover:bg-amber-600 text-white font-bold px-6 py-2.5 rounded-xl text-xs shadow-md transition inline-flex items-center gap-2"
@@ -1001,31 +995,55 @@ export default function MembershipForm({
                   <Icon name="arrow_forward" size={14} /> Open PayPal Portal
                 </button>
               </div>
-            )}
 
-            {paymentMethod === "zelle" && (
-              <div className="p-6 bg-purple-50 border border-purple-200 rounded-2xl space-y-3">
+              <div className={`[grid-area:1/1] ${paymentMethod === "zelle" ? "" : "invisible"} p-6 bg-purple-50 border border-purple-200 rounded-2xl space-y-4`}>
                 <div className="flex items-center gap-2 text-purple-800 font-bold">
-                  <Icon name="business" size={20} />
-                  <h4>Zelle Transfer Instructions</h4>
+                  <img src="/Zelle_Logo.png" alt="Zelle" className="h-6 w-auto object-contain" />
+                  <h4>Transfer Instructions</h4>
                 </div>
-                <p className="text-xs text-on-surface-variant leading-relaxed">
-                  Make your transfer using the following official IKMA details:
-                </p>
-                <div className="bg-white p-3.5 rounded-xl border border-purple-100 text-xs font-mono space-y-1.5 text-on-surface">
-                  <div><strong>Recipient Email:</strong> finance@ikma-association.org</div>
-                  <div><strong>Account Name:</strong> IKMA International</div>
-                  <div>
-                    <strong>Reference / Memo:</strong>{" "}
-                    <span className="font-bold text-secondary">[Your first and last name]</span>
+                <div className="flex flex-col sm:flex-row gap-4 items-start">
+                  <div className="w-44 shrink-0 mx-auto sm:mx-0 bg-white p-2 rounded-xl border border-purple-100">
+                    <img
+                      src="/zelle-qr.jpeg"
+                      alt="IKMA Zelle payment QR code"
+                      className="w-full h-auto rounded-lg"
+                    />
+                  </div>
+                  <div className="flex-1 min-w-0 space-y-3">
+                    <p className="text-xs text-on-surface-variant leading-relaxed">
+                      Scan the QR code or use the following official IKMA details to make your
+                      transfer:
+                    </p>
+                    <div className="bg-white p-3.5 rounded-xl border border-purple-100 text-xs font-mono space-y-1.5 text-on-surface">
+                      <div><strong>Recipient Email:</strong> finance@ikma-association.org</div>
+                      <div><strong>Account Name:</strong> IKMA International</div>
+                      <div>
+                        <strong>Reference / Memo:</strong>{" "}
+                        <span className="font-bold text-secondary">[Your first and last name]</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
-                <p className="text-xs text-on-surface-variant">
-                  Once you have made the transfer, save your payment receipt and report it by
-                  replying to the registration email.
-                </p>
+                <div>
+                  <label htmlFor="zelle-email" className="block text-sm font-semibold text-purple-900 mb-2">
+                    Your Zelle sender email (payment reference)
+                  </label>
+                  <input
+                    id="zelle-email"
+                    type="email"
+                    placeholder="e.g. yourname@email.com"
+                    value={form.zelleEmail}
+                    onChange={(e) => set("zelleEmail", e.target.value)}
+                    required
+                    className="w-full bg-white border border-purple-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-purple-400"
+                  />
+                  <p className="text-xs text-on-surface-variant mt-2 leading-relaxed">
+                    Enter the email linked to the Zelle account that will make the transfer. Our
+                    team will use it to verify your payment before approving your membership.
+                  </p>
+                </div>
               </div>
-            )}
+            </div>
 
             {submitError && (
               <div className="bg-error-container/20 text-error text-sm p-3 rounded-xl border border-error/30">

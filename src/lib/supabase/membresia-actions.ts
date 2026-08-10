@@ -1,7 +1,7 @@
 "use server"
 
 import { createClient, createAdminClient } from "@/lib/supabase/server"
-import { sendStudentWelcomeEmail } from "@/lib/supabase/email-actions"
+import { sendMembershipProcessingEmail, sendStudentWelcomeEmail } from "@/lib/supabase/email-actions"
 
 const TIPOS_VALIDOS = [1, 2, 3, 4]
 const REGIONES_VALIDAS = ["A", "B"]
@@ -108,6 +108,8 @@ export async function submitMembership(data: {
   anioGrado: number | null
   anioResidencia: number | null
   archivoLicenciaUrl: string | null
+  metodoPago?: "card" | "zelle" | "paypal" | null
+  referenciaZelle?: string | null
 }): Promise<{ success?: string; error?: string; id?: string }> {
   if (!TIPOS_VALIDOS.includes(data.tipoMiembro)) {
     return { error: "Invalid member type" }
@@ -149,6 +151,8 @@ export async function submitMembership(data: {
     anio_grado: data.anioGrado,
     anio_residencia: data.anioResidencia,
     archivo_licencia_url: data.archivoLicenciaUrl,
+    metodo_pago: data.metodoPago || null,
+    referencia_zelle_email: data.metodoPago === "zelle" ? data.referenciaZelle ?? null : null,
     estado,
   }
 
@@ -169,6 +173,7 @@ export async function submitMembership(data: {
       .select("id")
       .single()
     if (error) return { error: "Could not update membership request. Please try again." }
+    if (data.metodoPago === "zelle") await notificarProcesamiento(user, data.language)
     return { success: "ok", id: solicitud.id }
   }
 
@@ -179,5 +184,13 @@ export async function submitMembership(data: {
     .single()
 
   if (error) return { error: "Could not submit membership request. Please try again." }
+  if (data.metodoPago === "zelle") await notificarProcesamiento(user, data.language)
   return { success: "ok", id: solicitud.id }
+}
+
+async function notificarProcesamiento(user: { email?: string; user_metadata?: { nombre_completo?: string } }, language: string) {
+  if (!user.email) return
+  const lang = language === "es" ? "es" : "en"
+  const nombre = (user.user_metadata?.nombre_completo as string) || user.email.split("@")[0] || ""
+  await sendMembershipProcessingEmail({ email: user.email, nombre, lang })
 }

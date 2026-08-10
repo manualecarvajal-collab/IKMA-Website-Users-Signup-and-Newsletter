@@ -3,13 +3,31 @@
 import { revalidatePath } from "next/cache"
 import { checkAdmin, registrarActividad } from "@/lib/supabase/admin-helpers"
 import { createAdminClient } from "@/lib/supabase/server"
+import { sendMembershipDecisionEmail } from "@/lib/supabase/email-actions"
+
+async function enviarCorreoDecision(admin: Awaited<ReturnType<typeof createAdminClient>>, usuarioId: string, language: string | null, decision: "aprobada" | "rechazada") {
+  try {
+    const { data: { user } } = await admin.auth.admin.getUserById(usuarioId)
+    const email = user?.email
+    if (!email) return
+    const nombre = (user?.user_metadata?.nombre_completo as string) || email.split("@")[0] || ""
+    await sendMembershipDecisionEmail({
+      email,
+      nombre,
+      lang: language === "es" ? "es" : "en",
+      decision,
+    })
+  } catch (err) {
+    console.error(`[memberships-actions] decision email (${decision}) error:`, err)
+  }
+}
 
 export async function approveMembership(id: string): Promise<void> {
   const { supabase } = await checkAdmin()
   const admin = await createAdminClient()
   const { data: solicitud } = await admin
     .from("solicitudes_membresia")
-    .select("usuario_id, tipo_miembro")
+    .select("usuario_id, tipo_miembro, language")
     .eq("id", id)
     .single()
   await admin.from("solicitudes_membresia").update({ estado: "aprobada" }).eq("id", id)
@@ -20,6 +38,7 @@ export async function approveMembership(id: string): Promise<void> {
     } else {
       await admin.from("perfiles").update({ suscripcion_activa: true }).eq("id", solicitud.usuario_id)
     }
+    await enviarCorreoDecision(admin, solicitud.usuario_id, solicitud.language, "aprobada")
   }
   await registrarActividad(supabase, "membresia_aprobada", `Membership ${id.slice(0, 8)} approved`, "solicitudes_membresia", id)
   revalidatePath("/admin/members")
@@ -30,13 +49,18 @@ export async function rejectMembership(id: string): Promise<void> {
   const admin = await createAdminClient()
   const { data: solicitud } = await admin
     .from("solicitudes_membresia")
-    .select("usuario_id, tipo_miembro")
+    .select("usuario_id, tipo_miembro, language")
     .eq("id", id)
     .single()
   await admin.from("solicitudes_membresia").update({ estado: "rechazada" }).eq("id", id)
-  // Revoke free/student access when an approved student application is denied
-  if (solicitud?.usuario_id && solicitud.tipo_miembro === 3) {
-    await admin.from("perfiles").update({ membresia_gratis: false }).eq("id", solicitud.usuario_id)
+  // Revoke access when a paid application is denied
+  if (solicitud?.usuario_id) {
+    if (solicitud.tipo_miembro === 3) {
+      await admin.from("perfiles").update({ membresia_gratis: false }).eq("id", solicitud.usuario_id)
+    } else {
+      await admin.from("perfiles").update({ suscripcion_activa: false }).eq("id", solicitud.usuario_id)
+    }
+    await enviarCorreoDecision(admin, solicitud.usuario_id, solicitud.language, "rechazada")
   }
   await registrarActividad(supabase, "membresia_rechazada", `Membership ${id.slice(0, 8)} rejected`, "solicitudes_membresia", id)
   revalidatePath("/admin/members")

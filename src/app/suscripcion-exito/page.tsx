@@ -41,7 +41,7 @@ export default async function SuscripcionExitoPage() {
     <section className="py-section-padding">
       <div className="max-w-2xl mx-auto px-margin-mobile md:px-margin-desktop text-center">
         <div className="bg-surface rounded-xl p-8 md:p-12 shadow-[0_20px_20px_0_rgba(7,68,105,0.04)] border border-outline-variant/20">
-          <Icon name="verified" size={60} className="text-tertiary mb-4" />
+          <Icon name="verified" size={60} className="text-tertiary mb-4 block mx-auto" />
           <h1 className="font-headline-lg text-headline-lg text-primary mb-2">{t("title")}</h1>
           <p className="font-body-md text-body-md text-on-surface-variant mb-2">
             {t("description")}
@@ -92,22 +92,10 @@ export default async function SuscripcionExitoPage() {
             </div>
           )}
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href="/revista"
-              className="bg-primary text-on-primary font-label-bold text-label-bold px-8 py-3.5 rounded-lg hover:bg-primary/90 transition-all"
-            >
-              {t("browseArticles")}
-            </Link>
-            <Link
-              href="/membresia"
-              className="bg-surface-container-high text-on-surface font-label-bold text-label-bold px-8 py-3.5 rounded-lg hover:bg-surface-container-highest transition-all"
-            >
-              {t("myMembership")}
-            </Link>
+          <div className="flex flex-col gap-4 justify-center">
             <Link
               href="/"
-              className="bg-surface text-on-surface font-label-bold text-label-bold px-8 py-3.5 rounded-lg border border-outline-variant/30 hover:bg-surface-container-low transition-all"
+              className="bg-primary text-on-primary font-label-bold text-label-bold px-8 py-3.5 rounded-lg hover:bg-primary/90 transition-all w-full text-center"
             >
               {t("backHome")}
             </Link>

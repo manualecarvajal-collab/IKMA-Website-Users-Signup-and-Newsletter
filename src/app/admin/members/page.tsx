@@ -12,6 +12,13 @@ const statusColors: Record<string, string> = {
   pagada: "bg-blue-100 text-blue-800",
 }
 
+const statusLabels: Record<string, string> = {
+  pendiente: "En revisión",
+  aprobada: "Aprobado",
+  rechazada: "Rechazado",
+  pagada: "Por verificar",
+}
+
 const memberLabels: Record<number, string> = {
   1: "Licensed Health Professional",
   2: "Resident (Post-graduate)",
@@ -82,7 +89,12 @@ export default async function AdminMembersPage() {
                     <MemberStatusSelect solicitudId={s.id} estado={s.estado} />
                   ) : (
                     <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold ${statusColors[s.estado] || "bg-surface-container-high text-on-surface-variant"}`}>
-                      {s.estado}
+                      {statusLabels[s.estado] || s.estado}
+                    </span>
+                  )}
+                  {s.metodo_pago === "zelle" && (
+                    <span className="ml-2 inline-block px-2.5 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-800" title="Paid via Zelle">
+                      Zelle
                     </span>
                   )}
                 </td>
@@ -93,7 +105,7 @@ export default async function AdminMembersPage() {
                 </td>
                 <td className="px-6 py-4 text-right">
                   <div className="flex items-center justify-end gap-2">
-                    {s.estado === "pendiente" && s.tipo_miembro !== 3 && (
+                    {["pendiente", "pagada"].includes(s.estado) && s.tipo_miembro !== 3 && (
                       <>
                         <form action={approveMembership.bind(null, s.id)}>
                           <button type="submit" className="text-green-600 hover:text-green-800 p-1.5" title="Approve">

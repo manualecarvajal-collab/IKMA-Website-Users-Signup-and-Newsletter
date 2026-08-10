@@ -25,7 +25,7 @@ export default async function MembresiaPage({
   const params = await searchParams
   const tipo = TIPOS_VALIDOS.includes(Number(params.tipo)) ? Number(params.tipo) : null
   const region = REGIONES_VALIDAS.includes(params.region ?? "") ? (params.region as string) : null
-  const startFormStep = params.step === "2" && !!user
+  const startFormStep = (params.step === "2" || params.step === "3") && !!user
 
   // Student membership (tipo 3) uses its own application form with manual review
   if (tipo === 3) redirect("/membresia/estudiante")
@@ -52,7 +52,7 @@ export default async function MembresiaPage({
       initialMemberType={tipo ?? undefined}
       initialRegion={region ?? undefined}
       isAuthenticated={!!user}
-      initialStep={startFormStep ? 2 : 1}
+      initialStep={startFormStep ? Number(params.step) : 1}
     />
   )
 }
