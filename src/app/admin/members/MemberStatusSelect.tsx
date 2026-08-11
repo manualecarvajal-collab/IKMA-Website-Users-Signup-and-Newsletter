@@ -2,15 +2,9 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { useTranslations } from "next-intl"
 import { approveMembership, rejectMembership } from "@/lib/supabase/admin-actions"
 import Icon from "@/components/Icon"
-
-const stateLabels: Record<string, string> = {
-  pendiente: "En revisión",
-  aprobada: "Aprobado",
-  rechazada: "Negado",
-  pagada: "Por verificar",
-}
 
 const stateStyles: Record<string, string> = {
   pendiente: "bg-amber-100 text-amber-800",
@@ -27,18 +21,21 @@ export default function MemberStatusSelect({
   estado: string
 }) {
   const router = useRouter()
+  const t = useTranslations("Admin")
   const [open, setOpen] = useState(false)
   const [busy, setBusy] = useState(false)
+
+  const label = (e: string) => t(`memberStatuses.${e}`) || e
 
   // Once decided, the status can only toggle between the two options
   const options: { estado: string; label: string }[] =
     estado === "aprobada"
-      ? [{ estado: "rechazada", label: stateLabels.rechazada }]
+      ? [{ estado: "rechazada", label: label("rechazada") }]
       : estado === "rechazada"
-        ? [{ estado: "aprobada", label: stateLabels.aprobada }]
+        ? [{ estado: "aprobada", label: label("aprobada") }]
         : [
-            { estado: "aprobada", label: stateLabels.aprobada },
-            { estado: "rechazada", label: stateLabels.rechazada },
+            { estado: "aprobada", label: label("aprobada") },
+            { estado: "rechazada", label: label("rechazada") },
           ]
 
   const apply = async (target: string) => {
@@ -60,7 +57,7 @@ export default function MemberStatusSelect({
           stateStyles[estado] || "bg-surface-container-high text-on-surface-variant"
         }`}
       >
-        {busy ? "..." : stateLabels[estado] || estado}
+        {busy ? "..." : label(estado)}
         <Icon name={open ? "expand_less" : "expand_more"} size={14} />
       </button>
 

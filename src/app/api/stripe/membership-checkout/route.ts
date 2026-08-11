@@ -52,10 +52,10 @@ export async function POST(req: Request) {
 
   const session = await stripe.checkout.sessions.create({
     mode: "subscription",
+    ui_mode: "embedded_page",
     payment_method_types: ["card"],
     line_items: [{ price: priceId, quantity: 1 }],
-    success_url: `${siteUrl}/suscripcion-exito`,
-    cancel_url: `${siteUrl}/membresia`,
+    return_url: `${siteUrl}/suscripcion-exito`,
     client_reference_id: user.id,
     metadata: {
       user_id: user.id,
@@ -66,5 +66,5 @@ export async function POST(req: Request) {
     },
   })
 
-  return NextResponse.json({ url: session.url })
+  return NextResponse.json({ clientSecret: session.client_secret })
 }

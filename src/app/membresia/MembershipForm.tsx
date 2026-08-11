@@ -1,11 +1,12 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { useTranslations } from "next-intl"
 import Icon from "@/components/Icon"
+import { getStripe } from "@/lib/stripe/client"
 import { submitMembership } from "@/lib/supabase/membresia-actions"
-import { countriesByRegion, pricingMatrix, professionSubgroups, memberTypeLabels, paymentOptions } from "./data"
+import { countries, pricingMatrix, professionSubgroups, memberTypeLabels, paymentOptions } from "./data"
 
 type FormData = {
   memberType: number
@@ -95,6 +96,12 @@ export default function MembershipForm({
   const [formP2Error, setFormP2Error] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
+  const [checkoutStarted, setCheckoutStarted] = useState(false)
+  const checkoutMounted = useRef(false)
+  const checkoutRef = useRef<{ destroy: () => void } | null>(null)
+  const mountedOptionRef = useRef(0)
+  const mountedPriceRef = useRef(0)
+  const startingRef = useRef(false)
 
   useEffect(() => { window.scrollTo(0, 0) }, [step])
 
@@ -118,17 +125,26 @@ export default function MembershipForm({
       setFormP2Error("Please read and accept the IKMA membership rules to continue.")
       return
     }
+    if (target === 2 && (form.memberType === 1 || form.memberType === 2) && !form.gradYear) {
+      setFormP2Error("Please select your graduation year to continue.")
+      return
+    }
     if (target === 3) {
+      if (form.memberType === 1 && !form.licenseFile) {
+        setFormP2Error("Please attach your professional credential file to continue.")
+        return
+      }
       if (!form.username) {
         setFormP2Error("Please enter a username.")
         return
       }
     }
     setFormP2Error(null)
+    if (target !== 3) setCheckoutStarted(false)
     setStep(target)
   }
 
-  const submitFormData = async (metodoPago?: "card" | "zelle" | "paypal", referenciaZelle?: string) => {
+  const submitFormData = async (metodoPago?: "card" | "zelle", referenciaZelle?: string) => {
     if (form.consentStatutory) {
       set("consentStatutory", form.consentStatutory)
     }
@@ -181,36 +197,83 @@ export default function MembershipForm({
     return result
   }
 
+  const startCardCheckout = async (option: number, priceForSession: number) => {
+    setSubmitting(true)
+    setSubmitError(null)
+    try {
+      const result = await submitFormData("card")
+      const { clientSecret, error } = await fetch("/api/stripe/membership-checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          tipoMiembro: form.memberType,
+          region: form.region,
+          solicitudId: result.id,
+          paymentOption: option,
+        }),
+      }).then((r) => r.json())
+
+      if (!clientSecret) throw new Error(error || "Failed to create checkout session")
+
+      checkoutRef.current?.destroy()
+      const stripe = await getStripe()
+      if (!stripe) throw new Error("Stripe failed to load")
+      const checkout = await stripe.createEmbeddedCheckoutPage({ clientSecret })
+      checkoutRef.current = checkout
+      checkout.mount("#membership-checkout")
+      checkoutMounted.current = true
+      mountedOptionRef.current = option
+      mountedPriceRef.current = priceForSession
+      setCheckoutStarted(true)
+    } catch (e) {
+      setSubmitError(e instanceof Error ? e.message : "Something went wrong")
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  // Auto-mount the embedded Stripe checkout on entering step 3, like /donate/checkout.
+  // Recreates the session if the payment option or price (region change) changed.
+  useEffect(() => {
+    if (step !== 3) {
+      checkoutRef.current?.destroy()
+      checkoutRef.current = null
+      checkoutMounted.current = false
+      return
+    }
+    if (price <= 0 || paymentMethod !== "card") return
+    if (checkoutMounted.current && mountedOptionRef.current === paymentOption && mountedPriceRef.current === price) return
+    if (startingRef.current) return
+
+    startingRef.current = true
+    ;(async () => {
+      try {
+        await startCardCheckout(paymentOption, price)
+      } catch {
+        // errors surfaced via submitError
+      } finally {
+        startingRef.current = false
+      }
+    })()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, paymentOption, price, paymentMethod])
+
   const handlePay = async () => {
+    if (paymentMethod === "card" && price > 0) {
+      await startCardCheckout(paymentOption, price)
+      return
+    }
     setSubmitting(true)
     setSubmitError(null)
 
     try {
-      if (paymentMethod === "card" && price > 0) {
-        const result = await submitFormData("card")
-        const { url } = await fetch("/api/stripe/membership-checkout", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            tipoMiembro: form.memberType,
-            region: form.region,
-            solicitudId: result.id,
-            paymentOption,
-          }),
-        }).then((r) => r.json())
-
-        if (!url) throw new Error("Failed to create checkout session")
-
-        window.location.href = url
-      } else if (paymentMethod === "zelle" && price > 0) {
+      if (paymentMethod === "zelle" && price > 0) {
         const zelleEmail = form.zelleEmail.trim()
         if (!zelleEmail) throw new Error("Please enter your Zelle sender email.")
         if (!/^\S+@\S+\.\S+$/.test(zelleEmail)) throw new Error("Please enter a valid email address.")
 
         await submitFormData("zelle", zelleEmail)
         setStep(4)
-      } else if (paymentMethod === "paypal") {
-        throw new Error("PayPal payments are coming soon. Please select another payment method.")
       } else {
         if (price > 0) await submitFormData("card")
         else await submitFormData()
@@ -540,12 +603,11 @@ export default function MembershipForm({
                   className="w-full bg-white border border-outline-variant/50 rounded-xl px-4 py-2.5 text-sm outline-none appearance-none"
                 >
                   <option value="" disabled>
-                    {form.region ? t("selectCountry") : t("selectRegionFirst")}
+                    {t("selectCountry")}
                   </option>
-                  {form.region &&
-                    countriesByRegion[form.region].map((c) => (
-                      <option key={c} value={c}>{c}</option>
-                    ))}
+                  {countries.map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
                 </select>
                 <div className="absolute right-3 top-3 pointer-events-none text-on-surface-variant">
                   <Icon name="expand_more" size={14} />
@@ -951,49 +1013,42 @@ export default function MembershipForm({
           <div className="lg:col-span-7 space-y-6">
             <h3 className="text-base font-bold text-on-surface">Select your preferred payment method</h3>
 
-            <div className="grid grid-cols-3 gap-3">
-              {[
-                { id: "card", label: "Card", icon: "star" },
-                { id: "paypal", label: "PayPal", icon: "send" },
-                { id: "zelle", label: "Zelle", icon: "business" },
-              ].map((method) => (
+            <div className="flex justify-center gap-2 mb-8">
+              {(["card", "zelle"] as const).map((id) => (
                 <button
-                  key={method.id}
+                  key={id}
                   type="button"
-                  onClick={() => setPaymentMethod(method.id)}
-                  className={`py-3 px-4 rounded-xl border-2 font-bold text-xs md:text-sm flex flex-col items-center gap-1.5 transition ${
-                    paymentMethod === method.id
-                      ? "border-primary text-primary bg-primary-container/20"
-                      : "border-outline-variant/50 text-on-surface-variant bg-white"
+                  onClick={() => setPaymentMethod(id)}
+                  className={`px-6 py-2.5 rounded-full font-label-bold text-sm transition ${
+                    paymentMethod === id
+                      ? "bg-primary text-on-primary shadow"
+                      : "bg-surface-container-high text-on-surface-variant hover:bg-surface-container-high/70"
                   }`}
                 >
-                  <Icon name={method.icon} size={24} />
-                  <span>{method.label}</span>
+                  {id === "card" ? "Card" : "Zelle"}
                 </button>
               ))}
             </div>
 
             <div className="grid">
-              <div className={`[grid-area:1/1] ${paymentMethod === "card" ? "" : "invisible"} bg-surface-container-low p-6 rounded-2xl border border-outline-variant/30 text-center space-y-3 flex flex-col items-center justify-center`}>
-                <img src="/mastercard_logo.jpg" alt="Mastercard" className="h-8 w-auto object-contain" />
-                <h3 className="text-base md:text-lg font-bold text-on-surface leading-relaxed">
-                  You will be redirected to our secure payment page to complete the transaction via Stripe.
-                  Your card details are processed directly by Stripe — we never see or store them.
-                </h3>
-              </div>
-
-              <div className={`[grid-area:1/1] ${paymentMethod === "paypal" ? "" : "invisible"} p-6 bg-amber-50 border border-amber-200 rounded-2xl text-center space-y-4 flex flex-col items-center justify-center`}>
-                <img src="/PayPal_Logo.png" alt="PayPal" className="h-8 w-auto object-contain" />
-                <h3 className="text-base md:text-lg font-bold text-on-surface leading-relaxed">
-                  Click the button below to be redirected to PayPal. Once the transaction is
-                  complete, you will return here to finalize your registration.
-                </h3>
-                <button
-                  type="button"
-                  className="bg-amber-500 hover:bg-amber-600 text-white font-bold px-6 py-2.5 rounded-xl text-xs shadow-md transition inline-flex items-center gap-2"
-                >
-                  <Icon name="arrow_forward" size={14} /> Open PayPal Portal
-                </button>
+              <div className={`[grid-area:1/1] ${paymentMethod === "card" ? "" : "invisible"} text-center space-y-3 flex flex-col items-center justify-center py-4`}>
+                {price > 0 ? (
+                  <>
+                    <img src="/mastercard_logo.jpg" alt="Mastercard" className="h-8 w-auto object-contain" />
+                    <h3 className="text-base md:text-lg font-bold text-on-surface leading-relaxed">
+                      Complete your payment securely below.
+                    </h3>
+                    <p className="text-xs text-on-surface-variant leading-relaxed">
+                      Your card details are processed directly by Stripe — we never see or store them.
+                    </p>
+                  </>
+                ) : (
+                  <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800 leading-relaxed">
+                    We couldn&apos;t calculate your membership fee. Go back and select your region to load
+                    the secure payment form.
+                  </div>
+                )}
+                <div className="w-full" id="membership-checkout" />
               </div>
 
               <div className={`[grid-area:1/1] ${paymentMethod === "zelle" ? "" : "invisible"} p-6 bg-purple-50 border border-purple-200 rounded-2xl space-y-4`}>
@@ -1060,18 +1115,20 @@ export default function MembershipForm({
               >
                 <Icon name="arrow_back" size={16} /> Back to Details
               </button>
-              <button
-                type="button"
-                onClick={handlePay}
-                disabled={submitting}
-                className="w-full sm:w-auto bg-primary text-on-primary font-label-bold px-8 py-3.5 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-sm md:text-base disabled:opacity-50"
-              >
-                {submitting ? (
-                  <>Submitting…</>
-                ) : (
-                  <><Icon name="verified" size={16} /> Submit Registration</>
-                )}
-              </button>
+              {!checkoutStarted && price > 0 && (
+                <button
+                  type="button"
+                  onClick={handlePay}
+                  disabled={submitting}
+                  className="w-full sm:w-auto bg-primary text-on-primary font-label-bold px-8 py-3.5 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-sm md:text-base disabled:opacity-50"
+                >
+                  {submitting ? (
+                    <>Processing…</>
+                  ) : (
+                    <><Icon name="verified" size={16} /> {paymentMethod === "card" ? "Load Secure Payment" : "Submit Registration"}</>
+                  )}
+                </button>
+              )}
             </div>
           </div>
         </div>

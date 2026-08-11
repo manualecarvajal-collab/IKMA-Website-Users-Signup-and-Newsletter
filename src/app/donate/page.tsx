@@ -1,43 +1,21 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { createBrowserClient } from "@supabase/ssr"
+import { useState } from "react"
+import { useRouter } from "next/navigation"
 import Icon from "@/components/Icon"
 
 const AMOUNTS = [5, 10, 25, 50, 100]
 
 export default function DonatePage() {
+  const router = useRouter()
   const [selectedAmount, setSelectedAmount] = useState<number | null>(10)
   const [customAmount, setCustomAmount] = useState("")
-  const [name, setName] = useState("")
-  const [email, setEmail] = useState("")
-
-  useEffect(() => {
-    const supabase = createBrowserClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    )
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) {
-        setEmail(user.email ?? "")
-        supabase
-          .from("perfiles")
-          .select("nombre_completo")
-          .eq("id", user.id)
-          .single()
-          .then(({ data }) => {
-            if (data?.nombre_completo) setName(data.nombre_completo)
-          })
-      }
-    })
-  }, [])
 
   const finalAmount = customAmount ? parseFloat(customAmount) : selectedAmount
 
-  const handleDonate = () => {
+  const handleContinue = () => {
     if (!finalAmount || finalAmount <= 0) return
-    const paypalUrl = `https://www.paypal.com/donate?business=YOUR_PAYPAL_EMAIL&amount=${finalAmount}&currency_code=USD&item_name=IKMA+Donation`
-    window.open(paypalUrl, "_blank")
+    router.push(`/donate/checkout?amount=${finalAmount}`)
   }
 
   return (
@@ -96,46 +74,17 @@ export default function DonatePage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block font-label-bold text-label-bold text-on-surface mb-2" htmlFor="donor-name">
-                  Name
-                </label>
-                <input
-                  id="donor-name"
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Your name"
-                  className="w-full rounded-xl bg-surface border border-outline-variant text-on-surface py-3 px-4 focus:border-primary focus:ring-0 transition-colors"
-                />
-              </div>
-              <div>
-                <label className="block font-label-bold text-label-bold text-on-surface mb-2" htmlFor="donor-email">
-                  Email
-                </label>
-                <input
-                  id="donor-email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="your@email.com"
-                  className="w-full rounded-xl bg-surface border border-outline-variant text-on-surface py-3 px-4 focus:border-primary focus:ring-0 transition-colors"
-                />
-              </div>
-            </div>
-
             <button
-              onClick={handleDonate}
+              onClick={handleContinue}
               disabled={!finalAmount || finalAmount <= 0}
               className="w-full bg-primary text-on-primary font-label-bold text-label-bold py-4 rounded-xl hover:bg-primary/90 transition-all disabled:opacity-50 cursor-pointer shadow-sm flex items-center justify-center gap-2"
             >
               <Icon name="favorite" size={18} />
-              Donate ${finalAmount || "0"} via PayPal
+              Donate ${finalAmount || "0"}
             </button>
 
             <p className="text-center font-body-sm text-body-sm text-on-surface-variant/60">
-              You will be redirected to PayPal to complete your donation securely.
+              You will complete your donation securely on the next page, powered by Stripe.
             </p>
 
             <div className="border-t border-outline-variant/30 pt-6">

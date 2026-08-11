@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { getTranslations } from "next-intl/server"
 import { createAdminClient } from "@/lib/supabase/server"
 import { approveMembership, rejectMembership, deleteMembership } from "@/lib/supabase/admin-actions"
 import { DeleteButton } from "@/components/DeleteButton"
@@ -12,13 +13,6 @@ const statusColors: Record<string, string> = {
   pagada: "bg-blue-100 text-blue-800",
 }
 
-const statusLabels: Record<string, string> = {
-  pendiente: "En revisión",
-  aprobada: "Aprobado",
-  rechazada: "Rechazado",
-  pagada: "Por verificar",
-}
-
 const memberLabels: Record<number, string> = {
   1: "Licensed Health Professional",
   2: "Resident (Post-graduate)",
@@ -27,6 +21,7 @@ const memberLabels: Record<number, string> = {
 }
 
 export default async function AdminMembersPage() {
+  const t = await getTranslations("Admin")
   const admin = await createAdminClient()
 
   const { data: solicitudes } = await admin
@@ -89,7 +84,7 @@ export default async function AdminMembersPage() {
                     <MemberStatusSelect solicitudId={s.id} estado={s.estado} />
                   ) : (
                     <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold ${statusColors[s.estado] || "bg-surface-container-high text-on-surface-variant"}`}>
-                      {statusLabels[s.estado] || s.estado}
+                      {t(`memberStatuses.${s.estado}`) || s.estado}
                     </span>
                   )}
                   {s.metodo_pago === "zelle" && (
@@ -119,6 +114,9 @@ export default async function AdminMembersPage() {
                         </form>
                       </>
                     )}
+                    <Link href={`/admin/members/${s.id}/email`} className="text-primary hover:text-primary-fixed-dim p-1.5" title="Email">
+                      <Icon name="mail" size={18} />
+                    </Link>
                     <Link href={`/admin/members/${s.id}`} className="text-primary hover:text-primary-fixed-dim p-1.5" title="View">
                       <Icon name="visibility" size={18} />
                     </Link>

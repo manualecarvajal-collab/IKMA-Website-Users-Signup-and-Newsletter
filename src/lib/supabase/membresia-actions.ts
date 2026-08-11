@@ -108,7 +108,7 @@ export async function submitMembership(data: {
   anioGrado: number | null
   anioResidencia: number | null
   archivoLicenciaUrl: string | null
-  metodoPago?: "card" | "zelle" | "paypal" | null
+  metodoPago?: "card" | "zelle" | null
   referenciaZelle?: string | null
 }): Promise<{ success?: string; error?: string; id?: string }> {
   if (!TIPOS_VALIDOS.includes(data.tipoMiembro)) {

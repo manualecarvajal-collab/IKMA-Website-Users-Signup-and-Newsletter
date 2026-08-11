@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation"
 import Link from "next/link"
+import { getTranslations } from "next-intl/server"
 import { createAdminClient } from "@/lib/supabase/server"
 import { approveMembership, rejectMembership } from "@/lib/supabase/admin-actions"
 import Icon from "@/components/Icon"
@@ -9,13 +10,6 @@ const statusColors: Record<string, string> = {
   aprobada: "bg-green-100 text-green-800",
   rechazada: "bg-red-100 text-red-800",
   pagada: "bg-blue-100 text-blue-800",
-}
-
-const statusLabels: Record<string, string> = {
-  pendiente: "En revisión",
-  aprobada: "Aprobado",
-  rechazada: "Rechazado",
-  pagada: "Por verificar",
 }
 
 const memberLabels: Record<number, string> = {
@@ -28,11 +22,11 @@ const memberLabels: Record<number, string> = {
 const paymentMethodLabels: Record<string, string> = {
   card: "Card (Stripe)",
   zelle: "Zelle",
-  paypal: "PayPal",
 }
 
 export default async function MemberDetailPage(props: { params: Promise<{ id: string }> }) {
   const { id } = await props.params
+  const t = await getTranslations("Admin")
   const admin = await createAdminClient()
 
   const { data: solicitud } = await admin
@@ -52,6 +46,10 @@ export default async function MemberDetailPage(props: { params: Promise<{ id: st
     .eq("id", solicitud.usuario_id)
     .single()
 
+  const { data: licencia } = solicitud.archivo_licencia_url
+    ? await admin.storage.from("membership-licenses").createSignedUrl(solicitud.archivo_licencia_url, 60 * 60 * 24 * 7)
+    : { data: null }
+
   return (
     <div className="p-4 sm:p-6 md:p-8 max-w-3xl">
       <Link href="/admin/members" className="inline-flex items-center gap-1 text-sm text-primary hover:underline mb-6">
@@ -66,7 +64,7 @@ export default async function MemberDetailPage(props: { params: Promise<{ id: st
               <p className="text-sm text-on-surface-variant mt-1">{email}</p>
             </div>
             <span className={`shrink-0 px-3 py-1 rounded-full text-xs font-semibold ${statusColors[solicitud.estado]}`}>
-              {statusLabels[solicitud.estado] || solicitud.estado}
+              {t(`memberStatuses.${solicitud.estado}`) || solicitud.estado}
             </span>
           </div>
         </div>
@@ -77,6 +75,21 @@ export default async function MemberDetailPage(props: { params: Promise<{ id: st
             <Row label="Region" value={solicitud.region === "A" ? "A (Latin America, Africa, Asia)" : "B (North America, Europe, Oceania)"} />
             <Row label="Country" value={solicitud.pais} />
             <Row label="Language" value={solicitud.language} />
+          </Section>
+
+          <Section title="Professional Information">
+            <Row label="Subgroup" value={solicitud.subgrupo_profesional} />
+            <Row label="Other Profession" value={solicitud.otra_profesion} />
+            <Row label="Year of Degree" value={solicitud.anio_grado?.toString()} />
+            <Row label="Year of Residency" value={solicitud.anio_residencia?.toString()} />
+          </Section>
+
+          <Section title="Verification Document">
+            {licencia?.signedUrl ? (
+              <Row label="License / Credential" value={licencia.signedUrl} isFile />
+            ) : (
+              <p className="text-sm text-on-surface-variant">No document uploaded.</p>
+            )}
           </Section>
 
           <Section title="Payment">
@@ -101,9 +114,13 @@ export default async function MemberDetailPage(props: { params: Promise<{ id: st
           </Section>
 
           <Section title="Personal Details">
+            <Row label="Username" value={solicitud.username} />
             <Row label="Gender" value={solicitud.genero} />
             <Row label="Phone" value={solicitud.telefono} />
             <Row label="Website" value={solicitud.sitio_web} />
+            <Row label="Address" value={solicitud.direccion} />
+            <Row label="City" value={solicitud.ciudad} />
+            <Row label="Postal Code" value={solicitud.codigo_postal} />
           </Section>
 
           <Section title="Timestamps">
@@ -112,7 +129,13 @@ export default async function MemberDetailPage(props: { params: Promise<{ id: st
           </Section>
 
           {["pendiente", "pagada"].includes(solicitud.estado) && (
-            <div className="flex gap-4 pt-4 border-t border-outline-variant/20">
+            <div className="flex flex-wrap gap-4 pt-4 border-t border-outline-variant/20">
+              <Link
+                href={`/admin/members/${solicitud.id}/email`}
+                className="inline-flex items-center gap-2 bg-primary/10 hover:bg-primary/20 text-primary font-semibold px-6 py-2.5 rounded-xl transition text-sm"
+              >
+                <Icon name="mail" size={16} /> Email
+              </Link>
               <form action={approveMembership.bind(null, solicitud.id)}>
                 <button type="submit" className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2.5 rounded-xl transition text-sm">
                   <Icon name="check_circle" size={16} /> Approve

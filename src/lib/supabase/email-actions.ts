@@ -1,9 +1,9 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
-import { checkAdmin } from "@/lib/supabase/admin-helpers"
+import { checkAdmin, registrarActividad } from "@/lib/supabase/admin-helpers"
 import { createClient, createAdminClient } from "@/lib/supabase/server"
-import { buildMagazineHtml, buildMembershipDecisionHtml, buildMembershipProcessingHtml, buildNewsletterHtml, buildPaymentConfirmedHtml, buildStudentWelcomeHtml } from "@/lib/email-template"
+import { buildMagazineHtml, buildMembershipDecisionHtml, buildMembershipMessageHtml, buildMembershipProcessingHtml, buildNewsletterHtml, buildPaymentConfirmedHtml, buildStudentWelcomeHtml } from "@/lib/email-template"
 import { esMembresiaGratis, mergeFreeMembers } from "@/lib/supabase/free-membership"
 
 // ─── EMAIL CONFIG ────────────────────────────────────────
@@ -381,6 +381,57 @@ export async function sendMagazineToSubscribers(revistaId: string, excludeEmails
   }
 
   return { error: "Resend API key not configured" }
+}
+
+// ─── INDIVIDUAL MEMBER MESSAGE ──────────────────────────
+
+export async function sendMemberMessage(
+  solicitudId: string,
+  _prevState: { success?: string; error?: string } | undefined,
+  formData: FormData
+): Promise<{ success?: string; error?: string } | undefined> {
+  const subject = formData.get("subject") as string
+  const contenidoHtml = formData.get("contenido_html") as string
+  const { supabase } = await checkAdmin()
+  if (!subject.trim() || !contenidoHtml.trim()) {
+    return { error: "Subject and message are required" }
+  }
+
+  const admin = await createAdminClient()
+  const { data: solicitud } = await admin
+    .from("solicitudes_membresia")
+    .select("usuario_id, language, tipo_miembro")
+    .eq("id", solicitudId)
+    .single()
+  if (!solicitud) return { error: "Application not found" }
+
+  const { data: { user } } = await admin.auth.admin.getUserById(solicitud.usuario_id)
+  const email = user?.email
+  if (!email) return { error: "Member has no email on file" }
+
+  const nombre = (user.user_metadata?.nombre_completo as string) || email.split("@")[0] || "there"
+
+  const result = await sendMembershipEmail({
+    email,
+    nombre,
+    lang: solicitud.language === "es" ? "es" : "en",
+    subject,
+    html: buildMembershipMessageHtml({
+      nombre,
+      lang: solicitud.language === "es" ? "es" : "en",
+      contenido_html: contenidoHtml,
+    }),
+  })
+  if (result.error) return result
+
+  await registrarActividad(
+    supabase,
+    "correo_miembro_enviado",
+    `Message "${subject.slice(0, 60)}" sent to ${email}`,
+    "solicitudes_membresia",
+    solicitudId
+  )
+  return { success: `Email sent to ${email}` }
 }
 
 // ─── NEWSLETTERS ─────────────────────────────────────────

@@ -1,5 +1,40 @@
 // Shared email templates
-// ponytail: one template, two callers
+// ponytail: header/footer shell duplicated across templates; extract a shared
+// layout when all templates get migrated to the logo header.
+
+export function buildMembershipMessageHtml(config: {
+  nombre: string
+  contenido_html: string
+  lang?: "en" | "es"
+}) {
+  const es = config.lang === "es"
+  return `
+    <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; border: 1px solid #e0e0e0;">
+      <div style="background-color: #074469; padding: 32px 24px; text-align: center;">
+        <img src="https://ugdrmmukrckvpdagfecg.supabase.co/storage/v1/object/public/article-images/logo-white.png" alt="IKMA" style="max-width: 280px; max-height: 120px;">
+      </div>
+
+      <div style="padding: 32px 24px;">
+        <h2 style="color: #1c1b1f; margin-top: 0; font-size: 22px;">${es ? `Hola ${config.nombre},` : `Hello ${config.nombre},`}</h2>
+
+        <div style="color: #49454f; line-height: 1.8; font-size: 16px;">
+          ${config.contenido_html}
+        </div>
+
+        <p style="color: #79747e; font-size: 14px; border-top: 1px solid #f0f0f0; padding-top: 24px; margin-top: 32px;">
+          ${es
+            ? "Gracias por ser parte de la Asociación Médica Internacional del Reino."
+            : "Thank you for being part of the International Kingdom Medical Association."}
+        </p>
+      </div>
+
+      <div style="background-color: #f9f9f9; padding: 24px; text-align: center; color: #938f99; font-size: 12px;">
+        <p style="margin: 0;">&copy; 2026 IKMA. All rights reserved.</p>
+        <p style="margin: 8px 0 0;">${es ? "Estás recibiendo este correo por tu solicitud de membresía en IKMA." : "You are receiving this email regarding your membership application at IKMA."}</p>
+      </div>
+    </div>
+  `
+}
 
 export function buildNewsletterHtml(config: {
   nombre: string
