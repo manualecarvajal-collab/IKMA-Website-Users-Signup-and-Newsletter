@@ -331,7 +331,7 @@ export default function MembershipForm({
       <div className="p-6 md:p-10 border-b border-outline-variant/30 bg-gradient-to-r from-primary-container/20 to-primary-container/20">
         <span className="bg-primary-container text-surface text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">{t("step1Badge")}</span>
         <h2 className="text-2xl md:text-3xl font-extrabold text-on-surface mt-2">{t("step1Title")}</h2>
-        <p className="text-on-surface-variant mt-2 text-sm md:text-base leading-relaxed">
+        <p className="text-on-surface-variant mt-2 text-sm md:text-base leading-relaxed whitespace-pre-line">
           {t("step1Desc")}
           <a
             href={t("step1LinkUrl")}

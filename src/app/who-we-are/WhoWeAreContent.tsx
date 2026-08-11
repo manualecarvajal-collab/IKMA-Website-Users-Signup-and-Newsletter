@@ -26,7 +26,7 @@ const boardMembers = [
     role: { en: "Treasurer and board member", es: "Tesorera y Miembro de la Junta Directiva" },
   },
   {
-    img: "/images/Boneza.webp",
+    img: "/images/Ngata.png",
     name: { en: "Dr. Ngata Gratia Boneza", es: "Dr. Ngata Gratia Boneza" },
     role: { en: "CEO-/ manager, board member", es: "Psiquiatra | Dir. Ejecutiva, Gerente y Miembro de la Junta Directiva" },
   },
@@ -89,27 +89,27 @@ export default function WhoWeAreContent() {
     </section>
 
     {/* Our Vision */}
-    <section className="bg-surface-container-low">
-      <div className="grid grid-cols-1 lg:grid-cols-2">
-        <div className="relative h-full min-h-[400px] overflow-hidden">
+    <section className="bg-surface-container-low py-12 md:py-section-padding">
+      <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+        <div className="relative overflow-hidden rounded-xl shadow-[0_4px_20px_rgba(26,77,109,0.08)] border border-surface-variant">
           <img
-            src="/event.jpg"
+            src="/cover_img.jpg"
             alt="IKMA event"
-            className="absolute inset-0 w-full h-full object-cover"
+            className="w-full h-full object-cover aspect-[129/50]"
             loading="lazy"
           />
         </div>
-        <div className="py-12 md:py-section-padding pl-margin-mobile lg:pl-12 pr-margin-mobile md:pr-[max(48px,calc((100vw-1200px)/2+48px))] flex flex-col justify-center">
+        <div className="flex flex-col justify-center items-center text-center max-w-3xl mx-auto mt-10 md:mt-14">
           <div className="inline-flex items-center gap-3 mb-4">
             <span className="w-8 h-1 bg-primary rounded-full" />
             <h2 className="font-label-bold text-label-bold text-primary tracking-wider uppercase">Our Vision</h2>
           </div>
           <h1 className="font-headline-lg text-headline-lg text-primary mb-8">A World Fulfilled and Restored</h1>
           <div className="space-y-6 text-on-surface-variant">
-            <p className="font-body-lg text-body-md leading-relaxed text-justify">
+            <p className="font-body-md text-body-md leading-relaxed text-justify">
               Living and serving under the full favor of God, we envision a community of medical professionals who integrate academic excellence, the guidance of the Holy Spirit, innovative technology, and creative approaches to care for the physical, spiritual, and emotional well-being of individuals, families, and communities. Through this holistic approach, we will bring healing to the whole person—heart, mind, body, and spirit—while strengthening families, restoring communities, and transforming society. We will help restore people&rsquo;s relationship with God and align every area of life with His divine order and original design for creation.
             </p>
-            <p className="font-body-lg text-body-md leading-relaxed text-justify">
+            <p className="font-body-md text-body-md leading-relaxed text-justify">
               As God&rsquo;s purposes are revealed and embraced, the full potential of individuals, families, nations, and creation will be unlocked, enabling them to flourish and fulfill His intended destiny.
             </p>
           </div>

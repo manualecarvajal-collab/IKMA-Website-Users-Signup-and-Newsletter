@@ -369,3 +369,80 @@ alter table public.solicitudes_membresia add column if not exists anio_egreso in
 - `/admin/members/[id]` ya no muestra las secciones **"Professional Information"** ni
   **"Address"**. Se eliminó `signedLicenseUrl`/`licenciaUrl` (código muerto).
 - El detalle queda: Membership → Student Information → Personal Details → Timestamps.
+
+---
+
+## Sistema de cobro (Stripe embedded checkout) — 2026-08-11
+
+### Arquitectura general
+
+Stripe **Embedded Checkout** (`stripe.createEmbeddedCheckoutPage({ clientSecret })` +
+`.mount("#...")`) montado **inline dentro de la página** — el usuario nunca sale del sitio.
+No hay formulario de tarjeta propio: lo renderiza el iframe de Stripe (email, número,
+expiración, CVC, datos de facturación, botón Pay).
+
+### Flujo de donaciones (`/donate`)
+
+| Archivo | Rol |
+|---|---|
+| `src/app/donate/page.tsx` | Selección de monto → redirige a `/donate/checkout?amount=X` |
+| `src/app/donate/checkout/page.tsx` | Pestañas Card/Zelle; monta el checkout embebido en `#donation-checkout` al cargar |
+| `src/app/api/stripe/donation-checkout/route.ts` | Crea sesión: `mode: "payment"`, `ui_mode: "embedded_page"`, `price_data` directo (sin price ID), `return_url: /donate/checkout?donation=success` |
+
+- La sesión se crea **en el useEffect del componente** (el monto viene en la URL), guard
+  `mounted` ref para no recrearla.
+- Zelle: panel púrpura con QR + datos de transferencia + botón "I've sent the payment"
+  → pantalla de gracias local (sin sesión Stripe).
+
+### Flujo de membresía — paso 3 (`/membresia`)
+
+| Archivo | Rol |
+|---|---|
+| `src/app/membresia/MembershipForm.tsx` | `startCardCheckout()` + effect de auto-montaje; pestañas Card/Zelle |
+| `src/app/api/stripe/membership-checkout/route.ts` | Sesión: `mode: "subscription"`, `ui_mode: "embedded_page"`, `price` desde `PRICE_IDS` (live, `src/app/membresia/data.ts`), `return_url: /suscripcion-exito`, metadata `user_id` + `solicitud_id` |
+| `src/app/api/stripe/webhook/route.ts` | Marca la solicitud "pagada" y guarda `stripe_customer_id` al completarse la sesión |
+| `src/app/suscripcion-exito/page.tsx` | Página de éxito (return_url) |
+
+**Auto-montaje (diferencia clave con donaciones)** — la sesión Stripe necesita una
+solicitud (con región y tarifa) ya creada, así que:
+1. Al entrar al paso 3 con la pestaña Card y `price > 0`, el effect automáticamente:
+   `submitFormData("card")` (upsert de la solicitud — `submitMembership` reutiliza la
+   pendiente/rechazada existente) → `POST /api/stripe/membership-checkout` → monta el
+   checkout en `#membership-checkout`.
+2. Si cambia el **plan de pago** (1/2/3 pagos) o el **precio** (cambio de región en paso 2),
+   la sesión se destruye (`checkout.destroy()`) y se recrea con `clientSecret` nuevo.
+3. Al salir del paso 3 (volver atrás), el checkout se destruye; al volver a entrar se
+   remonta automáticamente.
+4. Con `price === 0` (URL directa `?step=3` sin región/tipo) NO se crea sesión — el panel
+   muestra un aviso ámbar pidiendo seleccionar región. El botón de pago se oculta.
+   **Gotcha histórico**: el montaje en un contenedor `display:none` deja el iframe vacío;
+   el div del checkout debe estar visible al llamar `mount()`.
+
+**Zelle (membresía)**: pestaña Zelle → QR + instrucciones + campo obligatorio del email
+del remitente → `submitFormData("zelle", email)` (envía correo de "en procesamiento") →
+paso 4 (confirmación local).
+
+### Pestañas Card/Zelle (estilo compartido con donaciones)
+
+Tabs píldora (`rounded-full`, activo `bg-primary`), paneles en `[grid-area:1/1]` con
+`invisible` para mantener ambos montados (preserva estado del input Zelle y del iframe).
+
+### Webhook (`/api/stripe/webhook`)
+
+| Evento | Acción |
+|---|---|
+| `checkout.session.completed` | `solicitudes_membresia.estado → "pagada"` (via metadata `solicitud_id`), `perfiles.stripe_customer_id = session.customer`, correo de pago confirmado (Resend) |
+| `invoice.payment_succeeded` | `perfiles.suscripcion_activa = true` (renovaciones de suscripción) |
+| `customer.subscription.deleted` | `perfiles.suscripcion_activa = false` |
+
+### Datos de precios (live, 2026-08)
+
+- `pricingMatrix`: región A → tipos {1: $60, 2: $50, 4: $50}; región B → {1: $150, 2: $100, 4: $100}. Tipo 3 (estudiante) es gratis y usa su propio formulario.
+- Los montos de las **cuotas** (2 o 3 pagos) se calculan en el cliente (`price / option`),
+  pero Stripe cobra los **price IDs por cuota** (`PRICE_IDS[tipo][region][option]`, modo
+  suscripción: 1 pago/año, 2 cuotas/6 meses, 3 cuotas/4 meses).
+
+### Validación año de graduación (paso 1)
+
+- Obligatorio para tipos 1 y 2: `goToStep(2)` bloquea con "Please select your graduation
+  year to continue." si `form.gradYear` está vacío. Tipos 3 y 4 no muestran el campo.
