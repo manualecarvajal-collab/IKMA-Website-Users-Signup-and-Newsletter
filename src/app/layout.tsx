@@ -11,6 +11,7 @@ import ToastContainer from "@/components/Toast"
 import CookieConsent from "@/components/CookieConsent"
 import LocaleSwitch from "@/components/LocaleSwitch"
 import VisitorTracker from "@/components/VisitorTracker"
+import IncompleteRegistrationBanner from "@/components/IncompleteRegistrationBanner"
 import { createClient } from "@/lib/supabase/server"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 
@@ -53,6 +54,7 @@ export default async function RootLayout({
   const { data: { user } } = await supabase.auth.getUser()
 
   let userInfo: { email: string; role: string } | null = null
+  let incomplete: { tipoMiembro: number; region: string } | null = null
   if (user) {
     const { data: perfil } = await supabase
       .from("perfiles")
@@ -60,6 +62,27 @@ export default async function RootLayout({
       .eq("id", user.id)
       .single()
     userInfo = { email: user.email ?? "", role: perfil?.rol ?? "lector" }
+
+    // Membership application started but never paid (estado "incompleta").
+    // Never nag users who already have a paid/approved application.
+    const { data: procesoCompleto } = await supabase
+      .from("solicitudes_membresia")
+      .select("id")
+      .eq("usuario_id", user.id)
+      .in("estado", ["aprobada", "pagada"])
+      .limit(1)
+      .maybeSingle()
+    if (!procesoCompleto) {
+      const { data: inc } = await supabase
+        .from("solicitudes_membresia")
+        .select("tipo_miembro, region")
+        .eq("usuario_id", user.id)
+        .eq("estado", "incompleta")
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle()
+      if (inc) incomplete = { tipoMiembro: inc.tipo_miembro, region: inc.region }
+    }
   }
 
   return (
@@ -74,7 +97,15 @@ export default async function RootLayout({
       </head>
       <body className="min-h-full flex flex-col bg-background text-on-background selection:bg-primary-container selection:text-on-primary-container">
         <NextIntlClientProvider locale={locale} messages={messages}>
-          <Navbar initialUser={userInfo} />
+          <div className="sticky top-0 z-50">
+            {incomplete && (
+              <IncompleteRegistrationBanner
+                tipoMiembro={incomplete.tipoMiembro}
+                region={incomplete.region}
+              />
+            )}
+            <Navbar initialUser={userInfo} />
+          </div>
           <main className="flex-grow">{children}</main>
           <FooterWrapper>
             <NewsletterCTAWrapper isAuthenticated={!!user} />

@@ -555,7 +555,8 @@
             "pendiente": "En revisión",
             "aprobada": "Aprobado",
             "rechazada": "Rechazado",
-            "pagada": "Por verificar"
+            "pagada": "Por verificar",
+            "incompleta": "Registro incompleto"
         },
         "memberEmailTitle": "Correo al Miembro",
         "memberEmailCompose": "Redactar Mensaje",
@@ -570,6 +571,12 @@
         "memberEmailPreview": "Vista Previa",
         "memberEmailPreviewLabel": "Vista previa del correo",
         "memberEmailEdit": "Editar",
+        "memberEmailHistoryTitle": "Historial de Mensajes",
+        "memberEmailNew": "Nuevo Correo",
+        "memberEmailEmptySent": "Aún no has enviado correos.",
+        "memberEmailBackToHistory": "Volver al historial de mensajes",
+        "memberEmailTo": "Para",
+        "memberEmailNoSubject": "(Sin asunto)",
         "actions": "Acciones",
         "noArticles": "Aún no hay artículos. ¡Crea el primero!",
         "teachings": "Enseñanzas",
@@ -605,6 +612,16 @@
         "today": "Hoy",
         "total": "Total",
         "doctor": "Doctor"
+    },
+    "IncompleteRegistration": {
+        "title": "No has terminado tu registro de membresía",
+        "subtitle": "Completa el paso de pago para activar tu membresía IKMA.",
+        "stepMembership": "Membresía",
+        "stepRegistration": "Registro",
+        "stepPayment": "Pago",
+        "stepConfirmation": "Confirmación",
+        "continueCta": "Continuar mi registro",
+        "dismiss": "Cerrar"
     },
     "common": {
         "or": "o"

@@ -2,14 +2,16 @@ import { notFound } from "next/navigation"
 import Link from "next/link"
 import { getTranslations } from "next-intl/server"
 import { createAdminClient } from "@/lib/supabase/server"
-import { approveMembership, rejectMembership } from "@/lib/supabase/admin-actions"
 import Icon from "@/components/Icon"
+import EditableName from "@/components/EditableName"
+import MemberActions from "../MemberActions"
 
 const statusColors: Record<string, string> = {
   pendiente: "bg-amber-100 text-amber-800",
   aprobada: "bg-green-100 text-green-800",
   rechazada: "bg-red-100 text-red-800",
   pagada: "bg-blue-100 text-blue-800",
+  incompleta: "bg-orange-100 text-orange-800",
 }
 
 const memberLabels: Record<number, string> = {
@@ -50,6 +52,19 @@ export default async function MemberDetailPage(props: { params: Promise<{ id: st
     ? await admin.storage.from("membership-licenses").createSignedUrl(solicitud.archivo_licencia_url, 60 * 60 * 24 * 7)
     : { data: null }
 
+  // "metodo_pago" only records the method the applicant CHOSE, not whether they
+  // paid. Reflect the real payment state: incomplete = never paid.
+  const paymentInfo = (() => {
+    if (solicitud.tipo_miembro === 3) return "Free (Student)"
+    if (["pagada", "aprobada"].includes(solicitud.estado) && solicitud.metodo_pago) {
+      return paymentMethodLabels[solicitud.metodo_pago] || solicitud.metodo_pago
+    }
+    if (solicitud.estado === "pendiente" && solicitud.metodo_pago === "zelle") {
+      return "Zelle — awaiting verification"
+    }
+    return "No payments yet"
+  })()
+
   return (
     <div className="p-4 sm:p-6 md:p-8 max-w-3xl">
       <Link href="/admin/members" className="inline-flex items-center gap-1 text-sm text-primary hover:underline mb-6">
@@ -60,7 +75,9 @@ export default async function MemberDetailPage(props: { params: Promise<{ id: st
         <div className="p-6 md:p-8 border-b border-outline-variant/20 bg-gradient-to-r from-primary-container/10 to-transparent">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-on-surface notranslate">{perfil?.nombre_completo || "Unknown"}</h1>
+              <h1 className="text-2xl font-bold text-on-surface">
+                <EditableName userId={solicitud.usuario_id} name={perfil?.nombre_completo ?? ""} />
+              </h1>
               <p className="text-sm text-on-surface-variant mt-1">{email}</p>
             </div>
             <span className={`shrink-0 px-3 py-1 rounded-full text-xs font-semibold ${statusColors[solicitud.estado]}`}>
@@ -93,16 +110,7 @@ export default async function MemberDetailPage(props: { params: Promise<{ id: st
           </Section>
 
           <Section title="Payment">
-            <Row
-              label="Method"
-              value={
-                solicitud.metodo_pago
-                  ? paymentMethodLabels[solicitud.metodo_pago] || solicitud.metodo_pago
-                  : solicitud.tipo_miembro === 3
-                    ? "Free (Student)"
-                    : "Not specified"
-              }
-            />
+            <Row label="Method" value={paymentInfo} />
             <Row label="Zelle Reference" value={solicitud.referencia_zelle_email} />
           </Section>
 
@@ -128,24 +136,26 @@ export default async function MemberDetailPage(props: { params: Promise<{ id: st
             <Row label="Last Updated" value={new Date(solicitud.updated_at).toLocaleString("en-US")} />
           </Section>
 
-          {["pendiente", "pagada"].includes(solicitud.estado) && (
-            <div className="flex flex-wrap gap-4 pt-4 border-t border-outline-variant/20">
-              <Link
-                href={`/admin/members/${solicitud.id}/email`}
-                className="inline-flex items-center gap-2 bg-primary/10 hover:bg-primary/20 text-primary font-semibold px-6 py-2.5 rounded-xl transition text-sm"
-              >
-                <Icon name="mail" size={16} /> Email
-              </Link>
-              <form action={approveMembership.bind(null, solicitud.id)}>
-                <button type="submit" className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2.5 rounded-xl transition text-sm">
-                  <Icon name="check_circle" size={16} /> Approve
-                </button>
-              </form>
-              <form action={rejectMembership.bind(null, solicitud.id)}>
-                <button type="submit" className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-2.5 rounded-xl transition text-sm">
-                  <Icon name="cancel" size={16} /> Reject
-                </button>
-              </form>
+          {["pendiente", "pagada", "incompleta"].includes(solicitud.estado) && (
+            <div className="pt-4 border-t border-outline-variant/20 space-y-4">
+              {solicitud.estado === "incompleta" && (
+                <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 text-sm text-orange-900 flex items-start gap-3">
+                  <Icon name="info" size={20} className="shrink-0 mt-0.5" />
+                  <div>
+                    <strong>Incomplete registration — no payment on record.</strong>{" "}
+                    This applicant filled the form but never completed the payment step and currently has no membership access. Approving will grant full access; only do so if the member paid outside the system.
+                  </div>
+                </div>
+              )}
+              <div className="flex flex-wrap gap-4">
+                <Link
+                  href={`/admin/members/${solicitud.id}/email`}
+                  className="inline-flex items-center gap-2 bg-primary/10 hover:bg-primary/20 text-primary font-semibold px-6 py-2.5 rounded-xl transition text-sm"
+                >
+                  <Icon name="mail" size={16} /> Email
+                </Link>
+                <MemberActions solicitudId={solicitud.id} estado={solicitud.estado} />
+              </div>
             </div>
           )}
         </div>

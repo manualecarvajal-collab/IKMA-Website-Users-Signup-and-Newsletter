@@ -1,16 +1,18 @@
 import Link from "next/link"
 import { getTranslations } from "next-intl/server"
 import { createAdminClient } from "@/lib/supabase/server"
-import { approveMembership, rejectMembership, deleteMembership } from "@/lib/supabase/admin-actions"
+import { deleteMembership } from "@/lib/supabase/admin-actions"
 import { DeleteButton } from "@/components/DeleteButton"
 import Icon from "@/components/Icon"
 import MemberStatusSelect from "./MemberStatusSelect"
+import MemberActions from "./MemberActions"
 
 const statusColors: Record<string, string> = {
   pendiente: "bg-amber-100 text-amber-800",
   aprobada: "bg-green-100 text-green-800",
   rechazada: "bg-red-100 text-red-800",
   pagada: "bg-blue-100 text-blue-800",
+  incompleta: "bg-orange-100 text-orange-800",
 }
 
 const memberLabels: Record<number, string> = {
@@ -87,6 +89,11 @@ export default async function AdminMembersPage() {
                       {t(`memberStatuses.${s.estado}`) || s.estado}
                     </span>
                   )}
+                  {s.estado === "incompleta" && (
+                    <span className="ml-2 inline-block px-2.5 py-1 rounded-full text-xs font-semibold bg-orange-200/60 text-orange-900 border border-orange-300" title="This applicant never completed the payment step">
+                      No payment
+                    </span>
+                  )}
                   {s.metodo_pago === "zelle" && (
                     <span className="ml-2 inline-block px-2.5 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-800" title="Paid via Zelle">
                       Zelle
@@ -100,19 +107,8 @@ export default async function AdminMembersPage() {
                 </td>
                 <td className="px-6 py-4 text-right">
                   <div className="flex items-center justify-end gap-2">
-                    {["pendiente", "pagada"].includes(s.estado) && s.tipo_miembro !== 3 && (
-                      <>
-                        <form action={approveMembership.bind(null, s.id)}>
-                          <button type="submit" className="text-green-600 hover:text-green-800 p-1.5" title="Approve">
-                            <Icon name="check_circle" size={18} />
-                          </button>
-                        </form>
-                        <form action={rejectMembership.bind(null, s.id)}>
-                          <button type="submit" className="text-red-600 hover:text-red-800 p-1.5" title="Reject">
-                            <Icon name="cancel" size={18} />
-                          </button>
-                        </form>
-                      </>
+                    {["pendiente", "pagada", "incompleta"].includes(s.estado) && s.tipo_miembro !== 3 && (
+                      <MemberActions solicitudId={s.id} estado={s.estado} />
                     )}
                     <Link href={`/admin/members/${s.id}/email`} className="text-primary hover:text-primary-fixed-dim p-1.5" title="Email">
                       <Icon name="mail" size={18} />

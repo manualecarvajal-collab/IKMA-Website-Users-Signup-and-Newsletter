@@ -424,6 +424,22 @@ export async function sendMemberMessage(
   })
   if (result.error) return result
 
+  // Store the sent message in the member's conversation history. The email has
+  // already been sent, so a failure here is logged (not surfaced as a send error).
+  const config = await loadEmailConfig()
+  const { error: insertError } = await admin.from("mensajes_miembro").insert({
+    solicitud_id: solicitudId,
+    direccion: "enviado",
+    asunto: subject,
+    contenido: contenidoHtml,
+    es_html: true,
+    de: config.email_from_email || config.email_from_name || "IKMA",
+    para: email,
+  })
+  if (insertError) {
+    console.error("[sendMemberMessage] history insert error:", insertError.message)
+  }
+
   await registrarActividad(
     supabase,
     "correo_miembro_enviado",
@@ -431,7 +447,21 @@ export async function sendMemberMessage(
     "solicitudes_membresia",
     solicitudId
   )
+  revalidatePath(`/admin/members/${solicitudId}/email`)
   return { success: `Email sent to ${email}` }
+}
+
+// ─── MEMBER MESSAGE HISTORY ─────────────────────────────
+
+export async function getMemberMessages(solicitudId: string) {
+  await checkAdmin()
+  const admin = await createAdminClient()
+  const { data } = await admin
+    .from("mensajes_miembro")
+    .select("id, direccion, asunto, contenido, es_html, de, para, created_at")
+    .eq("solicitud_id", solicitudId)
+    .order("created_at", { ascending: false })
+  return data ?? []
 }
 
 // ─── NEWSLETTERS ─────────────────────────────────────────

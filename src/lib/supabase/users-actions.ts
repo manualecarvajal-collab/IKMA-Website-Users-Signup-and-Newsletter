@@ -25,6 +25,12 @@ export async function getAllUsers() {
   const perfilesMap = new Map((perfiles ?? []).map(p => [p.id, p]))
   // Source of truth for free membership: solicitudes_membresia (tipo 3, aprobada)
   const freeIds = await getFreeMemberIds(admin)
+  // Users with an incomplete registration: filled the form, never paid
+  const { data: incompletas } = await admin
+    .from("solicitudes_membresia")
+    .select("usuario_id")
+    .eq("estado", "incompleta")
+  const incompletasIds = new Set((incompletas ?? []).map((s) => s.usuario_id))
   const { data: authData } = await admin.auth.admin.listUsers()
   const authUsers = authData?.users ?? []
 
@@ -39,11 +45,38 @@ export async function getAllUsers() {
         email: u.email || "No email",
         suscripcion_activa: perfil?.suscripcion_activa ?? false,
         membresia_gratis: (perfil?.membresia_gratis ?? false) || freeIds.has(u.id),
+        membresia_incompleta: incompletasIds.has(u.id),
         rol: perfil?.rol || "lector",
         created_at: u.created_at,
       }
     })
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+}
+
+export async function updateUserName(userId: string, nombre: string): Promise<{ success?: boolean; error?: string }> {
+  const nombreLimpio = nombre.trim()
+  if (!nombreLimpio) return { error: "Name is required" }
+
+  const { supabase } = await checkAdmin()
+  const admin = await createAdminClient()
+
+  const { data: target } = await admin
+    .from("perfiles")
+    .select("rol, nombre_completo")
+    .eq("id", userId)
+    .single()
+  if (target?.rol === "administrador") return { error: "Cannot rename an admin user" }
+
+  const nombreViejo = target?.nombre_completo || "User"
+  await admin.from("perfiles").update({ nombre_completo: nombreLimpio }).eq("id", userId)
+  // Keep emails in sync — they read the name from auth user_metadata
+  await admin.auth.admin.updateUserById(userId, { user_metadata: { nombre_completo: nombreLimpio } })
+
+  await registrarActividad(supabase, "usuario_editado", `Renamed user "${nombreViejo}" → "${nombreLimpio}"`, "perfiles", userId)
+
+  revalidatePath("/admin/suscriptores")
+  revalidatePath("/admin/members")
+  return { success: true }
 }
 
 export async function deactivateSubscription(userId: string): Promise<void> {

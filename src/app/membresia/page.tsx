@@ -25,7 +25,13 @@ export default async function MembresiaPage({
   const params = await searchParams
   const tipo = TIPOS_VALIDOS.includes(Number(params.tipo)) ? Number(params.tipo) : null
   const region = REGIONES_VALIDAS.includes(params.region ?? "") ? (params.region as string) : null
-  const startFormStep = params.step === "2" || params.step === "3" ? !!user : params.step === "4"
+  // Professionals (1) and residents (2) must pick their graduation year before
+  // the payment step, so deep links never skip past step 2 for them.
+  const maxStep = tipo === 1 || tipo === 2 ? 2 : 4
+  const requestedStep = Number(params.step)
+  const isDeepLink = params.step === "2" || params.step === "3" ? !!user : params.step === "4"
+  const startFormStep = isDeepLink && Number.isInteger(requestedStep)
+  const initialStep = startFormStep ? Math.min(requestedStep, maxStep) : 1
 
   // Student membership (tipo 3) uses its own application form with manual review
   if (tipo === 3) redirect("/membresia/estudiante")
@@ -52,7 +58,7 @@ export default async function MembresiaPage({
       initialMemberType={tipo ?? undefined}
       initialRegion={region ?? undefined}
       isAuthenticated={!!user}
-      initialStep={startFormStep ? Number(params.step) : 1}
+      initialStep={initialStep}
     />
   )
 }

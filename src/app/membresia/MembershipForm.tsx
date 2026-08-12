@@ -116,26 +116,66 @@ export default function MembershipForm({
   const set = (field: keyof FormData, value: unknown) =>
     setForm((prev) => ({ ...prev, [field]: value }))
 
+  // Step 1 gate: the graduation year (professionals/residents) and the rules
+  // consent are mandatory before leaving step 1 — including for users who still
+  // need to create an account (after signup they land directly on step 2).
+  const validarPaso1 = (): boolean => {
+    if ((form.memberType === 1 || form.memberType === 2) && !form.gradYear) {
+      setFormP2Error("Please select your graduation year to continue.")
+      return false
+    }
+    if (!form.rulesConsent) {
+      setFormP2Error("Please read and accept the IKMA membership rules to continue.")
+      return false
+    }
+    return true
+  }
+
   const goToStep = (target: number) => {
+    // Block leaving step 1 before the required fields are filled — even when the
+    // user still has to create their account (they land on step 2 afterwards).
+    if (target === 2 && !validarPaso1()) return
     if (target > 1 && !isAuthenticated) {
       window.location.href = `/registro?tipo=${form.memberType}&region=${form.region}`
       return
     }
-    if (target === 2 && !form.rulesConsent) {
-      setFormP2Error("Please read and accept the IKMA membership rules to continue.")
-      return
-    }
-    if (target === 2 && (form.memberType === 1 || form.memberType === 2) && !form.gradYear) {
-      setFormP2Error("Please select your graduation year to continue.")
-      return
-    }
     if (target === 3) {
+      // Graduation year is mandatory for professionals/residents no matter how
+      // the user reached the form (direct links can skip step 1 entirely).
+      if ((form.memberType === 1 || form.memberType === 2) && !form.gradYear) {
+        setFormP2Error("Please select your graduation year to continue.")
+        return
+      }
       if (form.memberType === 1 && !form.licenseFile) {
         setFormP2Error("Please attach your professional credential file to continue.")
         return
       }
       if (!form.username) {
         setFormP2Error("Please enter a username.")
+        return
+      }
+      if (!form.firstName.trim() || !form.lastName.trim()) {
+        setFormP2Error("Please enter your first and last name.")
+        return
+      }
+      if (!form.phone.trim()) {
+        setFormP2Error("Please enter your contact phone number.")
+        return
+      }
+      if (!form.website.trim()) {
+        setFormP2Error("Please enter your website or social media profile.")
+        return
+      }
+      if (form.professionSubgroup === "Other..." && !form.otherProfession.trim()) {
+        setFormP2Error("Please specify your profession.")
+        return
+      }
+      if (form.memberType === 2 && !form.residencyYear) {
+        setFormP2Error("Please select your residency year to continue.")
+        return
+      }
+      if (!form.consentStatutory) {
+        setFormP2Error("Please accept the statutory consent to continue.")
         return
       }
     }
@@ -181,11 +221,13 @@ export default function MembershipForm({
       subgrupoProfesional: form.professionSubgroup || null,
       otraProfesion: form.otherProfession || null,
       username: form.username || null,
+      nombreCompleto: `${form.firstName} ${form.lastName}`.trim(),
       telefono: form.phone || null,
       sitioWeb: form.website || null,
       anioGrado: form.gradYear ? parseInt(form.gradYear) : null,
       anioResidencia: form.residencyYear ? parseInt(form.residencyYear) : null,
       archivoLicenciaUrl,
+      consentStatutory: form.consentStatutory,
       metodoPago,
       referenciaZelle,
     })
@@ -469,6 +511,7 @@ export default function MembershipForm({
               <select
                 value={form.gradYear}
                 onChange={(e) => set("gradYear", e.target.value)}
+                required
                 className="w-full bg-white border border-outline-variant/50 rounded-xl px-4 py-2.5 text-sm outline-none appearance-none"
               >
                 <option value="">Select...</option>
@@ -692,16 +735,28 @@ export default function MembershipForm({
 
           <div className="grid md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-semibold text-on-surface mb-2">{t("firstNameLabel")}</label>
-              <div className="w-full bg-surface-container-high border border-outline-variant/30 rounded-xl px-4 py-2.5 text-sm text-on-surface-variant cursor-not-allowed notranslate">
-                {form.firstName}
-              </div>
+              <label className="block text-sm font-semibold text-on-surface mb-2">{t("firstNameLabel")} *</label>
+              <input
+                type="text"
+                placeholder="e.g. Jane"
+                value={form.firstName}
+                onChange={(e) => set("firstName", e.target.value)}
+                required
+                minLength={2}
+                className="w-full bg-white border border-outline-variant/50 rounded-xl px-4 py-2.5 text-sm outline-none notranslate"
+              />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-on-surface mb-2">{t("lastNameLabel")}</label>
-              <div className="w-full bg-surface-container-high border border-outline-variant/30 rounded-xl px-4 py-2.5 text-sm text-on-surface-variant cursor-not-allowed notranslate">
-                {form.lastName}
-              </div>
+              <label className="block text-sm font-semibold text-on-surface mb-2">{t("lastNameLabel")} *</label>
+              <input
+                type="text"
+                placeholder="e.g. Doe"
+                value={form.lastName}
+                onChange={(e) => set("lastName", e.target.value)}
+                required
+                minLength={2}
+                className="w-full bg-white border border-outline-variant/50 rounded-xl px-4 py-2.5 text-sm outline-none notranslate"
+              />
             </div>
           </div>
 
@@ -734,6 +789,7 @@ export default function MembershipForm({
                   placeholder="e.g. Occupational Therapist, Software Engineer"
                   value={form.otherProfession}
                   onChange={(e) => set("otherProfession", e.target.value)}
+                  required
                   className="w-full bg-white border border-outline-variant/50 rounded-xl px-4 py-2.5 text-sm outline-none"
                 />
               </div>
@@ -765,6 +821,7 @@ export default function MembershipForm({
                 placeholder="+34 600 000 000 or +54 9..."
                 value={form.phone}
                 onChange={(e) => set("phone", e.target.value)}
+                required
                 className="w-full bg-white border border-outline-variant/50 rounded-xl px-4 py-2.5 text-sm outline-none"
               />
             </div>
@@ -777,6 +834,7 @@ export default function MembershipForm({
               placeholder="https://linkedin.com/in/user"
               value={form.website}
               onChange={(e) => set("website", e.target.value)}
+              required
               className="w-full bg-white border border-outline-variant/50 rounded-xl px-4 py-2.5 text-sm outline-none"
             />
           </div>
@@ -849,6 +907,30 @@ export default function MembershipForm({
             </div>
           )}
 
+          {(form.memberType === 1 || form.memberType === 2) && (
+            <div className="bg-secondary-container/20 p-6 rounded-2xl border border-secondary-container">
+              <label className="block text-sm font-semibold text-on-surface mb-2">
+                {form.memberType === 2 ? t("gradYearResident") : t("gradYear")}
+              </label>
+              <div className="relative max-w-xs">
+                <select
+                  value={form.gradYear}
+                  onChange={(e) => set("gradYear", e.target.value)}
+                  required
+                  className="w-full bg-white border border-outline-variant/50 rounded-xl px-4 py-2.5 text-sm outline-none appearance-none"
+                >
+                  <option value="">Select...</option>
+                  {gradYears.map((yr) => (
+                    <option key={yr} value={yr}>{yr}</option>
+                  ))}
+                </select>
+                <div className="absolute right-3 top-3 pointer-events-none text-on-surface-variant">
+                  <Icon name="expand_more" size={14} />
+                </div>
+              </div>
+            </div>
+          )}
+
           {form.memberType === 2 && (
             <div className="bg-secondary-container/20 p-6 rounded-2xl border border-secondary-container">
               <label className="block text-sm font-semibold text-on-surface mb-2">
@@ -858,6 +940,7 @@ export default function MembershipForm({
                 <select
                   value={form.residencyYear}
                   onChange={(e) => set("residencyYear", e.target.value)}
+                  required
                   className="w-full bg-white border border-outline-variant/50 rounded-xl px-4 py-2.5 text-sm outline-none appearance-none"
                 >
                   <option value="">Select...</option>
@@ -879,6 +962,7 @@ export default function MembershipForm({
                 id="consent-statutory"
                 checked={form.consentStatutory}
                 onChange={(e) => set("consentStatutory", e.target.checked)}
+                required
                 className="mt-1 h-4 w-4 text-primary border-outline-variant/50 rounded shrink-0"
               />
               <label htmlFor="consent-statutory" className="text-xs text-on-surface-variant cursor-pointer">

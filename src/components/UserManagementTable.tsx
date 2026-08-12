@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { showToast } from "./Toast"
 import { updateUsersBatch, deleteUser } from "@/lib/supabase/admin-actions"
 import Icon from "@/components/Icon"
+import EditableName from "@/components/EditableName"
 
 interface User {
   id: string
@@ -12,6 +13,7 @@ interface User {
   email: string
   suscripcion_activa: boolean
   membresia_gratis: boolean
+  membresia_incompleta: boolean
   rol: string
   created_at: string
 }
@@ -40,6 +42,12 @@ export default function UserManagementTable({ initialUsers }: { initialUsers: Us
   }, [hasChanges])
 
   const toggleSubscription = (userId: string) => {
+    const target = users.find(u => u.id === userId)
+    // Granting access to an incomplete registration (never paid) is a manual
+    // override — warn first, mirroring the members panel behaviour.
+    if (target && target.membresia_incompleta && !target.suscripcion_activa) {
+      if (!window.confirm("This user has an incomplete registration (never paid). Activating will grant full membership access. Continue?")) return
+    }
     setUsers(prev => prev.map(u => 
       u.id === userId ? { ...u, suscripcion_activa: !u.suscripcion_activa } : u
     ))
@@ -118,7 +126,12 @@ export default function UserManagementTable({ initialUsers }: { initialUsers: Us
                 users.map((u) => (
                   <tr key={u.id} className="hover:bg-surface-container-low/30 transition-colors group">
                     <td className="px-6 py-4">
-                      <p className="font-label-bold text-on-surface">{u.nombre_completo || "Unnamed User"}</p>
+                      <EditableName
+                        userId={u.id}
+                        name={u.nombre_completo}
+                        onSaved={(n) => setUsers(prev => prev.map(x => x.id === u.id ? { ...x, nombre_completo: n } : x))}
+                        className="font-label-bold text-on-surface"
+                      />
                       <p className="text-sm text-on-surface-variant font-mono">{u.email}</p>
                     </td>
                     <td className="px-6 py-4">
@@ -129,13 +142,16 @@ export default function UserManagementTable({ initialUsers }: { initialUsers: Us
                       ) : (
                         <button
                           onClick={() => toggleSubscription(u.id)}
+                          title={u.membresia_incompleta ? "Filled the form but never paid — has no membership access" : undefined}
                           className={`px-4 py-1.5 rounded-full text-xs font-bold border transition-all cursor-pointer ${
                             u.suscripcion_activa 
                               ? "bg-tertiary/10 text-tertiary border-tertiary/30 hover:bg-tertiary/20" 
+                              : u.membresia_incompleta
+                              ? "bg-orange-100 text-orange-800 border-orange-300 hover:bg-orange-200"
                               : "bg-surface-container-high text-on-surface-variant border-outline-variant/30 hover:bg-surface-container-highest"
                           }`}
                         >
-                          {u.suscripcion_activa ? "ACTIVE SUBSCRIBER" : u.membresia_gratis ? "FREE MEMBER" : "FREE USER"}
+                          {u.suscripcion_activa ? "ACTIVE SUBSCRIBER" : u.membresia_incompleta ? "INCOMPLETE REGISTRATION" : u.membresia_gratis ? "FREE MEMBER" : "FREE USER"}
                         </button>
                       )}
                     </td>
@@ -169,7 +185,12 @@ export default function UserManagementTable({ initialUsers }: { initialUsers: Us
               <div key={u.id} className="p-4 space-y-3">
                   <div className="flex justify-between items-start">
                     <div className="space-y-0.5">
-                      <p className="font-label-bold text-on-surface notranslate">{u.nombre_completo || "Unnamed User"}</p>
+                      <EditableName
+                        userId={u.id}
+                        name={u.nombre_completo}
+                        onSaved={(n) => setUsers(prev => prev.map(x => x.id === u.id ? { ...x, nombre_completo: n } : x))}
+                        className="font-label-bold text-on-surface"
+                      />
                       <p className="text-xs text-on-surface-variant font-mono break-all">{u.email}</p>
                     </div>
                     {u.rol !== "administrador" && (
@@ -194,13 +215,16 @@ export default function UserManagementTable({ initialUsers }: { initialUsers: Us
                   ) : (
                     <button
                       onClick={() => toggleSubscription(u.id)}
+                      title={u.membresia_incompleta ? "Filled the form but never paid — has no membership access" : undefined}
                       className={`px-4 py-1.5 rounded-full text-[10px] font-bold border transition-all ${
                         u.suscripcion_activa 
                           ? "bg-tertiary/10 text-tertiary border-tertiary/30" 
+                          : u.membresia_incompleta
+                          ? "bg-orange-100 text-orange-800 border-orange-300"
                           : "bg-surface-container-high text-on-surface-variant border-outline-variant/30"
                       }`}
                     >
-                      {u.suscripcion_activa ? "ACTIVE SUBSCRIBER" : u.membresia_gratis ? "FREE MEMBER" : "FREE USER"}
+                      {u.suscripcion_activa ? "ACTIVE SUBSCRIBER" : u.membresia_incompleta ? "INCOMPLETE REGISTRATION" : u.membresia_gratis ? "FREE MEMBER" : "FREE USER"}
                     </button>
                   )}
                 </div>

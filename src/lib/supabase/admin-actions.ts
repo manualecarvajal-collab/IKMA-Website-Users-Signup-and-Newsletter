@@ -21,6 +21,7 @@ export {
   deactivateSubscription,
   deleteUser,
   updateUsersBatch,
+  updateUserName,
 } from "@/lib/supabase/users-actions"
 export {
   getEmailConfig,

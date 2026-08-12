@@ -555,7 +555,8 @@
             "pendiente": "Under review",
             "aprobada": "Approved",
             "rechazada": "Rejected",
-            "pagada": "Pending verification"
+            "pagada": "Pending verification",
+            "incompleta": "Incomplete registration"
         },
         "memberEmailTitle": "Email Member",
         "memberEmailCompose": "Compose Message",
@@ -570,6 +571,12 @@
         "memberEmailPreview": "Preview",
         "memberEmailPreviewLabel": "Email preview",
         "memberEmailEdit": "Edit",
+        "memberEmailHistoryTitle": "Message History",
+        "memberEmailNew": "New Email",
+        "memberEmailEmptySent": "No messages sent yet.",
+        "memberEmailBackToHistory": "Back to message history",
+        "memberEmailTo": "To",
+        "memberEmailNoSubject": "(No subject)",
         "actions": "Actions",
         "noArticles": "No articles yet. Create your first one!",
         "teachings": "Teachings",
@@ -605,6 +612,16 @@
         "today": "Today",
         "total": "Total",
         "doctor": "Doctor"
+    },
+    "IncompleteRegistration": {
+        "title": "You haven't finished your membership registration",
+        "subtitle": "Complete the payment step to activate your IKMA membership.",
+        "stepMembership": "Membership",
+        "stepRegistration": "Registration",
+        "stepPayment": "Payment",
+        "stepConfirmation": "Confirmation",
+        "continueCta": "Continue my registration",
+        "dismiss": "Dismiss"
     },
     "common": {
         "or": "or"

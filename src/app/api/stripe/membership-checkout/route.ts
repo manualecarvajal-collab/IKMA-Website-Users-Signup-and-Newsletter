@@ -39,7 +39,11 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Solicitud no encontrada" }, { status: 404 })
   }
 
-  if (solicitud.estado !== "pendiente") {
+  // Card applicants start as "incompleta" (form filled, payment pending);
+  // zelle applicants are "pendiente" until manually verified. Either way they
+  // may (re)open a Stripe checkout session. Approved/rejected/paid applications
+  // cannot be re-processed.
+  if (!["pendiente", "incompleta"].includes(solicitud.estado)) {
     return NextResponse.json({ error: "Solicitud ya procesada" }, { status: 409 })
   }
 

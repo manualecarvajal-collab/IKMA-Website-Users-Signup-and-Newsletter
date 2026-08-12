@@ -1,7 +1,6 @@
 "use client"
 
 import { useActionState, useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
 import { useTranslations } from "next-intl"
 import { sendMemberMessage } from "@/lib/supabase/email-actions"
 import { buildMembershipMessageHtml } from "@/lib/email-template"
@@ -12,13 +11,16 @@ export default function MemberEmailForm({
   solicitudId,
   nombre,
   lang,
+  onSent,
+  onCancel,
 }: {
   solicitudId: string
   nombre: string
   lang: "en" | "es"
+  onSent?: () => void
+  onCancel?: () => void
 }) {
   const t = useTranslations("Admin")
-  const router = useRouter()
   const [state, action, pending] = useActionState(sendMemberMessage.bind(null, solicitudId), undefined)
   const [subject, setSubject] = useState("")
   const [contenido, setContenido] = useState("")
@@ -59,10 +61,10 @@ export default function MemberEmailForm({
         <h2 className="font-headline-lg text-headline-lg text-primary mb-2">{t("memberEmailSent")}</h2>
         <p className="font-body-md text-body-md text-on-surface-variant mb-8">{state.success}</p>
         <button
-          onClick={() => router.push("/admin/members")}
+          onClick={() => onSent?.()}
           className="bg-primary text-on-primary font-label-bold text-label-bold px-6 py-2.5 rounded-lg hover:bg-primary/90 transition-all cursor-pointer"
         >
-          {t("memberEmailBackToList")}
+          {t("memberEmailBackToHistory")}
         </button>
       </div>
     )
@@ -70,6 +72,14 @@ export default function MemberEmailForm({
 
   return (
     <div>
+      <div className="flex items-center justify-between mb-4">
+        <button
+          onClick={() => onCancel?.()}
+          className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
+        >
+          <Icon name="arrow_back" size={16} /> {t("memberEmailBackToHistory")}
+        </button>
+      </div>
       <div className="flex items-center justify-between mb-8">
         <h2 className="font-headline-lg text-headline-lg text-primary">{t("memberEmailCompose")}</h2>
         <button
