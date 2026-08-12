@@ -18,9 +18,7 @@ export {
 } from "@/lib/supabase/revistas-actions"
 export {
   getAllUsers,
-  deactivateSubscription,
   deleteUser,
-  updateUsersBatch,
   updateUserName,
 } from "@/lib/supabase/users-actions"
 export {

@@ -1,110 +1,86 @@
 "use client"
 
-import { useState, useEffect, useMemo } from "react"
-import { useRouter } from "next/navigation"
+import { useState } from "react"
 import { showToast } from "./Toast"
-import { updateUsersBatch, deleteUser } from "@/lib/supabase/admin-actions"
+import { deleteUser } from "@/lib/supabase/admin-actions"
 import Icon from "@/components/Icon"
 import EditableName from "@/components/EditableName"
+
+interface Membership {
+  tipo_miembro: number | null
+  estado: string | null
+}
 
 interface User {
   id: string
   nombre_completo: string
   email: string
-  suscripcion_activa: boolean
-  membresia_gratis: boolean
-  membresia_incompleta: boolean
+  membresia: Membership | null
   rol: string
   created_at: string
 }
 
+const memberLabels: Record<number, string> = {
+  1: "Licensed Health Professional",
+  2: "Resident",
+  3: "Student",
+  4: "Associate",
+}
+
+const estadoColors: Record<string, string> = {
+  pendiente: "bg-amber-100 text-amber-800 border-amber-300",
+  aprobada: "bg-green-100 text-green-800 border-green-300",
+  pagada: "bg-blue-100 text-blue-800 border-blue-300",
+  rechazada: "bg-red-100 text-red-800 border-red-300",
+  incompleta: "bg-orange-100 text-orange-800 border-orange-300",
+}
+
+function membershipBadge(m: Membership | null) {
+  if (!m) {
+    return <span className="inline-block px-4 py-1.5 rounded-full text-xs font-bold bg-surface-container-high text-on-surface-variant border border-outline-variant/30">REGISTERED</span>
+  }
+  const tipo = m.tipo_miembro != null ? memberLabels[m.tipo_miembro] : null
+  if (m.estado === "incompleta") {
+    return (
+      <span
+        className="inline-block px-4 py-1.5 rounded-full text-xs font-bold bg-orange-100 text-orange-800 border border-orange-300"
+        title="Filled the form but never paid — has no membership access"
+      >
+        INCOMPLETE REGISTRATION
+      </span>
+    )
+  }
+  if (m.estado === "aprobada" || m.estado === "pagada") {
+    return (
+      <span className={`inline-block px-4 py-1.5 rounded-full text-xs font-bold ${estadoColors[m.estado]} border`}>
+        {tipo ?? "MEMBER"}
+      </span>
+    )
+  }
+  return (
+    <span className={`inline-block px-4 py-1.5 rounded-full text-xs font-bold ${estadoColors[m.estado ?? ""] || "bg-surface-container-high text-on-surface-variant border-outline-variant/30"} border`}>
+      {tipo ? `${tipo} — ${(m.estado ?? "").toUpperCase()}` : (m.estado ?? "").toUpperCase()}
+    </span>
+  )
+}
+
 export default function UserManagementTable({ initialUsers }: { initialUsers: User[] }) {
   const [users, setUsers] = useState<User[]>(initialUsers)
-  const [originalUsers, setOriginalUsers] = useState<User[]>(initialUsers)
-  const [isSaving, setIsSaving] = useState(false)
-  const router = useRouter()
-
-  const hasChanges = useMemo(() => {
-    const nonAdmin = (u: User) => u.rol !== "administrador"
-    return JSON.stringify(users.filter(nonAdmin).map(u => ({ id: u.id, s: u.suscripcion_activa }))) !== 
-           JSON.stringify(originalUsers.filter(nonAdmin).map(u => ({ id: u.id, s: u.suscripcion_activa })))
-  }, [users, originalUsers])
-
-  useEffect(() => {
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (hasChanges) {
-        e.preventDefault()
-        e.returnValue = ""
-      }
-    }
-    window.addEventListener("beforeunload", handleBeforeUnload)
-    return () => window.removeEventListener("beforeunload", handleBeforeUnload)
-  }, [hasChanges])
-
-  const toggleSubscription = (userId: string) => {
-    const target = users.find(u => u.id === userId)
-    // Granting access to an incomplete registration (never paid) is a manual
-    // override — warn first, mirroring the members panel behaviour.
-    if (target && target.membresia_incompleta && !target.suscripcion_activa) {
-      if (!window.confirm("This user has an incomplete registration (never paid). Activating will grant full membership access. Continue?")) return
-    }
-    setUsers(prev => prev.map(u => 
-      u.id === userId ? { ...u, suscripcion_activa: !u.suscripcion_activa } : u
-    ))
-  }
 
   const handleDelete = async (userId: string, name: string) => {
     if (!confirm(`Are you sure you want to PERMANENTLY delete user "${name}"? This action cannot be undone.`)) return
-    
+
     try {
       await deleteUser(userId)
       setUsers(prev => prev.filter(u => u.id !== userId))
-      setOriginalUsers(prev => prev.filter(u => u.id !== userId))
       showToast("User deleted successfully", "success")
     } catch (err) {
       showToast("Failed to delete user", "error")
     }
   }
 
-  const saveChanges = async () => {
-    setIsSaving(true)
-    const updates = users
-      .filter((u, i) => u.rol !== "administrador" && u.suscripcion_activa !== originalUsers[i].suscripcion_activa)
-      .map(u => ({ id: u.id, suscripcion_activa: u.suscripcion_activa }))
-
-    try {
-      await updateUsersBatch(updates)
-      setOriginalUsers([...users])
-      showToast("Changes saved successfully", "success")
-      router.refresh()
-    } catch (err) {
-      showToast("Failed to save changes", "error")
-    } finally {
-      setIsSaving(false)
-    }
-  }
-
   return (
     <div className="space-y-4">
-      <div className="flex justify-end sticky top-20 md:top-24 z-10">
-        <button
-          onClick={saveChanges}
-          disabled={!hasChanges || isSaving}
-          className={`w-full sm:w-auto px-6 py-2.5 rounded-lg font-label-bold text-label-bold flex items-center justify-center gap-2 transition-all shadow-md ${
-            hasChanges 
-              ? "bg-primary text-on-primary hover:bg-primary/90 cursor-pointer" 
-              : "bg-surface-container-high text-on-surface-variant opacity-50 cursor-not-allowed"
-          }`}
-        >
-          {isSaving ? (
-            <Icon name="sync" className="animate-spin" />
-          ) : (
-            <Icon name="save" />
-          )}
-          {isSaving ? "Saving..." : "Save Changes"}
-        </button>
-      </div>
-
       <div className="bg-surface-container-lowest rounded-xl border border-outline-variant/10 overflow-hidden shadow-sm">
         {/* Desktop Table View */}
         <div className="hidden md:block overflow-x-auto">
@@ -112,7 +88,7 @@ export default function UserManagementTable({ initialUsers }: { initialUsers: Us
             <thead>
               <tr className="bg-surface-container-low border-b border-outline-variant/20">
                 <th className="px-6 py-4 font-label-bold text-label-sm text-on-surface-variant uppercase tracking-wider">User Details</th>
-                <th className="px-6 py-4 font-label-bold text-label-sm text-on-surface-variant uppercase tracking-wider">Subscription Status</th>
+                <th className="px-6 py-4 font-label-bold text-label-sm text-on-surface-variant uppercase tracking-wider">Membership</th>
                 <th className="px-6 py-4 font-label-bold text-label-sm text-on-surface-variant uppercase tracking-wider hidden md:table-cell">Joined Date</th>
                 <th className="px-6 py-4 font-label-bold text-label-sm text-on-surface-variant uppercase tracking-wider text-right">Delete Account</th>
               </tr>
@@ -140,19 +116,7 @@ export default function UserManagementTable({ initialUsers }: { initialUsers: Us
                           ADMIN
                         </span>
                       ) : (
-                        <button
-                          onClick={() => toggleSubscription(u.id)}
-                          title={u.membresia_incompleta ? "Filled the form but never paid — has no membership access" : undefined}
-                          className={`px-4 py-1.5 rounded-full text-xs font-bold border transition-all cursor-pointer ${
-                            u.suscripcion_activa 
-                              ? "bg-tertiary/10 text-tertiary border-tertiary/30 hover:bg-tertiary/20" 
-                              : u.membresia_incompleta
-                              ? "bg-orange-100 text-orange-800 border-orange-300 hover:bg-orange-200"
-                              : "bg-surface-container-high text-on-surface-variant border-outline-variant/30 hover:bg-surface-container-highest"
-                          }`}
-                        >
-                          {u.suscripcion_activa ? "ACTIVE SUBSCRIBER" : u.membresia_incompleta ? "INCOMPLETE REGISTRATION" : u.membresia_gratis ? "FREE MEMBER" : "FREE USER"}
-                        </button>
+                        membershipBadge(u.membresia)
                       )}
                     </td>
                     <td className="px-6 py-4 hidden md:table-cell text-on-surface-variant text-sm">
@@ -203,7 +167,7 @@ export default function UserManagementTable({ initialUsers }: { initialUsers: Us
                       </button>
                     )}
                   </div>
-                
+
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] text-on-surface-variant font-medium">
                     Joined: {new Date(u.created_at).toLocaleDateString()}
@@ -213,19 +177,7 @@ export default function UserManagementTable({ initialUsers }: { initialUsers: Us
                       ADMIN
                     </span>
                   ) : (
-                    <button
-                      onClick={() => toggleSubscription(u.id)}
-                      title={u.membresia_incompleta ? "Filled the form but never paid — has no membership access" : undefined}
-                      className={`px-4 py-1.5 rounded-full text-[10px] font-bold border transition-all ${
-                        u.suscripcion_activa 
-                          ? "bg-tertiary/10 text-tertiary border-tertiary/30" 
-                          : u.membresia_incompleta
-                          ? "bg-orange-100 text-orange-800 border-orange-300"
-                          : "bg-surface-container-high text-on-surface-variant border-outline-variant/30"
-                      }`}
-                    >
-                      {u.suscripcion_activa ? "ACTIVE SUBSCRIBER" : u.membresia_incompleta ? "INCOMPLETE REGISTRATION" : u.membresia_gratis ? "FREE MEMBER" : "FREE USER"}
-                    </button>
+                    membershipBadge(u.membresia)
                   )}
                 </div>
               </div>
@@ -233,15 +185,6 @@ export default function UserManagementTable({ initialUsers }: { initialUsers: Us
           )}
         </div>
       </div>
-      
-      {hasChanges && (
-        <div className="bg-primary-container/30 border border-primary/20 p-4 rounded-xl flex items-start gap-3">
-          <Icon name="info" size={18} className="text-primary" />
-          <p className="text-sm text-on-primary-container font-body-md">
-            You have unsaved changes. Make sure to click <strong>&quot;Save Changes&quot;</strong> before leaving this page.
-          </p>
-        </div>
-      )}
     </div>
   )
 }
