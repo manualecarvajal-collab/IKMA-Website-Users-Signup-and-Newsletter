@@ -114,6 +114,9 @@ export default async function OurObjectivesPage() {
             <blockquote className="text-white font-headline-lg text-headline-lg md:text-4xl italic leading-tight">
               {t("quote")}
             </blockquote>
+            <p className="mt-6 text-white/80 text-base md:text-lg font-body-md not-italic">
+              {t("quoteAttribution")}
+            </p>
             <div className="mt-8 h-1 w-24 bg-white/30 mx-auto rounded-full" />
           </div>
         </div>
