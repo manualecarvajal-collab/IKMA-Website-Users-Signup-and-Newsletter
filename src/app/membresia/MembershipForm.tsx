@@ -162,10 +162,6 @@ export default function MembershipForm({
         setFormP2Error("Please enter your contact phone number.")
         return
       }
-      if (!form.website.trim()) {
-        setFormP2Error("Please enter your website or social media profile.")
-        return
-      }
       if (form.professionSubgroup === "Other..." && !form.otherProfession.trim()) {
         setFormP2Error("Please specify your profession.")
         return
@@ -236,8 +232,17 @@ export default function MembershipForm({
       throw new Error(result.error)
     }
 
+    // Application submitted — the DB "incompleta" record now drives the banner.
+    document.cookie = "membresia_proceso=; path=/; max-age=0"
     return result
   }
+
+  // Track the last step reached so the site-wide reminder banner can show the
+  // abandoned steps. Cleared once the application is submitted (the DB record
+  // takes over then); format: step|tipo|region
+  useEffect(() => {
+    document.cookie = `membresia_proceso=${step}|${form.memberType || ""}|${form.region || ""}; path=/; max-age=${60 * 60 * 24 * 30}`
+  }, [step, form.memberType, form.region])
 
   const startCardCheckout = async (option: number, priceForSession: number) => {
     setSubmitting(true)
@@ -834,7 +839,6 @@ export default function MembershipForm({
               placeholder="https://linkedin.com/in/user"
               value={form.website}
               onChange={(e) => set("website", e.target.value)}
-              required
               className="w-full bg-white border border-outline-variant/50 rounded-xl px-4 py-2.5 text-sm outline-none"
             />
           </div>

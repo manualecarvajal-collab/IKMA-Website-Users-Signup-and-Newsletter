@@ -44,7 +44,7 @@ function membershipBadge(m: Membership | null) {
     return (
       <span
         className="inline-block px-4 py-1.5 rounded-full text-xs font-bold bg-orange-100 text-orange-800 border border-orange-300"
-        title="Filled the form but never paid — has no membership access"
+        title="No active membership — application never submitted or never paid"
       >
         INCOMPLETE REGISTRATION
       </span>

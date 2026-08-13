@@ -5,27 +5,37 @@ import { useState } from "react"
 import { useTranslations } from "next-intl"
 import Icon from "@/components/Icon"
 
-// Site-wide reminder for members who filled the membership form but never
-// completed the payment step (solicitud in estado "incompleta"). Shows which
-// steps are done and sends them straight back to the payment step.
+// Site-wide reminder for users who abandoned the membership process at any
+// step: shows which steps are done and which were left behind. The DB record
+// ("incompleta" application) covers abandonment at the payment step; before
+// submission the form leaves a tracking cookie with the last step reached.
 export default function IncompleteRegistrationBanner({
   tipoMiembro,
   region,
+  paso,
 }: {
-  tipoMiembro: number
-  region: string
+  tipoMiembro: number | null
+  region: string | null
+  paso: number
 }) {
   const t = useTranslations("IncompleteRegistration")
   const [hidden, setHidden] = useState(false)
 
   if (hidden) return null
 
-  const continueUrl = `/membresia?tipo=${tipoMiembro}&region=${region}&step=3`
+  // Professionals (1) and residents (2) cannot deep-link past step 2.
+  const maxStep = tipoMiembro === 1 || tipoMiembro === 2 ? 2 : 3
+  const stepUrl = Math.min(paso, maxStep)
+  const params = new URLSearchParams()
+  if (tipoMiembro != null) params.set("tipo", String(tipoMiembro))
+  if (region) params.set("region", region)
+  if (tipoMiembro != null && stepUrl > 1) params.set("step", String(stepUrl))
+  const continueUrl = `/membresia${params.size ? `?${params}` : ""}`
 
   const steps = [
-    { key: "stepMembership", done: true },
-    { key: "stepRegistration", done: true },
-    { key: "stepPayment", done: false },
+    { key: "stepMembership", done: paso >= 2 },
+    { key: "stepRegistration", done: paso >= 3 },
+    { key: "stepPayment", done: paso >= 4 },
     { key: "stepConfirmation", done: false },
   ]
 

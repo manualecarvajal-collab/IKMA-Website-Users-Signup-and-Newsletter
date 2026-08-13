@@ -3,6 +3,7 @@ import { Montserrat } from "next/font/google"
 import "./globals.css"
 import { NextIntlClientProvider } from "next-intl"
 import { getLocale, getMessages } from "next-intl/server"
+import { cookies } from "next/headers"
 import Navbar from "@/components/Navbar"
 import Footer from "@/components/Footer"
 import FooterWrapper from "@/components/FooterWrapper"
@@ -54,7 +55,7 @@ export default async function RootLayout({
   const { data: { user } } = await supabase.auth.getUser()
 
   let userInfo: { email: string; role: string } | null = null
-  let incomplete: { tipoMiembro: number; region: string } | null = null
+  let incomplete: { tipoMiembro: number | null; region: string | null; paso: number } | null = null
   if (user) {
     const { data: perfil } = await supabase
       .from("perfiles")
@@ -63,8 +64,8 @@ export default async function RootLayout({
       .single()
     userInfo = { email: user.email ?? "", role: perfil?.rol ?? "lector" }
 
-    // Membership application started but never paid (estado "incompleta").
-    // Never nag users who already have a paid/approved application.
+    // Reminder banner for anyone who abandoned the membership process at any
+    // step. Never nag users who already have a paid/approved application.
     const { data: procesoCompleto } = await supabase
       .from("solicitudes_membresia")
       .select("id")
@@ -73,15 +74,28 @@ export default async function RootLayout({
       .limit(1)
       .maybeSingle()
     if (!procesoCompleto) {
-      const { data: inc } = await supabase
+      // Submitted form without paying → the DB record knows the step.
+      const { data: solicitud } = await supabase
         .from("solicitudes_membresia")
-        .select("tipo_miembro, region")
+        .select("estado, tipo_miembro, region")
         .eq("usuario_id", user.id)
-        .eq("estado", "incompleta")
         .order("created_at", { ascending: false })
         .limit(1)
         .maybeSingle()
-      if (inc) incomplete = { tipoMiembro: inc.tipo_miembro, region: inc.region }
+      if (solicitud?.estado === "incompleta") {
+        incomplete = { tipoMiembro: solicitud.tipo_miembro, region: solicitud.region, paso: 3 }
+      } else if (!solicitud && perfil?.rol !== "administrador") {
+        // Before submission the form tracks the last step reached in a cookie.
+        const cookie = (await cookies()).get("membresia_proceso")?.value
+        if (cookie) {
+          const [paso, tipo, region] = cookie.split("|")
+          incomplete = {
+            tipoMiembro: Number(tipo) || null,
+            region: region || null,
+            paso: Math.min(Number(paso) || 1, 3),
+          }
+        }
+      }
     }
   }
 
@@ -102,6 +116,7 @@ export default async function RootLayout({
               <IncompleteRegistrationBanner
                 tipoMiembro={incomplete.tipoMiembro}
                 region={incomplete.region}
+                paso={incomplete.paso}
               />
             )}
             <Navbar initialUser={userInfo} />

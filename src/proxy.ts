@@ -22,15 +22,14 @@ export async function proxy(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser()
 
-  // After email confirmation, Supabase redirects to homepage.
-  // Redirect users who have NOT started the membership process to /membresia
-  // instead — but never trap users who are already mid-process: they can browse
-  // the homepage freely and the CTA banner reminds them to finish (incompleta),
-  // students wait for review, and paid users await approval.
-  if (user && request.nextUrl.pathname === "/") {
+// After email confirmation, Supabase redirects to homepage.
+  // Funnel brand-new users to /membresia once — but never trap them: a user who
+  // abandons the form without submitting has no solicitud row, so without the
+  // cookie every Home click would bounce back to the form start.
+  if (user && request.nextUrl.pathname === "/" && !request.cookies.has("membresia_funnel_done")) {
     const { data: perfil } = await supabase
       .from("perfiles")
-      .select("suscripcion_activa")
+      .select("suscripcion_activa, rol")
       .eq("id", user.id)
       .single()
     const esFree = await esMembresiaGratisUsuario(supabase, user.id)
@@ -46,12 +45,18 @@ export async function proxy(request: NextRequest) {
       .maybeSingle()
     const enProceso = !!solicitud
 
-    // Only redirect users with no active subscription, no free membership and no
-    // application at all (e.g. just confirmed their email address).
-    if (perfil && !perfil.suscripcion_activa && !esFree && !enProceso) {
+    // Only funnel users with no active subscription, no free membership, no
+    // application at all and no admin role (e.g. just confirmed their email).
+    if (perfil && perfil.rol !== "administrador" && !perfil.suscripcion_activa && !esFree && !enProceso) {
       const redirectUrl = request.nextUrl.clone()
       redirectUrl.pathname = "/membresia"
-      return NextResponse.redirect(redirectUrl)
+      const response = NextResponse.redirect(redirectUrl)
+      response.cookies.set("membresia_funnel_done", "1", {
+        maxAge: 60 * 60 * 24 * 365,
+        path: "/",
+        sameSite: "lax",
+      })
+      return response
     }
   }
 

@@ -615,7 +615,7 @@
     },
     "IncompleteRegistration": {
         "title": "You haven't finished your membership registration",
-        "subtitle": "Complete the payment step to activate your IKMA membership.",
+        "subtitle": "Finish the remaining steps to activate your IKMA membership.",
         "stepMembership": "Membership",
         "stepRegistration": "Registration",
         "stepPayment": "Payment",

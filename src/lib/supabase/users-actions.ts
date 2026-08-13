@@ -10,7 +10,7 @@ export async function getAllUsers() {
 
   const { data: perfiles } = await admin
     .from("perfiles")
-    .select("id, nombre_completo, rol")
+    .select("id, nombre_completo, rol, suscripcion_activa")
   const perfilesMap = new Map((perfiles ?? []).map(p => [p.id, p]))
 
   // Source of truth: solicitudes_membresia. Keep the latest application per user.
@@ -31,11 +31,16 @@ export async function getAllUsers() {
   return authUsers
     .map(u => {
       const perfil = perfilesMap.get(u.id)
+      // No application on record and no active subscription → the registration
+      // is incomplete (student is the only free membership, and students always
+      // leave an application behind after submitting).
+      const membresia = membresiaMap.get(u.id)
+      const sinPago = !perfil || !perfil.suscripcion_activa
       return {
         id: u.id,
         nombre_completo: perfil?.nombre_completo || (u.user_metadata?.nombre_completo as string) || "",
         email: u.email || "No email",
-        membresia: membresiaMap.get(u.id) ?? null,
+        membresia: membresia ?? (sinPago ? { tipo_miembro: null, estado: "incompleta" } : null),
         rol: perfil?.rol || "lector",
         created_at: u.created_at,
       }
