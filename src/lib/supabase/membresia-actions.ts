@@ -127,7 +127,6 @@ export async function submitMembership(data: {
     return { error: "Please specify your profession" }
   }
   if (!data.username?.trim()) return { error: "Username is required" }
-  if (!data.telefono?.trim()) return { error: "Phone number is required" }
   if ([1, 2].includes(data.tipoMiembro) && !data.anioGrado) return { error: "Graduation year is required" }
   if (data.tipoMiembro === 2 && !data.anioResidencia) return { error: "Residency year is required" }
   if (data.tipoMiembro === 1 && !data.archivoLicenciaUrl) return { error: "Professional credential file is required" }

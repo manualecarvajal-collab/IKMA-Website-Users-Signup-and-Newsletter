@@ -158,10 +158,6 @@ export default function MembershipForm({
         setFormP2Error("Please enter your first and last name.")
         return
       }
-      if (!form.phone.trim()) {
-        setFormP2Error("Please enter your contact phone number.")
-        return
-      }
       if (form.professionSubgroup === "Other..." && !form.otherProfession.trim()) {
         setFormP2Error("Please specify your profession.")
         return
@@ -826,7 +822,6 @@ export default function MembershipForm({
                 placeholder="+34 600 000 000 or +54 9..."
                 value={form.phone}
                 onChange={(e) => set("phone", e.target.value)}
-                required
                 className="w-full bg-white border border-outline-variant/50 rounded-xl px-4 py-2.5 text-sm outline-none"
               />
             </div>
