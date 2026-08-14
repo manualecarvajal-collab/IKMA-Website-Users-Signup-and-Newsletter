@@ -5,7 +5,6 @@ import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { Fragment, useEffect, useState } from "react"
 import { createBrowserClient } from "@supabase/ssr"
-import { signout } from "@/lib/supabase/actions"
 import { useTranslations } from "next-intl"
 import Icon from "@/components/Icon"
 
@@ -68,12 +67,6 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
 
     return () => subscription.unsubscribe()
   }, [])
-
-  const handleSignOut = async () => {
-    await signout()
-    setUser(null)
-    window.location.href = "/"
-  }
 
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/"
@@ -203,12 +196,12 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
         <div className="flex items-center gap-[clamp(0.25rem,0.8vw,0.75rem)] flex-shrink-0 ml-auto">
           {user ? (
             <>
-              <button
-                onClick={handleSignOut}
-                className="hidden md:inline-block bg-white border border-outline-variant text-on-surface font-label-bold text-xs md:text-label-bold rounded-lg hover:bg-surface-container transition-all px-3 py-1.5 md:px-5 md:py-2.5 cursor-pointer"
+              <Link
+                href="/perfil"
+                className="hidden md:inline-block bg-white border border-outline-variant text-on-surface font-label-bold text-xs md:text-label-bold rounded-lg hover:bg-surface-container transition-all px-3 py-1.5 md:px-5 md:py-2.5"
               >
-                {t("signOut")}
-              </button>
+                {t("myProfile")}
+              </Link>
             </>
           ) : null}
           <span className="w-px h-6 bg-outline-variant hidden md:block" />
@@ -366,12 +359,13 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
           {user ? (
             <div className="px-4 space-y-3">
               <p className="font-body-md text-body-md text-on-surface-variant truncate">{user.email}</p>
-              <button
-                onClick={handleSignOut}
-                className="w-full bg-white border border-outline-variant text-on-surface font-label-bold text-label-bold rounded-lg hover:bg-surface-container transition-all px-5 py-2.5 cursor-pointer"
+              <Link
+                href="/perfil"
+                onClick={closeMobile}
+                className="block w-full text-center bg-white border border-outline-variant text-on-surface font-label-bold text-label-bold rounded-lg hover:bg-surface-container transition-all px-5 py-2.5"
               >
-                {t("signOut")}
-              </button>
+                {t("myProfile")}
+              </Link>
             </div>
           ) : null}
           {!user && (

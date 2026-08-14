@@ -1,6 +1,9 @@
 {
   "cleanUrls": true,
   "trailingSlash": false,
+  "crons": [
+    { "path": "/api/cron/invoice-reminder", "schedule": "0 12 * * *" }
+  ],
   "headers": [
     {
       "source": "/(.*)",

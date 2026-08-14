@@ -342,3 +342,64 @@ export function buildMagazineHtml(config: {
     </div>
   `
 }
+
+export function buildInvoiceReminderHtml(config: {
+  nombre: string
+  lang?: "en" | "es"
+  fechaCobro: string
+  monto: string
+}) {
+  const es = config.lang === "es"
+  const title = es ? "PRÓXIMO COBRO DE MEMBRESÍA — IKMA" : "UPCOMING MEMBERSHIP CHARGE — IKMA"
+  const heading = es
+    ? `Hola ${config.nombre}, tu próxima cuota de membresía está cerca`
+    : `Hi ${config.nombre}, your next membership payment is coming up`
+  const body = es
+    ? "Te recordamos que en 7 días se realizará el cobro automático de tu membresía en IKMA."
+    : "This is a reminder that your IKMA membership will be automatically charged in 7 days."
+  const chargeLine = es
+    ? `Fecha de cobro: <strong>${config.fechaCobro}</strong> · Monto: <strong>${config.monto}</strong>`
+    : `Charge date: <strong>${config.fechaCobro}</strong> · Amount: <strong>${config.monto}</strong>`
+  const note = es
+    ? "Si deseas cancelar tu membresía antes de esta fecha, puedes hacerlo desde tu página de perfil."
+    : "If you wish to cancel your membership before this date, you can do so from your profile page."
+  const footer = es
+    ? "Estás recibiendo este correo porque tienes una membresía activa en IKMA."
+    : "You are receiving this email because you have an active IKMA membership."
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+  return `
+    <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; border: 1px solid #e0e0e0;">
+      <div style="background-color: #074469; padding: 32px 24px; text-align: center;">
+        <h1 style="color: #ffffff; margin: 0; font-size: 24px; letter-spacing: 1px;">${title}</h1>
+      </div>
+
+      <div style="padding: 32px 24px;">
+        <h2 style="color: #1c1b1f; margin-top: 0; font-size: 22px;">${heading}</h2>
+        <p style="color: #49454f; line-height: 1.8; font-size: 16px;">${body}</p>
+
+        <div style="background-color: #fff8e1; border: 1px solid #f2c94c; border-radius: 12px; padding: 16px 20px; margin: 24px 0;">
+          <p style="color: #6b5b00; font-size: 15px; line-height: 1.6; margin: 0;">${chargeLine}</p>
+        </div>
+
+        <p style="color: #49454f; line-height: 1.6; font-size: 14px;">${note}</p>
+
+        <div style="margin: 24px 0; text-align: center;">
+          <a href="${siteUrl}/perfil" style="display: inline-block; background-color: #074469; color: #ffffff; padding: 14px 28px; border-radius: 12px; text-decoration: none; font-weight: bold; font-size: 15px;">
+            ${es ? "Ir a mi perfil" : "Go to my profile"}
+          </a>
+        </div>
+
+        <p style="color: #79747e; font-size: 14px; border-top: 1px solid #f0f0f0; padding-top: 24px; margin-top: 32px;">
+          ${es
+            ? "Gracias por ser parte de la Asociación Médica Internacional del Reino."
+            : "Thank you for being part of the International Kingdom Medical Association."}
+        </p>
+      </div>
+
+      <div style="background-color: #f9f9f9; padding: 24px; text-align: center; color: #938f99; font-size: 12px;">
+        <p style="margin: 0;">&copy; 2026 IKMA. All rights reserved.</p>
+        <p style="margin: 8px 0 0;">${footer}</p>
+      </div>
+    </div>
+  `
+}

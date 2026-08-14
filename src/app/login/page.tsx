@@ -39,7 +39,7 @@ export default function LoginPage() {
         return
       }
       setCheckingSession(false)
-    })
+    }).catch(() => setCheckingSession(false))
 
     // Restore saved email from localStorage
     try {
