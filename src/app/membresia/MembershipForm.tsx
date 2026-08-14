@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { useTranslations } from "next-intl"
 import Icon from "@/components/Icon"
+import CopyButton from "@/components/CopyButton"
 import { getStripe } from "@/lib/stripe/client"
 import { submitMembership } from "@/lib/supabase/membresia-actions"
 import { countries, pricingMatrix, professionSubgroups, memberTypeLabels, paymentOptions } from "./data"
@@ -101,6 +102,7 @@ export default function MembershipForm({
   const checkoutRef = useRef<{ destroy: () => void } | null>(null)
   const mountedOptionRef = useRef(0)
   const mountedPriceRef = useRef(0)
+  const [zelleRef, setZelleRef] = useState("")
   const startingRef = useRef(false)
 
   useEffect(() => { window.scrollTo(0, 0) }, [step])
@@ -1153,11 +1155,29 @@ export default function MembershipForm({
                       transfer:
                     </p>
                     <div className="bg-white p-3.5 rounded-xl border border-purple-100 text-xs font-mono space-y-1.5 text-on-surface">
-                      <div><strong>Recipient Email:</strong> finance@ikma-association.org</div>
-                      <div><strong>Account Name:</strong> IKMA International</div>
+                      <div className="flex items-center justify-between gap-2">
+                        <span><strong>Recipient Email:</strong> ikma@emmint.com</span>
+                        <CopyButton value="ikma@emmint.com" />
+                      </div>
+                      <div className="flex items-center justify-between gap-2">
+                        <span><strong>Account Name:</strong> ikma lc</span>
+                        <CopyButton value="ikma lc" />
+                      </div>
                       <div>
-                        <strong>Reference / Memo:</strong>{" "}
-                        <span className="font-bold text-secondary">[Your first and last name]</span>
+                        <label htmlFor="zelle-memo" className="block text-sm font-semibold text-purple-900 mb-1.5">
+                          Reference / Memo
+                        </label>
+                        <div className="flex items-center gap-2">
+                          <input
+                            id="zelle-memo"
+                            type="text"
+                            placeholder="e.g. Juan Pérez (your first and last name)"
+                            value={zelleRef}
+                            onChange={(e) => setZelleRef(e.target.value)}
+                            className="w-full bg-white border border-purple-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-purple-400"
+                          />
+                          <CopyButton value={zelleRef} />
+                        </div>
                       </div>
                     </div>
                   </div>

@@ -1,10 +1,10 @@
 "use client"
 
-import { useActionState, useEffect, useState } from "react"
+import { useActionState, useState } from "react"
 import { useTranslations } from "next-intl"
 import Link from "next/link"
 import { updateProfileName, updateProfileEmail, updateProfilePassword } from "@/lib/supabase/profile-actions"
-import { signout } from "@/lib/supabase/actions"
+import { createClient } from "@/lib/supabase/client"
 
 type ActionState = { error?: string; success?: string } | undefined
 
@@ -13,15 +13,20 @@ export default function PerfilForms({ initialNombre, email }: { initialNombre: s
   const [nameState, nameAction, namePending] = useActionState<ActionState, FormData>(updateProfileName, undefined)
   const [emailState, emailAction, emailPending] = useActionState<ActionState, FormData>(updateProfileEmail, undefined)
   const [passwordState, passwordAction, passwordPending] = useActionState<ActionState, FormData>(updateProfilePassword, undefined)
-  const [signoutState, signoutAction, signoutPending] = useActionState(signout, undefined)
   const [confirmPassword, setConfirmPassword] = useState("")
   const [mismatch, setMismatch] = useState(false)
+  const [signingOut, setSigningOut] = useState(false)
 
-  // Full reload after server-side signout: avoids the soft-nav hang where the
-  // login page's getSession() gets stuck on stale session state.
-  useEffect(() => {
-    if (signoutState?.done) window.location.href = "/login"
-  }, [signoutState])
+  // Sign out with the browser client: it clears the client-side session state,
+  // deletes the auth cookie and revokes the token in one place. A server-side
+  // signOut alone can't clear the browser singleton, whose auto-refresh (with
+  // an expired access token) resurrects the session right after signout.
+  const handleSignOut = async () => {
+    setSigningOut(true)
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    window.location.href = "/login"
+  }
 
   return (
     <div className="space-y-8">
@@ -165,15 +170,14 @@ export default function PerfilForms({ initialNombre, email }: { initialNombre: s
       </div>
 
       {/* Sign out */}
-      <form action={signoutAction}>
-        <button
-          type="submit"
-          disabled={signoutPending}
-          className="w-full bg-white border border-outline-variant text-on-surface font-label-bold text-label-bold py-3.5 rounded-lg hover:bg-surface-container transition-all disabled:opacity-50 cursor-pointer"
-        >
-          {signoutPending ? t("signingOut") : t("signOut")}
-        </button>
-      </form>
+      <button
+        type="button"
+        onClick={handleSignOut}
+        disabled={signingOut}
+        className="w-full bg-white border border-outline-variant text-on-surface font-label-bold text-label-bold py-3.5 rounded-lg hover:bg-surface-container transition-all disabled:opacity-50 cursor-pointer"
+      >
+        {signingOut ? t("signingOut") : t("signOut")}
+      </button>
     </div>
   )
 }

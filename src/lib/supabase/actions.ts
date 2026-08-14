@@ -86,12 +86,6 @@ export async function login(prevState: { error?: string; success?: boolean } | u
   return { success: true }
 }
 
-export async function signout(prevState: { done?: boolean } | undefined, formData: FormData) {
-  const supabase = await createClient()
-  await supabase.auth.signOut()
-  return { done: true }
-}
-
 export async function resetPassword(prevState: { error?: string; success?: string } | undefined, formData: FormData) {
   const supabase = await createClient()
   const email = formData.get("email") as string

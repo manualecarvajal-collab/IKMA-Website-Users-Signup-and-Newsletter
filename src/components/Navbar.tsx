@@ -52,14 +52,21 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
       }
     })
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    // ponytail: no await inside this callback. supabase-js awaits every
+    // onAuthStateChange handler during client init (_recoverAndRefresh ->
+    // _notifyAllSubscribers), and a query here calls getSession() which waits
+    // on the same pending initializePromise -> circular deadlock that poisons
+    // the shared client (login page stuck on "checking session" after signout).
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) {
-        const { data: perfil } = await supabase
+        void supabase
           .from("perfiles")
           .select("rol")
           .eq("id", session.user.id)
           .single()
-        setUser({ email: session.user.email ?? "", role: perfil?.rol ?? "lector" })
+          .then(({ data: perfil }) => {
+            setUser({ email: session.user.email ?? "", role: perfil?.rol ?? "lector" })
+          })
       } else {
         setUser(null)
       }
