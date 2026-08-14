@@ -100,9 +100,9 @@ export default async function BlogPage() {
                   </p>
                 </Link>
                 <div className="flex flex-col space-y-5">
-                  <div className="w-full h-32 rounded-lg border-2 border-dashed border-on-surface/20 bg-surface-container-high/30 flex items-center justify-center text-on-surface-variant/50 text-sm font-medium">
-                    Ad Space
-                  </div>
+                  <Link href="/membresia" className="block w-full h-32 rounded-lg overflow-hidden bg-surface-container-high/30">
+                    <img src={locale === "es" ? "/ads/ad_1_es.png" : "/ads/ad_1_en.png"} alt="" loading="lazy" className="w-full h-full object-cover" />
+                  </Link>
                   {articles.slice(1, 4).map((a) => (
                     <Link
                       key={a.id}
@@ -137,12 +137,13 @@ export default async function BlogPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter">
                 {articles.map((a, i) =>
                   i === 0 ? (
-                    <div
+                    <Link
                       key="ad-1"
-                      className="flex flex-col bg-white rounded-lg overflow-hidden shadow-sm border-2 border-dashed border-on-surface/20 min-h-[280px] items-center justify-center text-on-surface-variant/50 text-sm font-medium"
+                      href="/membresia"
+                      className="flex flex-col bg-white rounded-lg overflow-hidden shadow-sm min-h-[280px]"
                     >
-                      Ad Space
-                    </div>
+                      <img src={locale === "es" ? "/ads/ad_2_es.png" : "/ads/ad_2_en.png"} alt="" loading="lazy" className="w-full h-full object-cover" />
+                    </Link>
                   ) : (
                     <Link
                       key={a.id}
@@ -195,9 +196,10 @@ export default async function BlogPage() {
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                     {magazines.map((m) => (
-                      <div
+                      <Link
                         key={m.id}
-                        className="flex flex-col bg-surface-container-low rounded-lg overflow-hidden hover:shadow-md transition-shadow group cursor-default"
+                        href="/newsletter"
+                        className="flex flex-col bg-surface-container-low rounded-lg overflow-hidden hover:shadow-md transition-shadow group"
                       >
                         {m.imagen_portada ? (
                           <div className="aspect-[3/4] w-full overflow-hidden bg-surface-variant">
@@ -214,7 +216,7 @@ export default async function BlogPage() {
                             <p className="font-body-md text-body-md text-on-surface-variant text-xs mt-1 line-clamp-2">{m.descripcion}</p>
                           )}
                         </div>
-                      </div>
+                      </Link>
                     ))}
                   </div>
                 </div>
