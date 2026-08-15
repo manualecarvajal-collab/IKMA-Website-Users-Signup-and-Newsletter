@@ -43,15 +43,11 @@ export default async function CommunitiesPage() {
         <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
           <div className="max-w-3xl mx-auto">
             <div className="space-y-6 text-on-surface-variant">
-              <p className="font-body-lg text-body-lg leading-relaxed">
-                {t("paragraph1")}
-              </p>
-              <p className="font-body-lg text-body-lg leading-relaxed">
-                {t("paragraph2")}
-              </p>
-              <p className="font-body-lg text-body-lg leading-relaxed">
-                {t("paragraph3")}
-              </p>
+              {[1, 2, 3, 4, 5, 6, 7].map((n) => (
+                <p key={n} className="font-body-lg text-body-lg leading-relaxed">
+                  {t(`paragraph${n}`)}
+                </p>
+              ))}
             </div>
           </div>
         </div>

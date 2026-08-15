@@ -103,8 +103,8 @@
     },
     "Stats": {
         "statistics": "Statistics",
-        "healthPrefix": "IKMA: health",
-        "healthSuffix": "in numbers",
+        "healthPrefix": "IKMA Global",
+        "healthSuffix": "in Numbers",
         "healthyLives": "Healthy lives, strong communities.",
         "firstJourney": "2022. First medical journey",
         "text1": "IKMA is an organization committed to the apostolic vision of God in the health field in several nations.",
@@ -250,7 +250,11 @@
         "title": "Venezuela Communities",
         "paragraph1": "The deployment of our doctors in the communities of Venezuela has become one of the most powerful and positive experiences for our organization.",
         "paragraph2": "This is not just a multidisciplinary deployment of healthcare professionals from different specialties (dentistry, physical therapy, general medicine, pediatrics...); it is the living manifestation of God’s love through each healthcare professional.",
-        "paragraph3": "Beyond the numbers, the true result is measured in lives. Men, women, children, and adolescents have been completely transformed in every consultation."
+        "paragraph3": "Beyond the numbers, the true result is measured in lives. Men, women, children, and adolescents have been completely transformed in every consultation.",
+        "paragraph4": "The most moving part was that children who had not experienced the relief of a pediatric consultation for over 8 years were finally seen by doctors filled with the love of God.",
+        "paragraph5": "In this mission, free healthcare was the bridge to connect with them, but the quality and kindness of the medical consultations were what impacted the community the most.",
+        "paragraph6": "While patients received treatment, they also found refuge amid uncertainty—joy born from feeling valued by healthcare professionals who have surrendered their lives to Jesus Christ.",
+        "paragraph7": "We bring science with spirit because when professional knowledge meets faith, service becomes a miracle."
     },
     "Doctors": {
         "pageTitle": "Our Doctors",
@@ -424,12 +428,15 @@
     },
     "OutreachZumurucuare": {
         "badge": "Mission Chronicle",
-        "title": "Outreach in Zumurucuare",
+        "title": "Statistical balance of medical and spiritual intervention – Zumurucuare, Falcón",
         "date": "May 2025",
-        "paragraph1": "Recently, we held a comprehensive care outreach in the Zumurucuare sector of Coro, where a multidisciplinary team was deployed to bring hope and well-being to our community.",
-        "paragraph2": "As part of the IKMA organization’s plan, our purpose goes beyond medicine; we seek to provide holistic care founded on the principles of the Kingdom of God, offering care and compassion to every patient who walked through our doors.",
-        "paragraph3": "Thanks to the hard work of general practitioners, mental health specialists, physical therapists, veterinarians, pediatricians, and volunteers, we were able to serve 222 people with dedication and excellence.",
-        "thanks": "Thank you to every professional who joined this call to service. We continue to move forward!"
+        "paragraph1": "In the Zumurucuare sector, in Falcón state, Venezuela, the International Kingdom Medical Association (IKMA) carried out a comprehensive medical mission that transcended conventional care. It was not just about listening to heartbeats, taking blood pressure, or handing out medications; it was the living manifestation of God’s compassion through this global project that unites scientific excellence with God’s transforming power.",
+        "paragraph2": "From the early hours of the morning, doctors, specialists, veterinarians, and health volunteers trained under IKMA’s vision turned this corner of Falcón into a true center of restoration and holistic service.",
+        "paragraph3": "At every consultation station, the residents of Zumurucuare found not only accurate diagnoses and care for their physical ailments; they also found a listening ear, dignity, hygiene, care for their pets, and above all, faith in every healthcare professional.",
+        "paragraph4": "Thanks to the dedication of the multidisciplinary team, a total of 222 direct consultations were recorded, distributed across the following specialties and interventions:",
+        "stats": "Barber Shop (Community Service) 32\nNursing (Weight and Height Check) 37\nVeterinary Care (Pets) 25\nPain Therapy 20\nPediatrics 20\nInternal Medicine 15\nTraumatology 14\nCardiology 13\nIntercession and Spiritual Coverage 13\nGynecology 09\nPsychology 08\nNephrology 03\nSurgery 03",
+        "statsTotal": "TOTAL CONSULTATIONS: 222",
+        "paragraph5": "What happened in this Venezuelan community is just a sample of what God is doing through IKMA’s global network on the three continents where we are located."
     },
     "NotFound": {
         "title": "404 — Page Not Found",

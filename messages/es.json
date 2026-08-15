@@ -103,8 +103,8 @@
     },
     "Stats": {
         "statistics": "Estadísticas",
-        "healthPrefix": "IKMA: salud",
-        "healthSuffix": "en números",
+        "healthPrefix": "IKMA Global",
+        "healthSuffix": "en Números",
         "healthyLives": "Vidas saludables, comunidades fuertes.",
         "firstJourney": "2022. Primer viaje médico",
         "text1": "IKMA es una organización comprometida con la visión apostólica de Dios en el campo de la salud en varias naciones.",
@@ -222,7 +222,7 @@
     },
     "Outreach": {
         "heroBadge": "Nuestro Alcance",
-        "heroTitle": "Atención a poblaciones desatendidas y alcance sanitario.",
+        "heroTitle": "Atención a poblaciones desatendidas y alcance sanitario",
         "scroll": "Desplazar",
         "healingTitle": "Sanando Más Allá de las Fronteras",
         "paragraph1": "Nuestros despliegues comunitarios e iniciativas de salud en Venezuela van mucho más allá de la asistencia médica convencional. Creemos firmemente en un enfoque de cuidado integral, donde la salud física, el bienestar emocional y la dimensión espiritual se entrelazan para transformar vidas por completo.",
@@ -248,9 +248,13 @@
     "OutreachCommunities": {
         "badge": "Crónica de la Misión",
         "title": "Comunidades de Venezuela",
-        "paragraph1": "El despliegue de nuestros médicos en las comunidades de Venezuela se ha convertido en una de las experiencias más poderosas y positivas para nuestra organización.",
-        "paragraph2": "No es solo un despliegue multidisciplinario de profesionales de la salud de diferentes especialidades (odontología, fisioterapia, medicina general, pediatría...); es la manifestación viva del amor de Dios a través de cada profesional de la salud.",
-        "paragraph3": "Más allá de los números, el verdadero resultado se mide en vidas. Hombres, mujeres, niños y adolescentes han sido completamente transformados en cada consulta."
+        "paragraph1": "En el corazón de la Sierra de San Luis en el estado Falcón ubicado al sur de Venezuela, un equipo de profesionales de la salud —unidos por la visión de IKMA y el equipo de profesionales de Ciudad de las Águilas— realizó una jornada médico asistencial gratuita.",
+        "paragraph2": "Médicos generales, especialistas, oncólogos, enfermeros, fisioterapeutas, psicólogos y veterinarios se unieron en un solo propósito: traer la salud que Jesucristo conquistó para sus hijos en la Cruz a esta comunidad.",
+        "paragraph3": "Más de 370 personas fueron atendidas en consultorios comunitarios armados dentro de un espacio de la comunidad para brindarle atención personalizada a cada paciente.",
+        "paragraph4": "Lo más conmovedor fué que niños que por más de 8 años jamás habían tenido el alivio de una consulta pediátrica, finalmente fueron atendidos por médicos llenos del amor de Dios.",
+        "paragraph5": "En esta jornada, la salud gratuita fue el puente para conectar con ellos, pero la calidad y el buen trato en las consultas médicas fue lo que más impacto al sector.",
+        "paragraph6": "Mientras los pacientes recibían tratamiento, también encontraban refugio en medio de la incertidumbre, gozo que nace de sentirse valorado por medio profesionales de la salud que han rendido suss vidas a Jesucristo.",
+        "paragraph7": "Llevamos ciencia con espíritu porque cuando el conocimiento profesional se encuentra con la fe, el servicio se convierte en un milagro."
     },
     "Doctors": {
         "pageTitle": "Nuestros Doctores",
@@ -424,12 +428,15 @@
     },
     "OutreachZumurucuare": {
         "badge": "Crónica de la Misión",
-        "title": "Alcance en Zumurucuare",
+        "title": "Balance estadístico de intervención médica y espiritual – Zumurucuare, Falcón",
         "date": "Mayo 2025",
-        "paragraph1": "Recientemente, realizamos una jornada de atención integral en el sector Zumurucuare de Coro, donde se desplegó un equipo multidisciplinario para llevar esperanza y bienestar a nuestra comunidad.",
-        "paragraph2": "Como parte del plan de la organización IKMA, nuestro propósito va más allá de la medicina; buscamos brindar atención integral fundamentada en los principios del Reino de Dios, ofreciendo cuidado y compasión a cada paciente que cruzó nuestras puertas.",
-        "paragraph3": "Gracias al arduo trabajo de médicos generales, especialistas en salud mental, fisioterapeutas, veterinarios, pediatras y voluntarios, pudimos atender a 222 personas con dedicación y excelencia.",
-        "thanks": "¡Gracias a cada profesional que se unió a este llamado al servicio. Seguimos adelante!"
+        "paragraph1": "En el sector Zumurucuare, en el estado Falcón, Venezuela, la International Kingdom Medical Association (IKMA) llevó a cabo una jornada médica integral que trascendió la atención convencional. No se trató solo de auscultar latidos, tomar la presión o entregar medicamentos; fue la manifestación viva de la compasión de Dios por medio de este proyecto global que une la excelencia científica con el poder transformador de Dios.",
+        "paragraph2": "Desde las primeras horas de la mañana, médicos, especialistas, veterinarios y voluntarios de la salud capacitados por la visión de IKMA convirtieron este rincón falconiano en un verdadero centro de restauración y servicio integral.",
+        "paragraph3": "En cada estación de consulta, los vecinos de Zumurucuare no solo encontraron diagnósticos certeros y atención para sus dolencias físicas; también hallaron escucha, dignidad, higiene, cuidado para sus mascotas y, sobre todo, fe en cada profesional de la salud.",
+        "paragraph4": "Gracias a la entrega del equipo multidisciplinario, se registraron un total de 222 atenciones directas distribuidas en las siguientes especialidades e intervenciones:",
+        "stats": "Peluquería (Servicio a la Comunidad) 32\nEnfermería (Toma de Peso y Talla) 37\nAtención Veterinaria (Mascotas) 25\nTerapia del Dolor 20\nPediatría 20\nMedicina Interna 15\nTraumatología 14\nCardiología 13\nIntercesión y Cobertura Espiritual 13\nGinecología 09\nPsicología 08\nNefrología 03\nCirugía 03",
+        "statsTotal": "TOTAL DE ATENCIONES: 222",
+        "paragraph5": "Lo ocurrido en esta comunidad de Venezuela es solo una muestra de lo que Dios está haciendo a través de la red global de IKMA en los tres continentes dónde estamos ubicados."
     },
     "NotFound": {
         "title": "404 — Página No Encontrada",

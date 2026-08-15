@@ -43,7 +43,7 @@ export default async function ZumurucuarePage() {
       <section className="py-section-padding bg-surface-bright">
         <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
           <div className="max-w-3xl mx-auto">
-            <div className="space-y-6 text-on-surface-variant">
+            <div className="space-y-6 text-on-surface-variant text-justify">
               <p className="font-body-lg text-body-lg leading-relaxed">
                 {t("paragraph1")}
               </p>
@@ -53,11 +53,29 @@ export default async function ZumurucuarePage() {
               <p className="font-body-lg text-body-lg leading-relaxed">
                 {t("paragraph3")}
               </p>
-              <div className="pt-6 border-t border-outline-variant">
-                <p className="font-body-lg text-body-lg text-primary font-semibold">
-                  {t("thanks")}
-                </p>
+              <p className="font-body-lg text-body-lg leading-relaxed">
+                {t("paragraph4")}
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8">
+                {[0, 1].map((col) => (
+                  <ul key={col} className="list-disc pl-6 space-y-1">
+                    {t("stats")
+                      .split("\n")
+                      .slice(col * 7, col * 7 + 7)
+                      .map((line) => (
+                        <li key={line} className="font-body-lg text-body-lg leading-relaxed">
+                          {line}
+                        </li>
+                      ))}
+                  </ul>
+                ))}
               </div>
+              <p className="font-body-lg text-body-lg font-semibold text-primary">
+                {t("statsTotal")}
+              </p>
+              <p className="font-body-lg text-body-lg leading-relaxed">
+                {t("paragraph5")}
+              </p>
             </div>
           </div>
         </div>
