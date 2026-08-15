@@ -30,8 +30,8 @@
     },
     "NewsletterCTA": {
         "eyebrow": "Boletín",
-        "title": "Historias de fe y sanidad, directo a tu correo",
-        "description": "Únete a nuestra lista y recibe la revista de IKMA, testimonios y novedades de la misión.",
+        "title": "Historias de fe y sanidad, directo a tu correo electrónico",
+        "description": "Únete a nuestra lista y recibe la revista de IKMA, testimonios y novedades de nuestra misión en las naciones.",
         "emailLabel": "Correo electrónico",
         "emailPlaceholder": "tu@correo.com",
         "subscribe": "Suscribirme",
@@ -218,11 +218,7 @@
         "pillarThreeItems_0": "Construir clínicas ambulatorias especializadas con profesionales de salud con mentalidad del Reino, ofreciendo soluciones de alta calidad a diversos problemas de salud con compasión y visión espiritual.",
         "pillarThreeItems_1": "Realizar campañas médicas combinando el alcance (social) esencial y el evangelismo, demostrando el amor de Dios a través de la acción.",
         "pillarThreeItems_2": "Organizar y empoderar comités regionales en países aliados.",
-        "pillarThreeItems_3": "Realizar investigaciones para descubrimientos médicos innovadores, guiados por el Espíritu Santo.",
-        "ctaTitle": "Sé parte de la transformación global",
-        "ctaDesc": "Tu apoyo nos permite brindar atención médica transformadora y ministerio espiritual a quienes más lo necesitan.",
-        "supportMission": "Apoya Nuestra Misión",
-        "readOurStory": "Lee Nuestra Historia"
+        "pillarThreeItems_3": "Realizar investigaciones para descubrimientos médicos innovadores, guiados por el Espíritu Santo."
     },
     "Outreach": {
         "heroBadge": "Nuestro Alcance",

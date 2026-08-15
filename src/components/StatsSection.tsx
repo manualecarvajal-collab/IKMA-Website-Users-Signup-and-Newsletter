@@ -195,10 +195,9 @@ export default function StatsSection() {
             <div className="absolute -top-10 -left-6 w-full h-full bg-gradient-to-tr from-[#5fa4e6]/10 to-[#114b7e]/10 blur-xl rounded-full transform rotate-12 pointer-events-none" />
             <div className="border-4 border-white shadow-xl relative aspect-[4/5] bg-slate-100 group overflow-hidden"
               style={{ borderRadius: "60% 30% 10% 10% / 30% 10% 10% 10%" }}>
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 via-transparent to-transparent z-10" />
               <img
-                src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&q=80&w=800"
-                alt="IKMA Medical Service"
+                src="/Dari.jpeg"
+                alt="Dari"
                 loading="lazy"
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                 onError={handleImgError}

@@ -49,7 +49,7 @@ export async function POST(req: Request) {
 
     const payload = {
       from,
-      to: "info@ikmaglobal.com",
+      to: "ikma@emmint.com",
       subject: `Website Contact: ${safeInquiryType} from ${safeFirstName} ${safeLastName}`,
       html: `
         <h2>New Contact Form Submission</h2>

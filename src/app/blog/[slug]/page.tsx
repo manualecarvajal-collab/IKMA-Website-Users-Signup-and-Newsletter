@@ -10,13 +10,23 @@ import Icon from "@/components/Icon"
 
 export const dynamic = "force-dynamic"
 
+const BASE = "https://lh3.googleusercontent.com/aida-public/"
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
   const article = await getArticle(slug)
   const t = await getTranslations("BlogDetail")
+  const coverUrl = article?.imagen_url
+    ? article.imagen_url.startsWith("http") ? article.imagen_url : BASE + article.imagen_url
+    : undefined
   return {
     title: article ? `${article.titulo} - IKMA Blog` : "IKMA Blog",
     description: article?.resumen ?? t("continueReading"),
+    ...(coverUrl && {
+      openGraph: {
+        images: [{ url: coverUrl, alt: article?.titulo ?? "IKMA Blog" }],
+      },
+    }),
   }
 }
 

@@ -4,7 +4,6 @@ import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { useTranslations } from "next-intl"
 import Icon from "@/components/Icon"
-import CopyButton from "@/components/CopyButton"
 import { getStripe } from "@/lib/stripe/client"
 import { submitMembership } from "@/lib/supabase/membresia-actions"
 import { countries, pricingMatrix, professionSubgroups, memberTypeLabels, paymentOptions } from "./data"
@@ -33,7 +32,6 @@ type FormData = {
   consentStatutory: boolean
   consentDataProcessing: boolean
   licenseFile: File | null
-  zelleEmail: string
 }
 
 const initialForm: FormData = {
@@ -61,7 +59,6 @@ const initialForm: FormData = {
   consentStatutory: false,
   consentDataProcessing: false,
   licenseFile: null,
-  zelleEmail: "",
 }
 
 export default function MembershipForm({
@@ -91,7 +88,6 @@ export default function MembershipForm({
     firstName: initialFirstName,
     lastName: initialLastName,
   })
-  const [paymentMethod, setPaymentMethod] = useState<string | null>("card")
   const [paymentOption, setPaymentOption] = useState<number>(1)
   const [fileChosen, setFileChosen] = useState(false)
   const [formP2Error, setFormP2Error] = useState<string | null>(null)
@@ -102,7 +98,6 @@ export default function MembershipForm({
   const checkoutRef = useRef<{ destroy: () => void } | null>(null)
   const mountedOptionRef = useRef(0)
   const mountedPriceRef = useRef(0)
-  const [zelleRef, setZelleRef] = useState("")
   const startingRef = useRef(false)
 
   useEffect(() => { window.scrollTo(0, 0) }, [step])
@@ -178,7 +173,7 @@ export default function MembershipForm({
     setStep(target)
   }
 
-  const submitFormData = async (metodoPago?: "card" | "zelle", referenciaZelle?: string) => {
+  const submitFormData = async (metodoPago?: "card") => {
     if (form.consentStatutory) {
       set("consentStatutory", form.consentStatutory)
     }
@@ -223,7 +218,6 @@ export default function MembershipForm({
       archivoLicenciaUrl,
       consentStatutory: form.consentStatutory,
       metodoPago,
-      referenciaZelle,
     })
 
     if (result?.error) {
@@ -286,7 +280,7 @@ export default function MembershipForm({
       checkoutMounted.current = false
       return
     }
-    if (price <= 0 || paymentMethod !== "card") return
+    if (price <= 0) return
     if (checkoutMounted.current && mountedOptionRef.current === paymentOption && mountedPriceRef.current === price) return
     if (startingRef.current) return
 
@@ -301,10 +295,10 @@ export default function MembershipForm({
       }
     })()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [step, paymentOption, price, paymentMethod])
+  }, [step, paymentOption, price])
 
   const handlePay = async () => {
-    if (paymentMethod === "card" && price > 0) {
+    if (price > 0) {
       await startCardCheckout(paymentOption, price)
       return
     }
@@ -312,18 +306,8 @@ export default function MembershipForm({
     setSubmitError(null)
 
     try {
-      if (paymentMethod === "zelle" && price > 0) {
-        const zelleEmail = form.zelleEmail.trim()
-        if (!zelleEmail) throw new Error("Please enter your Zelle sender email.")
-        if (!/^\S+@\S+\.\S+$/.test(zelleEmail)) throw new Error("Please enter a valid email address.")
-
-        await submitFormData("zelle", zelleEmail)
-        setStep(4)
-      } else {
-        if (price > 0) await submitFormData("card")
-        else await submitFormData()
-        setStep(4)
-      }
+      await submitFormData()
+      setStep(4)
     } catch (e) {
       setSubmitError(e instanceof Error ? e.message : "Something went wrong")
       setSubmitting(false)
@@ -1098,25 +1082,8 @@ export default function MembershipForm({
           <div className="lg:col-span-7 space-y-6">
             <h3 className="text-base font-bold text-on-surface">Select your preferred payment method</h3>
 
-            <div className="flex justify-center gap-2 mb-8">
-              {(["card", "zelle"] as const).map((id) => (
-                <button
-                  key={id}
-                  type="button"
-                  onClick={() => setPaymentMethod(id)}
-                  className={`px-6 py-2.5 rounded-full font-label-bold text-sm transition ${
-                    paymentMethod === id
-                      ? "bg-primary text-on-primary shadow"
-                      : "bg-surface-container-high text-on-surface-variant hover:bg-surface-container-high/70"
-                  }`}
-                >
-                  {id === "card" ? "Card" : "Zelle"}
-                </button>
-              ))}
-            </div>
-
-            <div className="grid">
-              <div className={`[grid-area:1/1] ${paymentMethod === "card" ? "" : "invisible"} text-center space-y-3 flex flex-col items-center justify-center py-4`}>
+            <div>
+              <div className="text-center space-y-3 flex flex-col items-center justify-center py-4">
                 {price > 0 ? (
                   <>
                     <img src="/mastercard_logo.jpg" alt="Mastercard" className="h-8 w-auto object-contain" />
@@ -1134,72 +1101,6 @@ export default function MembershipForm({
                   </div>
                 )}
                 <div className="w-full" id="membership-checkout" />
-              </div>
-
-              <div className={`[grid-area:1/1] ${paymentMethod === "zelle" ? "" : "invisible"} p-6 bg-purple-50 border border-purple-200 rounded-2xl space-y-4`}>
-                <div className="flex items-center gap-2 text-purple-800 font-bold">
-                  <img src="/Zelle_Logo.png" alt="Zelle" className="h-6 w-auto object-contain" />
-                  <h4>Transfer Instructions</h4>
-                </div>
-                <div className="flex flex-col sm:flex-row gap-4 items-start">
-                  <div className="w-44 shrink-0 mx-auto sm:mx-0 bg-white p-2 rounded-xl border border-purple-100">
-                    <img
-                      src="/zelle-qr.jpeg"
-                      alt="IKMA Zelle payment QR code"
-                      className="w-full h-auto rounded-lg"
-                    />
-                  </div>
-                  <div className="flex-1 min-w-0 space-y-3">
-                    <p className="text-xs text-on-surface-variant leading-relaxed">
-                      Scan the QR code or use the following official IKMA details to make your
-                      transfer:
-                    </p>
-                    <div className="bg-white p-3.5 rounded-xl border border-purple-100 text-xs font-mono space-y-1.5 text-on-surface">
-                      <div className="flex items-center justify-between gap-2">
-                        <span><strong>Recipient Email:</strong> ikma@emmint.com</span>
-                        <CopyButton value="ikma@emmint.com" />
-                      </div>
-                      <div className="flex items-center justify-between gap-2">
-                        <span><strong>Account Name:</strong> ikma lc</span>
-                        <CopyButton value="ikma lc" />
-                      </div>
-                      <div>
-                        <label htmlFor="zelle-memo" className="block text-sm font-semibold text-purple-900 mb-1.5">
-                          Reference / Memo
-                        </label>
-                        <div className="flex items-center gap-2">
-                          <input
-                            id="zelle-memo"
-                            type="text"
-                            placeholder="e.g. Juan Pérez (your first and last name)"
-                            value={zelleRef}
-                            onChange={(e) => setZelleRef(e.target.value)}
-                            className="w-full bg-white border border-purple-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-purple-400"
-                          />
-                          <CopyButton value={zelleRef} />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div>
-                  <label htmlFor="zelle-email" className="block text-sm font-semibold text-purple-900 mb-2">
-                    Your Zelle sender email (payment reference)
-                  </label>
-                  <input
-                    id="zelle-email"
-                    type="email"
-                    placeholder="e.g. yourname@email.com"
-                    value={form.zelleEmail}
-                    onChange={(e) => set("zelleEmail", e.target.value)}
-                    required
-                    className="w-full bg-white border border-purple-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-purple-400"
-                  />
-                  <p className="text-xs text-on-surface-variant mt-2 leading-relaxed">
-                    Enter the email linked to the Zelle account that will make the transfer. Our
-                    team will use it to verify your payment before approving your membership.
-                  </p>
-                </div>
               </div>
             </div>
 
@@ -1228,7 +1129,7 @@ export default function MembershipForm({
                   {submitting ? (
                     <>Processing…</>
                   ) : (
-                    <><Icon name="verified" size={16} /> {paymentMethod === "card" ? "Load Secure Payment" : "Submit Registration"}</>
+                    <><Icon name="verified" size={16} /> Load Secure Payment</>
                   )}
                 </button>
               )}

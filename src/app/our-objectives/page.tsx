@@ -196,27 +196,6 @@ export default async function OurObjectivesPage() {
           </div>
         </div>
       </section>
-
-      <section className="py-24 bg-primary text-white relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-64 h-64 bg-white/5 -translate-x-1/2 -translate-y-1/2 rounded-full" />
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-white/5 translate-x-1/3 translate-y-1/3 rounded-full" />
-        <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop text-center relative z-10">
-          <h2 className="font-headline-lg text-headline-lg md:text-5xl mb-10 leading-tight">
-            {t("ctaTitle")}
-          </h2>
-          <p className="font-body-lg text-body-lg text-white/80 max-w-2xl mx-auto mb-12">
-            {t("ctaDesc")}
-          </p>
-          <div className="flex flex-col sm:flex-row gap-6 justify-center">
-            <Link href="/donate" className="bg-white text-primary font-label-bold text-label-bold px-8 py-4 rounded-lg shadow-xl hover:bg-primary-fixed transition-all duration-300 cursor-pointer inline-block">
-              {t("supportMission")}
-            </Link>
-            <Link href="/outreach" className="border-2 border-white/40 text-white font-label-bold text-label-bold px-8 py-4 rounded-lg hover:bg-white hover:text-primary transition-all duration-300 cursor-pointer inline-block">
-              {t("readOurStory")}
-            </Link>
-          </div>
-        </div>
-      </section>
     </>
   )
 }
