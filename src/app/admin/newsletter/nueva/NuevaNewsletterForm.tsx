@@ -2,35 +2,26 @@
 
 import { useActionState, useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
+import { useTranslations } from "next-intl"
 import { sendNewsletter } from "@/lib/supabase/admin-actions"
 import { buildNewsletterHtml } from "@/lib/email-template"
 import TiptapEditor from "@/components/TiptapEditor"
 import Icon from "@/components/Icon"
 import RecipientsConfirmModal, { type Subscriber } from "@/components/RecipientsConfirmModal"
 
-export default function EditNewsletterForm({
-  id,
-  titulo: initialTitulo,
-  contenido_html: initialContenido,
-  imagen_url: initialImagen,
-  subscribers,
-}: {
-  id: string
-  titulo: string
-  contenido_html: string
-  imagen_url: string
-  subscribers: Subscriber[]
-}) {
+export default function NuevaNewsletterForm({ subscribers }: { subscribers: Subscriber[] }) {
+  const t = useTranslations("Admin")
   const router = useRouter()
   const [state, action, pending] = useActionState(sendNewsletter, undefined)
-  const [titulo, setTitulo] = useState(initialTitulo)
-  const [contenido, setContenido] = useState(initialContenido)
-  const [imagenUrl, setImagenUrl] = useState(initialImagen)
+  const [titulo, setTitulo] = useState("")
+  const [contenido, setContenido] = useState("")
+  const [imagenUrl, setImagenUrl] = useState("")
   const [previewHtml, setPreviewHtml] = useState("")
   const [showPreview, setShowPreview] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
   const formRef = useRef<HTMLFormElement>(null)
 
+  // Build preview HTML whenever content changes
   useEffect(() => {
     setPreviewHtml(
       buildNewsletterHtml({
@@ -65,13 +56,13 @@ export default function EditNewsletterForm({
     return (
       <div className="p-6 md:p-8 max-w-5xl mx-auto text-center py-24">
         <Icon name="check_circle" size={60} className="text-primary mb-4" />
-        <h2 className="font-headline-lg text-headline-lg text-primary mb-2">Newsletter Sent!</h2>
+        <h2 className="font-headline-lg text-headline-lg text-primary mb-2">{t("newsletterSent")}</h2>
         <p className="font-body-md text-body-md text-on-surface-variant mb-8">{state.success}</p>
         <button
           onClick={() => router.push("/admin/newsletter")}
           className="bg-primary text-on-primary font-label-bold text-label-bold px-6 py-2.5 rounded-lg hover:bg-primary/90 transition-all cursor-pointer"
         >
-          Back to Newsletter
+          {t("backToNewsletter")}
         </button>
       </div>
     )
@@ -80,25 +71,20 @@ export default function EditNewsletterForm({
   return (
     <div className="p-6 md:p-8 max-w-6xl mx-auto">
       <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="font-headline-lg text-headline-lg text-primary">Edit & Re-send</h1>
-          <p className="font-body-md text-body-md text-on-surface-variant mt-1">
-            Modify and send this newsletter again to your subscribers.
-          </p>
-        </div>
+        <h1 className="font-headline-lg text-headline-lg text-primary">{t("newNewsletter")}</h1>
         <button
           onClick={() => setShowPreview(!showPreview)}
           className="flex items-center gap-2 border border-outline-variant text-on-surface font-label-bold text-label-bold px-4 py-2 rounded-lg hover:bg-surface-container transition-all cursor-pointer"
         >
           <Icon name={showPreview ? "edit" : "visibility"} size={18} />
-          {showPreview ? "Edit" : "Preview"}
+          {showPreview ? t("edit") : t("preview")}
         </button>
       </div>
 
       {showPreview ? (
         <div className="bg-surface rounded-xl border border-outline-variant/20 overflow-hidden">
           <div className="p-4 bg-surface-container-low border-b border-outline-variant/20">
-            <span className="font-label-bold text-label-bold text-on-surface-variant">Email Preview</span>
+            <span className="font-label-bold text-label-bold text-on-surface-variant">{t("emailPreview")}</span>
           </div>
           <iframe
             srcDoc={previewHtml}
@@ -111,13 +97,14 @@ export default function EditNewsletterForm({
           <div className="bg-surface rounded-xl p-6 border border-outline-variant/20 space-y-6">
             <div>
               <label className="block font-label-bold text-label-bold text-on-surface mb-2" htmlFor="titulo">
-                Title
+                {t("newsletterTitle")}
               </label>
               <input
                 className="w-full rounded-md bg-surface border border-outline-variant text-on-surface py-3 px-4 focus:border-primary focus:ring-0 transition-colors"
                 id="titulo"
                 name="titulo"
                 type="text"
+                placeholder="Newsletter title"
                 required
                 value={titulo}
                 onChange={(e) => setTitulo(e.target.value)}
@@ -126,7 +113,7 @@ export default function EditNewsletterForm({
 
             <div>
               <label className="block font-label-bold text-label-bold text-on-surface mb-2">
-                Banner Image (optional)
+                {t("bannerImage")}
               </label>
               <button
                 type="button"
@@ -145,7 +132,7 @@ export default function EditNewsletterForm({
                 className="flex items-center gap-2 border border-outline-variant text-on-surface-variant font-body-md text-body-md px-4 py-2.5 rounded-lg hover:bg-surface-container transition-all cursor-pointer"
               >
                 <Icon name="add_photo_alternate" size={18} />
-                {imagenUrl ? "Change Image" : "Add Image"}
+                {imagenUrl ? t("changeImage") : t("addImage")}
               </button>
               {imagenUrl && (
                 <div className="mt-3 relative inline-block">
@@ -164,7 +151,7 @@ export default function EditNewsletterForm({
 
             <div>
               <label className="block font-label-bold text-label-bold text-on-surface mb-2">
-                Content
+                {t("content")}
               </label>
               <TiptapEditor
                 content={contenido}
@@ -185,7 +172,7 @@ export default function EditNewsletterForm({
             onClick={() => setShowConfirm(true)}
             className="w-full bg-primary text-on-primary font-label-bold text-label-bold py-3.5 rounded-lg hover:bg-primary/90 transition-all disabled:opacity-50 cursor-pointer"
           >
-            {pending ? "Sending..." : "Send to Subscribers"}
+            {t("sendToSubscribers")}
           </button>
         </form>
       )}

@@ -142,7 +142,7 @@ export default async function BlogPage() {
                       href="/membresia"
                       className="flex flex-col bg-white rounded-lg overflow-hidden shadow-sm min-h-[280px]"
                     >
-                      <img src={locale === "es" ? "/ads/ad_2_es.png" : "/ads/ad_2_en.png"} alt="" loading="lazy" className="w-full h-full object-cover" />
+                      <img src={locale === "es" ? "/ads/ad_2_español.png" : "/ads/ad_2_ingles.png"} alt="" loading="lazy" className="w-full h-full object-cover" />
                     </Link>
                   ) : (
                     <Link

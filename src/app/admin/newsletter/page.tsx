@@ -4,6 +4,8 @@ import Link from "next/link"
 import Icon from "@/components/Icon"
 import { getTranslations } from "next-intl/server"
 
+export const dynamic = "force-dynamic"
+
 export default async function NewsletterPage() {
   const t = await getTranslations("Admin")
   const newsletters = await getNewsletters()

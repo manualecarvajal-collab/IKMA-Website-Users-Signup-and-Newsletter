@@ -5,6 +5,7 @@ import { login } from "@/lib/supabase/actions"
 import { createBrowserClient } from "@supabase/ssr"
 import { useTranslations } from "next-intl"
 import Link from "next/link"
+import PasswordInput from "@/components/PasswordInput"
 
 export default function LoginPage() {
   const t = useTranslations("Login")
@@ -108,11 +109,9 @@ export default function LoginPage() {
               <label className="block font-label-bold text-label-bold text-on-surface mb-2" htmlFor="password">
                 {t("password")}
               </label>
-              <input
-                className="w-full rounded-md bg-surface border border-outline-variant text-on-surface py-3 px-4 focus:border-primary focus:ring-0 transition-colors"
+              <PasswordInput
                 id="password"
                 name="password"
-                type="password"
                 placeholder={t("passwordPlaceholder")}
                 required
               />

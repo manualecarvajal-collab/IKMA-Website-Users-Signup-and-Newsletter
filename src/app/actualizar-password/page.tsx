@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation"
 import { useTranslations } from "next-intl"
 import Link from "next/link"
 import Icon from "@/components/Icon"
+import PasswordInput from "@/components/PasswordInput"
 
 type OtpType = "signup" | "invite" | "magiclink" | "recovery" | "email_change" | "email"
 
@@ -136,11 +137,9 @@ export default function ActualizarPasswordPage() {
               <label className="block font-label-bold text-label-bold text-on-surface mb-2" htmlFor="password">
                 {t("newPassword")}
               </label>
-              <input
-                className="w-full rounded-md bg-surface border border-outline-variant text-on-surface py-3 px-4 focus:border-primary focus:ring-0 transition-colors"
+              <PasswordInput
                 id="password"
                 name="password"
-                type="password"
                 placeholder={t("newPasswordPlaceholder")}
                 required
                 minLength={8}
@@ -152,13 +151,10 @@ export default function ActualizarPasswordPage() {
               <label className="block font-label-bold text-label-bold text-on-surface mb-2" htmlFor="confirm-password">
                 {t("confirmPassword")}
               </label>
-              <input
-                className={`w-full rounded-md bg-surface border text-on-surface py-3 px-4 focus:ring-0 transition-colors ${
-                  mismatch ? "border-error" : "border-outline-variant focus:border-primary"
-                }`}
+              <PasswordInput
+                className={`${mismatch ? "border-error" : "border-outline-variant focus:border-primary"}`}
                 id="confirm-password"
                 name="confirm-password"
-                type="password"
                 placeholder={t("confirmPasswordPlaceholder")}
                 required
                 value={confirmPassword}

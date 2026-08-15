@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl"
 import Link from "next/link"
 import { updateProfileName, updateProfileEmail, updateProfilePassword } from "@/lib/supabase/profile-actions"
 import { createClient } from "@/lib/supabase/client"
+import PasswordInput from "@/components/PasswordInput"
 
 type ActionState = { error?: string; success?: string } | undefined
 
@@ -104,11 +105,9 @@ export default function PerfilForms({ initialNombre, email }: { initialNombre: s
             <label className="block font-label-bold text-label-bold text-on-surface mb-2" htmlFor="current-password">
               {t("currentPassword")}
             </label>
-            <input
-              className="w-full rounded-md bg-surface border border-outline-variant text-on-surface py-3 px-4 focus:border-primary focus:ring-0 transition-colors"
+            <PasswordInput
               id="current-password"
               name="current_password"
-              type="password"
               autoComplete="current-password"
               required
             />
@@ -117,11 +116,9 @@ export default function PerfilForms({ initialNombre, email }: { initialNombre: s
             <label className="block font-label-bold text-label-bold text-on-surface mb-2" htmlFor="password">
               {t("newPassword")}
             </label>
-            <input
-              className="w-full rounded-md bg-surface border border-outline-variant text-on-surface py-3 px-4 focus:border-primary focus:ring-0 transition-colors"
+            <PasswordInput
               id="password"
               name="password"
-              type="password"
               required
               minLength={8}
               onChange={() => setMismatch(false)}
@@ -131,13 +128,10 @@ export default function PerfilForms({ initialNombre, email }: { initialNombre: s
             <label className="block font-label-bold text-label-bold text-on-surface mb-2" htmlFor="confirm-password">
               {t("confirmPassword")}
             </label>
-            <input
-              className={`w-full rounded-md bg-surface border text-on-surface py-3 px-4 focus:ring-0 transition-colors ${
-                mismatch ? "border-error" : "border-outline-variant focus:border-primary"
-              }`}
+            <PasswordInput
+              className={`${mismatch ? "border-error" : "border-outline-variant focus:border-primary"}`}
               id="confirm-password"
               name="confirm-password"
-              type="password"
               required
               value={confirmPassword}
               onChange={(e) => {

@@ -128,7 +128,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
             <div className="sticky top-28 space-y-6">
               {/* Ad Space */}
               <Link href="/membresia" className="block w-full h-64 rounded-xl overflow-hidden bg-surface-container-high/30">
-                <img src={locale === "es" ? "/ads/ad_3_es.png" : "/ads/ad_3_en.png"} alt="" loading="lazy" className="w-full h-full object-cover" />
+                <img src={locale === "es" ? "/ads/ad_3_español.png" : "/ads/ad_3_ingles.png"} alt="" loading="lazy" className="w-full h-full object-cover" />
               </Link>
 
               {magazines && magazines.length > 0 && (

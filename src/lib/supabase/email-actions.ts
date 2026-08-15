@@ -40,12 +40,14 @@ export async function updateEmailConfig(formData: FormData) {
 export async function getSubscribersWithEmails() {
   await checkAdmin()
   const admin = await createAdminClient()
-  const { data: suscriptores } = await admin
+  let suscriptores = (await admin
     .from("perfiles")
     .select("id, nombre_completo")
-    .eq("suscripcion_activa", true)
+    .eq("suscripcion_activa", true)).data ?? []
 
-  if (!suscriptores?.length) return []
+  if (!suscriptores.length) return []
+
+  suscriptores = await mergeFreeMembers(admin, suscriptores)
 
   const { data: users } = await admin.auth.admin.listUsers()
   const userMap = new Map(
@@ -503,6 +505,7 @@ export async function sendNewsletter(
 
   const config = await getEmailConfig()
   let sent = 0
+  const sentEmails: string[] = []
 
   if (process.env.RESEND_API_KEY) {
     for (const { email, nombre } of recipients) {
@@ -519,7 +522,10 @@ export async function sendNewsletter(
           email,
         })
       )
-      if (resp.ok) sent++
+      if (resp.ok) {
+        sent++
+        sentEmails.push(email)
+      }
     }
   }
 
@@ -530,6 +536,7 @@ export async function sendNewsletter(
     imagen_url: imagen_url || null,
     enviado_por: user.id,
     destinatarios: sent,
+    destinatarios_emails: sentEmails,
   })
 
   // Log activity
