@@ -14,6 +14,7 @@ import LocaleSwitch from "@/components/LocaleSwitch"
 import VisitorTracker from "@/components/VisitorTracker"
 import IncompleteRegistrationBanner from "@/components/IncompleteRegistrationBanner"
 import { createClient } from "@/lib/supabase/server"
+import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 
 const montserrat = Montserrat({
@@ -131,6 +132,7 @@ export default async function RootLayout({
           <LocaleSwitch />
         </NextIntlClientProvider>
         <SpeedInsights />
+        <Analytics />
         <VisitorTracker />
       </body>
     </html>
