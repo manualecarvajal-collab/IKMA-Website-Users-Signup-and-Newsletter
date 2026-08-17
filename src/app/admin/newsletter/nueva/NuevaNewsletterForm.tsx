@@ -1,15 +1,16 @@
 "use client"
 
-import { useActionState, useState, useEffect, useRef } from "react"
+import { useActionState, useState, useEffect, useRef, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { useTranslations } from "next-intl"
 import { sendNewsletter } from "@/lib/supabase/admin-actions"
 import { buildNewsletterHtml } from "@/lib/email-template"
 import TiptapEditor from "@/components/TiptapEditor"
 import Icon from "@/components/Icon"
-import RecipientsConfirmModal, { type Subscriber } from "@/components/RecipientsConfirmModal"
+import RecipientsConfirmModal from "@/components/RecipientsConfirmModal"
+import { AUDIENCE_OPTIONS, filterByAudiences, type Audience, type Recipient } from "@/lib/newsletter-audiences"
 
-export default function NuevaNewsletterForm({ subscribers }: { subscribers: Subscriber[] }) {
+export default function NuevaNewsletterForm({ recipients }: { recipients: Recipient[] }) {
   const t = useTranslations("Admin")
   const router = useRouter()
   const [state, action, pending] = useActionState(sendNewsletter, undefined)
@@ -19,7 +20,19 @@ export default function NuevaNewsletterForm({ subscribers }: { subscribers: Subs
   const [previewHtml, setPreviewHtml] = useState("")
   const [showPreview, setShowPreview] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
+  const [audiencias, setAudiencias] = useState<Audience[]>(["registrados"])
   const formRef = useRef<HTMLFormElement>(null)
+
+  const filteredRecipients = useMemo(
+    () => filterByAudiences(recipients, audiencias),
+    [recipients, audiencias]
+  )
+
+  const toggleAudiencia = (a: Audience) => {
+    setAudiencias((prev) =>
+      prev.includes(a) ? prev.filter((x) => x !== a) : [...prev, a]
+    )
+  }
 
   // Build preview HTML whenever content changes
   useEffect(() => {
@@ -162,13 +175,41 @@ export default function NuevaNewsletterForm({ subscribers }: { subscribers: Subs
             </div>
           </div>
 
+          <div className="bg-surface rounded-xl p-6 border border-outline-variant/20 space-y-4">
+            <div>
+              <span className="block font-label-bold text-label-bold text-on-surface mb-3">
+                {t("audienciaTitle")}
+              </span>
+              <div className="flex flex-wrap gap-3">
+                {AUDIENCE_OPTIONS.map((opt) => (
+                  <label
+                    key={opt.value}
+                    className="flex items-center gap-2 px-4 py-2.5 rounded-lg border border-outline-variant/30 bg-surface-container-lowest cursor-pointer hover:border-primary/40 transition-colors select-none"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={audiencias.includes(opt.value)}
+                      onChange={() => toggleAudiencia(opt.value)}
+                      className="accent-primary h-4 w-4 cursor-pointer"
+                    />
+                    <span className="font-body-md text-body-md text-on-surface">{t(opt.labelKey)}</span>
+                  </label>
+                ))}
+              </div>
+              <p className="mt-3 font-body-md text-body-md text-on-surface-variant">
+                {t("audienciaCount", { count: filteredRecipients.length })}
+              </p>
+              <input type="hidden" name="audiencias" value={audiencias.join(",")} />
+            </div>
+          </div>
+
           {state?.error && (
             <p className="font-body-md text-body-md text-error bg-error-container/20 rounded-md px-4 py-3">{state.error}</p>
           )}
 
           <button
             type="button"
-            disabled={pending}
+            disabled={pending || filteredRecipients.length === 0}
             onClick={() => setShowConfirm(true)}
             className="w-full bg-primary text-on-primary font-label-bold text-label-bold py-3.5 rounded-lg hover:bg-primary/90 transition-all disabled:opacity-50 cursor-pointer"
           >
@@ -179,7 +220,7 @@ export default function NuevaNewsletterForm({ subscribers }: { subscribers: Subs
 
       {showConfirm && (
         <RecipientsConfirmModal
-          subscribers={subscribers}
+          subscribers={filteredRecipients}
           pending={pending}
           onClose={() => setShowConfirm(false)}
           onConfirm={() => {

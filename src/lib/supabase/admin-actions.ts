@@ -25,6 +25,7 @@ export {
   getEmailConfig,
   updateEmailConfig,
   getSubscribersWithEmails,
+  getAllRecipients,
   sendMagazineToEmail,
   sendMagazineToSubscribers,
   sendNewsletter,

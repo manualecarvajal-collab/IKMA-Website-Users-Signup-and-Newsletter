@@ -1,14 +1,14 @@
-import { getSubscribersWithEmails } from "@/lib/supabase/admin-actions"
+import { getAllRecipients } from "@/lib/supabase/admin-actions"
 import NuevaNewsletterForm from "./NuevaNewsletterForm"
 
 export const dynamic = "force-dynamic"
 
 export default async function NuevaNewsletterPage() {
-  const subscribers = await getSubscribersWithEmails()
+  const recipients = await getAllRecipients()
 
   return (
     <>
-      <NuevaNewsletterForm subscribers={subscribers} />
+      <NuevaNewsletterForm recipients={recipients} />
     </>
   )
 }

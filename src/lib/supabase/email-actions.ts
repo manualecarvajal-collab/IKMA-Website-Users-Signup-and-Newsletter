@@ -5,6 +5,7 @@ import { checkAdmin, registrarActividad } from "@/lib/supabase/admin-helpers"
 import { createClient, createAdminClient } from "@/lib/supabase/server"
 import { buildMagazineHtml, buildMembershipDecisionHtml, buildMembershipMessageHtml, buildMembershipProcessingHtml, buildNewsletterHtml, buildPaymentConfirmedHtml, buildStudentWelcomeHtml } from "@/lib/email-template"
 import { esMembresiaGratis, mergeFreeMembers } from "@/lib/supabase/free-membership"
+import { filterByAudiences, type Audience, type Recipient } from "@/lib/newsletter-audiences"
 
 // ─── EMAIL CONFIG ────────────────────────────────────────
 
@@ -61,6 +62,44 @@ export async function getSubscribersWithEmails() {
       email: userMap.get(s.id) || "",
     }))
     .filter((s) => !!s.email)
+}
+
+// All registered users (with email, not opted out), tagged with their latest
+// membership application type so the newsletter forms can filter by audience.
+export async function getAllRecipients(): Promise<Recipient[]> {
+  await checkAdmin()
+  const admin = await createAdminClient()
+
+  const { data: perfiles } = await admin
+    .from("perfiles")
+    .select("id, nombre_completo, newsletter_optout")
+  const perfilMap = new Map((perfiles ?? []).map((p) => [p.id, p]))
+
+  const { data: solicitudes } = await admin
+    .from("solicitudes_membresia")
+    .select("usuario_id, tipo_miembro")
+    .order("created_at", { ascending: true })
+  const tipoMap = new Map<string, number | null>()
+  for (const s of solicitudes ?? []) tipoMap.set(s.usuario_id, s.tipo_miembro)
+
+  const { data: users } = await admin.auth.admin.listUsers()
+  return (users?.users ?? [])
+    .filter((u) => !!u.email && !perfilMap.get(u.id)?.newsletter_optout)
+    .map((u) => {
+      const perfil = perfilMap.get(u.id)
+      const meta = u.user_metadata as Record<string, unknown> | undefined
+      return {
+        id: u.id,
+        nombre:
+          perfil?.nombre_completo ||
+          (meta?.nombre_completo as string) ||
+          (meta?.full_name as string) ||
+          (meta?.name as string) ||
+          u.email!.split("@")[0],
+        email: u.email as string,
+        tipo_miembro: tipoMap.get(u.id) ?? null,
+      }
+    })
 }
 
 // ─── SEND MAGAZINE ───────────────────────────────────────
@@ -477,31 +516,49 @@ export async function sendNewsletter(
   const titulo = formData.get("titulo") as string
   const contenido_html = formData.get("contenido_html") as string
   const imagen_url = formData.get("imagen_url") as string
+  const audiencias = (formData.get("audiencias") as string)
+    ?.split(",")
+    .filter(Boolean) as Audience[] | undefined
 
   if (!titulo || !contenido_html) return { error: "Title and content are required" }
+  if (!audiencias || audiencias.length === 0) return { error: "Select at least one recipient group" }
 
   const admin = await createAdminClient()
 
-  const suscriptores = await mergeFreeMembers(admin, (await admin
+  const { data: perfiles } = await admin
     .from("perfiles")
-    .select("id, nombre_completo")
-    .eq("suscripcion_activa", true)).data ?? [])
+    .select("id, nombre_completo, newsletter_optout")
+  const perfilMap = new Map((perfiles ?? []).map((p) => [p.id, p]))
 
-  if (!suscriptores?.length) return { error: "No active subscribers" }
+  const { data: solicitudes } = await admin
+    .from("solicitudes_membresia")
+    .select("usuario_id, tipo_miembro")
+    .order("created_at", { ascending: true })
+  const tipoMap = new Map<string, number | null>()
+  for (const s of solicitudes ?? []) tipoMap.set(s.usuario_id, s.tipo_miembro)
 
   const { data: users } = await admin.auth.admin.listUsers()
-  const userMap = new Map(
-    (users?.users ?? []).map((u) => [u.id, u.email ?? ""])
-  )
+  const allRecipients: Recipient[] = (users?.users ?? [])
+    .filter((u) => !!u.email && !perfilMap.get(u.id)?.newsletter_optout)
+    .map((u) => {
+      const perfil = perfilMap.get(u.id)
+      const meta = u.user_metadata as Record<string, unknown> | undefined
+      return {
+        id: u.id,
+        nombre:
+          perfil?.nombre_completo ||
+          (meta?.nombre_completo as string) ||
+          (meta?.full_name as string) ||
+          (meta?.name as string) ||
+          u.email!.split("@")[0],
+        email: u.email as string,
+        tipo_miembro: tipoMap.get(u.id) ?? null,
+      }
+    })
 
-  const recipients = suscriptores
-    .map((s) => ({
-      email: userMap.get(s.id) || "",
-      nombre: s.nombre_completo,
-    }))
-    .filter((r): r is { email: string; nombre: string } => !!r.email)
+  const recipients = filterByAudiences(allRecipients, audiencias)
 
-  if (!recipients.length) return { error: "No recipients with emails" }
+  if (!recipients.length) return { error: "No recipients match the selected groups" }
 
   const config = await getEmailConfig()
   let sent = 0
@@ -543,13 +600,13 @@ export async function sendNewsletter(
   await admin.from("actividad_admin").insert({
     usuario_id: user.id,
     tipo: "newsletter_enviado",
-    descripcion: `Newsletter "${titulo}" sent to ${sent} of ${recipients.length} subscribers`,
+    descripcion: `Newsletter "${titulo}" sent to ${sent} of ${recipients.length} recipients`,
     ref_tabla: "newsletters",
     ref_id: titulo,
   })
 
   revalidatePath("/admin/newsletter")
-  return { success: `Newsletter sent to ${sent} of ${recipients.length} subscribers` }
+  return { success: `Newsletter sent to ${sent} of ${recipients.length} recipients` }
 }
 
 export async function getNewsletters() {

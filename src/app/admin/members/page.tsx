@@ -1,26 +1,6 @@
-import Link from "next/link"
 import { getTranslations } from "next-intl/server"
 import { createAdminClient } from "@/lib/supabase/server"
-import { deleteMembership } from "@/lib/supabase/admin-actions"
-import { DeleteButton } from "@/components/DeleteButton"
-import Icon from "@/components/Icon"
-import MemberStatusSelect from "./MemberStatusSelect"
-import MemberActions from "./MemberActions"
-
-const statusColors: Record<string, string> = {
-  pendiente: "bg-amber-100 text-amber-800",
-  aprobada: "bg-green-100 text-green-800",
-  rechazada: "bg-red-100 text-red-800",
-  pagada: "bg-blue-100 text-blue-800",
-  incompleta: "bg-orange-100 text-orange-800",
-}
-
-const memberLabels: Record<number, string> = {
-  1: "Licensed Health Professional",
-  2: "Resident (Post-graduate)",
-  3: "Student",
-  4: "Associate (Non-health)",
-}
+import MemberListTable from "./MemberListTable"
 
 export default async function AdminMembersPage() {
   const t = await getTranslations("Admin")
@@ -48,82 +28,10 @@ export default async function AdminMembersPage() {
         </div>
       </div>
 
-      <div className="bg-surface-container-lowest rounded-xl border border-outline-variant/10 overflow-hidden">
-        <table className="w-full">
-          <thead>
-            <tr className="bg-surface-container-low border-b border-outline-variant/20">
-              <th className="text-left font-label-bold text-label-sm text-on-surface-variant uppercase tracking-wider px-6 py-4">Name</th>
-              <th className="text-left font-label-bold text-label-sm text-on-surface-variant uppercase tracking-wider px-6 py-4 hidden md:table-cell">Type</th>
-              <th className="text-left font-label-bold text-label-sm text-on-surface-variant uppercase tracking-wider px-6 py-4 hidden lg:table-cell">Region</th>
-              <th className="text-left font-label-bold text-label-sm text-on-surface-variant uppercase tracking-wider px-6 py-4">Status</th>
-              <th className="text-left font-label-bold text-label-sm text-on-surface-variant uppercase tracking-wider px-6 py-4 hidden sm:table-cell">Date</th>
-              <th className="text-right font-label-bold text-label-sm text-on-surface-variant uppercase tracking-wider px-6 py-4">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {(!solicitudes || solicitudes.length === 0) && (
-              <tr>
-                <td colSpan={6} className="px-6 py-12 text-center font-body-md text-body-md text-on-surface-variant">
-                  No membership applications yet.
-                </td>
-              </tr>
-            )}
-            {solicitudes?.map((s) => (
-              <tr key={s.id} className="border-b border-outline-variant/10 hover:bg-surface-container-low/50 transition-colors">
-                <td className="px-6 py-4">
-                  <Link href={`/admin/members/${s.id}`} className="font-body-md text-body-md text-primary hover:underline notranslate">
-                    {nombreMap.get(s.usuario_id) || "Unknown"}
-                  </Link>
-                </td>
-                <td className="px-6 py-4 hidden md:table-cell">
-                  <span className="text-sm text-on-surface">{memberLabels[s.tipo_miembro] || `Type ${s.tipo_miembro}`}</span>
-                </td>
-                <td className="px-6 py-4 hidden lg:table-cell">
-                  <span className="text-sm text-on-surface-variant notranslate">{s.region} — {s.pais}</span>
-                </td>
-                <td className="px-6 py-4">
-                  {s.tipo_miembro === 3 ? (
-                    <MemberStatusSelect solicitudId={s.id} estado={s.estado} />
-                  ) : (
-                    <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold ${statusColors[s.estado] || "bg-surface-container-high text-on-surface-variant"}`}>
-                      {t(`memberStatuses.${s.estado}`) || s.estado}
-                    </span>
-                  )}
-                  {s.estado === "incompleta" && (
-                    <span className="ml-2 inline-block px-2.5 py-1 rounded-full text-xs font-semibold bg-orange-200/60 text-orange-900 border border-orange-300" title="This applicant never completed the payment step">
-                      No payment
-                    </span>
-                  )}
-                  {s.metodo_pago === "zelle" && (
-                    <span className="ml-2 inline-block px-2.5 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-800" title="Paid via Zelle">
-                      Zelle
-                    </span>
-                  )}
-                </td>
-                <td className="px-6 py-4 hidden sm:table-cell">
-                  <span className="text-sm text-on-surface-variant">
-                    {new Date(s.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-                  </span>
-                </td>
-                <td className="px-6 py-4 text-right">
-                  <div className="flex items-center justify-end gap-2">
-                    {["pendiente", "pagada", "incompleta"].includes(s.estado) && s.tipo_miembro !== 3 && (
-                      <MemberActions solicitudId={s.id} estado={s.estado} />
-                    )}
-                    <Link href={`/admin/members/${s.id}/email`} className="text-primary hover:text-primary-fixed-dim p-1.5" title="Email">
-                      <Icon name="mail" size={18} />
-                    </Link>
-                    <Link href={`/admin/members/${s.id}`} className="text-primary hover:text-primary-fixed-dim p-1.5" title="View">
-                      <Icon name="visibility" size={18} />
-                    </Link>
-                    <DeleteButton action={deleteMembership.bind(null, s.id)} label="Application" />
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <MemberListTable
+        solicitudes={solicitudes ?? []}
+        nombreMap={Object.fromEntries(nombreMap)}
+      />
     </div>
   )
 }

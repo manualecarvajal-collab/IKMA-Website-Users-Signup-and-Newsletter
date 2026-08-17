@@ -36,9 +36,18 @@ export async function getAllUsers() {
       // leave an application behind after submitting).
       const membresia = membresiaMap.get(u.id)
       const sinPago = !perfil || !perfil.suscripcion_activa
+      const meta = u.user_metadata as Record<string, unknown> | undefined
       return {
         id: u.id,
-        nombre_completo: perfil?.nombre_completo || (u.user_metadata?.nombre_completo as string) || "",
+        // Google OAuth stores the name as full_name/name, not nombre_completo.
+        // Last resort: derive a placeholder from the email local part.
+        nombre_completo:
+          perfil?.nombre_completo ||
+          (meta?.nombre_completo as string) ||
+          (meta?.full_name as string) ||
+          (meta?.name as string) ||
+          u.email?.split("@")[0] ||
+          "",
         email: u.email || "No email",
         membresia: membresia ?? (sinPago ? { tipo_miembro: null, estado: "incompleta" } : null),
         rol: perfil?.rol || "lector",

@@ -1,4 +1,4 @@
-import { getNewsletter, getSubscribersWithEmails } from "@/lib/supabase/admin-actions"
+import { getNewsletter, getAllRecipients } from "@/lib/supabase/admin-actions"
 import EditNewsletterForm from "./form"
 
 export const dynamic = "force-dynamic"
@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic"
 export default async function EditarNewsletterPage(props: { params: Promise<{ id: string }> }) {
   const { id } = await props.params
   const newsletter = await getNewsletter(id)
-  const subscribers = await getSubscribersWithEmails()
+  const recipients = await getAllRecipients()
 
   if (!newsletter) {
     return (
@@ -23,7 +23,7 @@ export default async function EditarNewsletterPage(props: { params: Promise<{ id
       titulo={newsletter.titulo}
       contenido_html={newsletter.contenido_html}
       imagen_url={newsletter.imagen_url || ""}
-      subscribers={subscribers}
+      subscribers={recipients}
     />
   )
 }

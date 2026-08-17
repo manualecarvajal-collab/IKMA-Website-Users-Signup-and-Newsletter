@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { showToast } from "./Toast"
 import { deleteUser } from "@/lib/supabase/admin-actions"
 import Icon from "@/components/Icon"
@@ -19,6 +19,17 @@ interface User {
   rol: string
   created_at: string
 }
+
+type Filter = "all" | "1" | "2" | "3" | "4" | "incompleta"
+
+const FILTERS: { value: Filter; label: string }[] = [
+  { value: "all", label: "All" },
+  { value: "3", label: "Students" },
+  { value: "2", label: "Residents" },
+  { value: "1", label: "Licensed Health Pros" },
+  { value: "4", label: "Non-health Pros" },
+  { value: "incompleta", label: "Incomplete Registration" },
+]
 
 const memberLabels: Record<number, string> = {
   1: "Licensed Health Professional",
@@ -66,6 +77,23 @@ function membershipBadge(m: Membership | null) {
 
 export default function UserManagementTable({ initialUsers }: { initialUsers: User[] }) {
   const [users, setUsers] = useState<User[]>(initialUsers)
+  const [filter, setFilter] = useState<Filter>("all")
+  const [asc, setAsc] = useState(false)
+
+  const filtered = useMemo(() => {
+    const list = users.filter((u) =>
+      filter === "all"
+        ? true
+        : filter === "incompleta"
+          ? u.membresia?.estado === "incompleta"
+          : u.membresia?.tipo_miembro === Number(filter)
+    )
+    return [...list].sort((a, b) =>
+      asc
+        ? new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+        : new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    )
+  }, [users, filter, asc])
 
   const handleDelete = async (userId: string, name: string) => {
     if (!confirm(`Are you sure you want to PERMANENTLY delete user "${name}"? This action cannot be undone.`)) return
@@ -81,6 +109,32 @@ export default function UserManagementTable({ initialUsers }: { initialUsers: Us
 
   return (
     <div className="space-y-4">
+      <div className="flex flex-wrap items-center gap-2">
+        {FILTERS.map((f) => (
+          <button
+            key={f.value}
+            onClick={() => setFilter(f.value)}
+            className={`inline-block px-3 py-1.5 rounded-full text-xs font-bold border transition-colors cursor-pointer ${
+              filter === f.value
+                ? "bg-primary text-white border-primary"
+                : "bg-surface-container-high text-on-surface-variant border-outline-variant/30 hover:bg-surface-container-highest"
+            }`}
+          >
+            {f.label}
+          </button>
+        ))}
+        <select
+          value={asc ? "asc" : "desc"}
+          onChange={(e) => setAsc(e.target.value === "asc")}
+          className="ml-auto text-sm bg-surface-container-low border border-outline-variant/30 rounded-lg px-3 py-1.5 text-on-surface-variant cursor-pointer"
+        >
+          <option value="desc">Newest first</option>
+          <option value="asc">Oldest first</option>
+        </select>
+      </div>
+      <p className="text-sm text-on-surface-variant">
+        Showing {filtered.length} of {users.length} users
+      </p>
       <div className="bg-surface-container-lowest rounded-xl border border-outline-variant/10 overflow-hidden shadow-sm">
         {/* Desktop Table View */}
         <div className="hidden md:block overflow-x-auto">
@@ -94,12 +148,12 @@ export default function UserManagementTable({ initialUsers }: { initialUsers: Us
               </tr>
             </thead>
             <tbody className="divide-y divide-outline-variant/10">
-              {users.length === 0 ? (
+              {filtered.length === 0 ? (
                 <tr>
                   <td colSpan={4} className="px-6 py-12 text-center text-on-surface-variant">No registered users found.</td>
                 </tr>
               ) : (
-                users.map((u) => (
+                filtered.map((u) => (
                   <tr key={u.id} className="hover:bg-surface-container-low/30 transition-colors group">
                     <td className="px-6 py-4">
                       <EditableName
@@ -142,10 +196,10 @@ export default function UserManagementTable({ initialUsers }: { initialUsers: Us
 
         {/* Mobile List View */}
         <div className="md:hidden divide-y divide-outline-variant/10">
-          {users.length === 0 ? (
+          {filtered.length === 0 ? (
             <div className="px-6 py-12 text-center text-on-surface-variant">No registered users found.</div>
           ) : (
-            users.map((u) => (
+            filtered.map((u) => (
               <div key={u.id} className="p-4 space-y-3">
                   <div className="flex justify-between items-start">
                     <div className="space-y-0.5">

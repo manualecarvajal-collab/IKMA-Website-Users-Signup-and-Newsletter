@@ -50,27 +50,30 @@ export default async function AdminDashboard() {
     .select("usuario_nombre, tipo, descripcion, ref_tabla, created_at")
     .order("created_at", { ascending: false }).limit(5)
 
-  // Activity chart: page visits per day for last 14 days
-  const catorceDias = new Date()
-  catorceDias.setDate(catorceDias.getDate() - 14)
+  // Activity chart: page visits per day for last 14 days.
+  // Se agrega en la DB (view visitas_por_dia) para no chocar con el
+  // límite de 1000 filas por query.
+  const catorceDias = new Date(Date.now() - 13 * 86400000).toISOString().slice(0, 10)
   const { data: visitasChart } = await admin
-    .from("visitas")
-    .select("created_at")
-    .gte("created_at", catorceDias.toISOString())
+    .from("visitas_por_dia")
+    .select("dia, total")
+    .gte("dia", catorceDias)
 
   const countsPorDia: Record<string, number> = {}
   visitasChart?.forEach(v => {
-    const dia = new Date(v.created_at).toLocaleDateString("en-US", { month: "2-digit", day: "2-digit" })
-    countsPorDia[dia] = (countsPorDia[dia] || 0) + 1
+    countsPorDia[v.dia] = v.total
   })
 
-  const barras = Array.from({ length: 14 }, (_, i) => {
-    const d = new Date()
-    d.setDate(d.getDate() - (13 - i))
-    const label = i === 13 ? t("today") : d.toLocaleDateString("en-US", { month: "2-digit", day: "2-digit" })
-    const count = countsPorDia[label] || 0
-    return { label, h: Math.min(Math.round((count / 100) * 100), 100), isToday: i === 13 }
-  })
+  const dias = Array.from({ length: 14 }, (_, i) =>
+    new Date(Date.now() - (13 - i) * 86400000).toISOString().slice(0, 10)
+  )
+  const maxCount = Math.max(...dias.map(d => countsPorDia[d] || 0), 1)
+  const barras = dias.map((d, i) => ({
+    label: i === 13 ? t("today") : d.slice(5).replace("-", "/"),
+    count: countsPorDia[d] || 0,
+    h: Math.round(((countsPorDia[d] || 0) / maxCount) * 100),
+    isToday: i === 13,
+  }))
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -239,9 +242,9 @@ export default async function AdminDashboard() {
             <div className="relative h-64 w-full">
               {/* Y-axis reference lines */}
               <div className="absolute inset-0 flex flex-col-reverse justify-between pb-6">
-                {[0, 25, 50, 100].map(n => (
+                {[1, 0.75, 0.5, 0.25, 0].map(n => (
                   <div key={n} className="flex items-center gap-2 w-full">
-                    <span className="text-[10px] text-[#41474d] w-6 text-right shrink-0">{n}</span>
+                    <span className="text-[10px] text-[#41474d] w-8 text-right shrink-0">{Math.round(maxCount * n)}</span>
                     <div className="flex-1 border-t border-[#d9e4e8]/50"></div>
                   </div>
                 ))}
@@ -249,7 +252,10 @@ export default async function AdminDashboard() {
               {/* Bars */}
               <div className="relative h-full flex items-end justify-between gap-2 px-8 pb-6">
                 {barras.map((bar) => (
-                <div key={bar.label} className="flex-1 flex flex-col justify-end gap-1 h-full group">
+                <div key={bar.label} className="flex-1 flex flex-col justify-end gap-1 h-full group relative">
+                  <span className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 bg-[#003652] text-white text-[11px] font-bold rounded px-2 py-0.5 opacity-0 group-hover:opacity-100 transition-opacity z-10 whitespace-nowrap">
+                    {bar.count}
+                  </span>
                   <div
                     className={`w-full rounded-t-sm transition-all duration-500 group-hover:bg-[#003652] ${bar.isToday ? "bg-[#003652]" : "bg-[#003652]/20"}`}
                     style={{ height: `${bar.h}%` }}
