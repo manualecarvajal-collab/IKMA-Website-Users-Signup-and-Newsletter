@@ -148,7 +148,7 @@ export function AdminNavWrapper({
   const [isOpen, setIsOpen] = useState(false)
 
   return (
-    <div className="flex min-h-screen">
+    <div className="admin-scope flex min-h-screen">
       <SidebarNav nombre={nombre} isOpen={isOpen} setIsOpen={setIsOpen} />
       <div className="flex-1 flex flex-col min-h-screen">
         <MobileNav setIsOpen={setIsOpen} />

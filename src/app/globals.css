@@ -192,3 +192,13 @@ body { top: 0px !important; }
     border-left: 3px solid var(--color-outline-variant);
     color: var(--color-on-surface-variant);
 }
+
+/* Admin panel: fuentes reducidas en movil (<768px) */
+@media (max-width: 767px) {
+  .admin-scope .text-headline-lg { font-size: 1.25rem; line-height: 1.3; }
+  .admin-scope .text-headline-md { font-size: 1.125rem; line-height: 1.3; }
+  .admin-scope .text-body-lg { font-size: 1rem; }
+  .admin-scope .text-body-md { font-size: 0.875rem; line-height: 1.4; }
+  .admin-scope .text-label-bold { font-size: 0.8125rem; }
+  .admin-scope .text-label-sm { font-size: 0.6875rem; }
+}

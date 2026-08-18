@@ -88,7 +88,7 @@ export default async function MemberDetailPage(props: { params: Promise<{ id: st
 
         <div className="p-6 md:p-8 space-y-6">
           <Section title="Membership">
-            <Row label="Type" value={memberLabels[solicitud.tipo_miembro] || `Type ${solicitud.tipo_miembro}`} />
+            <Row label="Type" value={memberLabels[solicitud.tipo_miembro] || "Unknown"} />
             <Row label="Region" value={solicitud.region === "A" ? "A (Latin America, Africa, Asia)" : "B (North America, Europe, Oceania)"} />
             <Row label="Country" value={solicitud.pais} />
             <Row label="Language" value={solicitud.language} />
