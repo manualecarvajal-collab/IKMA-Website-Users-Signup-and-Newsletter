@@ -15,7 +15,7 @@ export default function DonorRightsPage() {
             Policies
           </span>
           <h1 className="font-headline-lg text-headline-lg text-primary mt-2 mb-2">
-            Donor Rights
+            Donation Policy
           </h1>
           <p className="font-body-md text-body-md text-on-surface-variant mb-8">
             IKMA LLC Donation Policy &mdash; Effective Date: 31st of July, 2026
