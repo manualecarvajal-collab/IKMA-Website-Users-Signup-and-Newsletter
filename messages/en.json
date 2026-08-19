@@ -623,7 +623,10 @@
     "audienciaResidentes": "Residents",
     "audienciaLicenciados": "Licensed Health Professionals",
     "audienciaNoMedicos": "Non-health Professionals",
-    "audienciaCount": "{count} recipients will receive this newsletter"
+    "audienciaCount": "{count} recipients will receive this newsletter",
+    "scheduleOptional": "Schedule (optional)",
+    "scheduleHint": "Leave empty to send immediately. Pick a date/time to schedule.",
+    "scheduleForLater": "Schedule"
   },
   "IncompleteRegistration": {
     "title": "You haven't finished your membership registration",

@@ -149,6 +149,18 @@ async function sendEmail(config: Record<string, string>, to: string, subject: st
   })
 }
 
+// Retries on transient Resend errors (429 rate-limit, 5xx server). Returns the
+// last response even if it still fails — caller decides what to do.
+async function sendEmailWithRetry(config: Record<string, string>, to: string, subject: string, html: string) {
+  let resp = await sendEmail(config, to, subject, html)
+  if (!resp.ok && (resp.status === 429 || resp.status >= 500)) {
+    const retryAfter = Number(resp.headers.get("retry-after") ?? "2") * 1000 || 3000
+    await new Promise((r) => setTimeout(r, retryAfter))
+    resp = await sendEmail(config, to, subject, html)
+  }
+  return resp
+}
+
 export async function sendStudentWelcomeEmail(input: {
   email: string
   nombre: string
@@ -392,7 +404,7 @@ export async function sendMagazineToSubscribers(revistaId: string, excludeEmails
     const pdfUrl = await signedPdfUrl(revista.archivo_url)
     let sent = 0
     for (const { email, nombre } of recipients) {
-      const resp = await sendEmail(
+      const resp = await sendEmailWithRetry(
         config,
         email,
         (config.email_subject_template || "New Magazine: {{titulo}}").replace("{{titulo}}", revista.titulo),
@@ -407,6 +419,10 @@ export async function sendMagazineToSubscribers(revistaId: string, excludeEmails
         })
       )
       if (resp.ok) sent++
+      else {
+        const body = await resp.text().catch(() => "")
+        console.error(`[sendMagazineToSubscribers] FAILED ${resp.status} → ${email}: ${body}`)
+      }
     }
 
     // Log activity
@@ -507,6 +523,82 @@ export async function getMemberMessages(solicitudId: string) {
 
 // ─── NEWSLETTERS ─────────────────────────────────────────
 
+// Save as draft or schedule for later — does NOT send.
+export async function saveNewsletterDraft(
+  _prevState: { error?: string; success?: string } | undefined,
+  formData: FormData
+) {
+  const { user } = await checkAdmin()
+
+  const titulo = formData.get("titulo") as string
+  const contenido_html = formData.get("contenido_html") as string
+  const imagen_url = formData.get("imagen_url") as string
+  const audiencias = (formData.get("audiencias") as string)
+    ?.split(",")
+    .filter(Boolean) as Audience[]
+  const scheduled_at = formData.get("scheduled_at") as string | null
+
+  if (!titulo || !contenido_html) return { error: "Title and content are required" }
+  if (!audiencias || audiencias.length === 0) return { error: "Select at least one recipient group" }
+
+  const admin = await createAdminClient()
+  const status = scheduled_at ? "scheduled" : "draft"
+
+  await admin.from("newsletters").insert({
+    titulo,
+    contenido_html,
+    imagen_url: imagen_url || null,
+    enviado_por: user.id,
+    destinatarios: 0,
+    destinatarios_emails: [],
+    status,
+    scheduled_at: scheduled_at || null,
+    audiencias,
+  })
+
+  await admin.from("actividad_admin").insert({
+    usuario_id: user.id,
+    tipo: status === "scheduled" ? "newsletter_programado" : "newsletter_borrador",
+    descripcion: `Newsletter "${titulo}" ${status === "scheduled" ? `scheduled for ${scheduled_at}` : "saved as draft"}`,
+    ref_tabla: "newsletters",
+    ref_id: titulo,
+  })
+
+  revalidatePath("/admin/newsletter")
+  return { success: status === "scheduled" ? `Newsletter scheduled for ${scheduled_at}` : "Newsletter saved as draft" }
+}
+
+export async function cancelScheduledNewsletter(
+  newsletterId: string
+): Promise<{ success?: string; error?: string }> {
+  const { user } = await checkAdmin()
+  const admin = await createAdminClient()
+
+  const { data: nl } = await admin
+    .from("newsletters")
+    .select("titulo, status")
+    .eq("id", newsletterId)
+    .single()
+  if (!nl) return { error: "Newsletter not found" }
+  if (nl.status !== "scheduled") return { error: "Newsletter is not scheduled" }
+
+  await admin.from("newsletters").update({
+    status: "draft",
+    scheduled_at: null,
+  }).eq("id", newsletterId)
+
+  await admin.from("actividad_admin").insert({
+    usuario_id: user.id,
+    tipo: "newsletter_cancelado",
+    descripcion: `Scheduled newsletter "${nl.titulo}" cancelled`,
+    ref_tabla: "newsletters",
+    ref_id: newsletterId,
+  })
+
+  revalidatePath("/admin/newsletter")
+  return { success: "Schedule cancelled" }
+}
+
 export async function sendNewsletter(
   _prevState: { error?: string; success?: string } | undefined,
   formData: FormData
@@ -519,11 +611,52 @@ export async function sendNewsletter(
   const audiencias = (formData.get("audiencias") as string)
     ?.split(",")
     .filter(Boolean) as Audience[] | undefined
+  const scheduled_at = formData.get("scheduled_at") as string | null
+  const newsletter_id = formData.get("newsletter_id") as string | null
 
   if (!titulo || !contenido_html) return { error: "Title and content are required" }
   if (!audiencias || audiencias.length === 0) return { error: "Select at least one recipient group" }
 
   const admin = await createAdminClient()
+
+  // If scheduled_at is in the future, save as scheduled instead of sending
+  if (scheduled_at && new Date(scheduled_at) > new Date()) {
+    const status = "scheduled"
+    if (newsletter_id) {
+      // Update existing draft/scheduled
+      await admin.from("newsletters").update({
+        titulo,
+        contenido_html,
+        imagen_url: imagen_url || null,
+        status,
+        scheduled_at,
+        audiencias,
+      }).eq("id", newsletter_id)
+    } else {
+      await admin.from("newsletters").insert({
+        titulo,
+        contenido_html,
+        imagen_url: imagen_url || null,
+        enviado_por: user.id,
+        destinatarios: 0,
+        destinatarios_emails: [],
+        status,
+        scheduled_at,
+        audiencias,
+      })
+    }
+
+    await admin.from("actividad_admin").insert({
+      usuario_id: user.id,
+      tipo: "newsletter_programado",
+      descripcion: `Newsletter "${titulo}" scheduled for ${scheduled_at}`,
+      ref_tabla: "newsletters",
+      ref_id: newsletter_id || titulo,
+    })
+
+    revalidatePath("/admin/newsletter")
+    return { success: `Newsletter scheduled for ${scheduled_at}` }
+  }
 
   const { data: perfiles } = await admin
     .from("perfiles")
@@ -564,9 +697,11 @@ export async function sendNewsletter(
   let sent = 0
   const sentEmails: string[] = []
 
+  const failedEmails: { email: string; status: number; body: string }[] = []
+
   if (process.env.RESEND_API_KEY) {
     for (const { email, nombre } of recipients) {
-      const resp = await sendEmail(
+      const resp = await sendEmailWithRetry(
         config,
         email,
         `Newsletter: ${titulo}`,
@@ -582,6 +717,10 @@ export async function sendNewsletter(
       if (resp.ok) {
         sent++
         sentEmails.push(email)
+      } else {
+        const body = await resp.text().catch(() => "")
+        failedEmails.push({ email, status: resp.status, body })
+        console.error(`[sendNewsletter] FAILED ${resp.status} → ${email}: ${body}`)
       }
     }
   }
@@ -594,6 +733,9 @@ export async function sendNewsletter(
     enviado_por: user.id,
     destinatarios: sent,
     destinatarios_emails: sentEmails,
+    status: "sent",
+    audiencias,
+    ...(failedEmails.length ? { failed_emails: failedEmails } : {}),
   })
 
   // Log activity
@@ -607,6 +749,71 @@ export async function sendNewsletter(
 
   revalidatePath("/admin/newsletter")
   return { success: `Newsletter sent to ${sent} of ${recipients.length} recipients` }
+}
+
+export async function resendNewsletterToEmails(
+  newsletterId: string,
+  emails: string[]
+): Promise<{ success?: string; error?: string }> {
+  const { user } = await checkAdmin()
+  const admin = await createAdminClient()
+
+  const { data: newsletter } = await admin
+    .from("newsletters")
+    .select("*")
+    .eq("id", newsletterId)
+    .single()
+  if (!newsletter) return { error: "Newsletter not found" }
+
+  const config = await getEmailConfig()
+  let sent = 0
+  const sentEmails: string[] = []
+
+  if (!process.env.RESEND_API_KEY) return { error: "Resend API key not configured" }
+
+  for (const email of emails) {
+    const resp = await sendEmailWithRetry(
+      config,
+      email,
+      `Newsletter: ${newsletter.titulo}`,
+      buildNewsletterHtml({
+        nombre: email.split("@")[0],
+        titulo: newsletter.titulo,
+        contenido_html: newsletter.contenido_html,
+        imagen_url: newsletter.imagen_url,
+        from_name: config.email_from_name || "IKMA",
+        email,
+      })
+    )
+    if (resp.ok) {
+      sent++
+      sentEmails.push(email)
+    } else {
+      const body = await resp.text().catch(() => "")
+      console.error(`[resendNewsletterToEmails] FAILED ${resp.status} → ${email}: ${body}`)
+    }
+  }
+
+  // Add successfully resent emails to destinatarios_emails and remove from failed_emails
+  const prevSent = (newsletter.destinatarios_emails as string[] | null) ?? []
+  const remaining = (newsletter.failed_emails as { email: string; status: number; body: string }[] | null ?? [])
+    .filter((f) => !sentEmails.includes(f.email))
+  await admin.from("newsletters").update({
+    destinatarios_emails: [...prevSent, ...sentEmails],
+    destinatarios: prevSent.length + sentEmails.length,
+    failed_emails: remaining.length ? remaining : null,
+  }).eq("id", newsletterId)
+
+  await admin.from("actividad_admin").insert({
+    usuario_id: user.id,
+    tipo: "newsletter_reenviado",
+    descripcion: `Newsletter "${newsletter.titulo}" resent to ${sent} of ${emails.length} recipients`,
+    ref_tabla: "newsletters",
+    ref_id: newsletterId,
+  })
+
+  revalidatePath("/admin/newsletter")
+  return { success: `Resent to ${sent} of ${emails.length} recipients` }
 }
 
 export async function getNewsletters() {

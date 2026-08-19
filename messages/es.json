@@ -623,7 +623,10 @@
     "audienciaResidentes": "Residentes",
     "audienciaLicenciados": "Médicos Licenciados",
     "audienciaNoMedicos": "Profesionales no médicos",
-    "audienciaCount": "{count} destinatarios recibirán este boletín"
+    "audienciaCount": "{count} destinatarios recibirán este boletín",
+    "scheduleOptional": "Programar (opcional)",
+    "scheduleHint": "Deja vacío para enviar inmediatamente. Selecciona una fecha/hora para programar.",
+    "scheduleForLater": "Programar"
   },
   "IncompleteRegistration": {
     "title": "No has terminado tu registro de membresía",

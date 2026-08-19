@@ -82,7 +82,6 @@ export function ArticleForm({
         headers: { "Content-Type": file.type },
       })
     }
-    setImagenUrl(publicUrl)
     return publicUrl
   }
 
@@ -231,7 +230,7 @@ export function ArticleForm({
         </div>
       </div>
 
-      <ImageUpload name="imagen_url" defaultValue={article?.imagen_url} label="Cover Image" />
+      <ImageUpload name="imagen_url" defaultValue={imagenUrl} label="Cover Image" onChange={setImagenUrl} />
 
       <div className="flex items-center gap-3">
         <input name="publicado" type="checkbox" defaultChecked={article?.publicado ?? false} className="w-4 h-4 rounded border-outline-variant/50 text-primary focus:ring-primary/30" />

@@ -1,14 +1,20 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import Icon from "@/components/Icon"
 
-export function ImageUpload({ name, defaultValue, label }: { name: string; defaultValue?: string | null; label?: string }) {
+export function ImageUpload({ name, defaultValue, label, onChange }: { name: string; defaultValue?: string | null; label?: string; onChange?: (url: string) => void }) {
   const [url, setUrl] = useState(defaultValue ?? "")
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState("")
   const [dragging, setDragging] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
+
+  // Sync internal state when the parent changes the value (e.g. after a
+  // remount from toggling preview/edit).
+  useEffect(() => {
+    setUrl(defaultValue ?? "")
+  }, [defaultValue])
 
   const uploadFile = async (rawFile: File) => {
     setUploading(true)
@@ -62,6 +68,7 @@ export function ImageUpload({ name, defaultValue, label }: { name: string; defau
       }
 
       setUrl(data.publicUrl)
+      onChange?.(data.publicUrl)
     } catch (err) {
       const message = err instanceof Error ? err.message : "Upload failed"
       setUploadError(`${message}. You can paste a URL below instead.`)
@@ -118,7 +125,7 @@ export function ImageUpload({ name, defaultValue, label }: { name: string; defau
             <img src={url} alt="Preview" className="max-h-40 rounded-lg object-contain" />
             <button
               type="button"
-              onClick={(e) => { e.stopPropagation(); setUrl("") }}
+              onClick={(e) => { e.stopPropagation(); setUrl(""); onChange?.("") }}
               className="text-error font-label-bold text-label-sm hover:underline cursor-pointer"
             >
               Remove image

@@ -1,6 +1,7 @@
 "use client"
 
-import { useEditor, EditorContent } from "@tiptap/react"
+import { useEditor, EditorContent, NodeViewWrapper, ReactNodeViewRenderer } from "@tiptap/react"
+import type { NodeViewRendererProps } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
 import LinkExtension from "@tiptap/extension-link"
 import ImageExtension from "@tiptap/extension-image"
@@ -13,6 +14,32 @@ interface TiptapEditorProps {
   onChange: (html: string) => void
   onImageUpload?: (file: File) => Promise<string>
 }
+
+function ImageNode({ node, editor, getPos }: NodeViewRendererProps) {
+  return (
+    <NodeViewWrapper className="relative group inline-block">
+      <img src={node.attrs.src} alt={node.attrs.alt ?? ""} className="max-w-full rounded-lg" />
+      <button
+        type="button"
+        onClick={() => {
+          const pos = getPos()
+          if (typeof pos !== "number") return
+          editor.chain().focus().deleteRange({ from: pos, to: pos + node.nodeSize }).run()
+        }}
+        className="absolute top-1 right-1 bg-error text-on-error rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer shadow-md"
+        title="Remove image"
+      >
+        <Icon name="close" size={14} />
+      </button>
+    </NodeViewWrapper>
+  )
+}
+
+const ImageWithDelete = ImageExtension.extend({
+  addNodeView() {
+    return ReactNodeViewRenderer(ImageNode)
+  },
+})
 
 function ToolbarButton({
   onClick,
@@ -46,7 +73,7 @@ export default function TiptapEditor({ content, onChange, onImageUpload }: Tipta
     extensions: [
       StarterKit,
       LinkExtension.configure({ openOnClick: false }),
-      ImageExtension,
+      ImageWithDelete,
       TextAlign.configure({
         types: ["heading", "paragraph"],
         alignments: ["left", "center", "right", "justify"],
