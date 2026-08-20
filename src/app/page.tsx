@@ -89,6 +89,34 @@ export default async function HomePage() {
         </Slide>
         <Slide>
           <div className="relative w-full h-full">
+            <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop h-full flex flex-col md:flex-row-reverse items-center justify-center md:justify-between gap-8 md:gap-0 py-10 md:py-0">
+              <img
+                src="/Tu vocación médica al servicio(1).png"
+                alt={tHero("banner3Title")}
+                loading="lazy"
+                className="w-[200px] md:w-[291px] h-auto pointer-events-none select-none"
+              />
+              <div className="flex flex-col items-center md:items-start gap-6 md:flex-1 md:pr-10">
+                <img
+                  src="/logo.webp"
+                  alt="IKMA"
+                  loading="lazy"
+                  className="w-[160px] md:w-[212px] h-auto"
+                />
+                <div className="text-center md:text-left">
+                  <p className="text-primary font-[400] text-lg md:text-2xl">
+                    {tHero("banner3Title")}
+                  </p>
+                  <h2 className="text-primary font-[800] text-3xl md:text-[48px] leading-tight">
+                    {tHero("banner3Highlight")}
+                  </h2>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Slide>
+        <Slide>
+          <div className="relative w-full h-full">
             <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop flex flex-col md:flex-row h-full">
               {/* Mobile: Background image with overlay */}
               <div className="absolute inset-0 md:hidden overflow-hidden">
@@ -176,6 +204,28 @@ export default async function HomePage() {
                   loading="lazy"
                   className="md:absolute md:inset-0 md:h-full w-full object-cover object-[center_70%] pointer-events-none md:rounded-none"
                 />
+              </div>
+            </div>
+          </div>
+        </Slide>
+        <Slide>
+          <div className="relative w-full h-full">
+            <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop h-full flex flex-col md:flex-row-reverse items-center justify-center gap-8 md:gap-0 py-10 md:py-0">
+              <img
+                src="/¡YA ESTAMOS EN LÍNEA!.png"
+                alt={tHero("banner4Highlight")}
+                loading="lazy"
+                className="w-[260px] md:w-[530px] h-auto pointer-events-none select-none translate-y-[20%]"
+              />
+              <div className="flex flex-col items-center md:items-start gap-6 md:flex-1">
+                <div className="text-center md:text-left">
+                  <h2 className="text-primary font-[800] text-3xl md:text-[48px] leading-tight">
+                    {tHero("banner4Title")}
+                  </h2>
+                  <p className="text-primary font-[400] text-lg md:text-2xl">
+                    {tHero("banner4Subtitle")}
+                  </p>
+                </div>
               </div>
             </div>
           </div>

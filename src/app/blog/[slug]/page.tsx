@@ -7,6 +7,7 @@ import { getTranslations, getLocale } from "next-intl/server"
 import ArticleContent from "@/components/ArticleContent"
 import DownloadPopup from "@/components/DownloadPopup"
 import Icon from "@/components/Icon"
+import ShareButtons from "@/components/ShareButtons"
 
 export const dynamic = "force-dynamic"
 
@@ -197,6 +198,12 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
             <h1 className="font-headline-xl text-[clamp(1.625rem,3.25vw,2.6rem)] text-primary mb-6">
               {articleTitle}
             </h1>
+
+            <ShareButtons
+              url={new URL(`/blog/${slug}`, process.env.NEXT_PUBLIC_SITE_URL ?? "https://ikmaglobal.com").toString()}
+              title={articleTitle}
+              className="mb-6"
+            />
 
             <ArticleContent
               contenidoHtml={contenidoAEnviar}

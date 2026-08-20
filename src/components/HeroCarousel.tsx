@@ -50,6 +50,31 @@ export default function HeroCarousel({
         </div>
       ))}
 
+      {slides.length > 1 && (
+        <div className="absolute bottom-28 md:bottom-6 left-0 right-0 z-30 pointer-events-none flex items-center justify-center md:justify-end px-margin-mobile md:px-margin-desktop">
+          <div className="pointer-events-auto flex items-center gap-1.5">
+            {slides.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrent(index)}
+                aria-label={`Banner ${index + 1}`}
+                className={`h-4 flex items-center justify-center transition-all ${
+                  index === current ? "w-6" : "w-4"
+                }`}
+              >
+                <span
+                  className={`h-2.5 rounded-full transition-all ${
+                    index === current
+                      ? "w-6 bg-primary"
+                      : "w-2.5 bg-primary/30 hover:bg-primary/60"
+                  }`}
+                />
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {!hideCtas && (
         <div className="absolute bottom-0 left-0 right-0 z-20 pointer-events-none bg-white md:bg-transparent md:bg-gradient-to-t md:from-background/60 md:to-transparent py-6 md:py-0">
           <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop pb-0 md:pb-8">
