@@ -45,7 +45,7 @@ export default async function HomePage() {
               </div>
 
               {/* Left - Content */}
-              <div className="relative z-10 w-full md:w-[55%] flex flex-col justify-end md:justify-center py-8 md:py-0 flex-1 md:flex-none mb-[10vh] md:mb-0">
+              <div className="relative z-10 w-full md:w-[55%] flex flex-col justify-end md:justify-center py-8 md:py-0 flex-1 md:flex-none mb-[20vh] md:mb-0">
                 <div className="max-w-[420px] text-center md:text-left">
                 <span
                   className="text-primary md:text-[#334D96] leading-none select-none block"
@@ -130,7 +130,7 @@ export default async function HomePage() {
               </div>
 
               {/* Left - Content */}
-              <div className="relative z-10 w-full md:w-[55%] flex flex-col justify-end md:justify-center py-8 md:py-0 flex-1 md:flex-none mb-[10vh] md:mb-0">
+              <div className="relative z-10 w-full md:w-[55%] flex flex-col justify-end md:justify-center py-8 md:py-0 flex-1 md:flex-none mb-[20vh] md:mb-0">
                 <div className="max-w-[420px] text-center md:text-left">
                 <span
                   className="text-primary md:text-[#334D96] leading-none select-none block"
@@ -186,7 +186,7 @@ export default async function HomePage() {
                 <div className="absolute inset-0 bg-gradient-to-b from-transparent from-[5%] to-white" />
               </div>
 
-              <div className="relative z-10 w-full md:w-[55%] flex flex-col justify-end md:justify-center py-8 md:py-0 flex-1 md:flex-none mb-[10vh] md:mb-0">
+              <div className="relative z-10 w-full md:w-[55%] flex flex-col justify-end md:justify-center py-8 md:py-0 flex-1 md:flex-none mb-[20vh] md:mb-0">
                 <div className="max-w-[420px] text-center md:text-left">
                   <h2 className="text-primary md:text-[#334D96] text-3xl md:text-[clamp(36px,4vw,64px)] font-[800] leading-tight mb-3">
                     {tHero("joinFamilyTitle")}
@@ -208,28 +208,7 @@ export default async function HomePage() {
             </div>
           </div>
         </Slide>
-        <Slide>
-          <div className="relative w-full h-full">
-            <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop h-full flex flex-col md:flex-row-reverse items-center justify-center gap-8 md:gap-0 py-10 md:py-0">
-              <img
-                src="/¡YA ESTAMOS EN LÍNEA!.png"
-                alt={tHero("banner4Highlight")}
-                loading="lazy"
-                className="w-[260px] md:w-[530px] h-auto pointer-events-none select-none translate-y-[20%]"
-              />
-              <div className="flex flex-col items-center md:items-start gap-6 md:flex-1">
-                <div className="text-center md:text-left">
-                  <h2 className="text-primary font-[800] text-3xl md:text-[48px] leading-tight">
-                    {tHero("banner4Title")}
-                  </h2>
-                  <p className="text-primary font-[400] text-lg md:text-2xl">
-                    {tHero("banner4Subtitle")}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </Slide>
+
       </HeroCarousel>
 
       {/* Insights & Stories Section */}
