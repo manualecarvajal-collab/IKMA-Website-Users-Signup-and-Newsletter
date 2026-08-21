@@ -8,6 +8,7 @@ import ArticleContent from "@/components/ArticleContent"
 import DownloadPopup from "@/components/DownloadPopup"
 import Icon from "@/components/Icon"
 import ShareButtons from "@/components/ShareButtons"
+import { formatDate } from "@/lib/date"
 
 export const dynamic = "force-dynamic"
 
@@ -52,14 +53,6 @@ async function getRelatedArticles(currentSlug: string) {
     .order("fecha_publicacion", { ascending: false })
     .limit(6)
   return data ?? []
-}
-
-function formatDate(dateStr: string, locale: string) {
-  return new Date(dateStr).toLocaleDateString(locale, {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  })
 }
 
 // Get localized field: prefer locale-specific, fall back to English

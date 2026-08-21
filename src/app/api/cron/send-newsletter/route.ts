@@ -2,6 +2,8 @@ import { NextResponse } from "next/server"
 import { createAdminClient } from "@/lib/supabase/server"
 import { buildNewsletterHtml } from "@/lib/email-template"
 import { filterByAudiences, type Audience } from "@/lib/newsletter-audiences"
+import { getAllRecipientsForAdmin } from "@/lib/supabase/email-actions"
+import { sendResendEmail } from "@/lib/resend"
 
 export async function GET(req: Request) {
   if (req.headers.get("authorization") !== `Bearer ${process.env.CRON_SECRET}`) {
@@ -39,30 +41,7 @@ export async function GET(req: Request) {
       await admin.from("newsletters").update({ status: "sending" }).eq("id", newsletter.id)
 
       // Build recipient list (same logic as sendNewsletter)
-      const { data: perfiles } = await admin
-        .from("perfiles")
-        .select("id, nombre_completo, newsletter_optout")
-      const perfilMap = new Map((perfiles ?? []).map((p) => [p.id, p]))
-
-      const { data: solicitudes } = await admin
-        .from("solicitudes_membresia")
-        .select("usuario_id, tipo_miembro")
-        .order("created_at", { ascending: true })
-      const tipoMap = new Map<string, number | null>()
-      for (const s of solicitudes ?? []) tipoMap.set(s.usuario_id, s.tipo_miembro)
-
-      const { data: users } = await admin.auth.admin.listUsers()
-      const allRecipients = (users?.users ?? [])
-        .filter((u) => !!u.email && !perfilMap.get(u.id)?.newsletter_optout)
-        .map((u) => ({
-          id: u.id,
-          nombre:
-            perfilMap.get(u.id)?.nombre_completo ||
-            (u.user_metadata as Record<string, unknown>)?.nombre_completo as string ||
-            u.email!.split("@")[0],
-          email: u.email as string,
-          tipo_miembro: tipoMap.get(u.id) ?? null,
-        }))
+      const allRecipients = await getAllRecipientsForAdmin(admin)
 
       const audiencias = (newsletter.audiencias as Audience[]) ?? ["registrados"]
       const recipients = filterByAudiences(allRecipients, audiencias)
@@ -72,25 +51,19 @@ export async function GET(req: Request) {
       const failedEmails: { email: string; status: number; body: string }[] = []
 
       for (const { email, nombre } of recipients) {
-        const resp = await fetch("https://api.resend.com/emails", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            from: `${config.email_from_name || "IKMA"} <${config.email_from_email || "onboarding@resend.dev"}>`,
-            to: email,
-            subject: `Newsletter: ${newsletter.titulo}`,
-            html: buildNewsletterHtml({
-              nombre,
-              titulo: newsletter.titulo,
-              contenido_html: newsletter.contenido_html,
-              imagen_url: newsletter.imagen_url,
-              from_name: config.email_from_name || "IKMA",
-              email,
-            }),
+        const resp = await sendResendEmail({
+          to: email,
+          subject: `Newsletter: ${newsletter.titulo}`,
+          html: buildNewsletterHtml({
+            nombre,
+            titulo: newsletter.titulo,
+            contenido_html: newsletter.contenido_html,
+            imagen_url: newsletter.imagen_url,
+            from_name: config.email_from_name || "IKMA",
+            email,
           }),
+          fromName: config.email_from_name,
+          fromEmail: config.email_from_email,
         })
         if (resp.ok) {
           sent++

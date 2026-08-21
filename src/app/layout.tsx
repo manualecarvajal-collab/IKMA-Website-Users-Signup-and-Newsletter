@@ -7,7 +7,8 @@ import { cookies } from "next/headers"
 import Navbar from "@/components/Navbar"
 import Footer from "@/components/Footer"
 import FooterWrapper from "@/components/FooterWrapper"
-import NewsletterCTAWrapper from "@/components/NewsletterCTAWrapper"
+import NewsletterCTA from "@/components/NewsletterCTA"
+import NewsletterCTAVisibility from "@/components/NewsletterCTAVisibility"
 import ToastContainer from "@/components/Toast"
 import CookieConsent from "@/components/CookieConsent"
 import LocaleSwitch from "@/components/LocaleSwitch"
@@ -124,7 +125,9 @@ export default async function RootLayout({
           </div>
           <main className="flex-grow">{children}</main>
           <FooterWrapper>
-            <NewsletterCTAWrapper isAuthenticated={!!user} />
+            <NewsletterCTAVisibility>
+              <NewsletterCTA isAuthenticated={!!user} />
+            </NewsletterCTAVisibility>
             <Footer />
           </FooterWrapper>
           <ToastContainer />

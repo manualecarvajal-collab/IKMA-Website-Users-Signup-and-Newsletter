@@ -20,6 +20,7 @@ npm run lint     # lint
 - Images: `next/image` is *not* used; plain `<img>` with Tailwind
 - Supabase client: `createClient()` from `@/lib/supabase/server` (server) or `@/lib/supabase/client` (browser)
 - Auth: Supabase Auth; admin panel at `/admin` behind middleware
+- **Commits: only the user makes commits. Never run `git commit` unless the user explicitly asks for it.**
 
 ## Upload architecture
 Files go through `/api/upload` (returns a signed Supabase upload URL), then client PUTs directly to Supabase Storage. This avoids Vercel's serverless payload limit.

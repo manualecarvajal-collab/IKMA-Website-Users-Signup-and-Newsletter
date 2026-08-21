@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation"
 import { createClient, createAdminClient } from "@/lib/supabase/server"
+import { slugify } from "@/lib/slugify"
 
 export async function checkAdmin() {
   const supabase = await createClient()
@@ -40,15 +41,4 @@ export async function registrarActividad(
   })
 }
 
-export function slugify(text: string | null) {
-  if (!text) return `articulo-${Date.now()}`
-  return text
-    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")  // remove diacritics (á → a)
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "")
-    || `articulo-${Date.now()}`
-}
+export { slugify }

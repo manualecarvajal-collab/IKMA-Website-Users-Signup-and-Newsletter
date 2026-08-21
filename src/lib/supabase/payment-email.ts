@@ -4,6 +4,7 @@
 
 import { createAdminClient } from "@/lib/supabase/server"
 import { buildPaymentConfirmedHtml } from "@/lib/email-template"
+import { sendResendEmail } from "@/lib/resend"
 
 export async function enviarCorreoPagoConfirmado(userId: string, solicitudId: string) {
   try {
@@ -28,18 +29,12 @@ export async function enviarCorreoPagoConfirmado(userId: string, solicitudId: st
 
     if (!process.env.RESEND_API_KEY) return
 
-    const res = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from: `${config.email_from_name || "IKMA"} <${config.email_from_email || "onboarding@resend.dev"}>`,
-        to: email,
-        subject: lang === "es" ? "Pago recibido — IKMA" : "Payment received — IKMA",
-        html: buildPaymentConfirmedHtml({ nombre, lang }),
-      }),
+    const res = await sendResendEmail({
+      to: email,
+      subject: lang === "es" ? "Pago recibido — IKMA" : "Payment received — IKMA",
+      html: buildPaymentConfirmedHtml({ nombre, lang }),
+      fromName: config.email_from_name,
+      fromEmail: config.email_from_email,
     })
 
     if (!res.ok) {

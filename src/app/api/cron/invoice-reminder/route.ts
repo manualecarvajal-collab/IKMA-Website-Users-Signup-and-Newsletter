@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { getStripe } from "@/lib/stripe/server"
 import { createAdminClient } from "@/lib/supabase/server"
 import { buildInvoiceReminderHtml } from "@/lib/email-template"
+import { sendResendEmail } from "@/lib/resend"
 
 // Vercel Cron — daily. Emails each member once, 7 days before their next
 // automatic charge (deduplicated by recordatorios_cobro unique constraint).
@@ -79,20 +80,14 @@ export async function GET(req: Request) {
 
       if (!process.env.RESEND_API_KEY) break
 
-      const res = await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          from: `${config.email_from_name || "IKMA"} <${config.email_from_email || "onboarding@resend.dev"}>`,
-          to: email,
-          subject: lang === "es"
-            ? "Próximo cobro de tu membresía IKMA"
-            : "Your upcoming IKMA membership charge",
-          html: buildInvoiceReminderHtml({ nombre, lang, fechaCobro: fecha, monto }),
-        }),
+      const res = await sendResendEmail({
+        to: email,
+        subject: lang === "es"
+          ? "Próximo cobro de tu membresía IKMA"
+          : "Your upcoming IKMA membership charge",
+        html: buildInvoiceReminderHtml({ nombre, lang, fechaCobro: fecha, monto }),
+        fromName: config.email_from_name,
+        fromEmail: config.email_from_email,
       })
       if (!res.ok) {
         console.error("[cron-invoice-reminder] resend error:", res.status, await res.text())

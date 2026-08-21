@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { createAdminClient } from "@/lib/supabase/server"
+import { sendResendEmail } from "@/lib/resend"
 
 function escapeHtml(s: unknown): string {
   return String(s ?? "").replace(/[&<>"']/g, (c) =>
@@ -45,10 +46,8 @@ export async function POST(req: Request) {
 
     const fromName = config.email_from_name || "IKMA"
     const fromEmail = config.email_from_email || "onboarding@resend.dev"
-    const from = `${fromName} <${fromEmail}>`
 
-    const payload = {
-      from,
+    const res = await sendResendEmail({
       to: "ikma@emmint.com",
       subject: `Website Contact: ${safeInquiryType} from ${safeFirstName} ${safeLastName}`,
       html: `
@@ -60,15 +59,8 @@ export async function POST(req: Request) {
           <tr><td style="padding:8px;font-weight:700">Message</td><td style="padding:8px">${safeMessage}</td></tr>
         </table>
       `,
-    }
-
-    const res = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
+      fromName: fromName,
+      fromEmail: fromEmail,
     })
 
     if (!res.ok) {

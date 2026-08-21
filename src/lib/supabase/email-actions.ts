@@ -6,19 +6,13 @@ import { createClient, createAdminClient } from "@/lib/supabase/server"
 import { buildMagazineHtml, buildMembershipDecisionHtml, buildMembershipMessageHtml, buildMembershipProcessingHtml, buildNewsletterHtml, buildPaymentConfirmedHtml, buildStudentWelcomeHtml } from "@/lib/email-template"
 import { esMembresiaGratis, mergeFreeMembers } from "@/lib/supabase/free-membership"
 import { filterByAudiences, type Audience, type Recipient } from "@/lib/newsletter-audiences"
+import { sendResendEmail } from "@/lib/resend"
 
 // ─── EMAIL CONFIG ────────────────────────────────────────
 
 export async function getEmailConfig() {
   await checkAdmin()
-  const admin = await createAdminClient()
-  const { data } = await admin.from("app_config").select("*")
-  if (!data) return {}
-  const config: Record<string, string> = {}
-  for (const row of data) {
-    config[row.key] = row.value
-  }
-  return config
+  return loadEmailConfig()
 }
 
 export async function updateEmailConfig(formData: FormData) {
@@ -66,10 +60,9 @@ export async function getSubscribersWithEmails() {
 
 // All registered users (with email, not opted out), tagged with their latest
 // membership application type so the newsletter forms can filter by audience.
-export async function getAllRecipients(): Promise<Recipient[]> {
-  await checkAdmin()
-  const admin = await createAdminClient()
+type AdminClient = Awaited<ReturnType<typeof createAdminClient>>
 
+async function listAllRecipients(admin: AdminClient): Promise<Recipient[]> {
   const { data: perfiles } = await admin
     .from("perfiles")
     .select("id, nombre_completo, newsletter_optout")
@@ -100,6 +93,17 @@ export async function getAllRecipients(): Promise<Recipient[]> {
         tipo_miembro: tipoMap.get(u.id) ?? null,
       }
     })
+}
+
+export async function getAllRecipients(): Promise<Recipient[]> {
+  await checkAdmin()
+  const admin = await createAdminClient()
+  return listAllRecipients(admin)
+}
+
+// For server contexts without a user session (e.g. cron routes).
+export async function getAllRecipientsForAdmin(admin: AdminClient): Promise<Recipient[]> {
+  return listAllRecipients(admin)
 }
 
 // ─── SEND MAGAZINE ───────────────────────────────────────
@@ -134,18 +138,12 @@ async function esPrimeraRevista(client: Awaited<ReturnType<typeof createAdminCli
 }
 
 async function sendEmail(config: Record<string, string>, to: string, subject: string, html: string) {
-  return fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from: `${config.email_from_name || "IKMA"} <${config.email_from_email || "onboarding@resend.dev"}>`,
-      to,
-      subject,
-      html,
-    }),
+  return sendResendEmail({
+    to,
+    subject,
+    html,
+    fromName: config.email_from_name,
+    fromEmail: config.email_from_email,
   })
 }
 
@@ -166,28 +164,19 @@ export async function sendStudentWelcomeEmail(input: {
   nombre: string
   lang?: "en" | "es"
 }): Promise<{ success?: string; error?: string }> {
-  const admin = await createAdminClient()
-  const { data: configRows } = await admin.from("app_config").select("key, value")
-  const config: Record<string, string> = {}
-  for (const row of configRows ?? []) config[row.key] = row.value
+  const config = await loadEmailConfig()
 
   const es = input.lang === "es"
   const subject = es
     ? "Solicitud de membresía recibida — IKMA"
     : "Membership application received — IKMA"
 
-  const res = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from: `${config.email_from_name || "IKMA"} <${config.email_from_email || "onboarding@resend.dev"}>`,
-      to: input.email,
-      subject,
-      html: buildStudentWelcomeHtml({ nombre: input.nombre, lang: input.lang }),
-    }),
+  const res = await sendResendEmail({
+    to: input.email,
+    subject,
+    html: buildStudentWelcomeHtml({ nombre: input.nombre, lang: input.lang }),
+    fromName: config.email_from_name,
+    fromEmail: config.email_from_email,
   })
 
   if (!res.ok) {
@@ -217,18 +206,12 @@ async function sendMembershipEmail(input: {
     return { error: "Resend API key not configured" }
   }
   const config = await loadEmailConfig()
-  const res = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from: `${config.email_from_name || "IKMA"} <${config.email_from_email || "onboarding@resend.dev"}>`,
-      to: input.email,
-      subject: input.subject,
-      html: input.html,
-    }),
+  const res = await sendResendEmail({
+    to: input.email,
+    subject: input.subject,
+    html: input.html,
+    fromName: config.email_from_name,
+    fromEmail: config.email_from_email,
   })
   if (!res.ok) {
     console.error("[sendMembershipEmail] resend error:", res.status, await res.text())
@@ -658,37 +641,7 @@ export async function sendNewsletter(
     return { success: `Newsletter scheduled for ${scheduled_at}` }
   }
 
-  const { data: perfiles } = await admin
-    .from("perfiles")
-    .select("id, nombre_completo, newsletter_optout")
-  const perfilMap = new Map((perfiles ?? []).map((p) => [p.id, p]))
-
-  const { data: solicitudes } = await admin
-    .from("solicitudes_membresia")
-    .select("usuario_id, tipo_miembro")
-    .order("created_at", { ascending: true })
-  const tipoMap = new Map<string, number | null>()
-  for (const s of solicitudes ?? []) tipoMap.set(s.usuario_id, s.tipo_miembro)
-
-  const { data: users } = await admin.auth.admin.listUsers()
-  const allRecipients: Recipient[] = (users?.users ?? [])
-    .filter((u) => !!u.email && !perfilMap.get(u.id)?.newsletter_optout)
-    .map((u) => {
-      const perfil = perfilMap.get(u.id)
-      const meta = u.user_metadata as Record<string, unknown> | undefined
-      return {
-        id: u.id,
-        nombre:
-          perfil?.nombre_completo ||
-          (meta?.nombre_completo as string) ||
-          (meta?.full_name as string) ||
-          (meta?.name as string) ||
-          u.email!.split("@")[0],
-        email: u.email as string,
-        tipo_miembro: tipoMap.get(u.id) ?? null,
-      }
-    })
-
+  const allRecipients = await getAllRecipientsForAdmin(admin)
   const recipients = filterByAudiences(allRecipients, audiencias)
 
   if (!recipients.length) return { error: "No recipients match the selected groups" }

@@ -6,6 +6,7 @@ import { esMembresiaGratisUsuario } from "@/lib/supabase/free-membership"
 import { getTranslations, getLocale } from "next-intl/server"
 import Icon from "@/components/Icon"
 import VideoPaywall from "./VideoPaywall"
+import { formatDate } from "@/lib/date"
 
 interface Video {
   id: string
@@ -31,14 +32,6 @@ function embedSrcSeguro(value: string): string | null {
   } catch {
     return null
   }
-}
-
-function formatDate(d: string, locale: string) {
-  return new Date(d).toLocaleDateString(locale, {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  })
 }
 
 async function getVideo(slug: string, grupoId: string): Promise<Video | null> {
@@ -146,7 +139,7 @@ export default async function TeachingPage({ params }: { params: Promise<{ grupo
             <div className="flex items-center gap-4 mb-6">
               <span className="flex items-center gap-2 font-label-bold text-label-sm text-on-surface-variant">
                 <Icon name="calendar_today" size={18} />
-                {formatDate(video.created_at, locale)}
+                {formatDate(video.created_at, locale, { year: "numeric", month: "short", day: "numeric" })}
               </span>
             </div>
             {video.descripcion && (
@@ -173,7 +166,7 @@ export default async function TeachingPage({ params }: { params: Promise<{ grupo
                     </div>
                     <div className="flex flex-col justify-between py-0.5 min-w-0">
                       <h3 className="font-label-bold text-label-sm text-on-surface line-clamp-2 group-hover:text-primary transition-colors notranslate">{v.titulo}</h3>
-                      <span className="font-label-sm text-label-sm text-on-surface-variant">{formatDate(v.created_at, locale)}</span>
+                      <span className="font-label-sm text-label-sm text-on-surface-variant">{formatDate(v.created_at, locale, { year: "numeric", month: "short", day: "numeric" })}</span>
                     </div>
                   </Link>
                 ))}

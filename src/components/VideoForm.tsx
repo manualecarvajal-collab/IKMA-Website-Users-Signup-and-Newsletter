@@ -2,6 +2,7 @@
 
 import { useState, useActionState } from "react"
 import { ImageUpload } from "./ImageUpload"
+import { slugify } from "@/lib/slugify"
 
 interface Video {
   id?: string
@@ -13,14 +14,6 @@ interface Video {
   publicado: boolean
   gratis: boolean
   grupo_id: string
-}
-
-function slugify(text: string) {
-  return text
-    .toLowerCase()
-    .replace(/[^\w\s]/g, "")
-    .replace(/\s+/g, "-")
-    .trim()
 }
 
 export function VideoForm({

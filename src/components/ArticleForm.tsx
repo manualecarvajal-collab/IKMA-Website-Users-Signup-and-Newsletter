@@ -5,6 +5,8 @@ import { ImageUpload } from "./ImageUpload"
 import { AvatarUpload } from "./AvatarUpload"
 import TiptapEditor from "./TiptapEditor"
 import Icon from "./Icon"
+import { slugify } from "@/lib/slugify"
+import { formatDate } from "@/lib/date"
 
 interface Article {
   id?: string
@@ -21,22 +23,6 @@ interface Article {
   autor_nombre?: string | null
   autor_avatar_url?: string | null
   created_at?: string
-}
-
-function slugify(text: string) {
-  return text
-    .toLowerCase()
-    .replace(/[^\w\s]/g, "")
-    .replace(/\s+/g, "-")
-    .trim()
-}
-
-function formatDate(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  })
 }
 
 export function ArticleForm({

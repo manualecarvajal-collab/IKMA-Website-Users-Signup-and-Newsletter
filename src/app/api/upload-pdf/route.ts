@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
-import { createClient, createAdminClient } from "@/lib/supabase/server"
+import { createClient } from "@/lib/supabase/server"
+import { randomStoragePath, createSignedUpload } from "@/lib/uploads"
 
 export async function POST(request: Request) {
   try {
@@ -22,24 +23,17 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Only PDF files are allowed" }, { status: 400 })
     }
 
-    const ext = fileName.split(".").pop()
-    const storagePath = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+    const storagePath = randomStoragePath("", fileName)
 
-    const admin = await createAdminClient()
-
-    const { data, error } = await admin.storage
-      .from("revistas-pdf")
-      .createSignedUploadUrl(storagePath)
-
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 })
+    const result = await createSignedUpload("revistas-pdf", storagePath)
+    if ("error" in result && result.error) {
+      return NextResponse.json({ error: result.error.message }, { status: 500 })
+    }
+    if (!("data" in result) || !result.data) {
+      return NextResponse.json({ error: "Upload failed" }, { status: 500 })
     }
 
-    const {
-      data: { publicUrl },
-    } = admin.storage.from("revistas-pdf").getPublicUrl(storagePath)
-
-    return NextResponse.json({ signedUrl: data.signedUrl, publicUrl })
+    return NextResponse.json({ signedUrl: result.data.signedUrl, publicUrl: result.publicUrl })
   } catch (err) {
     const message = err instanceof Error ? err.message : "Upload failed"
     return NextResponse.json({ error: message }, { status: 500 })

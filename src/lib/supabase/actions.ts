@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
+import { validatePassword } from "@/lib/password"
 
 export async function signup(
   prevState: { error?: string; success?: string; next?: string } | undefined,
@@ -16,13 +17,8 @@ export async function signup(
   const tipo = (formData.get("tipo") as string) ?? ""
   const region = (formData.get("region") as string) ?? ""
 
-  if (!password || password.length < 8) {
-    return { error: "Password must be at least 8 characters long" }
-  }
-
-  if (!/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/\d/.test(password)) {
-    return { error: "Password must contain at least one uppercase letter, one lowercase letter, and one number" }
-  }
+  const passwordError = validatePassword(password)
+  if (passwordError) return { error: passwordError }
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
   const redirectParams = new URLSearchParams({ step: "2" })
@@ -196,12 +192,8 @@ export async function updatePassword(prevState: { error?: string; success?: stri
   const supabase = await createClient()
   const password = formData.get("password") as string
 
-  if (!password || password.length < 8) {
-    return { error: "Password must be at least 8 characters long" }
-  }
-  if (!/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/\d/.test(password)) {
-    return { error: "Password must contain at least one uppercase letter, one lowercase letter, and one number" }
-  }
+  const passwordError = validatePassword(password)
+  if (passwordError) return { error: passwordError }
 
   const { error } = await supabase.auth.updateUser({ password })
   if (error) return { error: error.message }
@@ -215,12 +207,8 @@ export async function crearContrasena(prevState: { error?: string } | undefined,
 
   const password = formData.get("password") as string
 
-  if (!password || password.length < 8) {
-    return { error: "Password must be at least 8 characters long" }
-  }
-  if (!/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/\d/.test(password)) {
-    return { error: "Password must contain at least one uppercase letter, one lowercase letter, and one number" }
-  }
+  const passwordError = validatePassword(password)
+  if (passwordError) return { error: passwordError }
 
   const { error } = await supabase.auth.updateUser({ password })
   if (error) {

@@ -4,13 +4,7 @@ import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { createClient, createAdminClient } from "@/lib/supabase/server"
 import { getStripe } from "@/lib/stripe/server"
-
-const PASSWORD_RULES = (password: string) =>
-  !password || password.length < 8
-    ? "Password must be at least 8 characters long"
-    : !/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/\d/.test(password)
-      ? "Password must contain at least one uppercase letter, one lowercase letter, and one number"
-      : null
+import { validatePassword } from "@/lib/password"
 
 export async function updateProfileName(
   prevState: { error?: string; success?: string } | undefined,
@@ -62,7 +56,7 @@ export async function updateProfilePassword(
 ) {
   const currentPassword = formData.get("current_password") as string
   const password = formData.get("password") as string
-  const error = PASSWORD_RULES(password)
+  const error = validatePassword(password)
   if (error) return { error }
 
   const supabase = await createClient()

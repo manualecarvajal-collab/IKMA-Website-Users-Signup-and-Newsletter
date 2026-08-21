@@ -4,6 +4,7 @@ import { esMembresiaGratisUsuario } from "@/lib/supabase/free-membership"
 import { getTranslations } from "next-intl/server"
 import ReadMagazineButton from "@/components/ReadMagazineButton"
 import Icon from "@/components/Icon"
+import { formatDate } from "@/lib/date"
 
 export const metadata: Metadata = {
   title: "Magazine - IKMA",
@@ -30,13 +31,6 @@ async function getMagazines(): Promise<Revista[]> {
     .eq("publicado", true)
     .order("fecha_publicacion", { ascending: false })
   return (data ?? []) as Revista[]
-}
-
-function formatDate(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-  })
 }
 
 export default async function NewsletterPage() {
@@ -98,7 +92,7 @@ export default async function NewsletterPage() {
               )}
               <div className="p-4 flex flex-col flex-1">
                 <p className="font-label-sm text-label-sm text-primary mb-1">
-                  {formatDate(m.created_at)}
+                  {formatDate(m.created_at, "en-US", { year: "numeric", month: "long" })}
                 </p>
                 <h3 className="font-headline-md text-headline-md text-on-surface text-sm leading-snug mb-2">
                   {m.titulo}

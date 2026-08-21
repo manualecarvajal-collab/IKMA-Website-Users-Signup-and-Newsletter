@@ -466,12 +466,6 @@
     "signIn": "Sign In",
     "alreadyMember": "Already a member? Sign in to access."
   },
-  "MembershipPopup": {
-    "title": "Unlock Premium Content",
-    "description": "Get access to exclusive magazines, teachings, and resources by becoming an IKMA member.",
-    "becomeMember": "Become a Member",
-    "maybeLater": "Maybe later"
-  },
   "Recuperar": {
     "title": "Reset Password",
     "description": "Enter your email and we'll send you a link to reset your password.",

@@ -466,12 +466,6 @@
     "signIn": "Iniciar Sesión",
     "alreadyMember": "¿Ya eres miembro? Inicia sesión para acceder."
   },
-  "MembershipPopup": {
-    "title": "Desbloquea Contenido Premium",
-    "description": "Obtén acceso a revistas exclusivas, enseñanzas y recursos haciéndote miembro de IKMA.",
-    "becomeMember": "Hazte Miembro",
-    "maybeLater": "Quizás después"
-  },
   "Recuperar": {
     "title": "Restablecer Contraseña",
     "description": "Ingresa tu correo electrónico y te enviaremos un enlace para restablecer tu contraseña.",

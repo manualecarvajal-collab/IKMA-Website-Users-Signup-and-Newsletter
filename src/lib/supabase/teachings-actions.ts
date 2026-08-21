@@ -24,19 +24,11 @@ export async function reordenarGrupos(formData: FormData) {
   revalidatePath("/admin/teachings")
 }
 
-function slugifySimple(text: string) {
-  return text
-    .toLowerCase()
-    .replace(/[^\w\s]/g, "")
-    .replace(/\s+/g, "-")
-    .trim()
-}
-
 export async function createGrupo(formData: FormData) {
   const { supabase } = await checkAdmin()
   const nombre = formData.get("nombre") as string
   if (!nombre?.trim()) return { error: "Group name is required" }
-  const slug = slugifySimple(nombre.trim())
+  const slug = slugify(nombre.trim())
   const gratis = formData.get("gratis") === "on"
   const { data, error } = await supabase.from("grupos").insert({ nombre: nombre.trim(), slug, gratis }).select("id, nombre").single()
   if (error) {
@@ -52,7 +44,7 @@ export async function updateGrupo(id: string, formData: FormData) {
   const { supabase } = await checkAdmin()
   const nombre = formData.get("nombre") as string
   if (!nombre?.trim()) return { error: "Group name is required" }
-  const slug = slugifySimple(nombre.trim())
+  const slug = slugify(nombre.trim())
   const gratis = formData.get("gratis") === "on"
   const { error } = await supabase.from("grupos").update({ nombre: nombre.trim(), slug, gratis }).eq("id", id)
   if (error) return { error: error.message }

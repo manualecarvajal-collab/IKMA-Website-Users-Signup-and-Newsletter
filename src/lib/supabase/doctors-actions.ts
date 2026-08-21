@@ -4,8 +4,7 @@ import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { checkAdmin, registrarActividad } from "@/lib/supabase/admin-helpers"
 
-export async function createDoctor(formData: FormData) {
-  const { supabase } = await checkAdmin()
+function doctorFormData(formData: FormData) {
   const parseArray = (val: string | null) =>
     val ? val.split(",").map((s) => s.trim()).filter(Boolean) : []
   const parseJSON = (val: string | null) => {
@@ -13,21 +12,18 @@ export async function createDoctor(formData: FormData) {
     try { return JSON.parse(val) } catch { return [] }
   }
 
-  const buildStats = () => ({
-    experience: formData.get("stat_experience") as string || "",
-    patients: formData.get("stat_patients") as string || "",
-    awards: formData.get("stat_awards") as string || "",
-    publications: formData.get("stat_publications") as string || "",
-  })
-
-  const nombre = formData.get("nombre") as string
-  const data = {
-    nombre,
+  return {
+    nombre: formData.get("nombre") as string,
     especialidad_principal: formData.get("especialidad_principal") as string,
     frase: formData.get("frase") as string,
     acerca_de: formData.get("acerca_de") as string,
     imagen_url: formData.get("imagen_url") as string,
-    estadisticas: buildStats(),
+    estadisticas: {
+      experience: formData.get("stat_experience") as string || "",
+      patients: formData.get("stat_patients") as string || "",
+      awards: formData.get("stat_awards") as string || "",
+      publications: formData.get("stat_publications") as string || "",
+    },
     rating: parseFloat(formData.get("rating") as string) || 0,
     num_resenas: parseInt(formData.get("num_resenas") as string) || 0,
     especialidades: parseArray(formData.get("especialidades") as string),
@@ -42,6 +38,12 @@ export async function createDoctor(formData: FormData) {
     testimonios: parseJSON(formData.get("testimonios") as string),
     publicado: formData.get("publicado") === "on",
   }
+}
+
+export async function createDoctor(formData: FormData) {
+  const { supabase } = await checkAdmin()
+  const data = doctorFormData(formData)
+  const nombre = data.nombre
   const { error } = await supabase.from("doctores").insert(data)
   if (error) return { error: error.message }
   await registrarActividad(supabase, "doctor_creado", `Created doctor "${nombre}"`, "doctores", nombre)
@@ -52,41 +54,8 @@ export async function createDoctor(formData: FormData) {
 
 export async function updateDoctor(id: string, formData: FormData) {
   const { supabase } = await checkAdmin()
-  const parseArray = (val: string | null) =>
-    val ? val.split(",").map((s) => s.trim()).filter(Boolean) : []
-  const parseJSON = (val: string | null) => {
-    if (!val) return []
-    try { return JSON.parse(val) } catch { return [] }
-  }
-  const buildStats = () => ({
-    experience: formData.get("stat_experience") as string || "",
-    patients: formData.get("stat_patients") as string || "",
-    awards: formData.get("stat_awards") as string || "",
-    publications: formData.get("stat_publications") as string || "",
-  })
-
-  const nombre = formData.get("nombre") as string
-  const data = {
-    nombre,
-    especialidad_principal: formData.get("especialidad_principal") as string,
-    frase: formData.get("frase") as string,
-    acerca_de: formData.get("acerca_de") as string,
-    imagen_url: formData.get("imagen_url") as string,
-    estadisticas: buildStats(),
-    rating: parseFloat(formData.get("rating") as string) || 0,
-    num_resenas: parseInt(formData.get("num_resenas") as string) || 0,
-    especialidades: parseArray(formData.get("especialidades") as string),
-    idiomas: parseArray(formData.get("idiomas") as string),
-    disponibilidad: formData.get("disponibilidad") as string,
-    hospital: formData.get("hospital") as string,
-    direccion: formData.get("direccion") as string,
-    experiencia: parseJSON(formData.get("experiencia") as string),
-    educacion: parseJSON(formData.get("educacion") as string),
-    certificaciones: parseJSON(formData.get("certificaciones") as string),
-    premios: parseJSON(formData.get("premios") as string),
-    testimonios: parseJSON(formData.get("testimonios") as string),
-    publicado: formData.get("publicado") === "on",
-  }
+  const data = doctorFormData(formData)
+  const nombre = data.nombre
   const { error } = await supabase.from("doctores").update(data).eq("id", id)
   if (error) return { error: error.message }
   await registrarActividad(supabase, "doctor_actualizado", `Updated doctor "${nombre}"`, "doctores", id)

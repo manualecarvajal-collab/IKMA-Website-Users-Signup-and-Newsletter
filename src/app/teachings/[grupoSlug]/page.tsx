@@ -4,6 +4,7 @@ import type { Metadata } from "next"
 import { createClient } from "@/lib/supabase/server"
 import { getTranslations, getLocale } from "next-intl/server"
 import Icon from "@/components/Icon"
+import { formatDate } from "@/lib/date"
 
 interface Video {
   id: string
@@ -14,14 +15,6 @@ interface Video {
   imagen_preview: string | null
   publicado: boolean
   created_at: string
-}
-
-function formatDate(d: string, locale: string) {
-  return new Date(d).toLocaleDateString(locale, {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  })
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ grupoSlug: string }> }): Promise<Metadata> {
@@ -105,7 +98,7 @@ export default async function GrupoVideosPage({ params }: { params: Promise<{ gr
                   <p className="font-body-md text-body-md text-on-surface-variant line-clamp-2 mb-4">{v.descripcion}</p>
                 )}
                 <div className="mt-auto flex items-center justify-between pt-4 border-t border-surface-container">
-                  <span className="font-label-bold text-label-sm text-primary">{formatDate(v.created_at, locale)}</span>
+                  <span className="font-label-bold text-label-sm text-primary">{formatDate(v.created_at, locale, { year: "numeric", month: "short", day: "numeric" })}</span>
                   <Icon name="arrow_forward" className="text-on-surface-variant group-hover:text-primary transition-colors" />
                 </div>
               </div>
