@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { resizeImg } from "@/lib/images";
 import { SafeImage } from "@/components/SafeImage";
 import HeroCarousel, { Slide } from "@/components/HeroCarousel";
 import StatsSection from "@/components/StatsSection";
@@ -9,10 +8,6 @@ import Icon from "@/components/Icon";
 
 export default async function HomePage() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  const isAuthenticated = !!user;
   const locale = await getLocale()
   const tHome = await getTranslations("Home");
   const tHero = await getTranslations("Hero");
@@ -29,7 +24,7 @@ export default async function HomePage() {
 
   return (
     <div className="-mt-20 md:mt-0 overflow-x-hidden">
-        <HeroCarousel isAuthenticated={isAuthenticated}>
+        <HeroCarousel>
         <Slide>
           <div className="relative w-full h-full">
             <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop flex flex-col md:flex-row h-full">

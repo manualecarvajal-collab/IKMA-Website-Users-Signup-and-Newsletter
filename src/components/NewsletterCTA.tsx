@@ -1,11 +1,15 @@
-import { getTranslations } from "next-intl/server"
+"use client"
+
+import { useTranslations } from "next-intl"
 import Icon from "@/components/Icon"
 import NewsletterCTAForm from "./NewsletterCTAForm"
+import { useSession } from "@/lib/supabase/use-session"
 
-export default async function NewsletterCTA({ isAuthenticated }: { isAuthenticated: boolean }) {
-  if (isAuthenticated) return null
+export default function NewsletterCTA() {
+  const t = useTranslations("NewsletterCTA")
+  const user = useSession()
 
-  const t = await getTranslations("NewsletterCTA")
+  if (user) return null
 
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-primary via-primary to-primary-container">

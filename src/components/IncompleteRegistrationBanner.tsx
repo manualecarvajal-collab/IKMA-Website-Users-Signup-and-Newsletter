@@ -1,41 +1,95 @@
 "use client"
 
 import Link from "next/link"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useTranslations } from "next-intl"
 import Icon from "@/components/Icon"
+import { createClient } from "@/lib/supabase/client"
 
 // Site-wide reminder for users who abandoned the membership process at any
 // step: shows which steps are done and which were left behind. The DB record
 // ("incompleta" application) covers abandonment at the payment step; before
 // submission the form leaves a tracking cookie with the last step reached.
-export default function IncompleteRegistrationBanner({
-  tipoMiembro,
-  region,
-  paso,
-}: {
-  tipoMiembro: number | null
-  region: string | null
-  paso: number
-}) {
+// Fetches everything client-side so the root layout stays auth-free.
+export default function IncompleteRegistrationBanner() {
   const t = useTranslations("IncompleteRegistration")
   const [hidden, setHidden] = useState(false)
+  const [data, setData] = useState<{ tipoMiembro: number | null; region: string | null; paso: number } | null>(null)
 
-  if (hidden) return null
+  useEffect(() => {
+    const supabase = createClient()
+    let active = true
+
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (!active || !session) return
+      const userId = session.user.id
+
+      const { data: perfil } = await supabase
+        .from("perfiles")
+        .select("rol")
+        .eq("id", userId)
+        .single()
+      if (!active) return
+
+      // Never nag users who already have a paid/approved application.
+      const { data: procesoCompleto } = await supabase
+        .from("solicitudes_membresia")
+        .select("id")
+        .eq("usuario_id", userId)
+        .in("estado", ["aprobada", "pagada"])
+        .limit(1)
+        .maybeSingle()
+      if (!active || procesoCompleto) return
+
+      // Submitted form without paying → the DB record knows the step.
+      const { data: solicitud } = await supabase
+        .from("solicitudes_membresia")
+        .select("estado, tipo_miembro, region")
+        .eq("usuario_id", userId)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle()
+      if (!active) return
+
+      if (solicitud?.estado === "incompleta") {
+        setData({ tipoMiembro: solicitud.tipo_miembro, region: solicitud.region, paso: 3 })
+      } else if (!solicitud && perfil?.rol !== "administrador") {
+        // Before submission the form tracks the last step reached in a cookie.
+        const cookie = document.cookie
+          .split("; ")
+          .find((c) => c.startsWith("membresia_proceso="))
+          ?.split("=")[1]
+        if (cookie) {
+          const [paso, tipo, region] = cookie.split("|")
+          setData({
+            tipoMiembro: Number(tipo) || null,
+            region: region || null,
+            paso: Math.min(Number(paso) || 1, 3),
+          })
+        }
+      }
+    })
+
+    return () => {
+      active = false
+    }
+  }, [])
+
+  if (hidden || !data) return null
 
   // Professionals (1) and residents (2) cannot deep-link past step 2.
-  const maxStep = tipoMiembro === 1 || tipoMiembro === 2 ? 2 : 3
-  const stepUrl = Math.min(paso, maxStep)
+  const maxStep = data.tipoMiembro === 1 || data.tipoMiembro === 2 ? 2 : 3
+  const stepUrl = Math.min(data.paso, maxStep)
   const params = new URLSearchParams()
-  if (tipoMiembro != null) params.set("tipo", String(tipoMiembro))
-  if (region) params.set("region", region)
-  if (tipoMiembro != null && stepUrl > 1) params.set("step", String(stepUrl))
+  if (data.tipoMiembro != null) params.set("tipo", String(data.tipoMiembro))
+  if (data.region) params.set("region", data.region)
+  if (data.tipoMiembro != null && stepUrl > 1) params.set("step", String(stepUrl))
   const continueUrl = `/membresia${params.size ? `?${params}` : ""}`
 
   const steps = [
-    { key: "stepMembership", done: paso >= 2 },
-    { key: "stepRegistration", done: paso >= 3 },
-    { key: "stepPayment", done: paso >= 4 },
+    { key: "stepMembership", done: data.paso >= 2 },
+    { key: "stepRegistration", done: data.paso >= 3 },
+    { key: "stepPayment", done: data.paso >= 4 },
     { key: "stepConfirmation", done: false },
   ]
 

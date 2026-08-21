@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl"
 import Icon from "@/components/Icon"
 import { getStripe } from "@/lib/stripe/client"
 import { submitMembership } from "@/lib/supabase/membresia-actions"
-import { countries, pricingMatrix, professionSubgroups, memberTypeLabels, paymentOptions } from "./data"
+import { pricingMatrix, professionSubgroups, memberTypeLabels, paymentOptions } from "./data"
 
 type FormData = {
   memberType: number
@@ -94,6 +94,7 @@ export default function MembershipForm({
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [checkoutStarted, setCheckoutStarted] = useState(false)
+  const [countries, setCountries] = useState<string[] | null>(null)
   const checkoutMounted = useRef(false)
   const checkoutRef = useRef<{ destroy: () => void } | null>(null)
   const mountedOptionRef = useRef(0)
@@ -101,6 +102,13 @@ export default function MembershipForm({
   const startingRef = useRef(false)
 
   useEffect(() => { window.scrollTo(0, 0) }, [step])
+
+  // ponytail: countries list (~200 entries) only needed on step 2; load lazily
+  useEffect(() => {
+    if (step === 2 && !countries) {
+      import("./data").then((m) => setCountries(m.countries))
+    }
+  }, [step, countries])
 
   const price = pricingMatrix[form.region]?.[form.memberType] ?? 0
   const installmentAmount = paymentOption > 1 && price > 0 ? Math.round((price / paymentOption) * 100) / 100 : price
@@ -633,9 +641,9 @@ export default function MembershipForm({
                   className="w-full bg-white border border-outline-variant/50 rounded-xl px-4 py-2.5 text-sm outline-none appearance-none"
                 >
                   <option value="" disabled>
-                    {t("selectCountry")}
+                    {countries ? t("selectCountry") : "Loading..."}
                   </option>
-                  {countries.map((c) => (
+                  {(countries ?? []).map((c) => (
                     <option key={c} value={c}>{c}</option>
                   ))}
                 </select>

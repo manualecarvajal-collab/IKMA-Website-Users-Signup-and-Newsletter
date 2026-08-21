@@ -8,7 +8,7 @@ import { createBrowserClient } from "@supabase/ssr"
 import { useTranslations } from "next-intl"
 import Icon from "@/components/Icon"
 
-export default function Navbar({ initialUser }: { initialUser: { email: string; role: string } | null }) {
+export default function Navbar({ initialUser }: { initialUser?: { email: string; role: string } | null }) {
   const t = useTranslations("Navbar")
 
   const aboutLinks = [
@@ -23,7 +23,7 @@ export default function Navbar({ initialUser }: { initialUser: { email: string; 
     { href: "/teachings", label: t("teachings") },
   ]
   const pathname = usePathname()
-  const [user, setUser] = useState<{ email: string; role: string } | null>(initialUser)
+  const [user, setUser] = useState<{ email: string; role: string } | null>(initialUser ?? null)
 
   const isAdmin = pathname.startsWith("/admin")
   const [mobileOpen, setMobileOpen] = useState(false)

@@ -4,21 +4,21 @@ import { useState, useEffect, useCallback, Children, type ReactNode } from 'reac
 import Link from 'next/link'
 import { useTranslations } from "next-intl"
 import ParticleGrid from './ParticleGrid'
+import { useSession } from "@/lib/supabase/use-session"
 
 interface HeroCarouselProps {
   children: ReactNode
   interval?: number
-  isAuthenticated?: boolean
   hideCtas?: boolean
 }
 
 export default function HeroCarousel({
   children,
   interval = 6000,
-  isAuthenticated = false,
   hideCtas = false,
 }: HeroCarouselProps) {
   const t = useTranslations("Hero")
+  const user = useSession()
   const slides = Children.toArray(children)
   const [current, setCurrent] = useState(0)
 
@@ -89,7 +89,7 @@ export default function HeroCarousel({
                 href="/membresia"
                 className="flex-1 border-2 border-primary text-primary font-bold text-sm py-3 rounded-xl text-center active:scale-95 transition-all"
               >
-                {isAuthenticated ? t("changeMembership") : t("newsletter")}
+                {user ? t("changeMembership") : t("newsletter")}
               </Link>
             </div>
             <div className="pointer-events-auto hidden md:flex md:flex-row md:flex-wrap items-center justify-start gap-2 sm:gap-3 mb-[2.5vh]">
@@ -103,7 +103,7 @@ export default function HeroCarousel({
                 href="/membresia"
                 className="border-2 border-primary text-primary font-label-bold text-label-bold px-6 py-3 rounded-lg hover:bg-primary/5 transition-all active:scale-95 text-center"
               >
-                {isAuthenticated ? t("changeMembership") : t("subscribeNewsletter")}
+                {user ? t("changeMembership") : t("subscribeNewsletter")}
               </Link>
             </div>
           </div>
