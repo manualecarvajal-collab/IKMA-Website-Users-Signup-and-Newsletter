@@ -7,6 +7,7 @@ import { Fragment, useEffect, useState } from "react"
 import { createBrowserClient } from "@supabase/ssr"
 import { useTranslations } from "next-intl"
 import Icon from "@/components/Icon"
+import LoadingOverlay from "@/components/LoadingOverlay"
 
 export default function Navbar({ initialUser }: { initialUser?: { email: string; role: string } | null }) {
   const t = useTranslations("Navbar")
@@ -30,7 +31,19 @@ export default function Navbar({ initialUser }: { initialUser?: { email: string;
   const [aboutExpanded, setAboutExpanded] = useState(false)
   const [resourcesExpanded, setResourcesExpanded] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const [profileOpen, setProfileOpen] = useState(false)
+  const [signingOut, setSigningOut] = useState(false)
   const closeMobile = () => setMobileOpen(false)
+
+  const handleSignOut = async () => {
+    setSigningOut(true)
+    const supabase = createBrowserClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
+    await supabase.auth.signOut()
+    window.location.href = "/"
+  }
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50)
@@ -85,6 +98,7 @@ export default function Navbar({ initialUser }: { initialUser?: { email: string;
 
   return (
     <>
+    {signingOut && <LoadingOverlay message={t("signingOut")} />}
     <nav className={`top-0 sticky z-50 transition-all duration-300 md:bg-white/70 md:backdrop-blur-lg md:shadow-[0_20px_20px_0_rgba(7,68,105,0.04)] ${
       scrolled ? "bg-white/70 backdrop-blur-lg shadow-[0_20px_20px_0_rgba(7,68,105,0.04)]" : "bg-transparent"
     } ${isAdmin ? "hidden" : ""}`}>
@@ -202,14 +216,38 @@ export default function Navbar({ initialUser }: { initialUser?: { email: string;
           </div>
         <div className="flex items-center gap-[clamp(0.25rem,0.8vw,0.75rem)] flex-shrink-0 ml-auto">
           {user ? (
-            <>
-              <Link
-                href="/perfil"
-                className="hidden md:inline-block bg-white border border-outline-variant text-on-surface font-label-bold text-xs md:text-label-bold rounded-lg hover:bg-surface-container transition-all px-3 py-1.5 md:px-5 md:py-2.5"
+            <div className="relative hidden md:block">
+              <button
+                type="button"
+                onClick={() => setProfileOpen((o) => !o)}
+                className="inline-flex items-center gap-1 bg-white border border-outline-variant text-on-surface font-label-bold text-xs md:text-label-bold rounded-lg hover:bg-surface-container transition-all px-3 py-1.5 md:px-5 md:py-2.5 cursor-pointer"
               >
                 {t("myProfile")}
-              </Link>
-            </>
+                <Icon name="expand_more" size={16} className={`transition-transform ${profileOpen ? "rotate-180" : ""}`} />
+              </button>
+              {profileOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setProfileOpen(false)} />
+                  <div className="absolute right-0 mt-2 z-50 w-48 bg-surface rounded-lg shadow-lg border border-outline-variant/30 py-2">
+                    <Link
+                      href="/perfil"
+                      onClick={() => setProfileOpen(false)}
+                      className="block px-4 py-2.5 font-body-md text-on-surface hover:bg-surface-container transition-colors"
+                    >
+                      {t("myProfile")}
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={handleSignOut}
+                      disabled={signingOut}
+                      className="block w-full text-left px-4 py-2.5 font-body-md text-error hover:bg-error-container/10 transition-colors disabled:opacity-50 cursor-pointer"
+                    >
+                      {signingOut ? t("signingOut") : t("signOut")}
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
           ) : null}
           <span className="w-px h-6 bg-outline-variant hidden md:block" />
           {!user && (
@@ -373,6 +411,17 @@ export default function Navbar({ initialUser }: { initialUser?: { email: string;
               >
                 {t("myProfile")}
               </Link>
+              <button
+                type="button"
+                onClick={() => {
+                  closeMobile()
+                  handleSignOut()
+                }}
+                disabled={signingOut}
+                className="block w-full text-center text-error font-label-bold text-label-bold rounded-lg hover:bg-error-container/10 transition-all px-5 py-2.5 disabled:opacity-50 cursor-pointer"
+              >
+                {signingOut ? t("signingOut") : t("signOut")}
+              </button>
             </div>
           ) : null}
           {!user && (

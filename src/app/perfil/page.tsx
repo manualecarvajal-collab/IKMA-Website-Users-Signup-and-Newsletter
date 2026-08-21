@@ -3,9 +3,10 @@ import { createClient } from "@/lib/supabase/server"
 import { getMembershipPayments } from "@/lib/stripe/membership"
 import PerfilForms from "./PerfilForms"
 import MembershipEditForm from "./MembershipEditForm"
-import { cancelMembership, deleteAccount } from "@/lib/supabase/profile-actions"
+import { cancelMembership } from "@/lib/supabase/profile-actions"
 import Link from "next/link"
 import Icon from "@/components/Icon"
+import DeleteAccountForm from "./DeleteAccountForm"
 
 const memberTypeNames = {
   1: "type1",
@@ -191,18 +192,7 @@ export default async function PerfilPage() {
         <div className="bg-surface rounded-xl p-6 md:p-8 shadow-[0_20px_20px_0_rgba(7,68,105,0.04)] border border-error/30">
           <h2 className="font-headline-lg text-headline-sm text-error mb-2">{t("dangerZone")}</h2>
           <p className="font-body-md text-body-md text-on-surface-variant mb-6">{t("dangerZoneDesc")}</p>
-          <form action={deleteAccount}>
-            <label className="flex items-start gap-3 mb-6 cursor-pointer">
-              <input type="checkbox" required className="mt-1 accent-error" />
-              <span className="font-body-md text-body-md text-on-surface-variant">{t("deleteConfirm")}</span>
-            </label>
-            <button
-              type="submit"
-              className="w-full bg-error text-white font-label-bold text-label-bold py-3 px-6 rounded-lg hover:bg-error/90 transition-all cursor-pointer"
-            >
-              {t("deleteAccount")}
-            </button>
-          </form>
+          <DeleteAccountForm />
         </div>
         </aside>
         </div>

@@ -6,6 +6,7 @@ import Link from "next/link"
 import { updateProfileName, updateProfileEmail, updateProfilePassword } from "@/lib/supabase/profile-actions"
 import { createClient } from "@/lib/supabase/client"
 import PasswordInput from "@/components/PasswordInput"
+import LoadingOverlay from "@/components/LoadingOverlay"
 
 type ActionState = { error?: string; success?: string } | undefined
 
@@ -31,6 +32,7 @@ export default function PerfilForms({ initialNombre, email }: { initialNombre: s
 
   return (
     <div className="space-y-8">
+      {signingOut && <LoadingOverlay message={t("signingOut")} />}
       {/* Name */}
       <div className="bg-surface rounded-xl p-8 md:p-10 shadow-[0_20px_20px_0_rgba(7,68,105,0.04)] border border-outline-variant/20">
         <h2 className="font-headline-lg text-headline-sm text-primary mb-4">{t("fullName")}</h2>

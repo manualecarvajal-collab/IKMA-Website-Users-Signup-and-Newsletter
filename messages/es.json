@@ -16,7 +16,8 @@
     "teachings": "Enseñanzas",
     "events": "Eventos",
     "contact": "Contacto",
-    "myProfile": "Mi Perfil"
+    "myProfile": "Mi Perfil",
+    "signingOut": "Cerrando sesión…"
   },
   "Footer": {
     "missionStatement": "Tenemos la gracia y sabiduría de Dios para traer soluciones a los problemas que enfrenta nuestra sociedad.",
@@ -685,6 +686,7 @@
     "dangerZoneDesc": "Borrar tu cuenta elimina permanentemente todos tus datos, incluyendo tu solicitud de membresía e historial de pagos. Esta acción no se puede deshacer.",
     "deleteConfirm": "Entiendo que mi cuenta y todos mis datos serán eliminados permanentemente.",
     "deleteAccount": "Borrar mi cuenta",
+    "deletingAccount": "Borrando tu cuenta…",
     "activeMember": "Miembro activo",
     "currentPassword": "Contraseña actual",
     "forgotPassword": "¿Olvidé mi contraseña?",

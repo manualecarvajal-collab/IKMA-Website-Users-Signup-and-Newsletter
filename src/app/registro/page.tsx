@@ -118,6 +118,7 @@ export default function RegistroPage() {
                 provider: "google",
                 options: {
                   redirectTo: `${location.origin}/auth/callback?next=${encodeURIComponent(membershipNext)}`,
+                  queryParams: { prompt: "select_account" },
                 },
               })
             }}

@@ -1,7 +1,5 @@
 "use server"
 
-import { revalidatePath } from "next/cache"
-import { redirect } from "next/navigation"
 import { createClient, createAdminClient } from "@/lib/supabase/server"
 import { getStripe } from "@/lib/stripe/server"
 import { validatePassword } from "@/lib/password"
@@ -144,17 +142,17 @@ export async function cancelMembership() {
   revalidatePath("/perfil")
 }
 
-export async function deleteAccount() {
+export async function deleteAccount(): Promise<boolean> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return
+  if (!user) return false
 
   const { data: perfil } = await supabase
     .from("perfiles")
     .select("rol, stripe_customer_id")
     .eq("id", user.id)
     .single()
-  if (perfil?.rol === "administrador") return
+  if (perfil?.rol === "administrador") return false
 
   // Stop billing before the user row disappears.
   await cancelarSuscripcionesActivas(perfil?.stripe_customer_id ?? null)
@@ -162,9 +160,9 @@ export async function deleteAccount() {
   // Deleting the auth user cascades perfiles, solicitudes and recordatorios.
   const admin = await createAdminClient()
   const { error } = await admin.auth.admin.deleteUser(user.id)
-  if (error) return
+  if (error) return false
 
-  await supabase.auth.signOut()
-  revalidatePath("/", "layout")
-  redirect("/")
+  // Session clearing + navigation is handled on the browser side by the
+  // caller, so the navbar re-reads the cleared session and drops logged-in UI.
+  return true
 }

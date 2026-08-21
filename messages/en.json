@@ -16,7 +16,8 @@
     "teachings": "Teachings",
     "events": "Events",
     "contact": "Contact",
-    "myProfile": "My Profile"
+    "myProfile": "My Profile",
+    "signingOut": "Signing out…"
   },
   "Footer": {
     "missionStatement": "We have God's grace and wisdom to bring solutions to the problems facing our society.",
@@ -685,6 +686,7 @@
     "dangerZoneDesc": "Deleting your account removes all your data permanently, including your membership application and payment history. This cannot be undone.",
     "deleteConfirm": "I understand my account and all my data will be permanently deleted.",
     "deleteAccount": "Delete my account",
+    "deletingAccount": "Deleting your account…",
     "activeMember": "Active member",
     "currentPassword": "Current password",
     "forgotPassword": "Forgot my password?",
