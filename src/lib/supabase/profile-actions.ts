@@ -1,6 +1,7 @@
 "use server"
 
 import { createClient, createAdminClient } from "@/lib/supabase/server"
+import { revalidatePath } from "next/cache"
 import { getStripe } from "@/lib/stripe/server"
 import { validatePassword } from "@/lib/password"
 

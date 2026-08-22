@@ -217,6 +217,7 @@ export function ArticleForm({
       </div>
 
       <ImageUpload name="imagen_url" defaultValue={imagenUrl} label="Cover Image" onChange={setImagenUrl} />
+      <p className="-mt-4 text-label-sm text-on-surface-variant">Recommended: landscape 16:9, e.g. 1200×675 px (max side 1200 px — resized automatically).</p>
 
       <div className="flex items-center gap-3">
         <input name="publicado" type="checkbox" defaultChecked={article?.publicado ?? false} className="w-4 h-4 rounded border-outline-variant/50 text-primary focus:ring-primary/30" />
