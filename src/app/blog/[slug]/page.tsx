@@ -169,7 +169,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
           {/* Right Column — Article Content */}
           <div className="order-1 md:order-2">
             {article.imagen_url && (
-              <div className="w-full h-80 rounded-xl overflow-hidden bg-surface-variant mb-6">
+              <div className="w-full aspect-video rounded-xl overflow-hidden bg-surface-variant mb-6">
                 <img src={article.imagen_url} alt="" loading="lazy" className="w-full h-full object-cover" />
               </div>
             )}

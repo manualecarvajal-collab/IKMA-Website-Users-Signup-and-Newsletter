@@ -89,8 +89,8 @@ export function ArticleForm({
         </div>
         <div className="bg-surface rounded-xl border border-outline-variant/20 p-8 md:p-12">
           {imagenUrl && (
-            <div className="w-full h-64 rounded-xl overflow-hidden bg-surface-variant mb-6">
-              <img src={imagenUrl} alt="" className="w-full h-full object-cover" />
+              <div className="w-full aspect-video rounded-xl overflow-hidden bg-surface-variant mb-6">
+                <img src={imagenUrl} alt="" className="w-full h-full object-cover" />
             </div>
           )}
           <h1 className="font-headline-xl text-[clamp(1.625rem,3.25vw,2.6rem)] text-primary mb-6">
