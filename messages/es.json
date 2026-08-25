@@ -4,6 +4,7 @@
     "aboutUs": "Sobre Nosotros",
     "resources": "Recursos",
     "outreach": "Misiones",
+    "testimonials": "Testimonios",
     "signOut": "Cerrar sesión",
     "logIn": "Iniciar sesión",
     "signUp": "Registrarse",
@@ -749,5 +750,20 @@
     "org": "IKMA LLC, International Kingdom Medical Association",
     "emailLabel": "Correo electrónico:",
     "closing": "Nuestro compromiso es servir con integridad, compasión, excelencia y fe mientras trabajamos por un mundo pleno y restaurado de acuerdo con el diseño de Dios."
+  },
+  "Testimonials": {
+    "heroBadge": "Testimonios",
+    "scroll": "Desplázate",
+    "heroTitle": "Voces de Impacto",
+    "heroSubtitle": "Descubre historias inspiradoras de sanidad, fe y excelencia clínica de nuestra red global de profesionales de la salud dedicados a la cooperación internacional y a la misión de llevar esperanza a las naciones.",
+    "storiesFrom": "Historias de {region}",
+    "ctaTitle": "¿Listo para hacer impacto?",
+    "ctaSubtitle": "Únete a nuestra comunidad global de profesionales de la salud dedicados a la excelencia y a la cooperación internacional.",
+    "ctaButton": "Únete a la misión",
+    "empty": "Aún no hay testimonios en esta región.",
+    "latinAmerica": "Latinoamérica",
+    "northAmerica": "Norteamérica",
+    "africa": "África",
+    "europe": "Europa"
   }
 }

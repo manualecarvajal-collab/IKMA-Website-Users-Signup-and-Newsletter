@@ -4,6 +4,7 @@
     "aboutUs": "About Us",
     "resources": "Resources",
     "outreach": "Outreach",
+    "testimonials": "Testimonials",
     "signOut": "Sign out",
     "logIn": "Log in",
     "signUp": "Sign up",
@@ -746,5 +747,20 @@
     "org": "IKMA LLC, International Kingdom Medical Association",
     "emailLabel": "Email:",
     "closing": "Our commitment is to serve with integrity, compassion, excellence, and faith as we work toward a world fulfilled and restored according to God's design."
+  },
+  "Testimonials": {
+    "heroBadge": "Testimonials",
+    "scroll": "Scroll",
+    "heroTitle": "Voices of Impact",
+    "heroSubtitle": "Discover inspiring stories of healing, faith, and clinical excellence from our global network of healthcare professionals dedicated to international cooperation and the mission of bringing hope to the nations.",
+    "storiesFrom": "Stories from {region}",
+    "ctaTitle": "Ready to Make an Impact?",
+    "ctaSubtitle": "Join our global community of healthcare professionals dedicated to excellence and international cooperation.",
+    "ctaButton": "Join the Mission",
+    "empty": "No testimonials in this region yet.",
+    "latinAmerica": "Latin America",
+    "northAmerica": "North America",
+    "africa": "Africa",
+    "europe": "Europe"
   }
 }

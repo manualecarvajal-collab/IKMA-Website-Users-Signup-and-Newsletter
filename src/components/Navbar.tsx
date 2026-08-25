@@ -23,6 +23,10 @@ export default function Navbar({ initialUser }: { initialUser?: { email: string;
     { href: "/blog", label: "Blog" },
     { href: "/teachings", label: t("teachings") },
   ]
+  const outreachLinks = [
+    { href: "/outreach", label: t("outreach") },
+    { href: "/testimonios", label: t("testimonials") },
+  ]
   const pathname = usePathname()
   const [user, setUser] = useState<{ email: string; role: string } | null>(initialUser ?? null)
 
@@ -30,6 +34,7 @@ export default function Navbar({ initialUser }: { initialUser?: { email: string;
   const [mobileOpen, setMobileOpen] = useState(false)
   const [aboutExpanded, setAboutExpanded] = useState(false)
   const [resourcesExpanded, setResourcesExpanded] = useState(false)
+  const [outreachExpanded, setOutreachExpanded] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
   const [signingOut, setSigningOut] = useState(false)
@@ -95,6 +100,7 @@ export default function Navbar({ initialUser }: { initialUser?: { email: string;
 
   const isAboutActive = aboutLinks.some((l) => pathname.startsWith(l.href))
   const isResourcesActive = resourcesLinks.some((l) => pathname.startsWith(l.href))
+  const isOutreachActive = outreachLinks.some((l) => pathname.startsWith(l.href))
 
   return (
     <>
@@ -193,16 +199,35 @@ export default function Navbar({ initialUser }: { initialUser?: { email: string;
             >
               {t("events")}
             </Link>
-            <Link
-              href="/outreach"
-              className={
-                isActive("/outreach")
-                  ? "text-primary border-b-2 border-primary pb-1"
-                  : "text-on-surface-variant hover:text-primary transition-colors hover:bg-primary-container/10 px-2 py-1 rounded-md duration-300 ease-in-out active:scale-95"
-              }
-            >
-              {t("outreach")}
-            </Link>
+            <div className="relative group">
+              <span
+                className={
+                  (isOutreachActive ? "text-primary border-b-2 border-primary pb-1" : "text-on-surface-variant group-hover:text-primary transition-colors") +
+                  " flex items-center gap-0.5 cursor-default px-2 py-1 rounded-md group-hover:bg-primary-container/10 duration-300"
+                }
+              >
+                {t("outreach")}
+                <Icon name="expand_more" size={14} className="transition-transform duration-300 group-hover:rotate-180" />
+              </span>
+              <div className="absolute top-full left-0 mt-0 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                <div className="bg-white rounded-lg shadow-lg border border-outline-variant/30 py-2 min-w-[190px]">
+                  {outreachLinks.map((l) => (
+                    <Link
+                      key={l.href}
+                      href={l.href}
+                      className={
+                        (pathname.startsWith(l.href)
+                          ? "text-primary bg-primary-container/10"
+                          : "text-on-surface-variant hover:text-primary hover:bg-primary-container/10") +
+                        " block px-4 py-2.5 font-body-md transition-colors"
+                      }
+                    >
+                      {l.label}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
             <Link
               href="/contact-us"
               className={
@@ -376,18 +401,43 @@ export default function Navbar({ initialUser }: { initialUser?: { email: string;
           >
             {t("events")}
           </Link>
-          <Link
-            href="/outreach"
-            onClick={closeMobile}
-            className={
-              (isActive("/outreach")
-                ? "text-primary bg-primary-container/20"
-                : "text-on-surface-variant hover:bg-surface-container hover:text-on-surface") +
-              " flex items-center gap-3 px-4 py-3 rounded-lg font-label-bold text-label-bold transition-colors"
-            }
-          >
-            {t("outreach")}
-          </Link>
+          <div>
+            <button
+              onClick={() => setOutreachExpanded((o) => !o)}
+              className={
+                (isOutreachActive
+                  ? "text-primary bg-primary-container/20"
+                  : "text-on-surface-variant") +
+                " flex items-center justify-between w-full px-4 py-3 rounded-lg font-label-bold text-label-bold transition-colors"
+              }
+            >
+              {t("outreach")}
+              <Icon name="expand_more" size={14} className={`transition-transform duration-300 ${outreachExpanded ? "rotate-180" : ""}`} />
+            </button>
+            <div
+              className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                outreachExpanded ? "max-h-40 opacity-100" : "max-h-0 opacity-0"
+              }`}
+            >
+              <div className="pl-6 space-y-1">
+                {outreachLinks.map((l) => (
+                  <Link
+                    key={l.href}
+                    href={l.href}
+                    onClick={() => { closeMobile(); setOutreachExpanded(false) }}
+                    className={
+                      (pathname.startsWith(l.href)
+                        ? "text-primary bg-primary-container/10"
+                        : "text-on-surface-variant hover:text-primary hover:bg-surface-container") +
+                      " flex items-center gap-3 px-4 py-2.5 rounded-lg font-body-md transition-colors"
+                    }
+                  >
+                    {l.label}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
           <Link
             href="/contact-us"
             onClick={closeMobile}

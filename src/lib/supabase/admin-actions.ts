@@ -53,3 +53,9 @@ export {
   rejectMembership,
   deleteMembership,
 } from "@/lib/supabase/memberships-actions"
+export {
+  createTestimonio,
+  updateTestimonio,
+  deleteTestimonio,
+  toggleTestimonioStatus,
+} from "@/lib/supabase/testimonials-actions"
