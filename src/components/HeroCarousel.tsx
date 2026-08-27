@@ -52,7 +52,7 @@ export default function HeroCarousel({
 
       {slides.length > 1 && (
         <div className="absolute bottom-28 md:bottom-6 left-0 right-0 z-30 pointer-events-none flex items-center justify-center md:justify-end px-margin-mobile md:px-margin-desktop">
-          <div className="pointer-events-auto flex items-center gap-1.5">
+          <div className="pointer-events-auto hidden md:flex items-center gap-1.5">
             {slides.map((_, index) => (
               <button
                 key={index}

@@ -49,29 +49,43 @@ export function buildNewsletterHtml(config: {
     ? `${siteUrl}/api/unsubscribe?email=${encodeURIComponent(config.email)}`
     : ""
   return `
-    <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; border: 1px solid #e0e0e0;">
-      <div style="background-color: #074469; padding: 32px 24px; text-align: center;">
-        <h1 style="color: #ffffff; margin: 0; font-size: 24px; letter-spacing: 1px;">IKMA NEWSLETTER</h1>
+    <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff;">
+      <!-- Hero header -->
+      <div style="background-color: #f8fafb; padding: 48px 32px 40px; text-align: center; border-bottom: 1px solid #eceeef;">
+        <div style="font-size: 13px; font-weight: 700; color: #003652; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 32px;">IKMA</div>
+        <h1 style="font-size: 32px; line-height: 1.2; color: #003652; font-weight: 700; margin: 0 auto 24px; max-width: 440px;">Hello ${config.nombre},</h1>
+        <p style="font-size: 16px; line-height: 1.7; color: #41474d; margin: 0 auto 32px; max-width: 440px;">New standards in international cooperation. Providing actionable insights to create healthy habits for the long run&mdash;right from our global network.</p>
+        <a href="${siteUrl}/outreach" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 14px 32px; background-color: #003652; color: #ffffff; border-radius: 9999px; font-size: 14px; font-weight: 600; text-decoration: none;">Explore Initiatives</a>
       </div>
 
-      <div style="padding: 32px 24px;">
-        <h2 style="color: #1c1b1f; margin-top: 0; font-size: 22px;">Hello ${config.nombre},</h2>
-        <h3 style="color: #074469; font-size: 20px; margin: 16px 0;">${config.titulo}</h3>
-
-        <div style="color: #49454f; line-height: 1.8; font-size: 16px;">
-          ${config.imagen_url ? `<img src="${config.imagen_url}" alt="${config.titulo}" style="width: 100%; max-width: 560px; border-radius: 12px; margin-bottom: 24px; border: 1px solid #eee;">` : ""}
-          ${config.contenido_html}
+      <!-- Body / featured article -->
+      <div style="padding: 32px;">
+        <div style="background-color: #ffffff; border-radius: 12px; border: 1px solid #e1e3e4; overflow: hidden; margin-top: 24px; box-shadow: 0 4px 24px rgba(26,77,109,0.06);">
+          ${config.imagen_url ? `<img src="${config.imagen_url}" alt="${config.titulo}" style="width: 100%; display: block; max-height: 260px; object-fit: cover;">` : ""}
+          <div style="padding: 24px;">
+            <span style="display: inline-block; padding: 4px 12px; background-color: #d6e2e6; color: #3e484c; border-radius: 9999px; font-size: 12px; font-weight: 600; margin-bottom: 12px;">Newsletter</span>
+            <h3 style="color: #003652; font-size: 22px; font-weight: 600; margin: 0 0 16px;">${config.titulo}</h3>
+            <div style="color: #41474d; font-size: 16px; line-height: 1.8;">${config.contenido_html}</div>
+          </div>
         </div>
-
-        <p style="color: #79747e; font-size: 14px; border-top: 1px solid #f0f0f0; padding-top: 24px; margin-top: 32px;">
-          Thank you for being part of the International Kingdom Medical Association. Your support allows us to continue our mission.
-        </p>
       </div>
 
-      <div style="background-color: #f9f9f9; padding: 24px; text-align: center; color: #938f99; font-size: 12px;">
-        <p style="margin: 0;">&copy; 2026 IKMA. All rights reserved.</p>
-        <p style="margin: 8px 0 0;">You are receiving this email because you are a registered subscriber.</p>
-        ${unsubscribeUrl ? `<p style="margin: 8px 0 0;"><a href="${unsubscribeUrl}" style="color: #938f99;">Unsubscribe</a></p>` : ""}
+      <!-- Call to action -->
+      <div style="background-color: #1a4d6d; padding: 48px 32px; text-align: center;">
+        <h2 style="color: #ffffff; font-size: 28px; font-weight: 600; margin: 0 0 16px;">Join the Mission</h2>
+        <p style="color: #cae6ff; font-size: 16px; line-height: 1.7; margin: 0 auto 32px; max-width: 400px;">Your support is essential to continue advancing excellence in global health.</p>
+        <a href="${siteUrl}/donate" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 16px 40px; background-color: #ffffff; color: #003652; border-radius: 9999px; font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; text-decoration: none;">Support Our Initiatives</a>
+      </div>
+
+      <!-- Footer -->
+      <div style="background-color: #e6e8e9; padding: 32px; text-align: center; border-top: 1px solid #d8dadb;">
+        <div style="color: #003652; font-weight: 700; font-size: 18px; margin-bottom: 16px;">IKMA</div>
+        <p style="color: #41474d; font-size: 13px; line-height: 1.7; margin: 0 0 24px;">International Kingdom Medical Association<br>Dedicated to excellence in global health.</p>
+        <p style="color: #41474d; font-size: 12px; line-height: 1.8; margin: 0;">
+          &copy; 2026 IKMA. All rights reserved.<br>
+          You are receiving this email because you are a registered subscriber.
+          ${unsubscribeUrl ? `<br><a href="${unsubscribeUrl}" style="color: #41474d; text-decoration: underline;">Unsubscribe</a> | <a href="${siteUrl}/privacy-policy" style="color: #41474d; text-decoration: underline;">Privacy Policy</a>` : ""}
+        </p>
       </div>
     </div>
   `

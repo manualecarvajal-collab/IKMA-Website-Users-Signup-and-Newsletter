@@ -25,7 +25,8 @@ export default function Navbar({ initialUser }: { initialUser?: { email: string;
   ]
   const outreachLinks = [
     { href: "/outreach", label: t("outreach") },
-    { href: "/testimonios", label: t("testimonials") },
+    // TODO: testimonios page under development — hidden from front until ready to publish.
+    // { href: "/testimonios", label: t("testimonials") },
   ]
   const pathname = usePathname()
   const [user, setUser] = useState<{ email: string; role: string } | null>(initialUser ?? null)
