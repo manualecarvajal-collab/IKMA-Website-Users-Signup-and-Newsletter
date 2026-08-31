@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useLocale } from "next-intl"
+import { usePathname } from "next/navigation"
 import Icon from "./Icon"
 
 const LANGUAGES = [
@@ -11,15 +12,18 @@ const LANGUAGES = [
 
 export default function LocaleSwitch() {
   const locale = useLocale()
+  const pathname = usePathname()
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
 
   useEffect(() => {
+    if (pathname !== "/") return
+
     const onScroll = () => setScrolled(window.scrollY > 50)
     window.addEventListener("scroll", onScroll, { passive: true })
     onScroll()
     return () => window.removeEventListener("scroll", onScroll)
-  }, [])
+  }, [pathname])
 
   const currentLocale = locale === "es" ? "es" : "en"
 
@@ -32,7 +36,9 @@ export default function LocaleSwitch() {
   return (
     <div
       className={`fixed bottom-6 left-6 z-50 transition-all duration-300 ${
-        scrolled ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 translate-y-6 pointer-events-none"
+        pathname === "/"
+          ? scrolled ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 translate-y-6 pointer-events-none"
+          : "opacity-100 translate-y-0 pointer-events-auto"
       }`}
     >
           <button
