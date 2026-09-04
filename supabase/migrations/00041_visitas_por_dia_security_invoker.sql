@@ -1,0 +1,11 @@
+-- Fix Critical: public.visitas_por_dia se evaluaba con los privilegios del
+-- owner (postgres), eludiendo la RLS "Solo admins leen visitas" de
+-- public.visitas (migracion 00023). El scanner de Supabase lo marca como
+-- propiedad SECURITY DEFINER.
+--
+-- Con security_invoker = true la vista respeta el RLS del usuario que la
+-- consulta:
+--   - admin / service_role (panel /admin) -> sigue viendo todo (ignora RLS)
+--   - anon / no-admin -> sujeto al RLS de public.visitas -> no ve datos
+-- Requiere PostgreSQL 15+ (proyecto en v17).
+alter view public.visitas_por_dia set (security_invoker = true);
