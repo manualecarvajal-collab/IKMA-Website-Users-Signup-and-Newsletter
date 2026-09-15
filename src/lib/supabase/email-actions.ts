@@ -506,12 +506,23 @@ export async function getMemberMessages(solicitudId: string) {
 
 // ─── NEWSLETTERS ─────────────────────────────────────────
 
+// Supabase reports write failures in the result object instead of throwing, so
+// any `.insert()` / `.update()` whose `error` we never inspect can fail without
+// a trace. That is how drafts and sends were silently lost while
+// actividad_admin still logged them as saved: the newsletter write failed on a
+// missing column and only the activity insert ran. Always route newsletter
+// writes through this so the failure reaches the admin UI.
+function writeFailure(what: string, error: { message: string; code?: string }): string {
+  console.error(`[newsletter] ${what} failed:`, error)
+  return `${what} failed: ${error.message}`
+}
+
 // Save as draft or schedule for later — does NOT send.
 export async function saveNewsletterDraft(
   _prevState: { error?: string; success?: string } | undefined,
   formData: FormData
 ) {
-  const { user } = await checkAdmin()
+  const { supabase, user } = await checkAdmin()
 
   const titulo = formData.get("titulo") as string
   const contenido_html = formData.get("contenido_html") as string
@@ -527,25 +538,33 @@ export async function saveNewsletterDraft(
   const admin = await createAdminClient()
   const status = scheduled_at ? "scheduled" : "draft"
 
-  await admin.from("newsletters").insert({
-    titulo,
-    contenido_html,
-    imagen_url: imagen_url || null,
-    enviado_por: user.id,
-    destinatarios: 0,
-    destinatarios_emails: [],
-    status,
-    scheduled_at: scheduled_at || null,
-    audiencias,
-  })
+  const { data: saved, error: saveError } = await admin
+    .from("newsletters")
+    .insert({
+      titulo,
+      contenido_html,
+      imagen_url: imagen_url || null,
+      enviado_por: user.id,
+      destinatarios: 0,
+      destinatarios_emails: [],
+      status,
+      scheduled_at: scheduled_at || null,
+      audiencias,
+    })
+    .select("id")
+    .single()
 
-  await admin.from("actividad_admin").insert({
-    usuario_id: user.id,
-    tipo: status === "scheduled" ? "newsletter_programado" : "newsletter_borrador",
-    descripcion: `Newsletter "${titulo}" ${status === "scheduled" ? `scheduled for ${scheduled_at}` : "saved as draft"}`,
-    ref_tabla: "newsletters",
-    ref_id: titulo,
-  })
+  // Logging the activity before checking this is what produced a dashboard
+  // notification for a newsletter that was never stored.
+  if (saveError) return { error: writeFailure("Saving the newsletter", saveError) }
+
+  await registrarActividad(
+    supabase,
+    status === "scheduled" ? "newsletter_programado" : "newsletter_borrador",
+    `Newsletter "${titulo}" ${status === "scheduled" ? `scheduled for ${scheduled_at}` : "saved as draft"}`,
+    "newsletters",
+    saved.id
+  )
 
   revalidatePath("/admin/newsletter")
   return { success: status === "scheduled" ? `Newsletter scheduled for ${scheduled_at}` : "Newsletter saved as draft" }
@@ -554,29 +573,32 @@ export async function saveNewsletterDraft(
 export async function cancelScheduledNewsletter(
   newsletterId: string
 ): Promise<{ success?: string; error?: string }> {
-  const { user } = await checkAdmin()
+  const { supabase } = await checkAdmin()
   const admin = await createAdminClient()
 
-  const { data: nl } = await admin
+  const { data: nl, error: readError } = await admin
     .from("newsletters")
     .select("titulo, status")
     .eq("id", newsletterId)
     .single()
+  if (readError) return { error: writeFailure("Reading the newsletter", readError) }
   if (!nl) return { error: "Newsletter not found" }
   if (nl.status !== "scheduled") return { error: "Newsletter is not scheduled" }
 
-  await admin.from("newsletters").update({
+  const { error: cancelError } = await admin.from("newsletters").update({
     status: "draft",
     scheduled_at: null,
   }).eq("id", newsletterId)
 
-  await admin.from("actividad_admin").insert({
-    usuario_id: user.id,
-    tipo: "newsletter_cancelado",
-    descripcion: `Scheduled newsletter "${nl.titulo}" cancelled`,
-    ref_tabla: "newsletters",
-    ref_id: newsletterId,
-  })
+  if (cancelError) return { error: writeFailure("Cancelling the schedule", cancelError) }
+
+  await registrarActividad(
+    supabase,
+    "newsletter_cancelado",
+    `Scheduled newsletter "${nl.titulo}" cancelled`,
+    "newsletters",
+    newsletterId
+  )
 
   revalidatePath("/admin/newsletter")
   return { success: "Schedule cancelled" }
@@ -586,7 +608,7 @@ export async function sendNewsletter(
   _prevState: { error?: string; success?: string } | undefined,
   formData: FormData
 ) {
-  const { user } = await checkAdmin()
+  const { supabase, user } = await checkAdmin()
 
   const titulo = formData.get("titulo") as string
   const contenido_html = formData.get("contenido_html") as string
@@ -605,9 +627,11 @@ export async function sendNewsletter(
   // If scheduled_at is in the future, save as scheduled instead of sending
   if (scheduled_at && new Date(scheduled_at) > new Date()) {
     const status = "scheduled"
+    let scheduleError: { message: string; code?: string } | null = null
+
     if (newsletter_id) {
       // Update existing draft/scheduled
-      await admin.from("newsletters").update({
+      const { error } = await admin.from("newsletters").update({
         titulo,
         contenido_html,
         imagen_url: imagen_url || null,
@@ -615,8 +639,9 @@ export async function sendNewsletter(
         scheduled_at,
         audiencias,
       }).eq("id", newsletter_id)
+      scheduleError = error
     } else {
-      await admin.from("newsletters").insert({
+      const { error } = await admin.from("newsletters").insert({
         titulo,
         contenido_html,
         imagen_url: imagen_url || null,
@@ -627,15 +652,18 @@ export async function sendNewsletter(
         scheduled_at,
         audiencias,
       })
+      scheduleError = error
     }
 
-    await admin.from("actividad_admin").insert({
-      usuario_id: user.id,
-      tipo: "newsletter_programado",
-      descripcion: `Newsletter "${titulo}" scheduled for ${scheduled_at}`,
-      ref_tabla: "newsletters",
-      ref_id: newsletter_id || titulo,
-    })
+    if (scheduleError) return { error: writeFailure("Scheduling the newsletter", scheduleError) }
+
+    await registrarActividad(
+      supabase,
+      "newsletter_programado",
+      `Newsletter "${titulo}" scheduled for ${scheduled_at}`,
+      "newsletters",
+      newsletter_id || titulo
+    )
 
     revalidatePath("/admin/newsletter")
     return { success: `Newsletter scheduled for ${scheduled_at}` }
@@ -646,59 +674,83 @@ export async function sendNewsletter(
 
   if (!recipients.length) return { error: "No recipients match the selected groups" }
 
+  // Without a key the loop below is skipped and every send would "succeed"
+  // while delivering nothing. Fail before writing a record.
+  if (!process.env.RESEND_API_KEY) return { error: "Resend API key not configured" }
+
+  // Record the send BEFORE the first email leaves. The row used to be written
+  // after the Resend loop with its error discarded, so a write failure meant
+  // recipients got the newsletter and the admin panel showed nothing at all.
+  const { data: record, error: recordError } = await admin
+    .from("newsletters")
+    .insert({
+      titulo,
+      contenido_html,
+      imagen_url: imagen_url || null,
+      enviado_por: user.id,
+      destinatarios: 0,
+      destinatarios_emails: [],
+      status: "sending",
+      audiencias,
+    })
+    .select("id")
+    .single()
+
+  if (recordError) return { error: writeFailure("Recording the newsletter", recordError) }
+
   const config = await getEmailConfig()
   let sent = 0
   const sentEmails: string[] = []
 
   const failedEmails: { email: string; status: number; body: string }[] = []
 
-  if (process.env.RESEND_API_KEY) {
-    for (const { email, nombre } of recipients) {
-      const resp = await sendEmailWithRetry(
-        config,
+  for (const { email, nombre } of recipients) {
+    const resp = await sendEmailWithRetry(
+      config,
+      email,
+      `Newsletter: ${titulo}`,
+      buildNewsletterHtml({
+        nombre,
+        titulo,
+        contenido_html,
+        imagen_url: imagen_url || null,
+        from_name: config.email_from_name || "IKMA",
         email,
-        `Newsletter: ${titulo}`,
-        buildNewsletterHtml({
-          nombre,
-          titulo,
-          contenido_html,
-          imagen_url: imagen_url || null,
-          from_name: config.email_from_name || "IKMA",
-          email,
-        })
-      )
-      if (resp.ok) {
-        sent++
-        sentEmails.push(email)
-      } else {
-        const body = await resp.text().catch(() => "")
-        failedEmails.push({ email, status: resp.status, body })
-        console.error(`[sendNewsletter] FAILED ${resp.status} → ${email}: ${body}`)
-      }
+      })
+    )
+    if (resp.ok) {
+      sent++
+      sentEmails.push(email)
+    } else {
+      const body = await resp.text().catch(() => "")
+      failedEmails.push({ email, status: resp.status, body })
+      console.error(`[sendNewsletter] FAILED ${resp.status} → ${email}: ${body}`)
     }
   }
 
-  // Save to DB
-  await admin.from("newsletters").insert({
-    titulo,
-    contenido_html,
-    imagen_url: imagen_url || null,
-    enviado_por: user.id,
+  const { error: finalizeError } = await admin.from("newsletters").update({
+    status: "sent",
     destinatarios: sent,
     destinatarios_emails: sentEmails,
-    status: "sent",
-    audiencias,
     ...(failedEmails.length ? { failed_emails: failedEmails } : {}),
-  })
+  }).eq("id", record.id)
 
-  // Log activity
-  await admin.from("actividad_admin").insert({
-    usuario_id: user.id,
-    tipo: "newsletter_enviado",
-    descripcion: `Newsletter "${titulo}" sent to ${sent} of ${recipients.length} recipients`,
-    ref_tabla: "newsletters",
-    ref_id: titulo,
-  })
+  // Emails are already out by now, so we cannot roll back — but the record must
+  // not claim a clean send. Leave it in 'sending' and say so.
+  if (finalizeError) {
+    console.error("[newsletter] finalizing the send failed:", finalizeError)
+    return {
+      error: `The newsletter went out to ${sent} of ${recipients.length} recipients, but saving the result failed (${finalizeError.message}). Check the newsletter list before resending to avoid duplicates.`,
+    }
+  }
+
+  await registrarActividad(
+    supabase,
+    "newsletter_enviado",
+    `Newsletter "${titulo}" sent to ${sent} of ${recipients.length} recipients`,
+    "newsletters",
+    record.id
+  )
 
   revalidatePath("/admin/newsletter")
   return { success: `Newsletter sent to ${sent} of ${recipients.length} recipients` }
@@ -708,14 +760,15 @@ export async function resendNewsletterToEmails(
   newsletterId: string,
   emails: string[]
 ): Promise<{ success?: string; error?: string }> {
-  const { user } = await checkAdmin()
+  const { supabase } = await checkAdmin()
   const admin = await createAdminClient()
 
-  const { data: newsletter } = await admin
+  const { data: newsletter, error: readError } = await admin
     .from("newsletters")
     .select("*")
     .eq("id", newsletterId)
     .single()
+  if (readError) return { error: writeFailure("Reading the newsletter", readError) }
   if (!newsletter) return { error: "Newsletter not found" }
 
   const config = await getEmailConfig()
@@ -751,19 +804,25 @@ export async function resendNewsletterToEmails(
   const prevSent = (newsletter.destinatarios_emails as string[] | null) ?? []
   const remaining = (newsletter.failed_emails as { email: string; status: number; body: string }[] | null ?? [])
     .filter((f) => !sentEmails.includes(f.email))
-  await admin.from("newsletters").update({
+  const { error: resendUpdateError } = await admin.from("newsletters").update({
     destinatarios_emails: [...prevSent, ...sentEmails],
     destinatarios: prevSent.length + sentEmails.length,
     failed_emails: remaining.length ? remaining : null,
   }).eq("id", newsletterId)
 
-  await admin.from("actividad_admin").insert({
-    usuario_id: user.id,
-    tipo: "newsletter_reenviado",
-    descripcion: `Newsletter "${newsletter.titulo}" resent to ${sent} of ${emails.length} recipients`,
-    ref_tabla: "newsletters",
-    ref_id: newsletterId,
-  })
+  if (resendUpdateError) {
+    return {
+      error: `${sent} email(s) went out, but saving the result failed (${resendUpdateError.message}).`,
+    }
+  }
+
+  await registrarActividad(
+    supabase,
+    "newsletter_reenviado",
+    `Newsletter "${newsletter.titulo}" resent to ${sent} of ${emails.length} recipients`,
+    "newsletters",
+    newsletterId
+  )
 
   revalidatePath("/admin/newsletter")
   return { success: `Resent to ${sent} of ${emails.length} recipients` }
@@ -790,9 +849,11 @@ export async function getNewsletter(id: string) {
   return data
 }
 
-export async function deleteNewsletter(id: string) {
+export async function deleteNewsletter(id: string): Promise<{ error?: string }> {
   await checkAdmin()
   const admin = await createAdminClient()
-  await admin.from("newsletters").delete().eq("id", id)
+  const { error } = await admin.from("newsletters").delete().eq("id", id)
+  if (error) return { error: writeFailure("Deleting the newsletter", error) }
   revalidatePath("/admin/newsletter")
+  return {}
 }

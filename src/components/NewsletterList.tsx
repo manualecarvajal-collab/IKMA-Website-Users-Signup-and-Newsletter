@@ -58,7 +58,11 @@ export default function NewsletterList({ newsletters }: { newsletters: Newslette
   const handleCancel = async (nl: Newsletter) => {
     if (!confirm("Cancel this scheduled newsletter?")) return
     const { cancelScheduledNewsletter } = await import("@/lib/supabase/admin-actions")
-    await cancelScheduledNewsletter(nl.id)
+    const result = await cancelScheduledNewsletter(nl.id)
+    if (result?.error) {
+      alert(result.error)
+      return
+    }
     router.refresh()
   }
 
@@ -79,7 +83,7 @@ export default function NewsletterList({ newsletters }: { newsletters: Newslette
             {newsletters.length === 0 ? (
               <tr>
                 <td colSpan={5} className="py-12 text-center font-body-md text-body-md text-on-surface-variant">
-                  No newsletters sent yet.
+                  No newsletters yet.
                 </td>
               </tr>
             ) : (
@@ -137,13 +141,15 @@ export default function NewsletterList({ newsletters }: { newsletters: Newslette
                         </button>
                       )}
                       <form
-                        action={`/api/newsletter/delete?id=${nl.id}`}
-                        method="POST"
                         onSubmit={async (e) => {
                           e.preventDefault()
                           if (!confirm("Delete this newsletter record?")) return
                           const { deleteNewsletter } = await import("@/lib/supabase/admin-actions")
-                          await deleteNewsletter(nl.id)
+                          const result = await deleteNewsletter(nl.id)
+                          if (result?.error) {
+                            alert(result.error)
+                            return
+                          }
                           router.refresh()
                         }}
                       >

@@ -37,14 +37,35 @@ export async function GET(req: Request) {
 
   for (const newsletter of due) {
     try {
-      // Mark as sending to prevent duplicate cron runs
-      await admin.from("newsletters").update({ status: "sending" }).eq("id", newsletter.id)
+      // Atomically claim the row: only the run that flips it from 'scheduled' to
+      // 'sending' is allowed to send. A plain update whose error we ignore would,
+      // on failure, leave the row 'scheduled' and the next cron run would email
+      // every recipient a second time. A losing race simply yields no row.
+      const { data: claimed, error: claimError } = await admin
+        .from("newsletters")
+        .update({ status: "sending" })
+        .eq("id", newsletter.id)
+        .eq("status", "scheduled")
+        .select("id")
+
+      if (claimError) {
+        console.error(`[cron-send-newsletter] could not claim ${newsletter.id}:`, claimError)
+        continue
+      }
+      if (!claimed?.length) continue
 
       // Build recipient list (same logic as sendNewsletter)
       const allRecipients = await getAllRecipientsForAdmin(admin)
 
       const audiencias = (newsletter.audiencias as Audience[]) ?? ["registrados"]
       const recipients = filterByAudiences(allRecipients, audiencias)
+
+      // Nobody matched: say so instead of recording a clean send to zero people.
+      if (!recipients.length) {
+        console.error(`[cron-send-newsletter] no recipients for ${newsletter.id} (audiencias: ${audiencias.join(",")})`)
+        await admin.from("newsletters").update({ status: "failed" }).eq("id", newsletter.id)
+        continue
+      }
 
       let sent = 0
       const sentEmails: string[] = []
@@ -76,12 +97,22 @@ export async function GET(req: Request) {
       }
 
       // Update newsletter with results
-      await admin.from("newsletters").update({
+      const { error: finalizeError } = await admin.from("newsletters").update({
         status: "sent",
         destinatarios: sent,
         destinatarios_emails: sentEmails,
         ...(failedEmails.length ? { failed_emails: failedEmails } : {}),
       }).eq("id", newsletter.id)
+
+      // The emails are already out. Deliberately leave the row in 'sending'
+      // rather than 'failed': a stuck 'sending' row is never picked up by this
+      // cron, so nobody gets a duplicate, and the admin panel shows it as
+      // unfinished instead of silently claiming success.
+      if (finalizeError) {
+        console.error(`[cron-send-newsletter] could not finalize ${newsletter.id} (${sent} emails already sent):`, finalizeError)
+        processed++
+        continue
+      }
 
       await admin.from("actividad_admin").insert({
         tipo: "newsletter_enviado_cron",
@@ -94,7 +125,8 @@ export async function GET(req: Request) {
     } catch (err) {
       console.error(`[cron-send-newsletter] error on ${newsletter.id}:`, err)
       // Mark as failed so it doesn't retry forever
-      await admin.from("newsletters").update({ status: "failed" }).eq("id", newsletter.id)
+      const { error: failError } = await admin.from("newsletters").update({ status: "failed" }).eq("id", newsletter.id)
+      if (failError) console.error(`[cron-send-newsletter] could not mark ${newsletter.id} as failed:`, failError)
     }
   }
 
