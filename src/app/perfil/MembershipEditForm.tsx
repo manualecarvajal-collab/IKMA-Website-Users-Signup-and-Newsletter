@@ -6,7 +6,14 @@ import { updateMembershipInfo } from "@/lib/supabase/profile-actions"
 import { countries } from "@/app/membresia/data"
 import Icon from "@/components/Icon"
 
-export default function MembershipEditForm({ initial }: { initial: { tipoMiembro: number; region: string; pais: string } }) {
+export default function MembershipEditForm({
+  initial,
+  planLocked,
+}: {
+  initial: { tipoMiembro: number; region: string; pais: string }
+  /** Membresía ya pagada/aprobada: categoría y región quedan fijas. */
+  planLocked?: boolean
+}) {
   const t = useTranslations("Perfil")
   const [editing, setEditing] = useState(false)
   const [state, action, pending] = useActionState<{ error?: string; success?: string } | undefined, FormData>(
@@ -29,6 +36,11 @@ export default function MembershipEditForm({ initial }: { initial: { tipoMiembro
 
   return (
     <form action={action} className="space-y-4 border-t border-outline-variant/20 pt-4">
+      {planLocked && (
+        <p className="font-body-md text-body-md text-on-surface-variant bg-surface-container-low border border-outline-variant/30 rounded-md px-4 py-3">
+          {t("planLockedNote")}
+        </p>
+      )}
       <div>
         <label className="block font-label-bold text-label-bold text-on-surface mb-2" htmlFor="tipo_miembro">
           {t("memberType")}
@@ -37,7 +49,8 @@ export default function MembershipEditForm({ initial }: { initial: { tipoMiembro
           id="tipo_miembro"
           name="tipo_miembro"
           defaultValue={initial.tipoMiembro}
-          className="w-full rounded-md bg-surface border border-outline-variant text-on-surface py-3 px-4 focus:border-primary focus:ring-0 transition-colors"
+          disabled={planLocked}
+          className="w-full rounded-md bg-surface border border-outline-variant text-on-surface py-3 px-4 focus:border-primary focus:ring-0 transition-colors disabled:opacity-60"
         >
           {[1, 2, 3, 4].map((i) => (
             <option key={i} value={i}>{t(`type${i}`)}</option>
@@ -52,7 +65,8 @@ export default function MembershipEditForm({ initial }: { initial: { tipoMiembro
           id="region"
           name="region"
           defaultValue={initial.region}
-          className="w-full rounded-md bg-surface border border-outline-variant text-on-surface py-3 px-4 focus:border-primary focus:ring-0 transition-colors"
+          disabled={planLocked}
+          className="w-full rounded-md bg-surface border border-outline-variant text-on-surface py-3 px-4 focus:border-primary focus:ring-0 transition-colors disabled:opacity-60"
         >
           <option value="A">{t("regionA")}</option>
           <option value="B">{t("regionB")}</option>
@@ -75,7 +89,9 @@ export default function MembershipEditForm({ initial }: { initial: { tipoMiembro
       </div>
 
       {state?.error && (
-        <p className="font-body-md text-body-md text-error bg-error-container/20 rounded-md px-4 py-3">{state.error}</p>
+        <p className="font-body-md text-body-md text-error bg-error-container/20 rounded-md px-4 py-3">
+          {state.error === "plan_locked" ? t("planLockedNote") : state.error === "no_application" ? t("noApplication") : state.error}
+        </p>
       )}
       {state?.success && (
         <p className="font-body-md text-body-md text-on-primary-fixed-variant bg-tertiary-fixed-dim rounded-md px-4 py-3">{t("infoSaved")}</p>

@@ -3,6 +3,9 @@ import { createClient, createAdminClient } from "@/lib/supabase/server"
 import Icon from "@/components/Icon"
 import { getTranslations } from "next-intl/server"
 import { memberLabels, statusLabels, statusColors } from "@/lib/membership"
+import { getEliminacionesNoVistas } from "@/lib/supabase/deleted-users"
+import { marcarNotificacionesVistas } from "@/lib/supabase/users-actions"
+import { estadoPrevio, motivoLabel, nombreEliminado, pendientesDeCancelar } from "@/lib/deleted-accounts"
 
 export default async function AdminDashboard() {
   const t = await getTranslations("Admin")
@@ -39,13 +42,18 @@ export default async function AdminDashboard() {
   // Latest teaching video for the card
   const { data: ultimoVideo } = await supabase
     .from("videos")
-    .select("titulo, slug, embed_url, imagen_preview")
+    .select("titulo, slug, imagen_preview")
     .eq("publicado", true)
     .order("created_at", { ascending: false })
     .limit(1)
     .maybeSingle()
 
   const admin = await createAdminClient()
+
+  // Accounts that disappeared since the admin last acknowledged them. The
+  // deletion itself never needs the admin: this is the notification.
+  const { rows: eliminacionesNoVistas, total: totalEliminaciones } = await getEliminacionesNoVistas()
+
   const { data: actividades } = await admin
     .from("actividad_admin")
     .select("usuario_nombre, tipo, descripcion, ref_tabla, created_at")
@@ -124,6 +132,62 @@ export default async function AdminDashboard() {
 
       {/* Content Body */}
       <div className="w-full max-w-full px-4 sm:px-6 md:px-8 py-6 flex-1 flex flex-col gap-6 min-h-0">
+        {/* Deleted-account notifications */}
+        {totalEliminaciones > 0 && (
+          <div className="bg-red-50 border border-red-200 rounded-xl p-5">
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div className="flex items-start gap-3 min-w-0">
+                <div className="w-10 h-10 rounded-lg bg-red-100 text-red-800 flex items-center justify-center shrink-0">
+                  <Icon name="person_remove" size={20} />
+                </div>
+                <div className="min-w-0">
+                  <h2 className="text-[16px] font-semibold text-red-900 leading-6">
+                    {t("deletedAccountsTitle", { count: totalEliminaciones })}
+                  </h2>
+                  <p className="text-[13px] text-red-800/90 leading-5">{t("deletedAccountsDesc")}</p>
+                  <ul className="mt-3 space-y-1.5">
+                    {eliminacionesNoVistas.slice(0, 5).map((e) => (
+                      <li key={e.id} className="text-[13px] text-red-900">
+                        <span className="font-semibold notranslate">{nombreEliminado(e)}</span>
+                        {e.email && <span className="text-red-800/80 notranslate"> ({e.email})</span>}
+                        <span className="text-red-800/80"> — {motivoLabel(e)}</span>
+                        {estadoPrevio(e) && <span className="text-red-800/80"> · was {estadoPrevio(e)}</span>}
+                        <span className="text-red-800/60"> · {new Date(e.deleted_at).toLocaleDateString()}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  {totalEliminaciones > eliminacionesNoVistas.length && (
+                    <p className="mt-2 text-[12px] text-red-800/80">
+                      {t("deletedAccountsMore", { count: totalEliminaciones - eliminacionesNoVistas.length })}
+                    </p>
+                  )}
+                  {pendientesDeCancelar(eliminacionesNoVistas).length > 0 && (
+                    <p className="mt-3 text-[13px] font-semibold text-red-900 bg-red-100 border border-red-300 rounded-lg px-3 py-2">
+                      {t("deletedAccountsBillingPending", { count: pendientesDeCancelar(eliminacionesNoVistas).length })}
+                    </p>
+                  )}
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <Link
+                  href="/admin/suscriptores"
+                  className="text-[13px] font-semibold text-red-900 underline hover:no-underline"
+                >
+                  {t("deletedAccountsSeeAll")}
+                </Link>
+                <form action={marcarNotificacionesVistas}>
+                  <button
+                    type="submit"
+                    className="bg-white border border-red-300 text-red-900 px-4 py-2 rounded-lg text-[13px] font-semibold hover:bg-red-100 transition-colors cursor-pointer"
+                  >
+                    {t("deletedAccountsMarkSeen")}
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Quick Stats Section */}
         {/* Mobile: compact buttons for Magazines + Articles */}
         <div className="grid grid-cols-2 gap-4 md:hidden">

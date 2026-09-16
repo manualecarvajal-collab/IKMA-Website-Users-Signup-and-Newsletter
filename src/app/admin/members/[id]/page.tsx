@@ -49,7 +49,8 @@ export default async function MemberDetailPage(props: { params: Promise<{ id: st
     .single()
 
   const { data: licencia } = solicitud.archivo_licencia_url
-    ? await admin.storage.from("membership-licenses").createSignedUrl(solicitud.archivo_licencia_url, 60 * 60 * 24 * 7)
+    // Documento de identidad: URL firmada de vida corta (1 hora) en vez de 7 días.
+    ? await admin.storage.from("membership-licenses").createSignedUrl(solicitud.archivo_licencia_url, 60 * 60)
     : { data: null }
 
   // "metodo_pago" only records the method the applicant CHOSE, not whether they

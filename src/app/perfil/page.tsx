@@ -3,10 +3,11 @@ import { createClient } from "@/lib/supabase/server"
 import { getMembershipPayments } from "@/lib/stripe/membership"
 import PerfilForms from "./PerfilForms"
 import MembershipEditForm from "./MembershipEditForm"
-import { cancelMembership } from "@/lib/supabase/profile-actions"
+import MembershipBillingActions from "./MembershipBillingActions"
 import Link from "next/link"
 import Icon from "@/components/Icon"
 import DeleteAccountForm from "./DeleteAccountForm"
+import { puedeCambiarPlan } from "@/lib/membership"
 
 const memberTypeNames = {
   1: "type1",
@@ -23,7 +24,9 @@ const estadoKeys: Record<string, string> = {
   incompleta: "statusIncomplete",
 }
 
-export default async function PerfilPage() {
+export default async function PerfilPage(props: { searchParams?: Promise<Record<string, string>> }) {
+  const searchParams = await props.searchParams
+  const billing = searchParams?.billing
   const locale = await getLocale()
   const t = await getTranslations("Perfil")
   const supabase = await createClient()
@@ -64,6 +67,24 @@ export default async function PerfilPage() {
   const typeKey = solicitud?.tipo_miembro ? memberTypeNames[solicitud.tipo_miembro as 1 | 2 | 3 | 4] : null
   const estadoKey = solicitud?.estado ? estadoKeys[solicitud.estado] ?? null : null
 
+  // /api/stripe/portal sends the member back with a reason it could not open.
+  const billingNotice =
+    billing === "error" || billing === "unavailable"
+      ? t("billingError")
+      : billing === "none"
+        ? t("billingNone")
+        : null
+
+  // Estado de cobro: past_due = Stripe sigue reintentando (acceso intacto),
+  // unpaid/canceled = se rindió (acceso retirado, recuperable al pagar).
+  const estadoCobro = payments?.subscription?.status
+  const paymentAlert =
+    estadoCobro === "past_due"
+      ? { title: t("paymentPastDueTitle"), desc: t("paymentPastDueDesc") }
+      : estadoCobro === "unpaid" || estadoCobro === "canceled"
+        ? { title: t("paymentUnpaidTitle"), desc: t("paymentUnpaidDesc") }
+        : null
+
   return (
     <section className="py-section-padding">
       <div className="max-w-6xl mx-auto px-margin-mobile md:px-margin-desktop">
@@ -94,6 +115,31 @@ export default async function PerfilPage() {
 
           {/* Sidebar: membership + payments + danger */}
           <aside className="space-y-8 lg:sticky lg:top-28">
+            {/* Cobro rechazado: el acceso se mantiene mientras Stripe reintenta,
+                y se suspende cuando deja de intentarlo. En ambos casos la salida
+                es la misma: actualizar la tarjeta desde el portal. */}
+            {paymentAlert && (
+              <div className="bg-amber-50 border border-amber-300 rounded-xl px-5 py-4">
+                <p className="font-label-bold text-label-bold text-amber-900 flex items-center gap-2">
+                  <Icon name="error" size={18} />
+                  {paymentAlert.title}
+                </p>
+                <p className="font-body-md text-body-md text-amber-900/90 mt-1">{paymentAlert.desc}</p>
+                {perfil?.stripe_customer_id && (
+                  <a
+                    href="/api/stripe/portal"
+                    className="inline-block mt-3 font-label-bold text-label-bold text-primary underline hover:no-underline"
+                  >
+                    {t("manageBilling")}
+                  </a>
+                )}
+              </div>
+            )}
+            {billingNotice && (
+              <p className="bg-error-container/20 border border-error/30 text-error rounded-xl px-5 py-4 font-body-md text-body-md">
+                {billingNotice}
+              </p>
+            )}
             {/* Membership */}
             <div className="bg-surface rounded-xl p-6 md:p-8 shadow-[0_20px_20px_0_rgba(7,68,105,0.04)] border border-outline-variant/20">
               <h2 className="font-headline-lg text-headline-sm text-primary mb-4">{t("membership")}</h2>
@@ -112,21 +158,19 @@ export default async function PerfilPage() {
 
               <MembershipEditForm
                 initial={{ tipoMiembro: solicitud.tipo_miembro, region: solicitud.region, pais: solicitud.pais ?? "" }}
+                planLocked={!puedeCambiarPlan(solicitud.estado)}
               />
 
               {payments?.subscription?.status === "active" && (
                 <>
-                  {payments.nextChargeDate && (
+                  {!payments.subscription.cancelAtPeriodEnd && payments.nextChargeDate && (
                     <InfoRow label={t("nextCharge")} value={fmtDate(payments.nextChargeDate)} />
                   )}
-                  <form action={cancelMembership} className="pt-3">
-                    <button
-                      type="submit"
-                      className="bg-white border border-error text-error font-label-bold text-label-bold py-3 px-6 rounded-lg hover:bg-error hover:text-white transition-all cursor-pointer"
-                    >
-                      {t("cancelMembership")}
-                    </button>
-                  </form>
+                  <MembershipBillingActions
+                    cancelAtPeriodEnd={payments.subscription.cancelAtPeriodEnd}
+                    periodEnd={payments.subscription.cancelAtPeriodEnd ? fmtDate(payments.subscription.periodEnd) : null}
+                    hasCustomer={!!perfil?.stripe_customer_id}
+                  />
                 </>
               )}
 

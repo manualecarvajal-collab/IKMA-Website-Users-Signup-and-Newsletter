@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
-import { randomStoragePath, createSignedUpload } from "@/lib/uploads"
+import { randomStoragePathForUser, createSignedUpload } from "@/lib/uploads"
 
 export async function POST(request: Request) {
   try {
@@ -22,7 +22,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Only PDF and image files are allowed" }, { status: 400 })
     }
 
-    const storagePath = randomStoragePath("", fileName)
+    // La ruta va dentro de la carpeta del solicitante: así el servidor puede
+    // comprobar después que el archivo que se le atribuye es realmente suyo.
+    const storagePath = randomStoragePathForUser(user.id, fileName)
 
     const result = await createSignedUpload("membership-licenses", storagePath)
     if ("error" in result && result.error) {

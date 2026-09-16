@@ -3,6 +3,7 @@
   "trailingSlash": false,
   "crons": [
     { "path": "/api/cron/invoice-reminder", "schedule": "0 12 * * *" },
+    { "path": "/api/cron/pending-cancellations", "schedule": "30 12 * * *" },
     { "path": "/api/cron/send-newsletter", "schedule": "* * * * *" }
   ],
   "headers": [

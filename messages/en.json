@@ -398,7 +398,8 @@
     "months": "months",
     "paymentSchedule": "Payment schedule",
     "card": "Card",
-    "openPaypal": "Open PayPal Portal"
+    "openPaypal": "Open PayPal Portal",
+    "alreadySubscribed": "You already have an active subscription. You can manage it from your profile."
   },
   "StudentMembership": {
     "title": "Student Membership Application",
@@ -627,7 +628,13 @@
     "audienciaCount": "{count} recipients will receive this newsletter",
     "scheduleOptional": "Schedule (optional)",
     "scheduleHint": "Leave empty to send immediately. Pick a date/time to schedule.",
-    "scheduleForLater": "Schedule"
+    "scheduleForLater": "Schedule",
+    "deletedAccountsTitle": "Deleted accounts ({count})",
+    "deletedAccountsDesc": "These accounts were removed since you last checked. The data is gone; only this record remains.",
+    "deletedAccountsMore": "and {count} more",
+    "deletedAccountsBillingPending": "{count} subscription(s) could not be cancelled in Stripe. The daily job keeps retrying; review them if it persists.",
+    "deletedAccountsSeeAll": "See them in the users list",
+    "deletedAccountsMarkSeen": "Mark as seen"
   },
   "IncompleteRegistration": {
     "title": "You haven't finished your membership registration",
@@ -675,7 +682,7 @@
     "statusPaid": "Paid",
     "statusIncomplete": "Incomplete registration",
     "nextCharge": "Next charge",
-    "cancelMembership": "Cancel membership (immediate, no refund)",
+    "cancelMembership": "Cancel renewal",
     "membershipInactive": "Your membership is no longer active. Your access has been revoked.",
     "notMemberYet": "You are not a member yet. Join IKMA to access all member benefits.",
     "becomeMemberCta": "Become a member",
@@ -693,7 +700,25 @@
     "forgotPassword": "Forgot my password?",
     "editInfo": "Edit information",
     "infoSaved": "Membership information updated.",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "cancelNote": "Your membership stops renewing. You keep access until the end of the period you already paid for.",
+    "cancelsOn": "Access ends on",
+    "renewalOff": "Your membership is set to not renew.",
+    "resumeMembership": "Resume membership",
+    "resumeOk": "Your membership renews automatically again.",
+    "cancelOk": "Your membership will not renew.",
+    "cancelError": "We could not update your subscription. Please try again or contact us.",
+    "noSubscription": "We found no active subscription for your account.",
+    "manageBilling": "Update card / billing details",
+    "billingError": "We could not open the billing portal. Please try again or contact us.",
+    "billingNone": "You do not have a billing profile yet.",
+    "deleteError": "We could not delete your account. Please try again.",
+    "paymentPastDueTitle": "We could not charge your membership",
+    "paymentPastDueDesc": "Your bank declined the automatic charge. You keep full access while we retry — update your card to avoid losing it.",
+    "paymentUnpaidTitle": "Membership suspended",
+    "paymentUnpaidDesc": "We could not charge your membership after several attempts, so your access was suspended. Update your card or pay the pending invoice to get it back.",
+    "planLockedNote": "Your category and region are fixed once the membership is paid. Write to us if you need to change them.",
+    "noApplication": "We could not find your membership application."
   },
   "TermsOfService": {
     "eyebrow": "Policies",

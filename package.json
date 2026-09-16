@@ -6,7 +6,13 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:billing": "playwright test --config e2e/playwright.config.ts billing.spec.ts",
+    "test:deleted-users": "playwright test --config e2e/playwright.config.ts deleted-users.spec.ts",
+    "test:logic": "playwright test --config e2e/playwright.config.ts billing.spec.ts deleted-users.spec.ts webhook-access.spec.ts access-gates.spec.ts",
+    "test:webhook": "playwright test --config e2e/playwright.config.ts webhook-access.spec.ts",
+    "test:webhook-route": "playwright test --config e2e/playwright.config.ts webhook-route.spec.ts",
+    "test:gates": "playwright test --config e2e/playwright.config.ts access-gates.spec.ts"
   },
   "engines": {
     "node": ">=20.x"

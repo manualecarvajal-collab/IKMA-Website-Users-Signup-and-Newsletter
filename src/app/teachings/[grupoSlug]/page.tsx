@@ -11,7 +11,6 @@ interface Video {
   titulo: string
   slug: string
   descripcion: string | null
-  embed_url: string
   imagen_preview: string | null
   publicado: boolean
   created_at: string
@@ -40,7 +39,7 @@ export default async function GrupoVideosPage({ params }: { params: Promise<{ gr
 
   const { data: videos } = await supabase
     .from("videos")
-    .select("*")
+    .select("id, titulo, slug, descripcion, imagen_preview, publicado, gratis, created_at, grupo_id")
     .eq("grupo_id", grupo.id)
     .eq("publicado", true)
     .order("posicion", { ascending: true })

@@ -5,6 +5,7 @@ import { showToast } from "./Toast"
 import { deleteUser } from "@/lib/supabase/admin-actions"
 import Icon from "@/components/Icon"
 import EditableName from "@/components/EditableName"
+import { ESTADO_ELIMINADO, type UserDeletionInfo } from "@/lib/deleted-accounts"
 
 interface Membership {
   tipo_miembro: number | null
@@ -18,9 +19,11 @@ interface User {
   membresia: Membership | null
   rol: string
   created_at: string
+  /** Set only for accounts that no longer exist. */
+  eliminado?: UserDeletionInfo | null
 }
 
-type Filter = "all" | "1" | "2" | "3" | "4" | "incompleta"
+type Filter = "all" | "1" | "2" | "3" | "4" | "incompleta" | "eliminado"
 
 const FILTERS: { value: Filter; label: string }[] = [
   { value: "all", label: "All" },
@@ -29,6 +32,7 @@ const FILTERS: { value: Filter; label: string }[] = [
   { value: "1", label: "Licensed Health Pros" },
   { value: "4", label: "Non-health Pros" },
   { value: "incompleta", label: "Incomplete Registration" },
+  { value: "eliminado", label: "Deleted accounts" },
 ]
 
 const memberLabels: Record<number, string> = {
@@ -47,6 +51,17 @@ const estadoColors: Record<string, string> = {
 }
 
 function membershipBadge(m: Membership | null) {
+  if (m?.estado === ESTADO_ELIMINADO) {
+    const tipo = m.tipo_miembro != null ? ` · ${memberLabels[m.tipo_miembro] ?? ""}` : ""
+    return (
+      <span
+        className="inline-block px-4 py-1.5 rounded-full text-xs font-bold bg-red-100 text-red-800 border border-red-300"
+        title="This account was deleted. The row is kept as an audit record."
+      >
+        DELETED{tipo}
+      </span>
+    )
+  }
   if (!m) {
     return <span className="inline-block px-4 py-1.5 rounded-full text-xs font-bold bg-surface-container-high text-on-surface-variant border border-outline-variant/30">REGISTERED</span>
   }
@@ -75,6 +90,22 @@ function membershipBadge(m: Membership | null) {
   )
 }
 
+/** Explains why a row belongs to an account that no longer exists. */
+function deletionNote(u: User) {
+  const d = u.eliminado
+  if (!d) return null
+  return (
+    <span className="block mt-1 text-xs">
+      <span className="text-error font-semibold">{d.motivo}</span>
+      {d.estadoPrevio && <span className="text-on-surface-variant"> · was {d.estadoPrevio}</span>}
+      <span className="block text-on-surface-variant">
+        Deleted {new Date(d.cuando).toLocaleDateString()}
+        {!d.suscripcionCancelada && " · Stripe cancellation pending"}
+      </span>
+    </span>
+  )
+}
+
 export default function UserManagementTable({ initialUsers }: { initialUsers: User[] }) {
   const [users, setUsers] = useState<User[]>(initialUsers)
   const [filter, setFilter] = useState<Filter>("all")
@@ -86,7 +117,9 @@ export default function UserManagementTable({ initialUsers }: { initialUsers: Us
         ? true
         : filter === "incompleta"
           ? u.membresia?.estado === "incompleta"
-          : u.membresia?.tipo_miembro === Number(filter)
+          : filter === "eliminado"
+            ? u.membresia?.estado === ESTADO_ELIMINADO
+            : u.membresia?.tipo_miembro === Number(filter)
     )
     return [...list].sort((a, b) =>
       asc
@@ -156,13 +189,20 @@ export default function UserManagementTable({ initialUsers }: { initialUsers: Us
                 filtered.map((u) => (
                   <tr key={u.id} className="hover:bg-surface-container-low/30 transition-colors group">
                     <td className="px-6 py-4">
-                      <EditableName
-                        userId={u.id}
-                        name={u.nombre_completo}
-                        onSaved={(n) => setUsers(prev => prev.map(x => x.id === u.id ? { ...x, nombre_completo: n } : x))}
-                        className="font-label-bold text-on-surface"
-                      />
+                      {u.eliminado ? (
+                        <span className="font-label-bold text-on-surface line-through decoration-error/40">
+                          {u.nombre_completo}
+                        </span>
+                      ) : (
+                        <EditableName
+                          userId={u.id}
+                          name={u.nombre_completo}
+                          onSaved={(n) => setUsers(prev => prev.map(x => x.id === u.id ? { ...x, nombre_completo: n } : x))}
+                          className="font-label-bold text-on-surface"
+                        />
+                      )}
                       <p className="text-sm text-on-surface-variant font-mono">{u.email}</p>
+                      {deletionNote(u)}
                     </td>
                     <td className="px-6 py-4">
                       {u.rol === "administrador" ? (
@@ -175,16 +215,25 @@ export default function UserManagementTable({ initialUsers }: { initialUsers: Us
                     </td>
                     <td className="px-6 py-4 hidden md:table-cell text-on-surface-variant text-sm">
                       {new Date(u.created_at).toLocaleDateString()}
+                      {u.eliminado && (
+                        <span className="block text-xs text-error">
+                          Deleted {new Date(u.eliminado.cuando).toLocaleDateString()}
+                        </span>
+                      )}
                     </td>
                     <td className="px-6 py-4 text-right">
-                      {u.rol !== "administrador" && (
-                        <button
-                          onClick={() => handleDelete(u.id, u.nombre_completo)}
-                          className="p-2 text-on-surface-variant hover:text-error transition-all cursor-pointer"
-                          title="Delete Account Permanently"
-                        >
-                          <Icon name="person_remove" size={18} />
-                        </button>
+                      {u.eliminado ? (
+                        <span className="text-xs text-on-surface-variant">Account deleted</span>
+                      ) : (
+                        u.rol !== "administrador" && (
+                          <button
+                            onClick={() => handleDelete(u.id, u.nombre_completo)}
+                            className="p-2 text-on-surface-variant hover:text-error transition-all cursor-pointer"
+                            title="Delete Account Permanently"
+                          >
+                            <Icon name="person_remove" size={18} />
+                          </button>
+                        )
                       )}
                     </td>
                   </tr>
@@ -203,15 +252,22 @@ export default function UserManagementTable({ initialUsers }: { initialUsers: Us
               <div key={u.id} className="p-4 space-y-3">
                   <div className="flex justify-between items-start">
                     <div className="space-y-0.5">
-                      <EditableName
-                        userId={u.id}
-                        name={u.nombre_completo}
-                        onSaved={(n) => setUsers(prev => prev.map(x => x.id === u.id ? { ...x, nombre_completo: n } : x))}
-                        className="font-label-bold text-on-surface"
-                      />
+                      {u.eliminado ? (
+                        <span className="font-label-bold text-on-surface line-through decoration-error/40">
+                          {u.nombre_completo}
+                        </span>
+                      ) : (
+                        <EditableName
+                          userId={u.id}
+                          name={u.nombre_completo}
+                          onSaved={(n) => setUsers(prev => prev.map(x => x.id === u.id ? { ...x, nombre_completo: n } : x))}
+                          className="font-label-bold text-on-surface"
+                        />
+                      )}
                       <p className="text-xs text-on-surface-variant font-mono break-all">{u.email}</p>
+                      {deletionNote(u)}
                     </div>
-                    {u.rol !== "administrador" && (
+                    {!u.eliminado && u.rol !== "administrador" && (
                       <button
                         onClick={() => handleDelete(u.id, u.nombre_completo)}
                         className="p-2 text-on-surface-variant hover:text-error"

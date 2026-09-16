@@ -1,6 +1,7 @@
 "use server"
 
 import { createClient, createAdminClient } from "@/lib/supabase/server"
+import { rutaLicenciaValida } from "@/lib/uploads"
 import { sendMembershipProcessingEmail, sendStudentWelcomeEmail } from "@/lib/supabase/email-actions"
 
 const TIPOS_VALIDOS = [1, 2, 3, 4]
@@ -137,6 +138,13 @@ export async function submitMembership(data: {
     data: { user },
   } = await supabase.auth.getUser()
   if (!user) return { error: "You must be logged in to submit a membership application." }
+
+  // El path lo envía el cliente: si no está dentro de su propia carpeta, el
+  // panel de administración acabaría firmando el expediente de otro solicitante.
+  if (data.archivoLicenciaUrl && !rutaLicenciaValida(data.archivoLicenciaUrl, user.id)) {
+    console.error("[membresia-actions] ruta de licencia inválida:", data.archivoLicenciaUrl)
+    return { error: "Could not attach the credential file. Please upload it again." }
+  }
 
   const adminSupabase = await createAdminClient()
 

@@ -22,6 +22,9 @@ export async function GET(req: Request) {
 
   const subs: { sub: import("stripe").Stripe.Subscription; periodEndSec: number }[] = []
   for await (const sub of stripe.subscriptions.list({ status: "active", limit: 100 })) {
+    // A subscription scheduled to end at the period end will NOT be charged
+    // again, so reminding the member about a charge would be wrong.
+    if (sub.cancel_at_period_end) continue
     // current_period_end lives on the subscription items (Stripe 2026 API)
     const periodEndSec = Math.max(...sub.items.data.map((i) => i.current_period_end ?? 0), 0)
     if (periodEndSec * 1000 >= now && periodEndSec * 1000 <= windowEnd) subs.push({ sub, periodEndSec })

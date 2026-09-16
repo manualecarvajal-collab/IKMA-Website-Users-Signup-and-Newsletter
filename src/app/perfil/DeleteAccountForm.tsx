@@ -13,13 +13,19 @@ import LoadingOverlay from "@/components/LoadingOverlay"
 export default function DeleteAccountForm() {
   const t = useTranslations("Perfil")
   const [pending, setPending] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setPending(true)
-    const ok = await deleteAccount()
-    if (!ok) {
+    setError(null)
+    // The member's own decision always goes through. If Stripe could not be
+    // reached, the subscription stays marked as pending in the admin panel and
+    // the daily cron keeps retrying: nothing is silently forgotten.
+    const result = await deleteAccount()
+    if (!result.ok) {
       setPending(false)
+      setError(t("deleteError"))
       return
     }
     const supabase = createClient()
@@ -35,6 +41,9 @@ export default function DeleteAccountForm() {
         <input type="checkbox" required className="mt-1 accent-error" />
         <span className="font-body-md text-body-md text-on-surface-variant">{t("deleteConfirm")}</span>
       </label>
+      {error && (
+        <p className="font-body-md text-body-md text-error bg-error-container/20 rounded-md px-4 py-3 mb-4">{error}</p>
+      )}
       <button
         type="submit"
         disabled={pending}

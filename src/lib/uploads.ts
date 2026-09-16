@@ -1,10 +1,9 @@
 import { createAdminClient } from "@/lib/supabase/server"
 
-export function randomStoragePath(folder: string, fileName: string): string {
-  const ext = fileName.split(".").pop()
-  const name = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
-  return folder ? `${folder}/${name}` : name
-}
+// Las rutas viven en un módulo puro (src/lib/storage-paths.ts) para poder
+// probarlas sin arrastrar el cliente de Supabase; se reexportan aquí para que
+// los endpoints que ya las usaban sigan importando de un solo sitio.
+export { extensionSegura, randomStoragePath, randomStoragePathForUser, rutaLicenciaValida } from "@/lib/storage-paths"
 
 export async function createSignedUpload(bucket: string, storagePath: string) {
   const admin = await createAdminClient()

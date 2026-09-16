@@ -3,17 +3,22 @@ import { notFound } from "next/navigation"
 import type { Metadata } from "next"
 import { createClient } from "@/lib/supabase/server"
 import { esMembresiaGratisUsuario } from "@/lib/supabase/free-membership"
+import { getEmbedUrl } from "@/lib/supabase/video-content"
+import { embedSrcSeguro } from "@/lib/video-embed"
 import { getTranslations, getLocale } from "next-intl/server"
 import Icon from "@/components/Icon"
 import VideoPaywall from "./VideoPaywall"
 import { formatDate } from "@/lib/date"
 
+// El embed no se selecciona aquí: vive en `videos_contenido` (no legible por
+// usuarios) y se pide al servidor solo cuando el visitante puede ver el video.
 interface Video {
   id: string
   titulo: string
   slug: string
   descripcion: string | null
-  embed_url: string
+  /** Columna heredada: solo se usa como respaldo antes de aplicar la migración. */
+  embed_url: string | null
   imagen_preview: string | null
   publicado: boolean
   gratis: boolean
@@ -21,24 +26,13 @@ interface Video {
   grupo_id: string
 }
 
-const DOMINIOS_PERMITIDOS = ["www.youtube.com", "youtube.com", "youtu.be", "player.vimeo.com", "subsplash.com"]
-
-function embedSrcSeguro(value: string): string | null {
-  const src = value.match(/src="([^"]+)"/)?.[1] ?? value
-  try {
-    const u = new URL(src)
-    if (u.protocol !== "https:") return null
-    return DOMINIOS_PERMITIDOS.includes(u.hostname) ? u.toString() : null
-  } catch {
-    return null
-  }
-}
+const CAMPOS_VIDEO = "id, titulo, slug, descripcion, embed_url, imagen_preview, publicado, gratis, created_at, grupo_id"
 
 async function getVideo(slug: string, grupoId: string): Promise<Video | null> {
   const supabase = await createClient()
   const { data } = await supabase
     .from("videos")
-    .select("*")
+    .select(CAMPOS_VIDEO)
     .eq("slug", slug)
     .eq("grupo_id", grupoId)
     .eq("publicado", true)
@@ -50,7 +44,7 @@ async function getRelated(grupoId: string, currentId: string): Promise<Video[]> 
   const supabase = await createClient()
   const { data } = await supabase
     .from("videos")
-    .select("*")
+    .select(CAMPOS_VIDEO)
     .eq("grupo_id", grupoId)
     .eq("publicado", true)
     .neq("id", currentId)
@@ -100,6 +94,11 @@ export default async function TeachingPage({ params }: { params: Promise<{ grupo
   // Anonymous visitors: only videos marked gratis.
   const canWatch = isSubscribed || !!video.gratis || (esFree && !!grupo.gratis)
 
+  // Solo se entrega la URL de reproducción a quien puede ver el video: antes
+  // viajaba en el HTML/JSON de la página (y en toda la API pública) para todos.
+  // `video.embed_url` es el respaldo mientras la migración 00045 no se aplique.
+  const embedUrl = canWatch ? await getEmbedUrl(video.id, video.embed_url) : null
+
   const related = await getRelated(grupo.id, video.id)
 
   return (
@@ -116,9 +115,9 @@ export default async function TeachingPage({ params }: { params: Promise<{ grupo
             </nav>
             <div className="relative aspect-video bg-surface-container rounded-xl overflow-hidden shadow-lg mb-8">
               {canWatch ? (
-                embedSrcSeguro(video.embed_url) ? (
+                embedSrcSeguro(embedUrl) ? (
                   <iframe
-                    src={embedSrcSeguro(video.embed_url)!}
+                    src={embedSrcSeguro(embedUrl)!}
                     title={video.titulo}
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen

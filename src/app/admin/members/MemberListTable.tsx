@@ -6,21 +6,33 @@ import { deleteMembership } from "@/lib/supabase/admin-actions"
 import { DeleteButton } from "@/components/DeleteButton"
 import Icon from "@/components/Icon"
 import { memberLabels, statusLabels, statusColors } from "@/lib/membership"
+import { ESTADO_ELIMINADO } from "@/lib/deleted-accounts"
 import MemberStatusSelect from "./MemberStatusSelect"
 import MemberActions from "./MemberActions"
 
+interface EliminadoInfo {
+  nombre: string
+  email: string | null
+  motivo: string
+  cuando: string
+  estadoPrevio: string | null
+  suscripcionCancelada: boolean
+}
+
 interface Solicitud {
   id: string
-  usuario_id: string
+  /** null para las filas que solo existen como registro de auditoría. */
+  usuario_id: string | null
   tipo_miembro: number | null
   estado: string
   region: string | null
   pais: string | null
   metodo_pago: string | null
   created_at: string
+  eliminado?: EliminadoInfo | null
 }
 
-type Filter = "all" | "1" | "2" | "3" | "4" | "incompleta"
+type Filter = "all" | "1" | "2" | "3" | "4" | "incompleta" | "eliminado"
 
 const FILTERS: { value: Filter; label: string }[] = [
   { value: "all", label: "All" },
@@ -29,6 +41,7 @@ const FILTERS: { value: Filter; label: string }[] = [
   { value: "1", label: "Licensed Health Pros" },
   { value: "4", label: "Non-health Pros" },
   { value: "incompleta", label: "Incomplete Registration" },
+  { value: "eliminado", label: "Deleted accounts" },
 ]
 
 export default function MemberListTable({
@@ -47,7 +60,9 @@ export default function MemberListTable({
         ? true
         : filter === "incompleta"
           ? s.estado === "incompleta"
-          : s.tipo_miembro === Number(filter)
+          : filter === "eliminado"
+            ? s.estado === ESTADO_ELIMINADO
+            : s.tipo_miembro === Number(filter)
     )
     return [...list].sort((a, b) =>
       asc
@@ -108,30 +123,59 @@ export default function MemberListTable({
             {filtered.map((s) => (
               <tr key={s.id} className="border-b border-outline-variant/10 hover:bg-surface-container-low/50 transition-colors">
                 <td className="px-6 py-4">
-                  <Link href={`/admin/members/${s.id}`} className="font-body-md text-body-md text-primary hover:underline notranslate">
-                    {nombreMap[s.usuario_id] || "Unknown"}
-                  </Link>
+                  {s.eliminado ? (
+                    <>
+                      <span className="font-body-md text-body-md text-on-surface line-through decoration-error/40 notranslate">
+                        {s.eliminado.nombre}
+                      </span>
+                      {s.eliminado.email && (
+                        <span className="block text-xs text-on-surface-variant font-mono break-all">{s.eliminado.email}</span>
+                      )}
+                    </>
+                  ) : (
+                    <Link href={`/admin/members/${s.id}`} className="font-body-md text-body-md text-primary hover:underline notranslate">
+                      {nombreMap[s.usuario_id ?? ""] || "Unknown"}
+                    </Link>
+                  )}
                 </td>
                 <td className="px-6 py-4 hidden md:table-cell">
                   <span className="text-sm text-on-surface">{memberLabels[s.tipo_miembro ?? 0] || "Unknown"}</span>
                 </td>
                 <td className="px-6 py-4 hidden lg:table-cell">
-                  <span className="text-sm text-on-surface-variant notranslate">{s.region} — {s.pais}</span>
+                  <span className="text-sm text-on-surface-variant notranslate">
+                    {s.region ? `${s.region}${s.pais ? ` — ${s.pais}` : ""}` : "—"}
+                  </span>
                 </td>
                 <td className="px-6 py-4">
-                  {s.tipo_miembro === 3 ? (
+                  {s.eliminado ? (
+                    <>
+                      <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold ${statusColors[ESTADO_ELIMINADO]}`}>
+                        {statusLabels[ESTADO_ELIMINADO]}
+                      </span>
+                      <span className="block mt-1 text-xs">
+                        <span className="text-error font-semibold">{s.eliminado.motivo}</span>
+                        {s.eliminado.estadoPrevio && (
+                          <span className="text-on-surface-variant"> · was {s.eliminado.estadoPrevio}</span>
+                        )}
+                        <span className="block text-on-surface-variant">
+                          {new Date(s.eliminado.cuando).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                          {!s.eliminado.suscripcionCancelada && " · Stripe cancellation pending"}
+                        </span>
+                      </span>
+                    </>
+                  ) : s.tipo_miembro === 3 ? (
                     <MemberStatusSelect solicitudId={s.id} estado={s.estado} />
                   ) : (
                     <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold ${statusColors[s.estado] || "bg-surface-container-high text-on-surface-variant"}`}>
                       {statusLabels[s.estado] || s.estado}
                     </span>
                   )}
-                  {s.estado === "incompleta" && (
+                  {!s.eliminado && s.estado === "incompleta" && (
                     <span className="ml-2 inline-block px-2.5 py-1 rounded-full text-xs font-semibold bg-orange-200/60 text-orange-900 border border-orange-300" title="This applicant never completed the payment step">
                       No payment
                     </span>
                   )}
-                  {s.metodo_pago === "zelle" && (
+                  {!s.eliminado && s.metodo_pago === "zelle" && (
                     <span className="ml-2 inline-block px-2.5 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-800" title="Paid via Zelle">
                       Zelle
                     </span>
@@ -143,6 +187,9 @@ export default function MemberListTable({
                   </span>
                 </td>
                 <td className="px-6 py-4 text-right">
+                  {s.eliminado ? (
+                    <span className="text-xs text-on-surface-variant">Account deleted</span>
+                  ) : (
                   <div className="flex items-center justify-end gap-2">
                     {["pendiente", "pagada", "incompleta"].includes(s.estado) && s.tipo_miembro !== 3 && (
                       <MemberActions solicitudId={s.id} estado={s.estado} />
@@ -155,6 +202,7 @@ export default function MemberListTable({
                     </Link>
                     <DeleteButton action={deleteMembership.bind(null, s.id)} label="Application" />
                   </div>
+                  )}
                 </td>
               </tr>
             ))}

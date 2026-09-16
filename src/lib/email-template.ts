@@ -417,3 +417,62 @@ export function buildInvoiceReminderHtml(config: {
     </div>
   `
 }
+
+export function buildPaymentFailedHtml(config: {
+  nombre: string
+  lang?: "en" | "es"
+  /** true = Stripe ya no reintenta y el acceso fue retirado. */
+  definitivo?: boolean
+}) {
+  const es = config.lang === "es"
+  const title = es ? "COBRO RECHAZADO — IKMA" : "PAYMENT NOT PROCESSED — IKMA"
+  const heading = config.definitivo
+    ? es
+      ? `Hola ${config.nombre}, tu membresía quedó suspendida`
+      : `Hi ${config.nombre}, your membership has been suspended`
+    : es
+      ? `Hola ${config.nombre}, no pudimos procesar tu pago`
+      : `Hi ${config.nombre}, we could not process your payment`
+  const body = config.definitivo
+    ? es
+      ? "No pudimos cobrar tu cuota de membresía después de varios intentos, así que tu acceso quedó temporalmente suspendido. Puedes recuperarlo actualizando tu tarjeta desde tu perfil: el acceso se restaura en cuanto el pago se complete."
+      : "After several attempts we could not charge your membership fee, so your access has been temporarily suspended. You can get it back by updating your card in your profile: access is restored as soon as the payment goes through."
+    : es
+      ? "Tu banco rechazó el cobro automático de tu membresía. Mientras reintentamos el cobro, mantienes tu acceso completo: basta con actualizar tu tarjeta o pagar la factura pendiente desde tu perfil."
+      : "Your bank declined the automatic charge for your membership. While we retry, you keep full access: just update your card or pay the outstanding invoice from your profile."
+  const note = es
+    ? "Si tu tarjeta cambió o caducó, actualízala para evitar perder el acceso."
+    : "If your card changed or expired, update it to avoid losing access."
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+  return `
+    <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; border: 1px solid #e0e0e0;">
+      <div style="background-color: #8a1c1c; padding: 32px 24px; text-align: center;">
+        <h1 style="color: #ffffff; margin: 0; font-size: 24px; letter-spacing: 1px;">${title}</h1>
+      </div>
+
+      <div style="padding: 32px 24px;">
+        <h2 style="color: #1c1b1f; margin-top: 0; font-size: 22px;">${heading}</h2>
+        <p style="color: #49454f; line-height: 1.8; font-size: 16px;">${body}</p>
+
+        <p style="color: #49454f; line-height: 1.6; font-size: 14px;">${note}</p>
+
+        <div style="margin: 24px 0; text-align: center;">
+          <a href="${siteUrl}/perfil" style="display: inline-block; background-color: #074469; color: #ffffff; padding: 14px 28px; border-radius: 12px; text-decoration: none; font-weight: bold; font-size: 15px;">
+            ${es ? "Actualizar mi tarjeta" : "Update my card"}
+          </a>
+        </div>
+
+        <p style="color: #79747e; font-size: 14px; border-top: 1px solid #f0f0f0; padding-top: 24px; margin-top: 32px;">
+          ${es
+            ? "Si crees que es un error, respóndenos a este correo y lo revisamos."
+            : "If you think this is a mistake, reply to this email and we will look into it."}
+        </p>
+      </div>
+
+      <div style="background-color: #f9f9f9; padding: 24px; text-align: center; color: #938f99; font-size: 12px;">
+        <p style="margin: 0;">&copy; 2026 IKMA. All rights reserved.</p>
+        <p style="margin: 8px 0 0;">${es ? "Estás recibiendo este correo porque tienes una membresía activa en IKMA." : "You are receiving this email because you have an active IKMA membership."}</p>
+      </div>
+    </div>
+  `
+}

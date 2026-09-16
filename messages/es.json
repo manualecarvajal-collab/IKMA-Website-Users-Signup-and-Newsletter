@@ -398,7 +398,8 @@
     "months": "meses",
     "paymentSchedule": "Plan de pago",
     "card": "Tarjeta",
-    "openPaypal": "Abrir Portal de PayPal"
+    "openPaypal": "Abrir Portal de PayPal",
+    "alreadySubscribed": "Ya tienes una suscripción activa. Puedes gestionarla desde tu perfil."
   },
   "StudentMembership": {
     "title": "Solicitud de Membresía de Estudiante",
@@ -627,7 +628,13 @@
     "audienciaCount": "{count} destinatarios recibirán este boletín",
     "scheduleOptional": "Programar (opcional)",
     "scheduleHint": "Deja vacío para enviar inmediatamente. Selecciona una fecha/hora para programar.",
-    "scheduleForLater": "Programar"
+    "scheduleForLater": "Programar",
+    "deletedAccountsTitle": "Cuentas eliminadas ({count})",
+    "deletedAccountsDesc": "Estas cuentas se eliminaron desde la última vez que revisaste. Los datos ya no existen; solo queda este registro.",
+    "deletedAccountsMore": "y {count} más",
+    "deletedAccountsBillingPending": "{count} suscripción(es) no se pudieron cancelar en Stripe. El proceso diario sigue reintentando; revísalas si persiste.",
+    "deletedAccountsSeeAll": "Verlas en la lista de usuarios",
+    "deletedAccountsMarkSeen": "Marcar como visto"
   },
   "IncompleteRegistration": {
     "title": "No has terminado tu registro de membresía",
@@ -675,7 +682,7 @@
     "statusPaid": "Pagada",
     "statusIncomplete": "Registro incompleto",
     "nextCharge": "Próximo cobro",
-    "cancelMembership": "Cancelar membresía (inmediata, sin reembolso)",
+    "cancelMembership": "Cancelar renovación",
     "membershipInactive": "Tu membresía ya no está activa. Tu acceso ha sido revocado.",
     "notMemberYet": "Aún no eres miembro. Únete a IKMA para acceder a todos los beneficios de membresía.",
     "becomeMemberCta": "Hazte miembro",
@@ -693,7 +700,25 @@
     "forgotPassword": "¿Olvidé mi contraseña?",
     "editInfo": "Editar información",
     "infoSaved": "Información de membresía actualizada.",
-    "cancel": "Cancelar"
+    "cancel": "Cancelar",
+    "cancelNote": "Tu membresía deja de renovarse. Mantienes el acceso hasta el final del período que ya pagaste.",
+    "cancelsOn": "El acceso termina el",
+    "renewalOff": "Tu membresía está configurada para no renovarse.",
+    "resumeMembership": "Reactivar membresía",
+    "resumeOk": "Tu membresía vuelve a renovarse automáticamente.",
+    "cancelOk": "Tu membresía no se renovará.",
+    "cancelError": "No pudimos actualizar tu suscripción. Inténtalo de nuevo o contáctanos.",
+    "noSubscription": "No encontramos una suscripción activa en tu cuenta.",
+    "manageBilling": "Actualizar tarjeta / datos de facturación",
+    "billingError": "No pudimos abrir el portal de pagos. Inténtalo de nuevo o contáctanos.",
+    "billingNone": "Todavía no tienes un perfil de facturación.",
+    "deleteError": "No pudimos eliminar tu cuenta. Inténtalo de nuevo.",
+    "paymentPastDueTitle": "No pudimos cobrar tu membresía",
+    "paymentPastDueDesc": "Tu banco rechazó el cobro automático. Mantienes el acceso completo mientras reintentamos: actualiza tu tarjeta para no perderlo.",
+    "paymentUnpaidTitle": "Membresía suspendida",
+    "paymentUnpaidDesc": "No pudimos cobrar tu membresía tras varios intentos, así que tu acceso quedó suspendido. Actualiza tu tarjeta o paga la factura pendiente para recuperarlo.",
+    "planLockedNote": "Tu categoría y región quedan fijas una vez pagada la membresía. Escríbenos si necesitas cambiarlas.",
+    "noApplication": "No encontramos tu solicitud de membresía."
   },
   "TermsOfService": {
     "eyebrow": "Políticas",

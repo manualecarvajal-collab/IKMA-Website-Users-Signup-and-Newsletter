@@ -260,7 +260,11 @@ export default function MembershipForm({
         }),
       }).then((r) => r.json())
 
-      if (!clientSecret) throw new Error(error || "Failed to create checkout session")
+      if (!clientSecret) {
+        // A member who already has a live subscription must manage it in /perfil
+        // instead of opening a second one.
+        throw new Error(error === "already_subscribed" ? t("alreadySubscribed") : error || "Failed to create checkout session")
+      }
 
       checkoutRef.current?.destroy()
       const stripe = await getStripe()

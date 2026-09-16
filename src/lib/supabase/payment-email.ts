@@ -3,7 +3,7 @@
 // route cold-starts fast. Errors are logged — never thrown to the caller.
 
 import { createAdminClient } from "@/lib/supabase/server"
-import { buildPaymentConfirmedHtml } from "@/lib/email-template"
+import { buildPaymentConfirmedHtml, buildPaymentFailedHtml } from "@/lib/email-template"
 import { sendResendEmail } from "@/lib/resend"
 
 export async function enviarCorreoPagoConfirmado(userId: string, solicitudId: string) {
@@ -42,5 +42,50 @@ export async function enviarCorreoPagoConfirmado(userId: string, solicitudId: st
     }
   } catch (err) {
     console.error("[payment-email] error sending confirmation email:", err)
+  }
+}
+/**
+ * Dunning email: the renewal could not be charged.
+ *
+ * Sent on the first decline (while Stripe keeps retrying, so access stays) and
+ * again when Stripe gives up and access is suspended. Both point the member to
+ * their profile, where they can update the card or pay the open invoice through
+ * the Stripe portal.
+ */
+export async function enviarCorreoPagoRechazado(
+  miembro: { email: string | null; nombre: string; lang: "en" | "es" },
+  opts: { definitivo: boolean }
+) {
+  try {
+    if (!miembro.email) return
+    if (!process.env.RESEND_API_KEY) return
+
+    const supabase = await createAdminClient()
+    const { data: configRows } = await supabase.from("app_config").select("key, value")
+    const config: Record<string, string> = {}
+    for (const row of configRows ?? []) config[row.key] = row.value
+
+    const es = miembro.lang === "es"
+    const subject = opts.definitivo
+      ? es
+        ? "Tu membresía IKMA quedó suspendida — actualiza tu tarjeta"
+        : "Your IKMA membership is suspended — update your card"
+      : es
+        ? "No pudimos procesar tu pago — IKMA"
+        : "We could not process your payment — IKMA"
+
+    const res = await sendResendEmail({
+      to: miembro.email,
+      subject,
+      html: buildPaymentFailedHtml({ nombre: miembro.nombre, lang: miembro.lang, definitivo: opts.definitivo }),
+      fromName: config.email_from_name,
+      fromEmail: config.email_from_email,
+    })
+
+    if (!res.ok) {
+      console.error("[payment-email] resend error (pago rechazado):", res.status, await res.text())
+    }
+  } catch (err) {
+    console.error("[payment-email] error sending declined-payment email:", err)
   }
 }

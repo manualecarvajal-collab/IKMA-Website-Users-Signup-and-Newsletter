@@ -3,7 +3,10 @@
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { checkAdmin, registrarActividad, slugify } from "@/lib/supabase/admin-helpers"
-import { createClient } from "@/lib/supabase/server"
+import { randomUUID } from "node:crypto"
+import { createClient, createAdminClient } from "@/lib/supabase/server"
+import { getEmbedUrls, guardarEmbedUrl } from "@/lib/supabase/video-content"
+import { extraerEmbedSrc } from "@/lib/video-embed"
 
 // ─── GROUPS ─────────────────────────────────────────────
 
@@ -57,11 +60,17 @@ export async function getVideosByGrupo(grupoId: string) {
   const supabase = await createClient()
   const { data } = await supabase
     .from("videos")
-    .select("*")
+    .select("id, titulo, slug, descripcion, embed_url, imagen_preview, publicado, gratis, created_at, grupo_id, posicion")
     .eq("grupo_id", grupoId)
     .order("posicion", { ascending: true })
     .order("created_at", { ascending: false })
-  return data ?? []
+  const videos = data ?? []
+
+  // El embed vive en `videos_contenido` (no legible por usuarios): el panel lo
+  // recupera con el service role para poder mostrarlo y editarlo, y cae a la
+  // columna heredada mientras la migración 00045 no esté aplicada.
+  const embeds = await getEmbedUrls(videos.map((v) => v.id))
+  return videos.map((v) => ({ ...v, embed_url: embeds.get(v.id) ?? v.embed_url ?? null }))
 }
 
 export async function reordenarVideos(formData: FormData) {
@@ -79,21 +88,21 @@ export async function reordenarVideos(formData: FormData) {
 
 // ─── VIDEOS ────────────────────────────────────────────
 
-function extractEmbedSrc(value: string): string {
-  const m = value.match(/src="([^"]+)"/)
-  return m ? m[1] : value
-}
-
 export async function createVideo(formData: FormData) {
   const { supabase } = await checkAdmin()
   const titulo = formData.get("titulo") as string
   const slug = slugify(titulo)
   const grupoId = formData.get("grupo_id") as string
+  const embedUrl = extraerEmbedSrc(formData.get("embed_url") as string)
+  // `videos` ya no guarda el embed (es legible públicamente): solo metadatos.
+  // El id se genera aquí: la política de SELECT solo deja ver videos publicados,
+  // así que un insert().select() devolvería cero filas al crear un borrador.
+  const videoId = randomUUID()
   const data: Record<string, unknown> = {
+    id: videoId,
     titulo,
     slug,
     descripcion: formData.get("descripcion") as string,
-    embed_url: extractEmbedSrc(formData.get("embed_url") as string),
     imagen_preview: formData.get("imagen_preview") as string,
     publicado: formData.get("publicado") === "on",
     gratis: formData.get("gratis") === "on",
@@ -101,6 +110,7 @@ export async function createVideo(formData: FormData) {
   }
   const { error } = await supabase.from("videos").insert(data)
   if (error) return { error: error.message }
+  await guardarEmbedUrl(await createAdminClient(), videoId, embedUrl)
   await registrarActividad(supabase, "video_creado", `Created teaching "${titulo}"`, "videos", slug)
   revalidatePath("/admin/teachings")
   revalidatePath("/teachings")
@@ -112,11 +122,11 @@ export async function updateVideo(id: string, formData: FormData) {
   const titulo = formData.get("titulo") as string
   const slug = slugify(titulo)
   const grupoId = formData.get("grupo_id") as string
+  const embedUrl = extraerEmbedSrc(formData.get("embed_url") as string)
   const data: Record<string, unknown> = {
     titulo,
     slug,
     descripcion: formData.get("descripcion") as string,
-    embed_url: extractEmbedSrc(formData.get("embed_url") as string),
     imagen_preview: formData.get("imagen_preview") as string,
     publicado: formData.get("publicado") === "on",
     gratis: formData.get("gratis") === "on",
@@ -124,6 +134,7 @@ export async function updateVideo(id: string, formData: FormData) {
   }
   const { error } = await supabase.from("videos").update(data).eq("id", id)
   if (error) return { error: error.message }
+  await guardarEmbedUrl(await createAdminClient(), id, embedUrl)
   await registrarActividad(supabase, "video_actualizado", `Updated teaching "${titulo}"`, "videos", slug)
   revalidatePath("/admin/teachings")
   revalidatePath("/teachings")

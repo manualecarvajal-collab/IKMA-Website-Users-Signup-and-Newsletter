@@ -20,10 +20,10 @@ export default async function TeachingsPage() {
 
   const { data: videos } = await supabase
     .from("videos")
-    .select("grupo_id, slug, embed_url, imagen_preview")
+    .select("grupo_id, slug, imagen_preview")
     .eq("publicado", true)
 
-  const vidMap = new Map<string, { slug: string; embed_url: string; imagen_preview: string | null }[]>()
+  const vidMap = new Map<string, { slug: string; imagen_preview: string | null }[]>()
   const videoCount = new Map<string, number>()
   for (const v of videos ?? []) {
     videoCount.set(v.grupo_id, (videoCount.get(v.grupo_id) ?? 0) + 1)
