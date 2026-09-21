@@ -61,3 +61,22 @@ export function pageSeo({ title, description, path, image, noindex, type = "webs
     ...(noindex ? { robots: { index: false, follow: false } } : {}),
   }
 }
+
+/**
+ * Metadatos para rutas que no deben aparecer en el índice: autenticación,
+ * agradecimientos de conversión, páginas privadas y pasarelas de pago.
+ *
+ * Se emite `noindex` pero NO `nofollow`: queremos que desaparezcan del índice
+ * sin cortar el flujo de enlaces internos.
+ *
+ * Importante: estas rutas no deben ir en `Disallow` de robots.txt. Si se
+ * bloquea el rastreo, Google no puede leer el `noindex` y la URL puede seguir
+ * apareciendo en resultados (sin fragmento) si alguien la enlaza.
+ */
+export function noindexSeo(title: string, description?: string): Metadata {
+  return {
+    title,
+    ...(description ? { description } : {}),
+    robots: { index: false, follow: true },
+  }
+}

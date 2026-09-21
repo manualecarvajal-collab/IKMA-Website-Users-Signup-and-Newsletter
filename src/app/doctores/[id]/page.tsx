@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
+import { notFound } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { getTranslations } from "next-intl/server"
 import Icon from "@/components/Icon"
@@ -72,12 +73,10 @@ export default async function DoctorDetailPage({ params }: { params: Promise<{ i
   const t = await getTranslations("DoctorDetail")
   const doc = await getDoctor(id)
 
-  if (!doc) return (
-    <section className="py-section-padding">
-      <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop text-center"><h1 className="font-headline-lg text-headline-lg text-primary">{t("notFound")}</h1>
-      <Link href="/doctores" className="text-primary hover:underline mt-4 inline-block">&larr; {t("backToList")}</Link></div>
-    </section>
-  )
+  // Un id inexistente devolvía el mensaje "no encontrado" con HTTP 200: un
+  // soft-404 que Google puede tratar como página real. `notFound()` sirve la
+  // página 404 del sitio con el código de estado correcto.
+  if (!doc) notFound()
 
   const icons = ["business", "local_hospital", "school"]
   const stats = doc.estadisticas ?? {}
