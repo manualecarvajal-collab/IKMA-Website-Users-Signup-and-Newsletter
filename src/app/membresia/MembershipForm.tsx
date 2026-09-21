@@ -1208,6 +1208,10 @@ export default function MembershipForm({
 
   return (
     <main className="flex-grow max-w-5xl w-full mx-auto px-margin-mobile md:px-margin-desktop py-8">
+      {/* Encabezado de la página. Antes no existía ningún h1: los pasos del
+          formulario usan h2 y cambian de texto según el paso, así que no sirven
+          como encabezado del documento. */}
+      <h1 className="font-headline-lg text-headline-lg text-primary mb-6">{t("pageTitle")}</h1>
       {renderStepper()}
       {step === 1 && renderStep1()}
       {step === 2 && renderStep2()}

@@ -3,6 +3,25 @@ import { createServerClient } from "@supabase/ssr"
 import { esMembresiaGratisUsuario } from "@/lib/supabase/free-membership"
 
 export async function proxy(request: NextRequest) {
+  // Salida temprana para tráfico anónimo.
+  //
+  // El cliente de Supabase se construía y `auth.getUser()` se llamaba en CADA
+  // petición, incluidas las de visitantes sin sesión y las de los crawlers. Eso
+  // añadía un round-trip de red a Supabase al camino crítico de páginas
+  // públicas que no necesitan saber nada del usuario.
+  //
+  // Sin cookie de sesión, `getUser()` en servidor devuelve null de todos modos,
+  // y la única rama que depende del usuario exige `user`, así que salir aquí no
+  // cambia el comportamiento. Con cookie presente se sigue refrescando el token
+  // como antes.
+  const hasSessionCookie = request.cookies
+    .getAll()
+    .some((c) => c.name.startsWith("sb-") && c.name.includes("-auth-token"))
+
+  if (!hasSessionCookie) {
+    return NextResponse.next()
+  }
+
   const response = NextResponse.next()
 
   const supabase = createServerClient(

@@ -3,13 +3,15 @@ import type { Metadata } from "next"
 import { createClient } from "@/lib/supabase/server"
 import { getTranslations } from "next-intl/server"
 import Icon from "@/components/Icon"
+import { pageSeo } from "@/lib/seo"
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("Teachings")
-  return {
+  return pageSeo({
     title: t("pageTitle") + " - IKMA",
     description: t("pageDesc"),
-  }
+    path: "/teachings",
+  })
 }
 
 export default async function TeachingsPage() {

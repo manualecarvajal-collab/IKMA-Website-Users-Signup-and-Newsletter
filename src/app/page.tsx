@@ -1,10 +1,19 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { SafeImage } from "@/components/SafeImage";
 import HeroCarousel, { Slide } from "@/components/HeroCarousel";
 import StatsSection from "@/components/StatsSection";
 import { getTranslations, getLocale } from "next-intl/server";
 import Icon from "@/components/Icon";
+import { pageSeo } from "@/lib/seo";
+import { SITE_TITLE, SITE_DESCRIPTION } from "@/lib/site";
+
+export const metadata: Metadata = pageSeo({
+  title: SITE_TITLE,
+  description: SITE_DESCRIPTION,
+  path: "/",
+});
 
 export default async function HomePage() {
   const supabase = await createClient();
@@ -24,6 +33,10 @@ export default async function HomePage() {
 
   return (
     <div className="-mt-20 md:mt-0 overflow-x-hidden">
+        {/* Precarga del candidato a LCP de esta página. Estaba en el layout raíz,
+            donde lo descargaba TODAS las páginas del sitio aunque no lo usaran.
+            React 19 lo eleva al <head> desde aquí. */}
+        <link rel="preload" as="image" href="/images/Ap Bonny 2.webp" fetchPriority="high" />
         <HeroCarousel>
         <Slide>
           <div className="relative w-full h-full">
@@ -99,12 +112,16 @@ export default async function HomePage() {
                   className="w-[160px] md:w-[212px] h-auto"
                 />
                 <div className="text-center md:text-left">
-                  <p className="text-primary font-[400] text-lg md:text-2xl">
-                    {tHero("banner3Title")}
-                  </p>
-                  <h2 className="text-primary font-[800] text-3xl md:text-[48px] leading-tight">
-                    {tHero("banner3Highlight")}
-                  </h2>
+                  {/* El titular del hero es el encabezado principal de la página.
+                      Antes eran un <p> y un <h2> sueltos y la home no tenía <h1>. */}
+                  <h1>
+                    <span className="block text-primary font-[400] text-lg md:text-2xl">
+                      {tHero("banner3Title")}
+                    </span>
+                    <span className="block text-primary font-[800] text-3xl md:text-[48px] leading-tight">
+                      {tHero("banner3Highlight")}
+                    </span>
+                  </h1>
                 </div>
               </div>
             </div>

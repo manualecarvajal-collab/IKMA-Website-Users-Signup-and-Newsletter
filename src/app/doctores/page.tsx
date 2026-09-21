@@ -3,12 +3,14 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getTranslations } from "next-intl/server";
 import Icon from "@/components/Icon";
+import { pageSeo } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageSeo({
   title: "Our Doctors - IKMA",
   description:
     "Meet the dedicated medical professionals combining clinical excellence with deep compassion to serve our community.",
-};
+  path: "/doctores",
+});
 
 const BASE = "https://lh3.googleusercontent.com/aida-public/";
 

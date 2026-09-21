@@ -9,6 +9,7 @@ import { getTranslations, getLocale } from "next-intl/server"
 import Icon from "@/components/Icon"
 import VideoPaywall from "./VideoPaywall"
 import { formatDate } from "@/lib/date"
+import { pageSeo } from "@/lib/seo"
 
 // El embed no se selecciona aquí: vive en `videos_contenido` (no legible por
 // usuarios) y se pide al servidor solo cuando el visitante puede ver el video.
@@ -59,13 +60,15 @@ export async function generateMetadata({ params }: { params: Promise<{ grupoSlug
   const t = await getTranslations("Teachings")
   const supabase = await createClient()
   const { data: grupo } = await supabase.from("grupos").select("id, nombre").eq("slug", grupoSlug).single()
-  if (!grupo) return { title: "Not Found - IKMA" }
+  if (!grupo) return { title: "Not Found - IKMA", robots: { index: false, follow: true } }
   const video = await getVideo(videoSlug, grupo.id)
-  if (!video) return { title: "Not Found - IKMA" }
-  return {
+  if (!video) return { title: "Not Found - IKMA", robots: { index: false, follow: true } }
+  return pageSeo({
     title: `${video.titulo} - ${t("pageTitle")}`,
     description: video.descripcion ?? t("pageDesc"),
-  }
+    path: `/teachings/${grupoSlug}/${videoSlug}`,
+    type: "article",
+  })
 }
 
 export const dynamic = "force-dynamic"

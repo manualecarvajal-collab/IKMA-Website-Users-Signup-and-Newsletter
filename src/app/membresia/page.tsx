@@ -2,12 +2,16 @@ import type { Metadata } from "next"
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import MembershipForm from "./MembershipForm"
+import { pageSeo } from "@/lib/seo"
 
 export const dynamic = "force-dynamic"
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageSeo({
   title: "Membership - IKMA",
-}
+  description:
+    "Apply for IKMA membership: licensed health professionals, residents, students, and non-medical professionals.",
+  path: "/membresia",
+})
 
 const TIPOS_VALIDOS = [1, 2, 3, 4]
 const REGIONES_VALIDAS = ["A", "B"]

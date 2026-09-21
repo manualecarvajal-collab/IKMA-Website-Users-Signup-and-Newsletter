@@ -8,7 +8,10 @@ import ArticleContent from "@/components/ArticleContent"
 import DownloadPopup from "@/components/DownloadPopup"
 import Icon from "@/components/Icon"
 import ShareButtons from "@/components/ShareButtons"
+import JsonLd from "@/components/JsonLd"
 import { formatDate } from "@/lib/date"
+import { pageSeo } from "@/lib/seo"
+import { articleSchema, breadcrumbSchema, jsonLdGraph } from "@/lib/structured-data"
 
 export const dynamic = "force-dynamic"
 
@@ -18,18 +21,23 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params
   const article = await getArticle(slug)
   const t = await getTranslations("BlogDetail")
-  const coverUrl = article?.imagen_url
+
+  // Un slug inexistente renderiza el not-found: no debe competir en el índice.
+  if (!article) {
+    return { title: "IKMA Blog", robots: { index: false, follow: true } }
+  }
+
+  const coverUrl = article.imagen_url
     ? article.imagen_url.startsWith("http") ? article.imagen_url : BASE + article.imagen_url
     : undefined
-  return {
-    title: article ? `${article.titulo} - IKMA Blog` : "IKMA Blog",
-    description: article?.resumen ?? t("continueReading"),
-    ...(coverUrl && {
-      openGraph: {
-        images: [{ url: coverUrl, alt: article?.titulo ?? "IKMA Blog" }],
-      },
-    }),
-  }
+
+  return pageSeo({
+    title: `${article.titulo} - IKMA Blog`,
+    description: article.resumen ?? t("continueReading"),
+    path: `/blog/${slug}`,
+    image: coverUrl,
+    type: "article",
+  })
 }
 
 async function getArticle(slug: string) {
@@ -115,6 +123,31 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
 
   return (
     <article className="py-section-padding">
+      <JsonLd
+        data={jsonLdGraph(
+          articleSchema({
+            slug,
+            title: articleTitle,
+            description: articleSummary,
+            imageUrl: article.imagen_url
+              ? article.imagen_url.startsWith("http")
+                ? article.imagen_url
+                : BASE + article.imagen_url
+              : null,
+            datePublished: article.fecha_publicacion || article.created_at || null,
+            dateModified: article.updated_at || article.fecha_publicacion || article.created_at || null,
+            authorName: article.autor_nombre || null,
+            locale,
+            // Refleja el muro de pago real que aplica el servidor más arriba.
+            isPaywalled: !puedeVerCompleto,
+          }),
+          breadcrumbSchema([
+            { name: "Home", path: "/" },
+            { name: "Blog", path: "/blog" },
+            { name: articleTitle, path: null },
+          ]),
+        )}
+      />
       <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
         <div className="grid grid-cols-1 md:grid-cols-[3fr_7fr] gap-gutter">
           {/* Left Column — Sidebar */}

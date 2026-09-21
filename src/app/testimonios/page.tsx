@@ -3,12 +3,14 @@ import { getLocale, getTranslations } from "next-intl/server"
 import { createClient } from "@/lib/supabase/server"
 import Icon from "@/components/Icon"
 import TestimonialsExplorer, { type Testimonial } from "@/components/TestimonialsExplorer"
+import { pageSeo } from "@/lib/seo"
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageSeo({
   title: "Testimonios - IKMA",
   description:
     "Historias de sanidad, fe y excelencia clínica de nuestra red global de profesionales de la salud.",
-}
+  path: "/testimonios",
+})
 
 export default async function TestimoniosPage() {
   const t = await getTranslations("Testimonials")

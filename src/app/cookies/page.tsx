@@ -1,10 +1,12 @@
 import type { Metadata } from "next"
+import { pageSeo } from "@/lib/seo"
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageSeo({
   title: "Cookie Policy - IKMA",
   description:
     "IKMA's cookie policy: data retention, your rights under GDPR and US law, data security, international transfers, and children's privacy.",
-}
+  path: "/cookies",
+})
 
 export default function CookiesPage() {
   return (

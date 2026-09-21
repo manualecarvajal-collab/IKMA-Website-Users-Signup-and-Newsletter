@@ -55,9 +55,10 @@ export default function ContactSection() {
       <section className="relative py-24">
         <ContactHeroBg />
         <div className="relative z-10 max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop text-center">
-          <h2 className="font-headline-xl text-headline-lg text-primary mb-6">
+          {/* Encabezado principal de la página: antes era un h2 y /contact-us no tenía h1. */}
+          <h1 className="font-headline-xl text-headline-lg text-primary mb-6">
             {t("heroTitle")}
-          </h2>
+          </h1>
           <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto">
             {t("heroDescription")}
           </p>

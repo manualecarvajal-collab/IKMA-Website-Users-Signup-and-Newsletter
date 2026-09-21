@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next"
+import { SITE_URL } from "@/lib/site"
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -7,6 +8,7 @@ export default function robots(): MetadataRoute.Robots {
       allow: "/",
       disallow: ["/admin/", "/api/", "/auth/"],
     },
-    sitemap: "https://ikmaglobal.com/sitemap.xml",
+    // Host canónico con www: el apex responde 308 y no debe declararse aquí.
+    sitemap: `${SITE_URL}/sitemap.xml`,
   }
 }

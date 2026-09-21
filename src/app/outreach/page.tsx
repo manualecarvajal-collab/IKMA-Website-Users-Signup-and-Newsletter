@@ -1,12 +1,14 @@
 import type { Metadata } from "next"
 import { getTranslations } from "next-intl/server"
 import Icon from "@/components/Icon"
+import { pageSeo } from "@/lib/seo"
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageSeo({
   title: "Outreach - IKMA",
   description:
     "The impact of our work: community healthcare initiatives and medical missions in Venezuela.",
-}
+  path: "/outreach",
+})
 
 export default async function OutreachPage() {
   const t = await getTranslations("Outreach")

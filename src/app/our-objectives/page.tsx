@@ -2,12 +2,14 @@ import Link from "next/link"
 import type { Metadata } from "next"
 import { getTranslations } from "next-intl/server"
 import Icon from "@/components/Icon"
+import { pageSeo } from "@/lib/seo"
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageSeo({
   title: "Our Objectives - IKMA",
   description:
     "Learn about the key objectives and goals of the International Kingdom Medical Association.",
-}
+  path: "/our-objectives",
+})
 
 export default async function OurObjectivesPage() {
   const t = await getTranslations("OurObjectives")

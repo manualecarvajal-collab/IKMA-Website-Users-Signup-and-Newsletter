@@ -26,7 +26,7 @@ const boardMembers = [
     role: { en: "Treasurer and board member", es: "Tesorera y Miembro de la Junta Directiva" },
   },
   {
-    img: "/images/Ngata.png",
+    img: "/images/Ngata.webp",
     name: { en: "Dr. Ngata Gratia Boneza", es: "Dr. Ngata Gratia Boneza" },
     role: { en: "CEO-/ manager, board member", es: "Psiquiatra | Dir. Ejecutiva, Gerente y Miembro de la Junta Directiva" },
   },
@@ -76,7 +76,7 @@ export default function WhoWeAreContent() {
                 alt="IKMA medical professionals"
                 className="absolute inset-0 w-full h-full object-cover opacity-90 hover:opacity-100 transition-opacity duration-700"
                 loading="lazy"
-                src="/quienes-somos.png"
+                src="/quienes-somos.webp"
               />
               <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 to-transparent mix-blend-multiply" />
             </div>
@@ -104,7 +104,7 @@ export default function WhoWeAreContent() {
             <span className="w-8 h-1 bg-primary rounded-full" />
             <h2 className="font-label-bold text-label-bold text-primary tracking-wider uppercase">Our Vision</h2>
           </div>
-          <h1 className="font-headline-lg text-headline-lg text-primary mb-8">A World Fulfilled and Restored</h1>
+          <h2 className="font-headline-lg text-headline-lg text-primary mb-8">A World Fulfilled and Restored</h2>
           <div className="space-y-6 text-on-surface-variant">
             <p className="font-body-md text-body-md leading-relaxed text-justify">
               Living and serving under the full favor of God, we envision a community of medical professionals who integrate academic excellence, the guidance of the Holy Spirit, innovative technology, and creative approaches to care for the physical, spiritual, and emotional well-being of individuals, families, and communities. Through this holistic approach, we will bring healing to the whole person—heart, mind, body, and spirit—while strengthening families, restoring communities, and transforming society. We will help restore people&rsquo;s relationship with God and align every area of life with His divine order and original design for creation.
@@ -227,7 +227,7 @@ export default function WhoWeAreContent() {
 
     {/* Main Partners */}
     <section className="relative overflow-hidden bg-surface-bright pb-12 md:pb-section-padding">
-      <div className="relative w-full h-[500px] md:h-[600px] mb-[-120px] bg-fixed bg-center bg-cover overflow-hidden" style={{ backgroundImage: "url(/1968.jpg)" }}>
+      <div className="relative w-full h-[500px] md:h-[600px] mb-[-120px] bg-fixed bg-center bg-cover overflow-hidden" style={{ backgroundImage: "url(/1968.webp)" }}>
         <div className="absolute inset-0 bg-primary-container/20 mix-blend-multiply" />
         <div className="absolute inset-0 bg-[#003652]/60" />
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-gutter">
@@ -235,9 +235,9 @@ export default function WhoWeAreContent() {
             <span className="inline-block px-4 py-1.5 mb-6 bg-white/90 backdrop-blur-md rounded-full font-label-bold text-label-bold text-primary tracking-wider uppercase">
               {tWho("globalNetwork")}
             </span>
-            <h1 className="font-headline-xl text-headline-xl text-white drop-shadow-lg mb-4">
+            <h2 className="font-headline-xl text-headline-xl text-white drop-shadow-lg mb-4">
               {tWho("mainPartners")}
-            </h1>
+            </h2>
             <p className="font-body-lg text-body-md text-white/90 max-w-2xl mx-auto drop-shadow-md">
               {tWho("partnerDescription")}
             </p>
@@ -254,7 +254,7 @@ export default function WhoWeAreContent() {
               leader: "Ap. David Clementson",
               location: "Florida, USA",
               flag: "https://lh3.googleusercontent.com/aida-public/AB6AXuBLGCJtM9egKBrUlhG7UQILrea0c9HhRmFzRHnkj6CrcRHlnfax5m5ru3EiKXzqDooiuGyhOnvyhdyN-slsZDcgAYw4aYE0J_4mpFt13ohePPcSkPY5SIbwOIvFrnT494bV-i9DCG6hU3opgdhiNR6beImrXgxKD0QDq2IKerg7Dx9quxm8jSdkqK6YgbCZBqYVk3w1uEdMan13VO8CymwHK3BbbF2CY90wY-GzchyUkw0df6xJpp0",
-              logo: "/EMMINT.png",
+              logo: "/EMMINT.webp",
             },
             {
               name: { en: "Christian International Center", es: "Centro Cristiano Internacional" },
@@ -263,7 +263,7 @@ export default function WhoWeAreContent() {
               leader: "Ap. Carlos De León",
               location: "Coro, Venezuela",
               flag: "https://lh3.googleusercontent.com/aida-public/AB6AXuA_Vf5aAdiGwilskObkxt3RjsSMSz4S9g8u4uM0_axlA5VWxx0527sz-Lk1Gwoi1aMbqDuTb6tXrJdrG3OymBwm1pk8wQneXzQXZRgL3J1tAMRZLOUwraWNs0J6bwaCZfkJ0C8mh_f69zgIGkiNlqG4pYEiSlPPXw-qDSO0iZ4FTbz4lEnBuzGJr68Z9I5vjauOjBpXQ88bgziMUs1LzCr1NyKXL8YKObBDM6aBmOhCPpb6N_hu_Us",
-              logo: "/CDA.png",
+              logo: "/CDA.webp",
             },
             {
               name: "Bethlehem Kingdom Center",

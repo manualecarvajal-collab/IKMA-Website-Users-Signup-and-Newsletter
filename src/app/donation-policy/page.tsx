@@ -1,10 +1,12 @@
 import type { Metadata } from "next"
+import { pageSeo } from "@/lib/seo"
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageSeo({
   title: "Donation Policy - IKMA",
   description:
     "IKMA's donation policy: how contributions are used, refunds, and contact information.",
-}
+  path: "/donation-policy",
+})
 
 export default function DonationPolicyPage() {
   return (

@@ -1,11 +1,13 @@
 import type { Metadata } from "next"
 import { getTranslations } from "next-intl/server"
+import { pageSeo } from "@/lib/seo"
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageSeo({
   title: "Terms of Service - IKMA",
   description:
     "IKMA's terms of service: purpose, medical disclaimer, user conduct, donations, limitation of liability, governing law, and contact information.",
-}
+  path: "/terms-of-service",
+})
 
 export default async function TermsOfServicePage() {
   const t = await getTranslations("TermsOfService")

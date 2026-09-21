@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server"
 import { getTranslations, getLocale } from "next-intl/server"
 import Icon from "@/components/Icon"
 import { formatDate } from "@/lib/date"
+import { pageSeo } from "@/lib/seo"
 
 interface Video {
   id: string
@@ -21,11 +22,12 @@ export async function generateMetadata({ params }: { params: Promise<{ grupoSlug
   const t = await getTranslations("Teachings")
   const supabase = await createClient()
   const { data: grupo } = await supabase.from("grupos").select("nombre").eq("slug", grupoSlug).single()
-  if (!grupo) return { title: "Not Found - IKMA" }
-  return {
+  if (!grupo) return { title: "Not Found - IKMA", robots: { index: false, follow: true } }
+  return pageSeo({
     title: `${grupo.nombre} - ${t("pageTitle")}`,
     description: t("pageDesc"),
-  }
+    path: `/teachings/${grupoSlug}`,
+  })
 }
 
 export default async function GrupoVideosPage({ params }: { params: Promise<{ grupoSlug: string }> }) {

@@ -295,6 +295,7 @@
     "backToAllDoctors": "Back to All Doctors"
   },
   "Membership": {
+    "pageTitle": "Become a member of IKMA",
     "stepperMembership": "Membership",
     "stepperRegistration": "Registration",
     "stepperPayment": "Secure Payment",

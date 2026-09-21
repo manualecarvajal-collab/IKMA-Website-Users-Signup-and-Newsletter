@@ -3,6 +3,9 @@ import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
 import { getTranslations } from "next-intl/server"
 import Icon from "@/components/Icon"
+import JsonLd from "@/components/JsonLd"
+import { pageSeo } from "@/lib/seo"
+import { physicianSchema, breadcrumbSchema, jsonLdGraph } from "@/lib/structured-data"
 
 const BASE = "https://lh3.googleusercontent.com/aida-public/"
 
@@ -31,10 +34,20 @@ interface Doctor {
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params
   const doc = await getDoctor(id)
-  return {
-    title: `${doc?.nombre ?? "Doctor"} - IKMA`,
-    description: doc?.acerca_de?.slice(0, 160) ?? "",
+
+  if (!doc) {
+    return { title: "Doctor - IKMA", robots: { index: false, follow: true } }
   }
+
+  return pageSeo({
+    title: `${doc.nombre} - IKMA`,
+    description:
+      doc.acerca_de?.slice(0, 160) ||
+      `${doc.nombre}, ${doc.especialidad_principal} in the International Kingdom Medical Association network.`,
+    path: `/doctores/${id}`,
+    image: doc.imagen_url?.startsWith("http") ? doc.imagen_url : null,
+    type: "article",
+  })
 }
 
 async function getDoctor(id: string): Promise<Doctor | null> {
@@ -76,6 +89,24 @@ export default async function DoctorDetailPage({ params }: { params: Promise<{ i
 
   return (
     <main>
+      <JsonLd
+        data={jsonLdGraph(
+          physicianSchema({
+            id,
+            name: doc.nombre,
+            specialty: doc.especialidad_principal ?? null,
+            description: doc.acerca_de ?? null,
+            imageUrl: doc.imagen_url?.startsWith("http") ? doc.imagen_url : null,
+            hospital: doc.hospital ?? null,
+            languages: doc.idiomas ?? null,
+          }),
+          breadcrumbSchema([
+            { name: "Home", path: "/" },
+            { name: "Our Doctors", path: "/doctores" },
+            { name: doc.nombre, path: null },
+          ]),
+        )}
+      />
       {/* Hero Profile */}
       <section className="py-section-padding bg-surface-container-low border-b border-outline-variant/30">
         <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">

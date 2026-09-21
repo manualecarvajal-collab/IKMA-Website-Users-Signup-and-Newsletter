@@ -3,12 +3,14 @@ import type { Metadata } from "next"
 import { createClient } from "@/lib/supabase/server"
 import { getTranslations, getLocale } from "next-intl/server"
 import Icon from "@/components/Icon"
+import { pageSeo } from "@/lib/seo"
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageSeo({
   title: "Blog - IKMA Medical Journal",
   description:
     "Explore the IKMA medical journal — featuring peer-reviewed articles, mission updates, and community stories from the International Kingdom Medical Association.",
-}
+  path: "/blog",
+})
 
 interface Article {
   id: string
@@ -131,7 +133,8 @@ export default async function BlogPage() {
           <section className="py-12 md:py-section-padding bg-surface">
             <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
               <div className="mb-10">
-                <h2 className="font-headline-lg text-headline-lg text-primary mb-2">{tBlog("allArticles")}</h2>
+                {/* Encabezado principal de la página: antes era un h2 y /blog no tenía h1. */}
+                <h1 className="font-headline-lg text-headline-lg text-primary mb-2">{tBlog("allArticles")}</h1>
                 <p className="font-body-lg text-body-lg text-on-surface-variant">{tBlog("blogSubtitle")}</p>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter">

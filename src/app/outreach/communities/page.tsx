@@ -2,12 +2,14 @@ import type { Metadata } from "next"
 import { promises as fs } from "fs"
 import path from "path"
 import { getTranslations } from "next-intl/server"
+import { pageSeo } from "@/lib/seo"
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageSeo({
   title: "Venezuela Communities - Outreach - IKMA",
   description:
     "Multidisciplinary healthcare deployment in Venezuelan communities.",
-}
+  path: "/outreach/communities",
+})
 
 export default async function CommunitiesPage() {
   const t = await getTranslations("OutreachCommunities")

@@ -1,10 +1,12 @@
 import type { Metadata } from "next"
+import { pageSeo } from "@/lib/seo"
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageSeo({
   title: "Privacy Policy - IKMA",
   description:
     "IKMA's privacy policy: how we protect your information, CalOPPA, COPPA, Fair Information Practices, CAN-SPAM, and contact information.",
-}
+  path: "/privacy-policy",
+})
 
 export default function PrivacyPolicyPage() {
   return (

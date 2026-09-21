@@ -295,6 +295,7 @@
     "backToAllDoctors": "Volver a Todos los Doctores"
   },
   "Membership": {
+    "pageTitle": "Hazte miembro de IKMA",
     "stepperMembership": "Membresía",
     "stepperRegistration": "Registro",
     "stepperPayment": "Pago Seguro",

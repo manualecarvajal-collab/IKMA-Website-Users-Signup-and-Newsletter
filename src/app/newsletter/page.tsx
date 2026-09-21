@@ -5,12 +5,14 @@ import { getTranslations } from "next-intl/server"
 import ReadMagazineButton from "@/components/ReadMagazineButton"
 import Icon from "@/components/Icon"
 import { formatDate } from "@/lib/date"
+import { pageSeo } from "@/lib/seo"
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageSeo({
   title: "Magazine - IKMA",
   description:
     "Browse the collection of IKMA magazines — delivered with clinical insights, mission updates, and community stories.",
-}
+  path: "/newsletter",
+})
 
 interface Revista {
   id: string
