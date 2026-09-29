@@ -3,7 +3,7 @@
 -- ------------------------------------------------------------
 -- Pega este bloque completo en el SQL Editor de Supabase y
 -- ejecútalo. Devuelve una única fila JSON con el estado real
--- del schema `conferencia` tras aplicar 00041..00044.
+-- del schema `conferencia` tras aplicar 00050..00053.
 --
 -- No crea, altera ni borra nada.
 -- ============================================================
@@ -25,7 +25,7 @@ select jsonb_pretty(jsonb_build_object(
   ),
 
   -- 3. Columnas, en orden, con tipo / nulabilidad / default.
-  --    Esperado tras 00044:
+  --    Esperado tras 00053:
   --      id, nombre, email, telefono, ciudad, mensaje, estado,
   --      origen, created_at, consentimiento, consentimiento_at,
   --      perfil_profesional, pais
@@ -77,7 +77,7 @@ select jsonb_pretty(jsonb_build_object(
     where p.schemaname = 'conferencia' and p.tablename = 'registros'
   ),
 
-  -- 7. Permisos (los que añade 00045). Si esto sale false/null, el
+  -- 7. Permisos (los que añade 00054). Si esto sale false/null, el
   --    insert desde el servidor fallará con:
   --        permission denied for schema conferencia  (42501)
   --    `anon`/`authenticated` DEBEN salir false.
@@ -157,6 +157,6 @@ select jsonb_pretty(jsonb_build_object(
 --     -H "apikey: $SERVICE_ROLE" -H "Authorization: Bearer $SERVICE_ROLE" \
 --     -H "Accept-Profile: conferencia"
 --
---   200 → todo correcto   401/403 → faltan permisos (00045)
+--   200 → todo correcto   401/403 → faltan permisos (00054)
 --   406 → schema sin exponer
 -- ------------------------------------------------------------

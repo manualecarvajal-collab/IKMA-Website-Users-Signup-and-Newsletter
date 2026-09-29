@@ -64,7 +64,7 @@ alter table conferencia.codigos enable row level security;
 -- ------------------------------------------------------------
 -- Permisos.
 --
--- 00045 ya dejó `alter default privileges`, así que esta tabla
+-- 00054 ya dejó `alter default privileges`, así que esta tabla
 -- los hereda sola al crearla `postgres`. Se repiten aquí de forma
 -- explícita para que la migración no dependa de quién la ejecute:
 -- si alguien la lanza con otro rol, los default privileges no

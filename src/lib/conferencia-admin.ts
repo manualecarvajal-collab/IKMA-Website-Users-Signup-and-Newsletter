@@ -51,7 +51,7 @@ export interface Ajustes {
  *
  * Antes estas funciones devolvían una lista vacía al fallar, y eso es
  * peligroso: "no hay inscritos" y "no pude leer los inscritos" se veían
- * exactamente igual en el panel. Pasó de verdad — la migración `00047` no
+ * exactamente igual en el panel. Pasó de verdad — la migración `00056` no
  * estaba aplicada y el panel mostraba una tabla vacía como si no hubiera
  * nadie. Mejor decirlo.
  */
@@ -82,11 +82,11 @@ export const PRESENCIA_VENTANA_MINUTOS = 1.5
  *
  * `PGRST205` y `PGRST200` son los que aparecen cuando falta una tabla porque
  * su migración no se aplicó; sin traducirlo se leen como un fallo críptico de
- * la API. Pasó de verdad con la `00047`.
+ * la API. Pasó de verdad con la `00056`.
  */
 function describeError(code: string | undefined, message: string): string {
   if (code === "PGRST205" || code === "PGRST200") {
-    return `Falta una tabla del schema conferencia (${message}). ¿Está aplicada la migración 00047?`
+    return `Falta una tabla del schema conferencia (${message}). ¿Está aplicada la migración 00056?`
   }
   return `${message}${code ? ` (${code})` : ""}`
 }

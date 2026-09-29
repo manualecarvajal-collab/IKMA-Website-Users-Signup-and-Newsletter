@@ -1,7 +1,7 @@
 -- ============================================================
 -- Conferencia IKMA — Plantilla de invitación en inglés
 -- ------------------------------------------------------------
--- La plantilla se sembró en español en la 00047. Aquí se pasa a
+-- La plantilla se sembró en español en la 00056. Aquí se pasa a
 -- inglés, incluida la frase fija del shell.
 --
 -- IMPORTANTE: los dos UPDATE van condicionados a que el valor sea

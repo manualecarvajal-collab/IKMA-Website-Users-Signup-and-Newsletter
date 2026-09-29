@@ -10,7 +10,7 @@
 --     permission denied for schema conferencia   (42501)
 --
 -- Verificado en un Postgres limpio replicando los roles de
--- Supabase: 00041..00044 por sí solas NO bastan.
+-- Supabase: 00050..00053 por sí solas NO bastan.
 --
 -- DECISIÓN DE ACCESO
 -- Se concede únicamente a `service_role`, que es quien escribe
@@ -18,7 +18,7 @@
 -- `authenticated` NO reciben ningún permiso: no pueden ni
 -- alcanzar el schema, así que quedan bloqueados antes incluso
 -- de llegar a RLS. Es el mínimo privilegio posible y mantiene
--- la intención de 00041.
+-- la intención de 00050.
 --
 -- DESVIACIÓN CONSCIENTE DEL DOC OFICIAL
 -- https://supabase.com/docs/guides/api/using-custom-schemas

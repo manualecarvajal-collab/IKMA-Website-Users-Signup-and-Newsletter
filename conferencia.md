@@ -90,16 +90,16 @@ Ninguna de estas acciones afecta la funcionalidad del sitio principal.
 
 ### Migraciones — aplicadas y verificadas contra el proyecto real
 
-`00041`–`00044` aplicadas por el usuario; comprobadas con
+`00050`–`00053` aplicadas por el usuario; comprobadas con
 `supabase/checks/conferencia_estado.sql` e idénticas a la referencia
-local. `00045` (permisos) aplicada por el usuario; pendiente de
+local. `00054` (permisos) aplicada por el usuario; pendiente de
 confirmar por SQL.
 
 Verificado en un Postgres 17 limpio replicando los roles de Supabase:
 las cinco migraciones aplican en orden, son idempotentes (se pueden
 re-ejecutar sin fallo) y el schema final es el diseñado.
 
-**Hallazgo importante (00045):** en Supabase los privilegios por
+**Hallazgo importante (00054):** en Supabase los privilegios por
 defecto son *por schema* y solo cubren `public`. Un schema nuevo no
 hereda nada, así que sin `grant usage on schema conferencia to
 service_role` la API responde `42501 permission denied for schema
@@ -249,7 +249,7 @@ decida (un enlace discreto en el hero, el footer, la nav...).
 | `verificarCodigo(email, code)` | comprueba y pasa a `confirmado` |
 | `reenviarCodigo(email)` | otro código, sin tocar los datos |
 
-Y `conferencia.codigos` (migración `00046`) guarda cada emisión: hash, caducidad,
+Y `conferencia.codigos` (migración `00055`) guarda cada emisión: hash, caducidad,
 intentos y si se consumió.
 
 Parámetros: **6 dígitos · 15 min · 5 intentos · reenvío con 60 s de espera ·
@@ -402,7 +402,7 @@ Qué hay:
   guardado de plantilla.
 - **Configuración del directo**, con los dos modos.
 
-Migración `00047`: `ajustes` (clave/valor), `envios` (rastro de correos) y
+Migración `00056`: `ajustes` (clave/valor), `envios` (rastro de correos) y
 `presencia` (latidos). Las cinco tablas del schema quedan con RLS activado,
 0 políticas y `anon` bloqueado.
 
@@ -494,7 +494,7 @@ retoque.
 El cuerpo se edita con **`TiptapEditor`**, el mismo editor del newsletter, con
 subida de imágenes. Admite los marcadores `{{nombre}}` y `{{email}}`.
 
-**Migrar una plantilla ya sembrada sin pisar ediciones.** La `00048` traduce la
+**Migrar una plantilla ya sembrada sin pisar ediciones.** La `00057` traduce la
 plantilla al inglés con `update ... where valor = <valor de fábrica>`. Así, si
 el usuario ya la había editado, la migración no toca nada, y re-ejecutarla es
 inofensiva. Es el patrón a repetir: **nunca sobrescribir contenido que puede
@@ -504,10 +504,10 @@ haber cambiado**.
 
 `getRegistros` devolvía una lista vacía al fallar, así que el panel mostraba
 **"no hay inscritos"** cuando en realidad **no había podido leerlos**. Pasó de
-verdad con la `00047` sin aplicar. Ahora las funciones devuelven
+verdad con la `00056` sin aplicar. Ahora las funciones devuelven
 `{ data, error }`, el panel pinta un aviso rojo avisando de que los números
 pueden estar incompletos, y `PGRST205`/`PGRST200` se traducen a *"¿está
-aplicada la migración 00047?"* en vez del mensaje críptico de la API.
+aplicada la migración 00056?"* en vez del mensaje críptico de la API.
 
 Silenciar el error parecía defensivo y era lo contrario: llevaba a decidir
 sobre datos que no existían.

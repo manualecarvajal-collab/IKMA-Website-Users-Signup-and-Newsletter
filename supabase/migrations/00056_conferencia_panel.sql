@@ -86,7 +86,7 @@ alter table conferencia.envios    enable row level security;
 alter table conferencia.presencia enable row level security;
 
 -- ------------------------------------------------------------
--- Permisos. 00045 ya dejó `alter default privileges`, pero se
+-- Permisos. 00054 ya dejó `alter default privileges`, pero se
 -- repiten para no depender de qué rol ejecute la migración.
 -- Solo `service_role`, igual que el resto del schema.
 -- ------------------------------------------------------------

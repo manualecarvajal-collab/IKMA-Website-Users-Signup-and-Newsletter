@@ -4,7 +4,7 @@
 -- El panel pasa a tener DOS plantillas:
 --
 --   1. Invitación a hacerse miembro  → botón a /membresia
---      (ya sembrada en la 00047 y traducida en la 00048)
+--      (ya sembrada en la 00056 y traducida en la 00057)
 --   2. Recordatorio de la conferencia → botón a /conferencia
 --
 -- El recordatorio manda a la LANDING, no al link de Zoom. Es
