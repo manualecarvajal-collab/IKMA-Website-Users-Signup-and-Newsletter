@@ -36,6 +36,10 @@ npm-debug.log*
 /.pnp
 .pnpm-debug.log*
 /session-*.md
+/tmp/
+/video/node_modules/
+/video/out/
+/video/build/
 *.tsbuildinfo
 .vercel
 # Directorio de configuracion del Vercel CLI cuando se redirige XDG_DATA_HOME /

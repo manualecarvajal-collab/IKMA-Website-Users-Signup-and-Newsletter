@@ -1,0 +1,21 @@
+{
+  "name": "ikma-conferencia-video",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Fondo animado del hero de la conferencia (Remotion)",
+  "scripts": {
+    "studio": "remotion studio",
+    "render": "remotion render",
+    "lint": "tsc"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.526",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "remotion": "4.0.526"
+  },
+  "devDependencies": {
+    "@types/react": "19.2.7",
+    "typescript": "5.9.3"
+  }
+}

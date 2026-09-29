@@ -3,6 +3,12 @@ import { createServerClient } from "@supabase/ssr"
 import { esMembresiaGratisUsuario } from "@/lib/supabase/free-membership"
 
 export async function proxy(request: NextRequest) {
+  // Expone el pathname al layout raíz para que pueda omitir el chrome del sitio
+  // en rutas con su propio layout (p. ej. la landing /conferencia).
+  // No altera el routing ni la sesión.
+  const requestHeaders = new Headers(request.headers)
+  requestHeaders.set("x-pathname", request.nextUrl.pathname)
+
   // Salida temprana para tráfico anónimo.
   //
   // El cliente de Supabase se construía y `auth.getUser()` se llamaba en CADA
@@ -18,11 +24,16 @@ export async function proxy(request: NextRequest) {
     .getAll()
     .some((c) => c.name.startsWith("sb-") && c.name.includes("-auth-token"))
 
+  // OJO: las DOS salidas llevan `requestHeaders`, no solo la de abajo.
+  // Si la temprana devolviera un `next()` pelado, los visitantes anónimos
+  // —que son casi todos los de la landing— llegarían al layout sin
+  // `x-pathname` y verían la Navbar y el Footer del sitio sobre la conferencia.
+  // Y no se notaría con sesión iniciada, porque ese camino sí lo lleva.
   if (!hasSessionCookie) {
-    return NextResponse.next()
+    return NextResponse.next({ request: { headers: requestHeaders } })
   }
 
-  const response = NextResponse.next()
+  const response = NextResponse.next({ request: { headers: requestHeaders } })
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
