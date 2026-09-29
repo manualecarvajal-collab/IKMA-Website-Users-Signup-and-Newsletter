@@ -30,5 +30,13 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules",
+    // `video/` es un subproyecto de Remotion con su propio package.json y su
+    // propio tsconfig.json. Sus dependencias NO están en el repo (son 423 MB)
+    // y Vercel solo instala las de la raíz, así que al comprobar tipos desde
+    // aquí fallaba el build con "Cannot find module 'remotion'".
+    // Se comprueba con `npx tsc -p video` cuando se trabaja en él.
+    "video"
+  ]
 }
