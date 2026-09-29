@@ -13,6 +13,7 @@ const navItems = [
   { href: "/admin/testimonios", label: "Testimonials", icon: "volunteer_activism" },
   { href: "/admin/members", label: "Members", icon: "groups" },
   { href: "/admin/newsletter", label: "Newsletter", icon: "mail" },
+  { href: "/admin/conferencia", label: "Conference", icon: "campaign" },
 ]
 
 export function SidebarNav({ 

@@ -3,6 +3,7 @@ import { Montserrat } from "next/font/google"
 import "./globals.css"
 import { NextIntlClientProvider } from "next-intl"
 import { getLocale, getMessages } from "next-intl/server"
+import { headers } from "next/headers"
 import Navbar from "@/components/Navbar"
 import Footer from "@/components/Footer"
 import FooterWrapper from "@/components/FooterWrapper"
@@ -52,6 +53,13 @@ export default async function RootLayout({
   const locale = await getLocale()
   const messages = await getMessages()
 
+  // La landing de la conferencia trae su propia nav, así que se omite el
+  // chrome del sitio. El pathname llega por header desde src/proxy.ts, de modo
+  // que la decisión es server-side y no hay parpadeo al hidratar.
+  const pathname = (await headers()).get("x-pathname") ?? ""
+  const sinChrome =
+    pathname === "/conferencia" || pathname.startsWith("/conferencia/")
+
   return (
     <html
       lang={locale}
@@ -64,19 +72,23 @@ export default async function RootLayout({
       </head>
       <body className="min-h-full flex flex-col bg-background text-on-background selection:bg-primary-container selection:text-on-primary-container">
         <NextIntlClientProvider locale={locale} messages={messages}>
-          <div className="sticky top-0 z-50">
-            <IncompleteRegistrationBanner />
-            <Navbar />
-          </div>
+          {!sinChrome && (
+            <div className="sticky top-0 z-50">
+              <IncompleteRegistrationBanner />
+              <Navbar />
+            </div>
+          )}
           <main className="flex-grow">{children}</main>
-          <FooterWrapper>
-            <NewsletterCTAVisibility>
-              <NewsletterCTA />
-            </NewsletterCTAVisibility>
-            <Footer />
-          </FooterWrapper>
+          {!sinChrome && (
+            <FooterWrapper>
+              <NewsletterCTAVisibility>
+                <NewsletterCTA />
+              </NewsletterCTAVisibility>
+              <Footer />
+            </FooterWrapper>
+          )}
           <ToastContainer />
-          <CookieConsent />
+          {!sinChrome && <CookieConsent />}
           <LocaleSwitch />
         </NextIntlClientProvider>
         <SpeedInsights />

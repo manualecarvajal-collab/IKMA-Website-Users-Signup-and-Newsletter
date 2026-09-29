@@ -2,6 +2,120 @@
 // ponytail: header/footer shell duplicated across templates; extract a shared
 // layout when all templates get migrated to the logo header.
 
+/** Logo blanco del storage público. Se usa en la cabecera azul. */
+const LOGO_IKMA =
+  "https://ugdrmmukrckvpdagfecg.supabase.co/storage/v1/object/public/article-images/logo-white.png"
+
+/**
+ * Invitación a hacerse miembro, para los inscritos a la conferencia.
+ *
+ * Sigue el shell del newsletter (cabecera, cuerpo, bloque de llamada y pie)
+ * pero con el logo delante, que el newsletter no lleva: allí la marca es un
+ * texto. El cuerpo es lo único editable desde el panel; la cabecera, el botón
+ * y el pie son estructura, para que el correo no se desmonte por un descuido.
+ *
+ * El botón apunta a `/membresia`, que es donde se solicita la membresía. NO se
+ * añade saludo aquí: el cuerpo editable ya lo trae, y si lo pusiéramos en los
+ * dos sitios saldría repetido.
+ *
+ * Los textos fijos van en inglés a propósito: la asociación se comunica en
+ * inglés y la plantilla que se siembra también lo está. El cuerpo es lo único
+ * traducible por el usuario desde el panel.
+ */
+export function buildConferenciaInvitacionHtml(config: {
+  nombre: string
+  contenido_html: string
+  ctaTexto?: string
+}) {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+  const cta = config.ctaTexto?.trim() || "Become a member"
+
+  return `
+    <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; border: 1px solid #e0e0e0;">
+      <!-- Cabecera con el logo -->
+      <div style="background-color: #074469; padding: 32px 24px; text-align: center;">
+        <img src="${LOGO_IKMA}" alt="IKMA" style="max-width: 240px; max-height: 100px;">
+      </div>
+
+      <!-- Cuerpo editable -->
+      <div style="padding: 32px 24px;">
+        <div style="color: #49454f; line-height: 1.8; font-size: 16px;">
+          ${config.contenido_html}
+        </div>
+      </div>
+
+      <!-- Llamada a la acción: hacerse miembro -->
+      <div style="background-color: #1a4d6d; padding: 40px 32px; text-align: center;">
+        <h2 style="color: #ffffff; font-size: 26px; font-weight: 600; margin: 0 0 14px;">Be part of IKMA</h2>
+        <p style="color: #cae6ff; font-size: 15px; line-height: 1.7; margin: 0 auto 28px; max-width: 420px;">Join the association and get access to our content, journals and upcoming gatherings.</p>
+        <a href="${siteUrl}/membresia" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 16px 40px; background-color: #ffffff; color: #003652; border-radius: 9999px; font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; text-decoration: none;">${cta}</a>
+      </div>
+
+      <!-- Pie -->
+      <div style="background-color: #e6e8e9; padding: 32px; text-align: center; border-top: 1px solid #d8dadb;">
+        <div style="color: #003652; font-weight: 700; font-size: 18px; margin-bottom: 12px;">IKMA</div>
+        <p style="color: #41474d; font-size: 13px; line-height: 1.7; margin: 0 0 20px;">International Kingdom Medical Association<br>Dedicated to excellence in global health.</p>
+        <p style="color: #41474d; font-size: 12px; line-height: 1.8; margin: 0;">
+          &copy; 2026 IKMA. All rights reserved.<br>
+          You are receiving this email because you registered for the IKMA Conference.<br>
+          <a href="${siteUrl}/privacy-policy" style="color: #41474d; text-decoration: underline;">Privacy Policy</a>
+        </p>
+      </div>
+    </div>
+  `
+}
+
+/**
+ * Recordatorio de la conferencia, para cuando el evento está cerca.
+ *
+ * Mismo shell que la invitación a membresía (logo, cuerpo, llamada y pie),
+ * pero el botón apunta a **la landing**, no al link de Zoom. Es deliberado:
+ * así el enlace de la reunión nunca sale por correo y no se puede reenviar a
+ * terceros. Quien quiera entrar, pasa por la página.
+ */
+export function buildConferenciaRecordatorioHtml(config: {
+  nombre: string
+  contenido_html: string
+  ctaTexto?: string
+}) {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+  const cta = config.ctaTexto?.trim() || "Go to the conference"
+
+  return `
+    <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; border: 1px solid #e0e0e0;">
+      <!-- Cabecera con el logo -->
+      <div style="background-color: #074469; padding: 32px 24px; text-align: center;">
+        <img src="${LOGO_IKMA}" alt="IKMA" style="max-width: 240px; max-height: 100px;">
+      </div>
+
+      <!-- Cuerpo editable -->
+      <div style="padding: 32px 24px;">
+        <div style="color: #49454f; line-height: 1.8; font-size: 16px;">
+          ${config.contenido_html}
+        </div>
+      </div>
+
+      <!-- Llamada a la acción: la landing de la conferencia -->
+      <div style="background-color: #1a4d6d; padding: 40px 32px; text-align: center;">
+        <h2 style="color: #ffffff; font-size: 26px; font-weight: 600; margin: 0 0 14px;">See you at the conference</h2>
+        <p style="color: #cae6ff; font-size: 15px; line-height: 1.7; margin: 0 auto 28px; max-width: 420px;">Everything you need to join us on the day is on the conference page.</p>
+        <a href="${siteUrl}/conferencia" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 16px 40px; background-color: #ffffff; color: #003652; border-radius: 9999px; font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; text-decoration: none;">${cta}</a>
+      </div>
+
+      <!-- Pie -->
+      <div style="background-color: #e6e8e9; padding: 32px; text-align: center; border-top: 1px solid #d8dadb;">
+        <div style="color: #003652; font-weight: 700; font-size: 18px; margin-bottom: 12px;">IKMA</div>
+        <p style="color: #41474d; font-size: 13px; line-height: 1.7; margin: 0 0 20px;">International Kingdom Medical Association<br>Dedicated to excellence in global health.</p>
+        <p style="color: #41474d; font-size: 12px; line-height: 1.8; margin: 0;">
+          &copy; 2026 IKMA. All rights reserved.<br>
+          You are receiving this email because you registered for the IKMA Conference.<br>
+          <a href="${siteUrl}/privacy-policy" style="color: #41474d; text-decoration: underline;">Privacy Policy</a>
+        </p>
+      </div>
+    </div>
+  `
+}
+
 export function buildMembershipMessageHtml(config: {
   nombre: string
   contenido_html: string

@@ -35,6 +35,10 @@ npm-debug.log*
 /.pnp
 .pnpm-debug.log*
 /session-*.md
+/tmp/
+/video/node_modules/
+/video/out/
+/video/build/
 *.tsbuildinfo
 .vercel
 .yarn/*

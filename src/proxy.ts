@@ -3,7 +3,12 @@ import { createServerClient } from "@supabase/ssr"
 import { esMembresiaGratisUsuario } from "@/lib/supabase/free-membership"
 
 export async function proxy(request: NextRequest) {
-  const response = NextResponse.next()
+  // Expone el pathname al layout raíz para que pueda omitir el chrome del
+  // sitio en rutas con su propio layout (p. ej. la landing /conferencia).
+  // No altera el routing ni la sesión.
+  const requestHeaders = new Headers(request.headers)
+  requestHeaders.set("x-pathname", request.nextUrl.pathname)
+  const response = NextResponse.next({ request: { headers: requestHeaders } })
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
