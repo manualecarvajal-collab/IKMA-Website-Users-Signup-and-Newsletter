@@ -114,7 +114,10 @@ export default function ConferenciaPanel({
   }
 
   const [directoEstado, setDirectoEstado] = useState(ajustes.directoEstado)
-  const [directoUrl, setDirectoUrl] = useState(ajustes.directoUrl)
+  // El enlace de Zoom ya no se edita desde aquí: la emisión va por el embed de
+  // YouTube. Se sigue enviando al guardar para NO borrar el que hubiera — es el
+  // que le da a los inscritos el botón para entrar a la reunión.
+  const directoUrl = ajustes.directoUrl
   const [directoEmbed, setDirectoEmbed] = useState(ajustes.directoEmbed)
   const [resultado, setResultado] = useState<EnvioResumen | null>(null)
   const [aviso, setAviso] = useState<string>("")
@@ -547,16 +550,7 @@ export default function ConferenciaPanel({
 
         {avisoDirecto && <p className="mt-2 text-sm text-gray-700">{avisoDirecto}</p>}
 
-        <div className="mt-4 grid gap-3 md:grid-cols-2">
-          <label className="block">
-            <span className="text-sm font-medium text-gray-700">{t("zoomLabel")}</span>
-            <input
-              value={directoUrl}
-              onChange={(e) => setDirectoUrl(e.target.value)}
-              placeholder="https://us06web.zoom.us/j/…"
-              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
-            />
-          </label>
+        <div className="mt-4 grid gap-3">
           <label className="block">
             <span className="text-sm font-medium text-gray-700">{t("embedLabel")}</span>
             <input

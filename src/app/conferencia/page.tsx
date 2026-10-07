@@ -13,6 +13,7 @@ import SignUpButton from "@/components/conferencia/SignUpButton"
 import SignupCard from "@/components/conferencia/SignupCard"
 import Presencia from "@/components/conferencia/Presencia"
 import DirectoPanel from "@/components/conferencia/DirectoPanel"
+import DirectoVivo from "@/components/conferencia/DirectoVivo"
 import { emailConfirmado, getDirecto } from "@/lib/conferencia"
 import { createAdminClient } from "@/lib/supabase/server"
 import "./fondo.css"
@@ -254,6 +255,12 @@ export default async function ConferenciaPage() {
             el panel de administración: contador, transmisión, aviso de pausa o
             cierre. Mientras no haya nada que ver, lo ve todo el mundo. */}
         <GalleryCard expandToVideo>
+          {/* Escucha los cambios de estado para que lleguen sin recargar. */}
+          <DirectoVivo
+            estado={directo.estado}
+            url={yaInscrito ? directo.url : ""}
+            embed={yaInscrito ? directo.embed : ""}
+          />
           <DirectoPanel
             estado={directo.estado}
             inscrito={yaInscrito !== null}
