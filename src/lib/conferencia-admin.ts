@@ -1,5 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/server"
 import type { PlantillaId } from "@/lib/conferencia-plantilla"
+import { esEstadoDirecto, type EstadoDirecto } from "@/components/conferencia/directo"
 
 /**
  * Consultas del panel de la conferencia (`/admin/conferencia`).
@@ -40,6 +41,8 @@ export interface Plantilla {
 }
 
 export interface Ajustes {
+  /** Qué enseña la landing en el panel del directo. Ver `directo.ts`. */
+  directoEstado: EstadoDirecto
   directoUrl: string
   directoEmbed: string
   /** Las dos plantillas, indexadas por id: `invitacion` y `recordatorio`. */
@@ -61,6 +64,7 @@ export interface Resultado<T> {
 }
 
 const DEFAULTS: Ajustes = {
+  directoEstado: "antes",
   directoUrl: "",
   directoEmbed: "",
   plantillas: {
@@ -178,6 +182,9 @@ export async function getAjustes(admin: Admin): Promise<Resultado<Ajustes>> {
 
   return {
     data: {
+      // Texto libre en la base: un valor desconocido cae a `antes`, que es el
+      // estado que no enseña nada a nadie.
+      directoEstado: esEstadoDirecto(mapa.directo_estado) ? mapa.directo_estado : "antes",
       directoUrl: mapa.directo_url ?? "",
       directoEmbed: mapa.directo_embed ?? "",
       plantillas: {

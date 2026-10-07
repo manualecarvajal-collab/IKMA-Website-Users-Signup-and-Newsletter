@@ -99,6 +99,13 @@ Verificado en un Postgres 17 limpio replicando los roles de Supabase:
 las cinco migraciones aplican en orden, son idempotentes (se pueden
 re-ejecutar sin fallo) y el schema final es el diseñado.
 
+**Ojo con esta lista: solo cubría hasta la `00054`, y las siguientes no
+quedaron registradas en ningún sitio.** La `00057` y la `00058` estuvieron
+escritas sin aplicar hasta el 2026-10-06, y no se notó porque nada lo
+comprobaba: la pestaña del recordatorio salía vacía y la plantilla de
+invitación seguía en español. Para el estado real, ver "Estado de la base de
+datos" más abajo — que es una foto fechada, no una promesa.
+
 **Hallazgo importante (00054):** en Supabase los privilegios por
 defecto son *por schema* y solo cubren `public`. Un schema nuevo no
 hereda nada, así que sin `grant usage on schema conferencia to
@@ -143,14 +150,14 @@ es más estricto: `anon` no llega ni a entrar.
       `perfil_profesional='resident'` (clave del enum, no la etiqueta),
       `consentimiento=true` con `consentimiento_at` sellado, opcionales
       `null`. El formulario se vacía solo tras enviar.
-- [ ] **Email duplicado: el mensaje confunde.** El índice único hace bien
-      su trabajo (no se crea la fila), pero quien ya está inscrito ve
-      *"We couldn't complete your registration. Please try again."*, es
-      decir se le invita a reintentar algo que nunca va a funcionar.
-      PostgREST devuelve `code: "23505"`; hay que distinguirlo en
-      `crearRegistro()` y mostrar un mensaje propio ("ya estás
-      inscrito con este correo"). Requiere clave nueva en
-      `messages/{en,es}.json`.
+- [x] **Email duplicado: el mensaje ya no confunde.** Se resolvió al revés
+      de lo previsto aquí. En vez de un mensaje de error propio, un email que
+      ya existe **no se rechaza**: si está en `nuevo` se reutiliza la fila, y
+      si está `confirmado` se le manda otro código y el paso 2 le muestra
+      `codeDescriptionReturning`. Era el caso que se quedaba sin salida —
+      quien ya se había inscrito y volvía sin la cookie no tenía forma de
+      llegar a ella—, así que rechazarlo con un mensaje bonito habría seguido
+      siendo un callejón.
 - [x] Server action del formulario — `src/app/conferencia/actions.ts`.
       Guarda `consentimiento_at` solo si hay consentimiento.
 - [ ] Rellenar las 3 cards del abanico (`GalleryCard` está en blanco).
@@ -159,9 +166,8 @@ es más estricto: `anon` no llega ni a entrar.
       de `src/components/conferencia/event.ts`, que es el único sitio donde
       vive `EVENT_DATE`: así no hay dos valores que puedan
       desincronizarse. Antes ese panel reutilizaba el vídeo del formulario.
-- [ ] Sustituir ese contador por el vídeo de la transmisión por Zoom
-      cuando exista. El punto exacto está marcado en
-      `src/app/conferencia/page.tsx` (panel 5 del `HorizontalRail`).
+- [x] Sustituir ese contador por el vídeo de la transmisión. Hecho con
+      `DirectoPanel`, que además es la puerta de acceso: ver más abajo.
 
 ### Proceso de trabajo
 
@@ -443,8 +449,11 @@ Por eso `ajustes` admite **dos modos**, y `directo_embed` tiene prioridad:
 - `directo_url` → enlace de Zoom, se muestra como **botón** que lo abre.
 - `directo_embed` → URL incrustable (YouTube Live, Vimeo, HLS) → se incrusta.
 
-**Pendiente:** conectar estos ajustes al panel 5 de la landing. Hoy sigue
-mostrando el contador.
+**Conectado.** El panel 5 (`src/components/conferencia/DirectoPanel.tsx`) lee
+estos ajustes en cada visita. `directo_embed` tiene prioridad y se incrusta;
+`directo_url` sale como botón. Con los dos vacíos pero el directo encendido, el
+panel dice que está a punto de empezar en vez de enseñar un contador que ya no
+significa nada.
 
 ### Las dos plantillas de correo
 
@@ -470,12 +479,15 @@ En el panel son dos pestañas, y **cada una guarda y envía por separado**:
 - Los dos borradores viven en el estado a la vez, así que cambiar de pestaña no
   pierde lo escrito en la otra.
 
-**Aviso pendiente de decidir.** Si el panel 5 de la landing acaba mostrando el
-botón de Zoom **a cualquiera que abra la página**, el registro deja de proteger
-nada: bastaría con tener la URL de la landing. Para que "sin registro no hay
-acceso" sea real, la barrera tiene que estar del lado de Zoom (sala de espera o
-registro propio). El correo a la landing evita que el link se reenvíe, pero no
-convierte la página en privada.
+**Aviso, resuelto a medias — y la mitad que falta no es código.** Ese era el
+escenario que se temía: en cuanto el panel 5 enseñara el botón de Zoom a
+cualquiera que abriera la página, el registro dejaría de proteger nada. Ya no
+pasa: el enlace solo llega al navegador de quien tiene la inscripción
+confirmada. Pero **el enlace de Zoom sigue sin estar protegido en Zoom**. Quien
+lo tenga —porque alguien se lo reenvió— entra igual. Para que "sin registro no
+hay acceso" sea real falta la sala de espera o el registro propio del lado de
+Zoom. El correo a la landing evita que el link circule, pero no convierte la
+reunión en privada.
 
 ### El correo de invitación
 
@@ -512,6 +524,171 @@ aplicada la migración 00056?"* en vez del mensaje críptico de la API.
 Silenciar el error parecía defensivo y era lo contrario: llevaba a decidir
 sobre datos que no existían.
 
+## Puerta del directo y cierre de seguridad (2026-10-06)
+
+### La puerta
+
+La regla de negocio es una: **sin inscripción confirmada no se ve la
+transmisión**. Antes `estado` estaba bien construido pero nadie lo consultaba
+para decidir el acceso: `emailConfirmado()` solo servía para no pintar el
+formulario, y los ajustes del directo se guardaban sin que los leyera nadie.
+
+**La landing tiene cuatro momentos, no dos**, y el día del evento se cambia de
+uno a otro con prisa. La clave `directo_estado` en `ajustes` guarda en cuál
+está, y el panel de administración los pone con un clic:
+
+| estado | inscrito | sin inscribir |
+|---|---|---|
+| `antes` | el contador | el contador |
+| `vivo` | la transmisión (embed, o botón si es Zoom) | bloqueo que invita a inscribirse |
+| `espera` | aviso de pausa | aviso de pausa **+ botón de inscribirse** |
+| `final` | cierre + enlace a `/membresia` | cierre + enlace a `/membresia` |
+
+La pausa no es el momento de dejar sin salida a quien no está dentro, así que
+conserva su botón. Y el cierre lleva al mismo sitio que el botón del correo de
+invitación, para que la conferencia y el correo no propongan dos cosas distintas.
+
+**El estado se guarda al pulsar el botón, sin "Guardar" de por medio.** Los
+enlaces sí llevan su botón; el estado no, y la diferencia es deliberada: los
+enlaces se configuran con calma, antes del evento, pero el estado se cambia EN
+DIRECTO, con la conferencia ya en marcha. Un cambio que se queda sin aplicar
+porque nadie se acordó de pulsar un botón es justo el fallo que no se puede
+permitir ese día. El botón solo se mueve si el servidor aceptó el cambio:
+pintarlo optimista dejaría el panel mintiendo sobre lo que se ve en la landing.
+
+**El enlace NO viaja en el HTML de quien no está dentro.** En `page.tsx`, `url`
+y `embed` se mandan vacíos a quien no está confirmado. Esto es lo que convierte
+el bloqueo en puerta y no en decoración: ocultar el panel con CSS habría dejado
+la URL de Zoom en el código fuente, a un `Ctrl+U` de distancia.
+
+**El estado es manual.** Derivarlo de `EVENT_DATE` habría sido menos código y
+peor: si el evento se retrasa, bloquearía la página antes de que exista
+transmisión, y no habría forma de poner la pausa de un intermedio. La hora real
+de cada momento la sabe quien da al botón, no un reloj.
+
+**Un solo sitio donde vive la lista de estados:** `components/conferencia/directo.ts`,
+sin dependencias de servidor, para que lo usen los dos lados —el servidor para
+leerlo y decidir, el panel para pintarlo—. `esEstadoDirecto()` valida en los dos
+límites: al leer `ajustes` (que es clave/valor, así que el valor llega como
+texto libre) y al recibir el estado desde el panel, que es un endpoint POST como
+cualquier server action. Lo que no reconoce cae a `antes`, que es el estado que
+no enseña nada a nadie: fallar hacia el contador es fallar hacia el lado seguro.
+
+`getDirecto()` valida además que las URLs sean `http(s)`. Las escribe un
+administrador, así que la amenaza es remota, pero acaban en un `href` y en un
+`src` de iframe: un `javascript:` ahí sería XSS servido por nosotros.
+
+**Lo que sigue sin resolverse:** la barrera del lado de Zoom. Ver el aviso de
+más arriba.
+
+### Estado de la base de datos (2026-10-06)
+
+Consultado directamente contra el proyecto real con la clave de servicio, no
+deducido de los ficheros. Esto es lo que hay:
+
+| migración | estado |
+|---|---|
+| `00050`–`00056` | aplicadas. Las 5 tablas responden y `registros` tiene las 14 columnas |
+| `00057`, `00058` | **estaban sin aplicar**; aplicadas en esta fecha |
+| `00059` | aplicada. `directo_estado` existe y la purga dejó 0 filas `nuevo` viejas |
+| `00060` | aplicada. Convirtió `directo_activo` → `directo_estado` y retiró la clave vieja |
+
+`conferencia.ajustes` tiene ahora las cinco claves: `directo_estado` y los dos
+pares de plantillas, las cuatro en inglés.
+
+**Aislamiento comprobado con la clave anónima, lectura y escritura, tabla por
+tabla:**
+
+```
+GET    /conferencia.registros   → 401  42501 permission denied for schema
+POST   /conferencia.registros   → 401  42501
+POST   /conferencia.ajustes     → 401  42501
+PATCH  /conferencia.ajustes     → 401  42501
+DELETE /conferencia.registros   → 401  42501
+   ... las cinco tablas, igual
+```
+
+Es el bloqueo más fuerte posible: `anon` no llega ni a entrar en el schema, así
+que RLS no hace falta que entre en juego y el toggle "Automatically expose new
+tables" no cambia nada.
+
+**Truco que costó un falso positivo:** PostgREST elige el schema de **escritura**
+con `Content-Profile`, no con `Accept-Profile`. Con solo `Accept-Profile` un
+POST anónimo devuelve `404 PGRST205 Could not find the table 'public.registros'`
+—parece bloqueado y no lo está: está buscando en `public`, donde esa tabla no
+existe—. Para comprobar un bloqueo de escritura hay que mandar los dos headers.
+
+### Migraciones de esta ronda
+
+| | qué hace |
+|---|---|
+| `00059` | Siembra `directo_activo` y purga los `nuevo` de más de 7 días |
+| `00060` | Sustituye ese booleano por `directo_estado` y lo retira |
+
+La `00060` convierte: si `directo_activo` estaba en `true`, deja
+`directo_estado = 'vivo'`. Solo actúa si el estado sigue siendo el de fábrica,
+así que re-ejecutarla **no pisa** el estado que el panel tenga puesto, y aplica
+igual si la `00059` nunca llegó a correr. Las dos cosas verificadas en un
+Postgres 17 limpio.
+
+`getDirecto()` valida que las URLs sean `http(s)` antes de devolverlas. Las
+escribe un administrador, así que la amenaza es remota, pero acaban en un `href`
+y en un `src` de iframe: un `javascript:` ahí sería XSS servido por nosotros.
+
+**Lo que sigue sin resolverse:** la barrera del lado de Zoom. Ver el aviso de
+más arriba.
+
+### Dos agujeros cerrados
+
+**1. Las server actions del panel comprobaban el rol... en el sitio
+equivocado.** `enviarInvitacion` y `guardarAjustes` no miraban nada: se
+apoyaban en `src/app/admin/layout.tsx`. Pero **una server action es un endpoint
+POST**; el layout protege la página, no la acción, así que quien conociera su id
+podía invocarla sin pasar por `/admin`. `enviarPrueba`, en el mismo fichero, sí
+hacía `getUser()`: la inconsistencia estaba a la vista. Las tres pasan ahora por
+`requireAdmin()`, que exige sesión y `rol === 'administrador'`. Cuesta una
+consulta a `perfiles` por llamada, y es el precio correcto para una acción que
+manda correos reales.
+
+**2. Cualquiera podía reescribir los datos de un inscrito.**
+`solicitarCodigo` es pública y actualizaba la fila si el email ya existía. Con
+saber un correo inscrito se podía cambiar el nombre, el país, el perfil y el
+consentimiento de esa persona sin demostrar nada. No concedía acceso —`estado`
+no está en el payload— pero **corrompía justo la lista con la que se va a
+invitar a la membresía y al newsletter**, que es su único uso previsto.
+
+Ahora un registro `confirmado` no se toca: solo se le emite otro código, que es
+lo único que viene a buscar quien vuelve desde otro navegador. Los que están en
+`nuevo` sí se actualizan, porque rehacer el formulario es el camino normal.
+
+### La lista del panel, limpia
+
+Dos cambios, uno en `00059` y otro en el panel:
+
+- La tabla **arranca en `confirmado`**, no en `todos`. Un registro `nuevo` no
+  está verificado: pudo crearlo cualquiera con el correo de otra persona.
+- **Purga de `nuevo` con más de 7 días.** El flujo OTP entero dura 15 minutos,
+  así que ese margen no le quita la inscripción a nadie que esté de verdad a
+  medio registrarse. `codigos` y `envios` caen por `ON DELETE CASCADE`. Los
+  `confirmado` y `cancelado` no se tocan nunca.
+
+**Ojo: esto limpia el atraso UNA VEZ.** Para que no se vuelva a acumular hay que
+repetirlo o montar un cron. Con el filtro por defecto en `confirmado` el ruido
+no molesta en el panel, pero la tabla sigue creciendo por debajo.
+
+### Lo que NO se arregló aquí
+
+- **Sin límite por IP en `solicitarCodigo`.** El tope de 5/hora es por
+  *registro*, y cada email nuevo crea un registro: se pueden pedir códigos
+  ilimitados a buzones de terceros. Con Resend Free (100/día, sin exceso), 100
+  peticiones anónimas agotan la cuota del día y dejan a los asistentes reales
+  fuera. Es el agujero que queda abierto y el que más duele.
+- **Los fallos de OTP solo van a `console.error`.** El primer síntoma de cuota
+  agotada serán asistentes quejándose. Ver `conferencia-resend-quota.md`.
+- **`olvidarRegistro()` sigue sin uso.** El caso de equipo compartido sigue
+  abierto: la cookie dura 180 días.
+- **Sin tests e2e** del flujo, que tiene máquina de estados.
+
 ## Figma — cerrado
 
 La réplica del prototipo ya está implementada, así que **el material de
@@ -533,9 +710,26 @@ nuevo, y el file key del proyecto es `ko93SBxP7WCksQ94gtBdIg`.
 
 ## Decisiones Pendientes
 
-- [ ] Plataforma de streaming (Zoom, YouTube Live, otra)
+- [ ] **Barrera del lado de Zoom** (sala de espera o registro propio). Sin
+      esto, "sin registro no hay acceso" es cierto en la landing y falso en la
+      reunión.
+- [ ] Plataforma de streaming (Zoom, YouTube Live, otra). El código ya aguanta
+      las dos: YouTube Live o Vimeo van en `directo_embed` y se incrustan; Zoom
+      va en `directo_url` y sale como botón. Solo falta decidir cuál.
+- [ ] **Resend Pro para el mes del evento.** Con el plan Free el techo es
+      100 correos/día sin exceso, y cada inscripción gasta uno. Ver
+      `conferencia-resend-quota.md`.
+- [ ] Límite por IP en `solicitarCodigo` (o un tope global diario). Es lo que
+      protege la cuota de Resend de un agotamiento deliberado.
+- [ ] Rellenar las 3 cards del abanico (`GalleryCard` sigue en blanco).
+- [ ] Purgar los `nuevo` de forma recurrente (cron) si se quiere que la tabla
+      no vuelva a acumular ruido. La `00059` solo limpia el atraso una vez.
+- [ ] Tests e2e del flujo de inscripción.
+- [ ] Colgar `olvidarRegistro()` de algún sitio para el caso de equipo
+      compartido.
 - [x] Diseño visual de la landing — réplica del prototipo de Figma
 - [x] Contenido del hero (título, fecha, hora, descripción) — fecha
       `2026-11-14T09:00:00-04:00`; el resto en `messages/{en,es}.json`
 - [x] Campos exactos del formulario: `nombre`, `email`, `pais`,
       `perfil_profesional`, `consentimiento`
+- [x] Puerta de acceso al directo — ver "Puerta del directo" más arriba

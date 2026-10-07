@@ -158,7 +158,8 @@ function codeEmailHtml(name: string, code: string): string {
  * Si el email ya existe con `estado = 'nuevo'` se REUTILIZA la fila en vez de
  * fallar: con OTP, que a alguien se le caduque el código y vuelva a empezar es
  * el camino normal, y el índice único sobre `lower(email)` lo rechazaría con
- * 23505. Solo un registro ya `confirmado` corta el paso.
+ * 23505. Un registro ya `confirmado` no corta el paso —se le manda código
+ * igual— pero sus datos no se tocan. Ver el comentario más abajo.
  */
 export async function solicitarCodigo(input: RegistroInput): Promise<RequestCodeResult> {
   try {
@@ -194,12 +195,26 @@ export async function solicitarCodigo(input: RegistroInput): Promise<RequestCode
 
     let registroId: string
     if (existing) {
-      const { error } = await registros().update(payload).eq("id", existing.id)
-      if (error) {
-        console.error("[solicitarCodigo] update:", error.message, error.code)
-        return { ok: false, reason: "unknown" }
-      }
       registroId = existing.id
+
+      // Un registro YA CONFIRMADO no se toca.
+      //
+      // Esta acción es pública y no pide nada para llegar hasta aquí, así que
+      // actualizar sus datos dejaría a cualquiera que sepa un correo inscrito
+      // reescribir el nombre, el país, el perfil y el consentimiento de esa
+      // persona. No concedería acceso —`estado` no está en el payload— pero sí
+      // corrompería justo la lista con la que se va a invitar a la membresía y
+      // al newsletter.
+      //
+      // A quien vuelve desde otro navegador solo le hace falta el código, así
+      // que eso es lo único que se le da.
+      if (existing.estado !== "confirmado") {
+        const { error } = await registros().update(payload).eq("id", existing.id)
+        if (error) {
+          console.error("[solicitarCodigo] update:", error.message, error.code)
+          return { ok: false, reason: "unknown" }
+        }
+      }
     } else {
       const { data, error } = await registros().insert(payload).select("id").single()
       if (error || !data) {

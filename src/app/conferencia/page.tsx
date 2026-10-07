@@ -1,14 +1,21 @@
 import type { Metadata } from "next"
+import type { CSSProperties } from "react"
+import Link from "next/link"
 import { getTranslations } from "next-intl/server"
 import ConferenciaNav from "@/components/conferencia/ConferenciaNav"
+import FondoBarras from "@/components/conferencia/FondoBarras"
 import ConferenciaCountdown from "@/components/conferencia/ConferenciaCountdown"
 import CardVideo from "@/components/conferencia/CardVideo"
 import GalleryCard from "@/components/conferencia/GalleryCard"
+import { PONENTES } from "@/components/conferencia/ponentes"
 import HorizontalRail from "@/components/conferencia/HorizontalRail"
 import SignUpButton from "@/components/conferencia/SignUpButton"
 import SignupCard from "@/components/conferencia/SignupCard"
 import Presencia from "@/components/conferencia/Presencia"
-import { emailConfirmado } from "@/lib/conferencia"
+import DirectoPanel from "@/components/conferencia/DirectoPanel"
+import { emailConfirmado, getDirecto } from "@/lib/conferencia"
+import { createAdminClient } from "@/lib/supabase/server"
+import "./fondo.css"
 
 /**
  * El título y la descripción salen de i18n: se ven en la pestaña del
@@ -38,8 +45,13 @@ const FORM_POSTER = "/images/conferencia/form-poster.jpg"
  *      formulario es el primer panel del riel y, al seguir bajando, se desliza
  *      a la izquierda mientras entran las tarjetas y, al final, el vídeo.
  *
- * El fondo (vídeo de Remotion, ver `video/`) es fijo, así el azul queda
- * continuo en todo el recorrido.
+ * Hero con collage: el recorte del grupo (`apostol.webp`, con transparencia,
+ * así que el fondo respira entre las personas) sobre dos bloques planos de
+ * color. Las posiciones de los bloques van en porcentaje del ancho de la foto y
+ * salen de medir el fotograma del prototipo, no de estimarlos a ojo.
+ *
+ * El fondo es fijo, así el mismo campo claro y las mismas barras acompañan a
+ * toda la página durante el recorrido del riel.
  */
 export default async function ConferenciaPage() {
   const t = await getTranslations("Conferencia.hero")
@@ -50,51 +62,99 @@ export default async function ConferenciaPage() {
   // para que no haya un parpadeo mostrando el formulario.
   const yaInscrito = await emailConfirmado()
 
+  // Estado del directo, que fija un administrador desde el panel. El panel 5
+  // reacciona a él: contador mientras no haya nada que ver, la transmisión para
+  // quien está dentro, el bloqueo para quien no.
+  const directo = await getDirecto(await createAdminClient())
+
   return (
     <>
-      {/* Fondo animado compartido por toda la página */}
-      <div aria-hidden="true" className="fixed inset-0 -z-10">
-        <div className="absolute inset-0 bg-[radial-gradient(120%_120%_at_50%_38%,#1289D4_0%,#0068B6_45%,#004A85_100%)]" />
-        {/* Tres calidades del mismo render: el navegador elige según el ancho */}
-        <video
-          className="absolute inset-0 h-full w-full object-cover"
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="auto"
-        >
-          <source
-            src="/videos/conferencia-hero-4k.mp4"
-            media="(min-width: 1920px)"
-            type="video/mp4"
-          />
-          <source
-            src="/videos/conferencia-hero-1440.mp4"
-            media="(min-width: 1024px)"
-            type="video/mp4"
-          />
-          <source src="/videos/conferencia-hero.mp4" type="video/mp4" />
-        </video>
-        <div className="absolute inset-0 bg-[#00325c]/20" />
-      </div>
+      {/* Fondo compartido por toda la página: campo claro y barras flotantes.
+          Sustituye al vídeo azul de Remotion — ver `FondoBarras`. */}
+      <FondoBarras />
 
       <ConferenciaNav />
 
       {/* Latido anónimo que alimenta "conectados ahora" en el panel */}
       <Presencia />
 
-      {/* 1 · Hero — scroll normal */}
-      <section className="relative flex h-svh flex-col items-center justify-center px-4 pb-20 pt-32">
-        <div className="relative flex w-full max-w-[820px] flex-col items-center text-center">
-          {/* Badges */}
-          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3">
-            <span className="rounded-full bg-white px-4 py-1.5 text-[13px] font-semibold text-[#0068B6] shadow-sm">
+      {/* 1 · Hero — scroll normal.
+          Collage arriba (dos bloques planos + el recorte del grupo) y bloque de
+          texto abajo, pisando el borde inferior de la foto, como en el
+          prototipo.
+
+          Alto y ancho se tienen en cuenta a la vez: la sección mide justo una
+          ventana y TODAS las medidas de texto llevan `min(<vw>, <svh>)`. Así, en
+          una ventana ancha pero baja (un portátil de 1366×768, por ejemplo) el
+          hero se encoge entero en lugar de salirse por abajo, y en una 16:9
+          grande crece hasta el tope. Con solo `vw` se salía. */}
+      <section className="relative flex min-h-svh flex-col items-center px-4 pb-[min(24px,2.2svh)] pt-[min(76px,7svh)] lg:h-svh">
+        {/* Banda de tres bloques. Dos correcciones sobre lo primero que hice:
+            (1) son TRES, no dos — el del centro (terracota) queda casi entero
+            tapado por las personas en el fotograma del vídeo, y los trozos que
+            asomaban los descarté como tonos de piel;
+            (2) no son anchos y bajos: son 2,6 veces más altos que anchos.
+            Medidas de la captura del diseño (1920×1080): bloques de 159 × 416,
+            huecos de 39, banda de x 679 a 1238 y de y 141 a 556. En
+            proporciones: 8,3 % del ancho cada bloque, 2 % de hueco, y la banda
+            del 13,1 % al 65 % del alto (ojo: el bloque sigue desvaneciéndose por
+            debajo de donde el color deja de ser exacto, así que su alto real es
+            mayor que el que da medir el color a rajatabla).
+            Va fuera del contenedor de la foto a propósito: la banda está
+            centrada en la página, no en el lienzo de la foto (el recorte trae
+            el grupo descentrado, así que atarla a él la descolocaba).
+            Y lleva máscara porque en el diseño los bloques NO acaban en línea
+            recta: se disuelven por abajo (sólidos hasta el 70 % del alto, y de
+            ahí al fondo). Sin ella el borde inferior es un corte seco, que es
+            justo lo que hacía que se vieran raros. La máscara va en la banda y
+            no en cada bloque: así los tres se desvanecen igual con una regla. */}
+        {/* La banda de bloques y la foto van DENTRO del mismo contenedor y
+            comparten UNA sola máscara. Es la clave de todo este asunto: si se
+            enmascaran por separado, la foto translúcida deja ver los bloques de
+            detrás y el cuerpo aparece rayado en franjas verticales. Con una
+            máscara común, los dos se desvanecen con el MISMO alfa y eso no puede
+            pasar.
+            Además, la foto va bajada a propósito (4svh) para que su borde
+            inferior —un corte recto del recorte— caiga dentro del fundido: así
+            desaparece en lugar de leerse como una línea.
+
+            Geometría, en % de este contenedor (que mide 64svh):
+              banda → del 9,5 % al 90,8 %, que son el 13,1 %–65,1 % de la ventana
+              foto  → del 6,25 % al 93,75 %, o sea el 11 %–67 % de la ventana */}
+        <div className="relative flex h-[64svh] w-full shrink-0 justify-center sm:h-[67svh] lg:h-[70svh] [mask-image:linear-gradient(to_bottom,#000_66%,rgba(0,0,0,0.5)_82%,rgba(0,0,0,0.14)_94%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,#000_66%,rgba(0,0,0,0.5)_82%,rgba(0,0,0,0.14)_94%,transparent_100%)] [mask-repeat:no-repeat]">
+          {/* Los tres bloques: 8,3 % del ancho cada uno, con huecos del 2 %.
+              VAN QUIETOS a propósito: el movimiento es cosa de las barras
+              translúcidas del fondo, no de la banda del collage. */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-x-0 top-[8.7%] flex h-[74.3%] justify-center gap-[2%]"
+          >
+            <div className="h-full w-[8.3%] bg-[#1F4D75]" />
+            <div className="h-full w-[8.3%] bg-[#B27A59]" />
+            <div className="h-full w-[8.3%] bg-[#8C9487]" />
+          </div>
+
+          {/* El recorte trae transparencia propia (el claro del fondo se ve entre
+              las personas). `alt` vacío a propósito: es decoración, y el titular
+              de al lado ya dice de qué va la página. */}
+          <img
+            src="/images/conferencia/apostol.webp"
+            alt=""
+            width={1417}
+            height={1400}
+            className="relative mt-[5.7%] w-[min(78vw,60svh)] self-start sm:w-[min(52vw,63svh)] lg:w-[min(41vw,66svh)]"
+          />
+        </div>
+
+        <div className="relative -mt-[5svh] flex w-full max-w-[820px] flex-col items-center text-center sm:-mt-[16svh] lg:-mt-[22svh]">
+          {/* Etiqueta + enlace al sitio */}
+          <div className="flex flex-wrap items-center justify-center gap-x-7 gap-y-2">
+            <span className="rounded-full bg-[#11324F] px-[min(20px,1.85svh)] py-[min(6px,0.55svh)] text-[clamp(min(0.68rem,1.01svh),min(0.68vw,1.2svh),0.85rem)] font-semibold text-white">
               {t("badge")}
             </span>
-            <a
+            <Link
               href="/"
-              className="inline-flex items-center gap-1.5 rounded text-[13px] font-medium text-white transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+              className="inline-flex items-center gap-1.5 text-[clamp(min(0.68rem,1.01svh),min(0.68vw,1.2svh),0.85rem)] font-semibold text-[#123045] transition-opacity hover:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#123045] focus-visible:ring-offset-2"
             >
               {t("officialWebsite")}
               <svg
@@ -109,40 +169,44 @@ export default async function ConferenciaPage() {
                 <path d="M20 4 11 13" />
                 <path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" />
               </svg>
-            </a>
+            </Link>
           </div>
 
-          {/* Título */}
-          <h1 className="mt-7 text-[clamp(2.1rem,5.6vw,4rem)] font-bold leading-[1.08] tracking-[-0.01em] text-white">
+          {/* Titular */}
+          <h1 className="mt-[min(17px,1.45svh)] text-[clamp(min(2.4rem,3.56svh),min(3.5vw,6.2svh),4.2rem)] font-bold leading-[1.05] tracking-[-0.02em] text-[#123045]">
             {t("title")}
           </h1>
 
-          {/* Descripción */}
-          <p className="mt-6 max-w-[56ch] text-[15px] leading-[1.55] text-white/90 md:text-[16px]">
+          {/* Descripción. El ancho va en `ch` a propósito: así el corte de línea
+              se mantiene al cambiar el tamaño de la fuente, y el texto parte por
+              donde parte en el prototipo ("…who serve / their communities…"). */}
+          <p className="mt-[min(13px,1.15svh)] max-w-[62ch] text-[clamp(min(0.9rem,1.33svh),min(0.87vw,1.55svh),1.05rem)] font-semibold leading-[1.4] text-[#123045]">
             {t("description")}
           </p>
 
           {/* Botones. Ya inscrito, el principal deja de ofrecer una inscripción
               que existe y pasa a invitar a entrar en las tarjetas; sigue
               apuntando a `#registro`, que ahora es el arranque del riel. */}
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+          <div className="mt-[min(13px,1.15svh)] flex flex-wrap items-center justify-center gap-x-10 gap-y-3">
             <SignUpButton
               label={yaInscrito ? tForm("doneCta") : t("ctaPrimary")}
-              className="rounded-full bg-white px-7 py-3 text-[15px] font-bold text-[#0068B6] transition-colors hover:bg-[#0068B6] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#0068B6]"
+              className="rounded-full bg-[#11324F] px-[min(28px,2.6svh)] py-[min(10px,0.95svh)] text-[clamp(min(0.8rem,1.19svh),min(0.78vw,1.38svh),1rem)] font-bold text-white transition-colors hover:bg-[#1F4D75] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#11324F] focus-visible:ring-offset-2"
             />
+            {/* El secundario es TEXTO, sin borde ni pastilla: así aparece en el
+                prototipo. */}
             <a
               href="/contact-us"
-              className="rounded-full border border-white/80 px-7 py-3 text-[15px] font-bold text-white transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#0068B6]"
+              className="text-[clamp(min(0.8rem,1.19svh),min(0.78vw,1.38svh),1rem)] font-bold text-[#123045] transition-opacity hover:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#123045] focus-visible:ring-offset-2"
             >
               {t("ctaSecondary")}
             </a>
           </div>
 
           {/* Fecha y contador */}
-          <p className="mt-10 text-[17px] font-semibold tracking-[0.01em] text-white">
+          <p className="mt-[min(22px,2svh)] text-[clamp(min(0.95rem,1.41svh),min(0.9vw,1.6svh),1.15rem)] font-semibold tracking-[0.01em] text-[#123045]">
             {t("date")}
           </p>
-          <p className="mt-2 text-[15px] font-semibold text-white">
+          <p className="mt-[min(5px,0.45svh)] text-[clamp(min(0.8rem,1.19svh),min(0.78vw,1.38svh),1rem)] font-semibold text-[#123045]">
             {t("countdownLabel")}
           </p>
           <ConferenciaCountdown />
@@ -173,27 +237,32 @@ export default async function ConferenciaPage() {
           </div>
         )}
 
-        {/* Paneles 2..4 — tarjetas de la galería, cuadradas y del mismo
-            tamaño. Van vacías: ahí van las fotos. */}
-        {[0, 1, 2].map((i) => (
-          <GalleryCard key={i} />
+        {/* Paneles 2..7 — una tarjeta por PONENTE, cuadradas y del mismo
+            tamaño. Son seis (antes tres): el riel reparte el abanico según
+            cuántas haya, así que añadir tarjetas no necesita tocar nada más. */}
+        {PONENTES.map((ponente) => (
+          <GalleryCard
+            key={ponente.id}
+            foto={ponente.foto}
+            nombre={ponente.nombre}
+          />
         ))}
 
         {/* Panel 5 — el directo: nace cuadrado como las demás y, al quedar
             centrado, se agranda a horizontal.
-            Aquí irá el vídeo de la transmisión por Zoom. Mientras no exista, se
-            muestra el mismo contador del hero: comparte la fecha límite vía
-            `components/conferencia/event.ts`, así que no hay dos valores que
-            puedan desincronizarse. */}
+            Qué se ve aquí lo decide `DirectoPanel` a partir del estado que fija
+            el panel de administración: contador, transmisión, aviso de pausa o
+            cierre. Mientras no haya nada que ver, lo ve todo el mundo. */}
         <GalleryCard expandToVideo>
-          <div className="flex h-full w-full flex-col items-center justify-center px-6 text-center">
-            <p className="text-[13px] font-semibold text-[#0035CC] md:text-[17px]">
-              {t("countdownLabel")}
-            </p>
-            <div className="mt-6 md:mt-10">
-              <ConferenciaCountdown variant="panel" />
-            </div>
-          </div>
+          <DirectoPanel
+            estado={directo.estado}
+            inscrito={yaInscrito !== null}
+            // A quien no está confirmado NO se le manda el enlace. Si viajara
+            // en el HTML, la pantalla de bloqueo sería decorativa: bastaría con
+            // abrir el inspector. Esto, y no el render, es la puerta.
+            url={yaInscrito ? directo.url : ""}
+            embed={yaInscrito ? directo.embed : ""}
+          />
         </GalleryCard>
       </HorizontalRail>
     </>

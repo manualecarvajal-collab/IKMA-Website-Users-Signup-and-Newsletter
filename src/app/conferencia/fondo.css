@@ -1,0 +1,36 @@
+/* Barras flotantes del fondo de la conferencia.
+ *
+ * El movimiento va en CSS y no en un vídeo a propósito: en el prototipo de
+ * referencia lo único que se mueve son las barras (la foto, el titular y el
+ * contador están idénticos píxel a píxel en los 27 s de grabación), así que un
+ * vídeo de fondo solo añadiría megas para animar unas cajas de color.
+ *
+ * Cada barra recibe su duración, su retardo y su deriva VERTICAL por variables
+ * CSS, de modo que ninguna se mueva al mismo ritmo que su vecina. El movimiento
+ * es solo de arriba abajo: en horizontal las barras se quedan donde están.
+ */
+@keyframes conf-flotar {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scaleY(1);
+  }
+  50% {
+    transform: translate3d(var(--conf-dx, 0px), var(--conf-dy, -40px), 0)
+      scaleY(var(--conf-sy, 1.05));
+  }
+}
+
+.conf-barra {
+  position: absolute;
+  animation: conf-flotar var(--conf-dur, 18s) ease-in-out var(--conf-delay, 0s)
+    infinite;
+  will-change: transform;
+}
+
+
+/* Quien pide menos movimiento ve el fondo quieto, no una versión más lenta. */
+@media (prefers-reduced-motion: reduce) {
+  .conf-barra {
+    animation: none;
+  }
+}

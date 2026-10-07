@@ -6,7 +6,7 @@
     "hero": {
       "badge": "Conferencia 2026",
       "officialWebsite": "Sitio oficial de IKMA",
-      "title": "Sanando a través de la fe y la excelencia",
+      "title": "IKMA Forward",
       "description": "Una jornada de enseñanza, testimonio y medicina para profesionales que sirven a sus comunidades. Reserva tu lugar y te enviaremos todos los detalles.",
       "ctaPrimary": "Inscríbete ahora",
       "ctaSecondary": "Contacta para más información",
@@ -56,6 +56,20 @@
       "errCodeIncomplete": "Escribe los 6 dígitos del código.",
       "errWrongCode": "El código no es correcto. Te quedan {attempts} intentos.",
       "errTooManyAttempts": "Demasiados intentos fallidos. Pide un código nuevo."
+    },
+    "live": {
+      "badge": "En directo",
+      "lockedTitle": "La conferencia está en directo",
+      "lockedText": "Inscríbete para ver la transmisión. Solo necesitas tu nombre y tu correo, y confirmas con un código que te llega al buzón.",
+      "lockedCta": "Inscríbete para verla",
+      "watch": "Ver la transmisión",
+      "starting": "La transmisión está a punto de empezar…",
+      "badgeWaiting": "En pausa",
+      "waitingTitle": "Volvemos enseguida",
+      "waitingText": "Estamos en pausa. La transmisión se reanuda en unos minutos.",
+      "endedTitle": "Gracias por acompañarnos",
+      "endedText": "La conferencia ha terminado. Si quieres seguir formando parte de esta comunidad, puedes hacerte miembro de IKMA y acceder a nuestros contenidos, revistas y próximos encuentros.",
+      "endedCta": "Hazte miembro"
     },
     "meta": {
       "title": "Conferencia IKMA — 14 de noviembre de 2026",
@@ -746,8 +760,8 @@
       "testSent": "Prueba enviada a {email}",
       "testFailed": "No se pudo enviar: {error}",
       "saved": "Plantilla y ajustes guardados",
-      "saveLive": "Guardar directo",
-      "savedLive": "Directo guardado",
+      "saveLive": "Guardar enlaces",
+      "savedLive": "Enlaces guardados",
       "saveFailed": "No se pudo guardar: {error}",
       "omitWarning": "{count, plural, one {# de los seleccionados no está confirmado y se omitirá.} other {# de los seleccionados no están confirmados y se omitirán.}}",
       "resultSent": "Enviados: {sent} · Fallidos: {failed}",
@@ -763,10 +777,20 @@
       "liveDesc": "El link de invitación de Zoom se abre como enlace, no se incrusta: la página de Zoom lanza la aplicación y dentro de un iframe queda en blanco (comprobado). Si algún día reemites a YouTube o HLS, pon esa URL en el segundo campo y sí se incrustará.",
       "zoomLabel": "Enlace de Zoom (botón «Entrar»)",
       "embedLabel": "URL incrustable (YouTube / HLS)",
-      "livePending": "El panel 5 de la landing todavía muestra el contador. Conectar estos campos a la landing es el siguiente paso.",
+      "livePending": "El estado se guarda al pulsar el botón y la landing lo lee en cada visita, así que el cambio se ve al instante. El enlace de la transmisión solo llega al navegador de quien tiene la inscripción confirmada.",
       "templateInvitation": "Invitación a membresía",
       "templateReminder": "Recordatorio de la conferencia",
-      "templateLabel": "Plantilla"
+      "templateLabel": "Plantilla",
+      "liveStateLabel": "Estado del directo",
+      "stateBefore": "Antes",
+      "stateLive": "En vivo",
+      "stateWaiting": "En espera",
+      "stateEnded": "Finalizado",
+      "stateHintBefore": "La landing enseña el contador. Lo ve todo el mundo.",
+      "stateHintLive": "Quien está inscrito ve la transmisión; quien no, un bloqueo que le invita a inscribirse. El enlace no se le manda a nadie más.",
+      "stateHintWaiting": "Aviso de pausa para todos. Quien no está inscrito conserva el botón de inscribirse.",
+      "stateHintEnded": "Pantalla de cierre con la invitación a hacerse miembro.",
+      "savedState": "Directo actualizado"
     }
   },
   "IncompleteRegistration": {

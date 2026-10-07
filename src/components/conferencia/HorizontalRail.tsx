@@ -24,6 +24,21 @@ import type { ReactNode } from "react"
  * números que se separarían al primer ajuste.
  */
 export const SCROLL_PER_STEP = 520
+
+/**
+ * Separación y giro del abanico, según el ancho disponible.
+ *
+ * Antes eran dos constantes (150 px y 13°), que valían para TRES tarjetas. Con
+ * seis, 150 px de separación deja cada tarjeta tapada por la siguiente y las de
+ * los extremos se salen de la pantalla en ventanas normales. Ahora la
+ * separación sale del ancho (un 11,5 %, con suelo de 96 px) y el giro va en
+ * proporción a ella, así que el abanico se abre en pantallas grandes y se
+ * aprieta —sin giros exagerados— en las pequeñas.
+ */
+function abanico(ancho: number) {
+  const sep = Math.max(96, Math.min(FAN_OFFSET, ancho * 0.115))
+  return { sep, angulo: Math.max(4, Math.min(FAN_ANGLE, sep / 11)) }
+}
 const OFFSCREEN = 980 // desde dónde entran los paneles
 const FAN_OFFSET = 150 // separación lateral dentro del abanico
 const FAN_ANGLE = 13 // grados de cada tarjeta del abanico
@@ -51,7 +66,14 @@ function clamp(v: number, min: number, max: number) {
  * ranuras saldrían desplazadas. Por eso el índice y el desfase de llegada se
  * calculan a partir de este flag.
  */
-function place(i: number, p: number, count: number, hasForm: boolean): Placement {
+function place(
+  i: number,
+  p: number,
+  count: number,
+  hasForm: boolean,
+  sep: number,
+  angulo: number
+): Placement {
   const isForm = hasForm && i === 0
   const isVideo = i === count - 1
   const t = p - i // 0 → este panel está centrado
@@ -94,9 +116,9 @@ function place(i: number, p: number, count: number, hasForm: boolean): Placement
   const slot = cardIndex - (settled - 1) / 2
 
   return {
-    x: OFFSCREEN * (1 - arrive) + slot * FAN_OFFSET * arrive,
+    x: OFFSCREEN * (1 - arrive) + slot * sep * arrive,
     y: 0,
-    rot: slot * FAN_ANGLE * arrive,
+    rot: slot * angulo * arrive,
     opacity: clamp(arrive / 0.35, 0, 1),
   }
 }
@@ -118,6 +140,7 @@ export default function HorizontalRail({
   const count = panels.length
   const sectionRef = useRef<HTMLElement>(null)
   const [progress, setProgress] = useState(0)
+  const [ancho, setAncho] = useState(0)
 
   useEffect(() => {
     const onScroll = () => {
@@ -126,6 +149,7 @@ export default function HorizontalRail({
       const rect = section.getBoundingClientRect()
       const distance = rect.height - window.innerHeight
       setProgress(distance > 0 ? Math.min(1, Math.max(0, -rect.top / distance)) : 0)
+      setAncho(window.innerWidth)
     }
     onScroll()
     window.addEventListener("scroll", onScroll, { passive: true })
@@ -140,6 +164,7 @@ export default function HorizontalRail({
   }, [count])
 
   const p = progress * Math.max(0, count - 1)
+  const { sep, angulo } = abanico(ancho || 1440)
 
   return (
     <section
@@ -152,7 +177,7 @@ export default function HorizontalRail({
     >
       <div className="sticky top-0 h-svh overflow-hidden">
         {panels.map((panel, i) => {
-          const { x, y, rot, opacity } = place(i, p, count, hasForm)
+          const { x, y, rot, opacity } = place(i, p, count, hasForm, sep, angulo)
           return (
             <div
               key={i}

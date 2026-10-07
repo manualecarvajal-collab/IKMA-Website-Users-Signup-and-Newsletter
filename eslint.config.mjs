@@ -12,6 +12,12 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Artefactos de Remotion. `video/` es un subproyecto aparte (su propio
+    // package.json y su propio tsconfig, ya excluido del tsconfig raíz) y al
+    // renderizar deja bundles compilados aquí dentro. Sin esta línea ESLint los
+    // analiza como si fueran fuente y el lint pasa de 2 errores a 54.
+    "video/build/**",
+    "video/out/**",
   ]),
 ]);
 

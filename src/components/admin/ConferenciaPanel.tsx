@@ -10,6 +10,7 @@ import {
 } from "@/app/admin/conferencia/actions"
 import TiptapEditor from "@/components/TiptapEditor"
 import { componerCorreo, type PlantillaId } from "@/lib/conferencia-plantilla"
+import { ESTADOS_DIRECTO, type EstadoDirecto } from "@/components/conferencia/directo"
 import type { Ajustes, ConferenciaStats, Plantilla, RegistroAdmin } from "@/lib/conferencia-admin"
 
 /**
@@ -36,6 +37,27 @@ const PERFILES: Record<string, string> = {
   licensed_health_professional: "profileLicensed",
   resident: "profileResident",
   non_professional: "profileOther",
+}
+
+/**
+ * Aspecto de cada estado del directo en el panel.
+ *
+ * `Record<EstadoDirecto, ...>` a propósito: si algún día se añade un estado,
+ * esto deja de compilar y no se queda un botón sin pintar.
+ */
+const ESTADO_UI: Record<EstadoDirecto, { etiqueta: string; clase: string }> = {
+  antes: { etiqueta: "stateBefore", clase: "bg-gray-700 text-white" },
+  vivo: { etiqueta: "stateLive", clase: "bg-red-600 text-white" },
+  espera: { etiqueta: "stateWaiting", clase: "bg-amber-500 text-white" },
+  final: { etiqueta: "stateEnded", clase: "bg-ikmaBlue text-white" },
+}
+
+/** Qué hace cada estado, para que el panel no deje adivinar. */
+const ESTADO_HINT: Record<EstadoDirecto, string> = {
+  antes: "stateHintBefore",
+  vivo: "stateHintLive",
+  espera: "stateHintWaiting",
+  final: "stateHintEnded",
 }
 
 const FILTROS = ["todos", "confirmado", "nuevo", "cancelado"] as const
@@ -72,7 +94,11 @@ export default function ConferenciaPanel({
   const locale = useLocale()
 
   const [sel, setSel] = useState<Set<string>>(new Set())
-  const [filtro, setFiltro] = useState<string>("todos")
+  // Arranca en `confirmado`, no en `todos`. Un registro `nuevo` no está
+  // verificado —pudo crearlo cualquiera con el correo de otra persona—, así que
+  // la lista con la que se invita a la membresía y al newsletter empieza por
+  // quien demostró que el buzón es suyo. El resto sigue a un clic de filtro.
+  const [filtro, setFiltro] = useState<string>("confirmado")
   /**
    * Las dos plantillas viven en el estado a la vez. Si solo guardáramos la
    * activa, cambiar de pestaña perdería lo escrito en la otra.
@@ -86,10 +112,16 @@ export default function ConferenciaPanel({
   function editar(campo: keyof Plantilla, valor: string) {
     setBorradores((prev) => ({ ...prev, [plantilla]: { ...prev[plantilla], [campo]: valor } }))
   }
+
+  const [directoEstado, setDirectoEstado] = useState(ajustes.directoEstado)
   const [directoUrl, setDirectoUrl] = useState(ajustes.directoUrl)
   const [directoEmbed, setDirectoEmbed] = useState(ajustes.directoEmbed)
   const [resultado, setResultado] = useState<EnvioResumen | null>(null)
   const [aviso, setAviso] = useState<string>("")
+  // El directo tiene su propio aviso: `aviso` se pinta dentro de la caja
+  // del correo, así que reutilizarlo hacía que "Directo guardado" saliera
+  // en la sección equivocada.
+  const [avisoDirecto, setAvisoDirecto] = useState<string>("")
   const [pendiente, start] = useTransition()
 
   const visibles = useMemo(
@@ -471,6 +503,50 @@ export default function ConferenciaPanel({
         <p className="font-semibold text-gray-800">{t("liveTitle")}</p>
         <p className="mt-1 text-sm text-gray-600">{t("liveDesc")}</p>
 
+        {/* Control del directo. Cuatro estados y un clic cada uno: el día del
+            evento se cambia de uno a otro con prisa, y un desplegable sería un
+            paso de más. El color distingue el estado de un vistazo. */}
+        <div className="mt-4 rounded-xl bg-gray-50 p-3">
+          <span className="text-sm font-medium text-gray-700">{t("liveStateLabel")}</span>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {ESTADOS_DIRECTO.map((e) => (
+              <button
+                key={e}
+                type="button"
+                disabled={pendiente}
+                // Se guarda al pulsar, sin botón de por medio. El estado del
+                // directo se cambia EN DIRECTO, con el evento en marcha: un
+                // cambio que se queda sin guardar porque nadie se acordó de
+                // pulsar un botón es justo el fallo que no se puede permitir
+                // ese día. Los enlaces sí llevan su botón: esos se configuran
+                // con calma, antes.
+                onClick={() =>
+                  start(async () => {
+                    setAvisoDirecto("")
+                    const r = await guardarAjustes({ directoEstado: e })
+                    // El botón solo se mueve si el servidor lo aceptó: pintarlo
+                    // optimista dejaría el panel mintiendo sobre lo que se ve
+                    // en la landing.
+                    if (r.ok) setDirectoEstado(e)
+                    setAvisoDirecto(
+                      r.ok ? t("savedState") : t("saveFailed", { error: r.error ?? "" })
+                    )
+                  })
+                }
+                aria-pressed={directoEstado === e}
+                className={`rounded-full px-4 py-1.5 text-sm font-semibold transition-colors ${
+                  directoEstado === e ? ESTADO_UI[e].clase : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                }`}
+              >
+                {t(ESTADO_UI[e].etiqueta)}
+              </button>
+            ))}
+          </div>
+          <p className="mt-2 text-xs text-gray-500">{t(ESTADO_HINT[directoEstado])}</p>
+        </div>
+
+        {avisoDirecto && <p className="mt-2 text-sm text-gray-700">{avisoDirecto}</p>}
+
         <div className="mt-4 grid gap-3 md:grid-cols-2">
           <label className="block">
             <span className="text-sm font-medium text-gray-700">{t("zoomLabel")}</span>
@@ -498,7 +574,7 @@ export default function ConferenciaPanel({
           onClick={() =>
             start(async () => {
               const r = await guardarAjustes({ directoUrl, directoEmbed })
-              setAviso(r.ok ? t("savedLive") : t("saveFailed", { error: r.error ?? "" }))
+              setAvisoDirecto(r.ok ? t("savedLive") : t("saveFailed", { error: r.error ?? "" }))
             })
           }
           className="mt-3 rounded-full bg-gray-100 px-5 py-2.5 text-sm font-semibold text-gray-700 disabled:opacity-50"

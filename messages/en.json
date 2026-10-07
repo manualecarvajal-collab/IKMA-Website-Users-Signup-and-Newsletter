@@ -6,7 +6,7 @@
     "hero": {
       "badge": "2026 Conference",
       "officialWebsite": "IKMA official website",
-      "title": "Healing through faith and excellence",
+      "title": "IKMA Forward",
       "description": "A day of teaching, testimony and medicine for professionals who serve their communities. Save your place and we'll send you every detail.",
       "ctaPrimary": "Sign Up Now",
       "ctaSecondary": "Contact for more info",
@@ -56,6 +56,20 @@
       "errCodeIncomplete": "Enter the 6 digits of the code.",
       "errWrongCode": "That code isn't correct. You have {attempts} attempts left.",
       "errTooManyAttempts": "Too many failed attempts. Request a new code."
+    },
+    "live": {
+      "badge": "Live now",
+      "lockedTitle": "The conference is live",
+      "lockedText": "Sign up to watch the stream. All you need is your name and email, and you confirm with a code sent to your inbox.",
+      "lockedCta": "Sign up to watch",
+      "watch": "Watch the stream",
+      "starting": "The stream is about to start…",
+      "badgeWaiting": "On a break",
+      "waitingTitle": "We'll be right back",
+      "waitingText": "We're on a break. The stream will resume in a few minutes.",
+      "endedTitle": "Thank you for joining us",
+      "endedText": "The conference has ended. If you would like to remain part of this community, you can become a member of IKMA and get access to our content, journals and upcoming gatherings.",
+      "endedCta": "Become a member"
     },
     "meta": {
       "title": "IKMA Conference — November 14, 2026",
@@ -746,8 +760,8 @@
       "testSent": "Test sent to {email}",
       "testFailed": "Could not send: {error}",
       "saved": "Template and settings saved",
-      "saveLive": "Save live settings",
-      "savedLive": "Live settings saved",
+      "saveLive": "Save links",
+      "savedLive": "Links saved",
       "saveFailed": "Could not save: {error}",
       "omitWarning": "{count, plural, one {# of the selected is not confirmed and will be skipped.} other {# of the selected are not confirmed and will be skipped.}}",
       "resultSent": "Sent: {sent} · Failed: {failed}",
@@ -763,10 +777,20 @@
       "liveDesc": "The Zoom invitation link opens as a link, it is not embedded: Zoom's page launches the app and stays blank inside an iframe (verified). If you ever restream to YouTube or HLS, put that URL in the second field and it will be embedded.",
       "zoomLabel": "Zoom link (Join button)",
       "embedLabel": "Embeddable URL (YouTube / HLS)",
-      "livePending": "Panel 5 of the landing still shows the countdown. Wiring these fields into the landing is the next step.",
+      "livePending": "The state is saved as soon as you press the button, and the landing reads these settings on every visit, so the change is live immediately. The stream link only reaches the browser of someone with a confirmed registration.",
       "templateInvitation": "Membership invitation",
       "templateReminder": "Conference reminder",
-      "templateLabel": "Template"
+      "templateLabel": "Template",
+      "liveStateLabel": "Stream state",
+      "stateBefore": "Before",
+      "stateLive": "Live",
+      "stateWaiting": "On break",
+      "stateEnded": "Ended",
+      "stateHintBefore": "The landing shows the countdown. Everyone sees it.",
+      "stateHintLive": "Confirmed registrants see the stream; everyone else sees a locked screen inviting them to sign up. The link is not sent to anyone else.",
+      "stateHintWaiting": "A break notice for everyone. Those not registered keep the sign-up button.",
+      "stateHintEnded": "Closing screen with the invitation to become a member.",
+      "savedState": "Stream state updated"
     }
   },
   "IncompleteRegistration": {

@@ -4,14 +4,46 @@ import { createAdminClient, createClient } from "@/lib/supabase/server"
 import { sendResendEmail } from "@/lib/resend"
 import { getSenderConfig } from "@/lib/conferencia"
 import { componerCorreo, type PlantillaId } from "@/lib/conferencia-plantilla"
+import { esEstadoDirecto, type EstadoDirecto } from "@/components/conferencia/directo"
 
 /**
  * Acciones del panel de la conferencia.
  *
- * Este panel es interno (va bajo `/admin`, que ya exige rol administrador en
- * `src/app/admin/layout.tsx`), pero aun así nada se fía del cliente: los
- * destinatarios se vuelven a leer de la base a partir de los ids recibidos.
+ * Nada se fía del cliente, y eso incluye QUIÉN llama: cada acción pasa por
+ * `requireAdmin()`. El `layout.tsx` de `/admin` protege la PÁGINA, no la
+ * acción —una server action es un endpoint POST y se puede invocar sin pasar
+ * por esa página—, así que el rol se comprueba aquí dentro. Los destinatarios
+ * también se vuelven a leer de la base a partir de los ids recibidos.
  */
+
+/**
+ * Comprueba que quien invoca es administrador y devuelve su correo.
+ *
+ * Cuesta una consulta a `perfiles` por llamada, y es el precio correcto:
+ * `enviarInvitacion` manda correos reales a personas reales y
+ * `guardarAjustes` reescribe la configuración del directo. Ninguna de las dos
+ * debería depender de dónde esté montado el componente que las llama.
+ */
+async function requireAdmin(): Promise<
+  { ok: true; email: string } | { ok: false; error: string }
+> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) return { ok: false, error: "No hay sesión" }
+
+  const { data: perfil } = await supabase
+    .from("perfiles")
+    .select("rol")
+    .eq("id", user.id)
+    .single()
+
+  if (perfil?.rol !== "administrador") return { ok: false, error: "No autorizado" }
+
+  return { ok: true, email: user.email ?? "" }
+}
 
 export interface EnvioDetalle {
   email: string
@@ -54,7 +86,26 @@ export async function enviarInvitacion(
     detalle: [],
   }
 
-  if (!asunto.trim() || !cuerpo.trim() || ids.length === 0) return resumen
+  const guard = await requireAdmin()
+  if (!guard.ok) {
+    return { ...resumen, detalle: [{ email: "", ok: false, error: guard.error }] }
+  }
+
+  // Faltar la plantilla no puede parecer "no había a quién escribir".
+  //
+  // Antes esto devolvía el resumen en ceros y el panel pintaba "0 enviados, 0
+  // fallidos" sin más, que se lee como que no había destinatarios. Es el mismo
+  // fallo que ya se corrigió en `getRegistros` —callar el error— y engaña
+  // igual: si el asunto o el cuerpo están vacíos (una clave sin sembrar, por
+  // ejemplo) hay que decirlo.
+  if (!asunto.trim() || !cuerpo.trim()) {
+    return {
+      ...resumen,
+      detalle: [{ email: "", ok: false, error: "Faltan el asunto o el cuerpo de la plantilla" }],
+    }
+  }
+
+  if (ids.length === 0) return resumen
   if (ids.length > MAX_POR_ENVIO) {
     return { ...resumen, detalle: [{ email: "", ok: false, error: `Máximo ${MAX_POR_ENVIO} por envío` }] }
   }
@@ -125,27 +176,25 @@ export async function enviarPrueba(
   cuerpo: string,
   plantilla: PlantillaId
 ): Promise<{ ok: boolean; error?: string; destino?: string }> {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const guard = await requireAdmin()
+  if (!guard.ok) return { ok: false, error: guard.error }
+  if (!guard.email) return { ok: false, error: "No se pudo determinar tu correo" }
 
-  if (!user?.email) return { ok: false, error: "No se pudo determinar tu correo" }
   if (!asunto.trim() || !cuerpo.trim()) return { ok: false, error: "Asunto y cuerpo son obligatorios" }
 
   const admin = await createAdminClient()
   const { fromName, fromEmail } = await getSenderConfig(admin)
-  const html = componerCorreo(plantilla, cuerpo, { nombre: "Prueba", email: user.email })
+  const html = componerCorreo(plantilla, cuerpo, { nombre: "Prueba", email: guard.email })
 
   const res = await sendResendEmail({
-    to: user.email,
+    to: guard.email,
     subject: `[PRUEBA] ${asunto}`,
     html,
     fromName,
     fromEmail,
   })
 
-  if (res.ok) return { ok: true, destino: user.email }
+  if (res.ok) return { ok: true, destino: guard.email }
   const body = await res.text().catch(() => "")
   return { ok: false, error: `${res.status} ${body.slice(0, 160)}` }
 }
@@ -159,14 +208,26 @@ export async function enviarPrueba(
 export async function guardarAjustes(entrada: {
   directoUrl?: string
   directoEmbed?: string
+  directoEstado?: EstadoDirecto
   plantillaId?: PlantillaId
   asunto?: string
   cuerpo?: string
 }): Promise<{ ok: boolean; error?: string }> {
+  const guard = await requireAdmin()
+  if (!guard.ok) return { ok: false, error: guard.error }
+
   const filas: { clave: string; valor: string }[] = []
   if (entrada.directoUrl !== undefined) filas.push({ clave: "directo_url", valor: entrada.directoUrl.trim() })
   if (entrada.directoEmbed !== undefined)
     filas.push({ clave: "directo_embed", valor: entrada.directoEmbed.trim() })
+  // El estado del directo se valida antes de escribirlo: esto es un endpoint
+  // POST como cualquier server action, así que lo que llega no se cree.
+  if (entrada.directoEstado !== undefined) {
+    if (!esEstadoDirecto(entrada.directoEstado)) {
+      return { ok: false, error: `Estado del directo no válido: ${entrada.directoEstado}` }
+    }
+    filas.push({ clave: "directo_estado", valor: entrada.directoEstado })
+  }
 
   if (entrada.plantillaId) {
     const prefijo = `plantilla_${entrada.plantillaId}`
