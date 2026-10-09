@@ -1,5 +1,61 @@
 {
   "Conferencia": {
+    "speakers": {
+      "cardCta": "Conoce a nuestros speakers",
+      "meta": {
+        "title": "Ponentes — Conferencia IKMA, 14 de noviembre de 2026",
+        "description": "Conoce a los ponentes de la Conferencia IKMA Forward y consulta el programa completo de la jornada, sesión por sesión."
+      },
+      "hero": {
+        "eyebrow": "IKMA Forward · Conferencia 2026",
+        "title": "Conoce a nuestros speakers",
+        "lead": "Dios ha sido fiel en los pequeños comienzos, y seguimos confiando en Él mientras avanzamos. Nunca ha habido un tiempo más emocionante que el que estamos viviendo ahora como profesionales apostólicos del Reino. A través de la dirección del Señor, tenemos la oportunidad de traer transformación dentro de nuestras esferas de influencia, ya sea en la sanidad, la investigación, la educación o muchas otras áreas.",
+        "moises": "Cuando Dios le preguntó a Moisés: “¿Qué tienes en tu mano?”, él respondió: “Una vara.” Dios utilizó lo que Moisés ya tenía para cumplir Sus propósitos.",
+        "preguntaLabel": "Hoy, la misma pregunta sigue vigente:",
+        "question": "¿Qué tienes en tu mano?",
+        "aplicacion": "A medida que comienzas a reconocer que tus habilidades no están destinadas únicamente a servirte a ti mismo, y que tu profesión no es simplemente un medio para ganarte la vida, descubrirás que pueden convertirse en herramientas poderosas dentro de un movimiento apostólico de Dios. Dios desea usar tus dones primero en tu propia vida, luego en tu lugar de trabajo y, finalmente, en tu comunidad.",
+        "invitacion": "Ven y recibe capacitación para administrar fielmente lo que Dios te ha confiado y utilizarlo para los propósitos de Su Reino.",
+        "cierre": "Avanzar con Dios y alinearnos con Su agenda no es solo una opción; es el único camino hacia adelante. ¡Únete a nosotros para ser equipado más allá de tus habilidades y entrar en el mandato médico apostólico!",
+        "dateLabel": "Fecha",
+        "timeLabel": "Hora",
+        "formatLabel": "Formato",
+        "time": "9:00 a. m. – 3:00 p. m., hora de Coro (UTC−4)",
+        "format": "En línea"
+      },
+      "lineup": {
+        "title": "En el programa"
+      },
+      "programme": {
+        "title": "El día, sesión por sesión",
+        "tz": "Todas las horas en hora de Coro (UTC−4)."
+      },
+      "tipos": {
+        "bienvenida": "Bienvenida",
+        "adoracion": "Adoración",
+        "palabras": "Saludo",
+        "ensenanza": "Enseñanza",
+        "testimonio": "Testimonio",
+        "panel": "Panel",
+        "pausa": "Pausa",
+        "almuerzo": "Almuerzo",
+        "preguntas": "Preguntas",
+        "anuncios": "Anuncios"
+      },
+      "credits": {
+        "title": "También en la jornada",
+        "host": "Moderación",
+        "announcements": "Anuncios",
+        "translation": "Traducción",
+        "translationValue": "Dalia Beltran y equipo",
+        "worship": "Adoración",
+        "worshipValue": "Grupo de adoración de la iglesia La Ciudad de las Águilas, Coro"
+      },
+      "cierre": {
+        "lead": "Reserva tu lugar y te enviaremos todo lo que necesitas para conectarte.",
+        "primary": "Inscríbete ahora",
+        "back": "Volver a la conferencia"
+      }
+    },
     "nav": {
       "callUs": "Llámanos"
     },
@@ -36,7 +92,7 @@
       "submit": "Inscribirme ahora",
       "sending": "Enviando…",
       "success": "¡Listo! Tu inscripción quedó registrada.",
-      "doneCta": "Desliza hacia abajo y disfruta de la conferencia",
+      "doneCta": "Únete a la conferencia",
       "error": "No pudimos completar tu inscripción. Inténtalo de nuevo.",
       "consentRequired": "Debes aceptar para continuar.",
       "codeTitle": "Confirma tu correo",

@@ -1,5 +1,61 @@
 {
   "Conferencia": {
+    "speakers": {
+      "cardCta": "Meet our speakers",
+      "meta": {
+        "title": "Speakers — IKMA Conference, November 14, 2026",
+        "description": "Meet the speakers of the IKMA Forward Conference and see the full running order of the day, session by session."
+      },
+      "hero": {
+        "eyebrow": "IKMA Forward · 2026 Conference",
+        "title": "Meet our speakers",
+        "lead": "God has been faithful in the small beginnings, and we continue to trust Him as we move forward. There has never been a more exciting time than the one we are living in now as apostolic Kingdom professionals. Through the leading of the Lord, we have the opportunity to bring transformation within our spheres of influence, whether in healing, research, education, or many other areas.",
+        "moises": "When God asked Moses, “What do you have in your hand?” he replied, “A staff.” God used what Moses already had to accomplish His purposes.",
+        "preguntaLabel": "Today, the same question remains:",
+        "question": "What do you have in your hand?",
+        "aplicacion": "As you begin to recognize that your skills are not only meant to serve you, and that your profession is not merely a means of earning a living, you will discover that they can become powerful tools in an apostolic move of God. God desires to use your gifts first in your own life, then in your workplace, and ultimately in your community.",
+        "invitacion": "Come and be equipped to steward what God has entrusted to you and to use it for His Kingdom purposes.",
+        "cierre": "Moving forward with God and aligning ourselves with His agenda is not just an option, it is the only way forward. Join us to be equipped beyond your skills and into the apostolic medical mandate!",
+        "dateLabel": "Date",
+        "timeLabel": "Time",
+        "formatLabel": "Format",
+        "time": "9:00 am – 3:00 pm, Coro time (UTC−4)",
+        "format": "Online"
+      },
+      "lineup": {
+        "title": "On the programme"
+      },
+      "programme": {
+        "title": "The day, session by session",
+        "tz": "All times in Coro time (UTC−4)."
+      },
+      "tipos": {
+        "bienvenida": "Welcome",
+        "adoracion": "Worship",
+        "palabras": "Greeting",
+        "ensenanza": "Teaching",
+        "testimonio": "Testimony",
+        "panel": "Panel",
+        "pausa": "Break",
+        "almuerzo": "Lunch",
+        "preguntas": "Questions",
+        "anuncios": "Announcements"
+      },
+      "credits": {
+        "title": "Also on the day",
+        "host": "Moderating",
+        "announcements": "Announcements",
+        "translation": "Translation",
+        "translationValue": "Dalia Beltran and team",
+        "worship": "Worship",
+        "worshipValue": "Worship group of La Ciudad de las Águilas church, Coro"
+      },
+      "cierre": {
+        "lead": "Save your place and we'll send you everything you need to join.",
+        "primary": "Sign Up Now",
+        "back": "Back to the conference"
+      }
+    },
     "nav": {
       "callUs": "Give us a call"
     },
@@ -36,7 +92,7 @@
       "submit": "Sign Up Now",
       "sending": "Sending…",
       "success": "You're in! Your registration is confirmed.",
-      "doneCta": "Scroll down and enjoy the conference",
+      "doneCta": "Join the conference",
       "error": "We couldn't complete your registration. Please try again.",
       "consentRequired": "Please accept to continue.",
       "codeTitle": "Confirm your email",

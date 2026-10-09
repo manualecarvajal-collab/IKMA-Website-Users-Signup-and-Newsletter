@@ -134,20 +134,70 @@ function codeEmailHtml(name: string, code: string): string {
   <div style="font-family:Inter,Helvetica,Arial,sans-serif;max-width:520px;margin:0 auto">
     <div style="background:#0068B6;padding:28px 32px">
       <p style="margin:0;color:#fff;font-size:20px;font-weight:700">IKMA</p>
-      <p style="margin:4px 0 0;color:rgba(255,255,255,.85);font-size:13px">Conferencia 2026</p>
+      <p style="margin:4px 0 0;color:rgba(255,255,255,.85);font-size:13px">2026 Conference</p>
     </div>
     <div style="padding:32px">
-      <p style="margin:0 0 12px;font-size:16px;color:#1a1a1a">Hola ${escapeHtml(name)},</p>
+      <p style="margin:0 0 12px;font-size:16px;color:#1a1a1a">Hi ${escapeHtml(name)},</p>
       <p style="margin:0 0 24px;font-size:15px;line-height:1.6;color:#444">
-        Usa este código para confirmar tu inscripción a la conferencia:
+        Use this code to confirm your registration for the conference:
       </p>
       <p style="margin:0 0 24px;font-size:34px;font-weight:700;letter-spacing:.18em;color:#0068B6">${code}</p>
       <p style="margin:0;font-size:13px;line-height:1.6;color:#777">
-        Caduca en ${CODE_TTL_MINUTES} minutos. Si no has solicitado la
-        inscripción, puedes ignorar este mensaje.
+        It expires in ${CODE_TTL_MINUTES} minutes. If you didn't request
+        this registration, you can ignore this message.
       </p>
     </div>
   </div>`
+}
+
+/**
+ * Correo de bienvenida, tras confirmar la inscripción.
+ *
+ * Mismo aspecto que el del código —los correos quedaron fuera del rediseño— y en
+ * inglés, como el resto.
+ *
+ * El botón lleva al LANDING, no al enlace de la transmisión. El enlace del
+ * directo lo sirve la propia página y solo a quien tiene la inscripción
+ * confirmada; mandarlo por correo sería abrir esa puerta por escrito, y
+ * reenviar un correo es trivial.
+ */
+function welcomeEmailHtml(name: string): string {
+  // El dominio real, escrito a mano y no leído del entorno.
+  //
+  // Este enlace sale en un correo: si depende de `NEXT_PUBLIC_SITE_URL`, en
+  // local esa variable vale `http://localhost:3000` y el botón llegaba roto a
+  // una bandeja de verdad. Fijarlo aquí hace imposible ese fallo en cualquier
+  // entorno. `ikmaglobal.com` sin `www` responde 308 hacia esta misma URL, así
+  // que esta es la forma canónica.
+  const SITIO = "https://www.ikmaglobal.com"
+  const landing = `${SITIO}/conferencia`
+  const saludo = name.trim() ? `Hi ${escapeHtml(name.trim())},` : "Hi,"
+  return `
+    <div style="font-family:Inter,Helvetica,Arial,sans-serif;max-width:520px;margin:0 auto">
+      <div style="background:#0068B6;padding:28px 32px">
+        <p style="margin:0;color:#fff;font-size:20px;font-weight:700">IKMA</p>
+        <p style="margin:4px 0 0;color:rgba(255,255,255,.85);font-size:13px">2026 Conference</p>
+      </div>
+      <div style="padding:32px">
+        <p style="margin:0 0 12px;font-size:16px;color:#1a1a1a">${saludo}</p>
+        <p style="margin:0 0 20px;font-size:15px;line-height:1.6;color:#444">
+          Your place at <strong>IKMA Forward</strong> is confirmed. We are glad
+          to have you with us.
+        </p>
+        <p style="margin:0 0 24px;font-size:15px;line-height:1.6;color:#444">
+          <strong>Saturday, November 14, 2026 &middot; 9:00 AM (EST)</strong>
+        </p>
+        <p style="margin:0 0 28px">
+          <a href="${landing}" style="display:inline-block;background:#0068B6;color:#ffffff;text-decoration:none;font-size:15px;font-weight:700;padding:14px 28px;border-radius:999px">
+            Go to the conference
+          </a>
+        </p>
+        <p style="margin:0;font-size:13px;line-height:1.6;color:#777">
+          Keep this email. On the day, the live stream opens from that same page
+          and only for registered attendees.
+        </p>
+      </div>
+    </div>`
 }
 
 // ---------------------------------------------------------------- paso 1
@@ -316,7 +366,7 @@ async function issueCode(
   const { fromName, fromEmail } = await senderConfig(admin)
   const res = await sendResendEmail({
     to: email,
-    subject: "Tu código de confirmación — Conferencia IKMA",
+    subject: "Your confirmation code — IKMA Conference",
     html: codeEmailHtml(nombre, code),
     fromName,
     fromEmail,
@@ -411,6 +461,28 @@ export async function verificarCodigo(
     }
 
     await codigos().update({ consumido_at: now }).eq("id", row.id)
+
+    // Correo de bienvenida. NO puede tumbar la verificación: el registro ya está
+    // confirmado y el código consumido, así que si Resend falla se registra y se
+    // sigue. Dejar a alguien sin inscripción por un correo sería mucho peor que
+    // no recibirlo.
+    try {
+      const { fromName, fromEmail } = await senderConfig(admin)
+      const bienvenida = await sendResendEmail({
+        to: email,
+        subject: "You're in — IKMA Conference",
+        html: welcomeEmailHtml(registro.nombre ?? ""),
+        fromName,
+        fromEmail,
+      })
+      if (!bienvenida.ok) {
+        const cuerpo = await bienvenida.text().catch(() => "")
+        console.error("[verificarCodigo] bienvenida:", bienvenida.status, cuerpo.slice(0, 300))
+      }
+    } catch (e) {
+      console.error("[verificarCodigo] bienvenida:", e instanceof Error ? e.message : e)
+    }
+
 
     // Se recuerda en el navegador para que al recargar no vuelva a salir el
     // formulario. Es solo comodidad: el estado que de verdad manda sigue

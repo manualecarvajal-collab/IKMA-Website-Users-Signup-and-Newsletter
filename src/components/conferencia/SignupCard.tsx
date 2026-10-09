@@ -33,7 +33,7 @@ import { countryOptions } from "./countries"
  * formulario para corregir el correo, conservando lo escrito.
  */
 
-const ACCENT = "#0435CF"
+const ACCENT = "#11324F"
 const ERROR = "#BA1A1A"
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -234,14 +234,14 @@ export default function SignupCard() {
   }
 
   const labelClass =
-    "block text-[15px] leading-none text-[#8A8A8E] transition-colors group-focus-within:text-[#0435CF]"
+    "block text-[15px] leading-none text-[#8A8A8E] transition-colors group-focus-within:text-[#11324F]"
   const inputClass =
     "mt-2 w-full border-0 border-b border-[#D5D1D1] bg-transparent pb-2 text-[15px] text-[#2E2E30] " +
-    "outline-none transition-colors placeholder:text-transparent focus:border-[#0435CF]"
+    "outline-none transition-colors placeholder:text-transparent focus:border-[#11324F]"
   const buttonClass =
-    "mt-6 w-full rounded-full bg-[#0435CF] py-3.5 text-[15px] font-bold text-white transition-colors " +
-    "hover:bg-white hover:text-[#0435CF] hover:ring-1 hover:ring-[#0435CF] focus-visible:outline-none " +
-    "focus-visible:ring-2 focus-visible:ring-[#0435CF] focus-visible:ring-offset-2 " +
+    "mt-6 w-full rounded-full bg-[#11324F] py-3.5 text-[15px] font-bold text-white transition-colors " +
+    "hover:bg-[#1F4D75] focus-visible:outline-none " +
+    "focus-visible:ring-2 focus-visible:ring-[#11324F] focus-visible:ring-offset-2 " +
     "disabled:cursor-not-allowed disabled:opacity-60 motion-reduce:transition-none"
 
   const messageNode = message && (
@@ -259,7 +259,7 @@ export default function SignupCard() {
   if (step === "code") {
     return (
       <form onSubmit={onSubmitCode} noValidate className="w-full">
-        <h2 className="text-[20px] font-bold leading-[1.25] text-[#0035CC] md:text-[24px]">
+        <h2 className="text-[20px] font-bold leading-[1.25] text-[#123045] md:text-[24px]">
           {t("codeTitle")}
         </h2>
         <p className="mt-3 text-[12.5px] leading-[1.55] text-[#8A8A8E]">
@@ -297,7 +297,7 @@ export default function SignupCard() {
             type="button"
             onClick={onResend}
             disabled={busy || cooldown > 0}
-            className="text-[12.5px] font-semibold text-[#0435CF] underline-offset-2 hover:underline disabled:cursor-not-allowed disabled:text-[#8A8A8E] disabled:no-underline"
+            className="text-[12.5px] font-semibold text-[#11324F] underline-offset-2 hover:underline disabled:cursor-not-allowed disabled:text-[#8A8A8E] disabled:no-underline"
           >
             {cooldown > 0
               ? t("codeResendIn", { seconds: cooldown })
@@ -312,7 +312,7 @@ export default function SignupCard() {
               setCooldown(0)
               setVuelve(false)
             }}
-            className="text-[12.5px] text-[#8A8A8E] underline-offset-2 hover:text-[#0435CF] hover:underline"
+            className="text-[12.5px] text-[#8A8A8E] underline-offset-2 hover:text-[#11324F] hover:underline"
           >
             {t("codeChangeEmail")}
           </button>
@@ -324,7 +324,7 @@ export default function SignupCard() {
   // ------------------------------------------------------------- paso 1
   return (
     <form onSubmit={onSubmitForm} noValidate className="w-full">
-      <h2 className="text-[20px] font-bold leading-[1.25] text-[#0035CC] md:text-[24px]">
+      <h2 className="text-[20px] font-bold leading-[1.25] text-[#123045] md:text-[24px]">
         {t("title")}
       </h2>
       <p className="mt-3 text-[12.5px] leading-[1.55] text-[#8A8A8E]">{t("description")}</p>

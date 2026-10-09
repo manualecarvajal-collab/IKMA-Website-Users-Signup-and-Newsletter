@@ -34,3 +34,77 @@
     animation: none;
   }
 }
+
+/* ---- Riel de la conferencia ---------------------------------------------
+ *
+ * En escritorio cada panel se coloca él solo con `transform` y `opacity`, que
+ * llegan por variables CSS desde el componente. En móvil se anulan y los
+ * paneles pasan a ser una columna normal: sin `sticky`, sin scroll secuestrado
+ * y sin posiciones absolutas, que es donde se rompía.
+ */
+.conf-panel {
+  transform: var(--conf-t, none);
+  opacity: var(--conf-o, 1);
+}
+
+@media (max-width: 767px) {
+  .conf-riel {
+    height: auto !important;
+  }
+
+  .conf-pista {
+    position: static;
+    display: flex;
+    height: auto;
+    flex-direction: column;
+    align-items: center;
+    gap: 2.5rem;
+    overflow: visible;
+    padding: 0 0 3.5rem;
+  }
+
+  .conf-panel {
+    position: static !important;
+    transform: none !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+
+  /* Las fichas de ponente NO van en móvil. El abanico solo tiene sentido con el
+     riel, y sin él serían seis tarjetas seguidas empujando el formulario hacia
+     abajo. Se quedan el formulario y el panel del directo, en ese orden. */
+  .conf-panel:has(.conf-ficha) {
+      display: none;
+    }
+  /* El marco del directo tampoco va en el flujo de móvil: ahí la transmisión se
+     abre en un pop-up desde el botón del hero. Se oculta el ENVOLTORIO —no la
+     tarjeta— para que su `gap` no siga ocupando espacio.
+     Se busca por la clase de la tarjeta y NO con `:last-child`: así no depende
+     de qué sea el último hijo del riel, que es justo lo que se rompió cuando el
+     riel tuvo un pie (el marco se colaba en el flujo del móvil). */
+  .conf-panel:has(.conf-directo) {
+    display: none;
+  }
+  /* Entrada del formulario al llegar a su sección. Solo en móvil: en escritorio
+     el riel ya anima la entrada de sus paneles y dos animaciones se pelearían. */
+  .conf-revelar {
+    transform: translateY(2.5rem);
+    opacity: 0;
+    transition:
+      transform 700ms cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 700ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .conf-revelar-visible {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+/* Quien pide menos movimiento ve el formulario aparecer, pero sin deslizarse. */
+@media (prefers-reduced-motion: reduce) {
+  .conf-revelar {
+    transform: none;
+    transition: opacity 200ms linear;
+  }
+}

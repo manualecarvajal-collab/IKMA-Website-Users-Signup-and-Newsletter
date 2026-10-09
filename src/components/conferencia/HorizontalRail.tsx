@@ -1,7 +1,7 @@
 "use client"
 
 import { Children, useEffect, useRef, useState } from "react"
-import type { ReactNode } from "react"
+import type { CSSProperties, ReactNode } from "react"
 
 /**
  * Secuencia de paneles centrados, avanzada por el scroll vertical.
@@ -15,6 +15,13 @@ import type { ReactNode } from "react"
  *
  * Cada panel se posiciona de forma independiente, así que ninguno arrastra a
  * los demás: entran de uno en uno.
+ *
+ * EN MÓVIL NO HAY RIEL. El scroll secuestrado y el `sticky` se rompen con la
+ * barra del navegador móvil (que aparece y desaparece y cambia la altura de la
+ * ventana): salían paneles superpuestos y el formulario —que es la parte más
+ * importante de la página— quedaba cortado. En pantallas pequeñas los paneles
+ * se apilan en vertical con scroll normal. Lo decide el CSS (ver `fondo.css`),
+ * no el JavaScript, para no duplicar los paneles ni dar un salto al hidratar.
  */
 /**
  * Píxeles de scroll vertical que equivalen a avanzar un panel.
@@ -48,6 +55,8 @@ interface Placement {
   y: number
   rot: number
   opacity: number
+  /** Desplazamiento vertical del `translate`; -50 % = centrado. */
+  ty: string
 }
 
 function clamp(v: number, min: number, max: number) {
@@ -85,6 +94,7 @@ function place(
       y: 0,
       rot: 0,
       opacity: Math.max(0, 1 - Math.max(0, t)),
+      ty: "-50%",
     }
   }
 
@@ -95,6 +105,15 @@ function place(
       y: -Math.min(0, t) * OFFSCREEN,
       rot: 0,
       opacity: clamp((t + 0.7) / 0.7, 0, 1),
+      // Subido un 15 % de su alto respecto al centro. Es el máximo que entra
+      // sin recortar el marco en TODAS las ventanas: el 30 % pedido (y también
+      // el 22 %) lo sacan por arriba en cuanto la ventana no es muy alta, y el
+      // porcentaje fijo no sirve porque el marco mide min(720px, 74svh).
+      // Para subirlo más hay que acortar antes el marco.
+      // Centrado, como el resto de paneles. Estuvo alineado al inicio del
+      // contenedor para tapar un hueco que en realidad provocaban las fichas
+      // ocultas: centrado coincide con ellas y no asoma nada por debajo.
+      ty: "-50%",
     }
   }
 
@@ -115,11 +134,23 @@ function place(
   const settled = clamp(p + shift, 0, fanSize)
   const slot = cardIndex - (settled - 1) / 2
 
+  // SALIDA: ×1,5 porque una ficha del extremo del abanico arranca ya desplazada
+  // media separación hacia el lado contrario: con la distancia justa se quedaba
+  // un fragmento asomando por el borde.
+  //
+  // Cuando el abanico ya está completo, el siguiente panel es el del
+  // directo. Hasta ahora las fichas se quedaban donde estaban y, al alinear el
+  // marco al inicio del contenedor, asomaban por debajo. Ahora se van a la
+  // izquierda a medida que el marco entra: la secuencia es formulario → fichas
+  // → marco, y cada paso despeja el anterior.
+  const salida = clamp(p - fanSize, 0, 1)
+
   return {
     x: OFFSCREEN * (1 - arrive) + slot * sep * arrive,
     y: 0,
     rot: slot * angulo * arrive,
-    opacity: clamp(arrive / 0.35, 0, 1),
+    opacity: clamp(arrive / 0.35, 0, 1) * (1 - salida),
+    ty: "-50%",
   }
 }
 
@@ -166,33 +197,37 @@ export default function HorizontalRail({
   const p = progress * Math.max(0, count - 1)
   const { sep, angulo } = abanico(ancho || 1440)
 
+
   return (
     <section
       id={id}
       ref={sectionRef}
-      className="relative"
+      className="conf-riel relative"
       style={{
         height: `calc(100svh + ${Math.max(0, count - 1) * SCROLL_PER_STEP}px)`,
       }}
     >
-      <div className="sticky top-0 h-svh overflow-hidden">
+      <div className="conf-pista sticky top-0 h-svh overflow-hidden">
         {panels.map((panel, i) => {
-          const { x, y, rot, opacity } = place(i, p, count, hasForm, sep, angulo)
+          const { x, y, rot, opacity, ty } = place(i, p, count, hasForm, sep, angulo)
           return (
             <div
               key={i}
-              className="absolute left-1/2 top-1/2 origin-bottom"
-              style={{
-                transform: `translate(-50%, -50%) translate3d(${x}px, ${y}px, 0) rotate(${rot}deg)`,
-                opacity,
-                pointerEvents: opacity > 0.9 ? "auto" : "none",
-              }}
+              className="conf-panel absolute left-1/2 top-1/2 origin-bottom"
+              style={
+                {
+                  "--conf-t": `translate(-50%, ${ty}) translate3d(${x}px, ${y}px, 0) rotate(${rot}deg)`,
+                  "--conf-o": opacity,
+                  pointerEvents: opacity > 0.9 ? "auto" : "none",
+                } as CSSProperties
+              }
               aria-hidden={opacity < 0.5}
             >
               {panel}
             </div>
           )
         })}
+
       </div>
     </section>
   )

@@ -73,7 +73,7 @@ export default function DirectoPanel({
   // --------------------------------------------------------------- espera
   if (estado === "espera") {
     return (
-      <div className="flex h-full w-full flex-col items-center justify-center px-8 text-center">
+      <div className="flex h-full w-full flex-col items-center justify-center px-8 pb-[50%] text-center">
         <span className={ETIQUETA}>{t("badgeWaiting")}</span>
         <h3 className="mt-4 text-[18px] font-bold leading-[1.2] text-[#0435CF] md:text-[28px]">
           {t("waitingTitle")}
@@ -89,7 +89,7 @@ export default function DirectoPanel({
   // ---------------------------------------------------------------- final
   if (estado === "final") {
     return (
-      <div className="flex h-full w-full flex-col items-center justify-center px-8 text-center">
+      <div className="flex h-full w-full flex-col items-center justify-center px-8 pb-[50%] text-center">
         <h3 className="text-[18px] font-bold leading-[1.2] text-[#0435CF] md:text-[28px]">
           {t("endedTitle")}
         </h3>
@@ -105,7 +105,7 @@ export default function DirectoPanel({
   // ----------------------------------------------------------------- vivo
   if (!inscrito) {
     return (
-      <div className="flex h-full w-full flex-col items-center justify-center px-8 text-center">
+      <div className="flex h-full w-full flex-col items-center justify-center px-8 pb-[50%] text-center">
         <span className={ETIQUETA}>{t("badge")}</span>
         <h3 className="mt-4 text-[18px] font-bold leading-[1.2] text-[#0435CF] md:text-[28px]">
           {t("lockedTitle")}
@@ -133,7 +133,7 @@ export default function DirectoPanel({
   // un reproductor. Por eso se abre como botón.
   if (url) {
     return (
-      <div className="flex h-full w-full flex-col items-center justify-center px-8 text-center">
+      <div className="flex h-full w-full flex-col items-center justify-center px-8 pb-[50%] text-center">
         <span className={ETIQUETA}>{t("badge")}</span>
         <a href={url} target="_blank" rel="noopener noreferrer" className={`mt-5 ${BOTON}`}>
           {t("watch")}

@@ -60,7 +60,7 @@ export default function ConferenciaNav() {
       >
         {/* Izquierda: web + redes */}
         <div
-          className={`absolute left-6 flex items-center gap-4 text-[13px] text-[#3A3A3C] transition-all duration-500 motion-reduce:transition-none ${
+          className={`absolute left-6 hidden items-center gap-4 md:flex text-[13px] text-[#3A3A3C] transition-all duration-500 motion-reduce:transition-none ${
             expanded
               ? "translate-x-0 opacity-100"
               : "pointer-events-none -translate-x-3 opacity-0"
@@ -95,7 +95,7 @@ export default function ConferenciaNav() {
 
         {/* Derecha: contacto */}
         <div
-          className={`absolute right-6 flex items-center gap-5 text-[13px] text-[#3A3A3C] transition-all duration-500 motion-reduce:transition-none ${
+          className={`absolute right-6 hidden items-center gap-5 md:flex text-[13px] text-[#3A3A3C] transition-all duration-500 motion-reduce:transition-none ${
             expanded
               ? "translate-x-0 opacity-100"
               : "pointer-events-none translate-x-3 opacity-0"

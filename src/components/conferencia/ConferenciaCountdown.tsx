@@ -1,6 +1,6 @@
 "use client"
 
-import { Fragment, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { useTranslations } from "next-intl"
 import { EVENT_DATE } from "./event"
 
@@ -14,12 +14,13 @@ import { EVENT_DATE } from "./event"
  * hidratación; el valor real se calcula ya en el cliente.
  *
  * Variantes:
- *   - `hero`  — como un reloj, 39:17:26:58: cuatro grupos separados por dos
- *     puntos y sin etiquetas, en el azul marino del diseño. Los días entran en
- *     la cuenta porque faltan más de 900 horas: un contador de
- *     horas:minutos:segundos mentiría. Al quitar las etiquetas de la vista, el
- *     `sr-only` se las devuelve a quien use lector de pantalla.
- *   - `panel` — números con su etiqueta debajo, para la tarjeta del directo.
+ * Las dos variantes usan la misma estructura —número grande y etiqueta debajo—
+ * y solo cambian los estilos. Antes el hero los pintaba como un reloj
+ * (39:17:26:58, sin etiquetas) y el panel con etiquetas, lo que obligaba a
+ * mantener dos formas de renderizar lo mismo.
+ *
+ *   - `hero`  — en el azul marino del titular.
+ *   - `panel` — en el azul corporativo, sobre la tarjeta blanca del riel.
  */
 
 type Variant = "hero" | "panel"
@@ -42,11 +43,13 @@ const STYLES: Record<
   { wrapper: string; value: string; label: string; sep: string }
 > = {
   hero: {
-    wrapper: "mt-1 flex items-baseline justify-center text-[#123045]",
+    wrapper:
+      "mt-[0.6svh] flex flex-wrap items-start justify-center gap-x-[min(2.4vw,4.2svh)] gap-y-[0.8svh] text-[#123045]",
     value:
       "text-[clamp(min(2rem,2.96svh),min(3.4vw,6.05svh),5rem)] font-bold leading-none tracking-[-0.01em] tabular-nums",
-    sep: "text-[clamp(min(2rem,2.96svh),min(3.4vw,6.05svh),5rem)] font-bold leading-none text-[#123045]/45",
-    label: "",
+    sep: "",
+    label:
+      "mt-[0.5svh] text-[clamp(min(0.55rem,0.8svh),min(0.6vw,1svh),0.85rem)] font-semibold uppercase tracking-[0.14em] text-[#123045]/70",
   },
   panel: {
     wrapper:
@@ -106,35 +109,6 @@ export default function ConferenciaCountdown({
     const id = window.setInterval(tick, 1000)
     return () => window.clearInterval(id)
   }, [])
-
-  const dosDigitos = (valor: number) => String(valor).padStart(2, "0")
-
-  if (variant === "hero") {
-    const grupos = [left.days, left.hours, left.minutes, left.seconds]
-
-    return (
-      <div className={styles.wrapper} aria-live="off">
-        {grupos.map((valor, i) => (
-          <Fragment key={i}>
-            {i > 0 && (
-              <span className={styles.sep} aria-hidden="true">
-                :
-              </span>
-            )}
-            <span className={styles.value}>{dosDigitos(valor)}</span>
-          </Fragment>
-        ))}
-        {/* Las etiquetas que el diseño quita de la vista siguen existiendo para
-            quien no ve la pantalla: sin ellas, "39:17:26:58" son cifras sin
-            unidades. */}
-        <span className="sr-only">
-          {t("days", { count: left.days })}, {t("hours", { count: left.hours })},{" "}
-          {t("minutes", { count: left.minutes })},{" "}
-          {t("seconds", { count: left.seconds })}
-        </span>
-      </div>
-    )
-  }
 
   return (
     <div className={styles.wrapper} aria-live="off">

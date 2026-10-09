@@ -53,9 +53,15 @@ export default function GalleryCard({
       ref={ref}
       className={[
         "overflow-hidden rounded-[40px] bg-white shadow-[0_28px_70px_rgba(4,14,32,0.45)]",
+        // Las fichas de ponente se ocultan en móvil (ver `fondo.css`): el
+        // abanico necesita el scroll secuestrado del riel, y ahí no lo hay.
+        foto ? "conf-ficha" : "",
+        // El marco del directo se oculta en móvil: ahí la transmisión se abre
+        // en un pop-up desde el botón del hero.
+        expandToVideo ? "conf-directo" : "",
         "transition-[width,height] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none",
         expanded
-          ? "h-[380px] w-[676px] md:h-[720px] md:w-[1280px]"
+          ? "h-[min(380px,72svh)] w-[86vw] md:h-[min(720px,74svh)] md:w-[min(1280px,86vw)]"
           : "h-[240px] w-[240px] md:h-[460px] md:w-[460px]",
       ].join(" ")}
     >

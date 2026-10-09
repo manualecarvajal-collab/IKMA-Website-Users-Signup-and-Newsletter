@@ -1,0 +1,794 @@
+/* Ponentes — /conferencia/speakers
+ *
+ * La página se compone como el PLIEGO del documento que mandó IKMA (un orden
+ * de participación de producción): reglas horizontales, la hora en una columna
+ * fija en monoespaciada y el tipo de sesión como pestaña de color en el canto.
+ *
+ * Dos decisiones que no son de gusto sino de lectura:
+ *
+ *  · La hora va en MONOESPACIADA. Es un dato que se lee en vertical, y en una
+ *    fuente proporcional los dos puntos de "09:40 / 10:10" no caen alineados.
+ *    No se carga ninguna fuente: es la monoespaciada del sistema, así que no
+ *    cuesta ni un byte de red.
+ *  · La retícula (92 / 210 px) no cambia entre filas. Por eso todos los textos
+ *    empiezan en la misma vertical y la página se lee como un documento; con
+ *    columnas elásticas cada fila arrancaría en un sitio distinto.
+ *
+ * La única cosa que rompe la línea recta del pliego son los retratos: son
+ * recortes con transparencia, van sin marco y apoyan en la regla de abajo.
+ *
+ * MÓVIL: sin diseñar. Lo que hay abajo de 768 px es una caída vertical simple
+ * para que la página no se rompa, nada más. La versión de celular la dirige
+ * IKMA antes de tocarla.
+ */
+
+.spk {
+  --spk-tinta: #123045;
+  --spk-tinta-media: #3c4a56;
+  --spk-tinta-suave: #4a5a68;
+  --spk-tinta-tenue: #6b7680;
+  --spk-regla: rgba(18, 48, 69, 0.14);
+  --spk-mono: ui-monospace, "SFMono-Regular", "SF Mono", Menlo, Consolas, monospace;
+  --spk-curva: cubic-bezier(0.22, 1, 0.36, 1);
+  color: var(--spk-tinta);
+  padding-bottom: clamp(64px, 10svh, 140px);
+}
+
+.spk-h2 {
+  font-size: clamp(1.4rem, 2.2vw, 2rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* ---- 1 · Tesis ---------------------------------------------------------- */
+
+.spk-hero {
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: clamp(104px, 14svh, 168px) clamp(20px, 3vw, 48px) clamp(40px, 6svh, 76px);
+}
+
+.spk-eyebrow {
+  display: inline-block;
+  border-radius: 999px;
+  background: #11324f;
+  padding: 6px 16px;
+  font-family: var(--spk-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #fff;
+}
+
+.spk-h1 {
+  margin-top: clamp(18px, 2.4svh, 30px);
+  font-size: clamp(2.4rem, 5.4vw, 4.4rem);
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -0.032em;
+  text-wrap: balance;
+}
+
+.spk-hero-columnas {
+  display: grid;
+  grid-template-columns: minmax(0, 1.28fr) minmax(300px, 0.72fr);
+  gap: clamp(28px, 4vw, 72px);
+  align-items: start;
+  margin-top: clamp(30px, 4.4svh, 58px);
+}
+
+/* El texto de la conferencia. Se mide en `ch`, no en píxeles: así el corte de
+   línea aguanta al cambiar el tamaño de la fuente y la columna no se estira
+   hasta volverse incómoda de leer en una ventana ancha. */
+.spk-relato {
+  max-width: 68ch;
+}
+
+.spk-parrafo {
+  margin-top: 18px;
+  font-size: clamp(0.98rem, 1.05vw, 1.08rem);
+  line-height: 1.62;
+  color: var(--spk-tinta-media);
+}
+
+/* La última línea del texto original cierra y llama: por eso va en tinta llena
+   y en negrita, no por adorno. */
+.spk-parrafo-cierre {
+  font-weight: 700;
+  color: var(--spk-tinta);
+}
+
+.spk-lead {
+  max-width: 62ch;
+  font-size: clamp(1rem, 1.15vw, 1.16rem);
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--spk-tinta-media);
+}
+
+/* La pregunta del documento, sangrada con una regla gruesa: es una cita, y la
+   regla hace de comilla sin necesidad de tipografía especial. */
+.spk-cita {
+  margin-top: clamp(22px, 3svh, 38px);
+  border-left: 3px solid #1f4d75;
+  padding-left: clamp(16px, 1.6vw, 26px);
+}
+
+.spk-pregunta {
+  font-size: clamp(1.5rem, 2.5vw, 2.15rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+}
+
+/* El rótulo que introduce la pregunta también es texto de IKMA ("Hoy, la misma
+   pregunta sigue vigente"), no una etiqueta mía. */
+.spk-cita-rotulo {
+  margin-bottom: 10px;
+  font-family: var(--spk-mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--spk-tinta-tenue);
+}
+
+/* Caja dentro de caja: el canto exterior es el mismo recurso que las tarjetas
+   blancas de la landing, así que la página no estrena lenguaje. */
+.spk-ficha {
+  /* Llena su columna (hasta un tope): si se queda estrecha, el lado derecho de
+     la página acaba con un hueco que no lee como aire, sino como descosido. */
+  width: 100%;
+  max-width: 420px;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.5);
+  box-shadow: inset 0 0 0 1px rgba(18, 48, 69, 0.08);
+  padding: 6px;
+}
+
+.spk-ficha-cuerpo {
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.92);
+  padding: clamp(18px, 1.8vw, 26px) clamp(18px, 1.8vw, 28px);
+}
+
+.spk-dato + .spk-dato {
+  margin-top: 14px;
+  border-top: 1px solid rgba(18, 48, 69, 0.09);
+  padding-top: 14px;
+}
+
+.spk-dato dt {
+  font-family: var(--spk-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--spk-tinta-tenue);
+}
+
+.spk-dato dd {
+  margin-top: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+/* ---- 2 · Tira de retratos ---------------------------------------------- */
+
+.spk-tira-seccion {
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 clamp(20px, 3vw, 48px);
+}
+
+/* Seis columnas iguales SIN separación: así las reglas de los pies se tocan y
+   forman UNA sola línea por debajo de las caras. Con `gap` quedaría a trozos. */
+.spk-tira {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.spk-cara {
+  display: flex;
+  flex-direction: column;
+  /* Se alinea desde ARRIBA, no desde abajo. Con `flex-end` la celda que tiene el
+     nombre más largo (Francisco, tres líneas) empujaba hacia arriba su propio
+     retrato y su propia regla: medido, 13,5 px más alta que las de al lado. El
+     retrato se apoya en la regla dentro de su caja; lo que no puede es moverse
+     según lo que ocupe el nombre. */
+  justify-content: flex-start;
+  padding: 0 clamp(6px, 0.7vw, 14px);
+  text-decoration: none;
+  color: inherit;
+}
+
+/* TODOS AL MISMO ALTO. Los recortes vienen con encuadres distintos (unos son
+   primerísimos planos y otros salen de torso entero), así que igualar la altura
+   del lienzo deja las cabezas a distinta escala; igualar la escala de las
+   cabezas dejaría las alturas distintas. IKMA pidió lo primero, y es lo que
+   manda: misma altura, pies en la misma regla. */
+
+.spk-cara-foto {
+  --spk-alto: clamp(120px, 13vw, 178px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  min-height: var(--spk-alto);
+}
+
+.spk-cara-foto img {
+  height: var(--spk-alto);
+  max-width: 100%;
+  width: auto;
+  object-fit: contain;
+  object-position: bottom;
+  transition: transform 700ms var(--spk-curva);
+}
+
+.spk-cara:hover .spk-cara-foto img,
+.spk-cara:focus-visible .spk-cara-foto img {
+  transform: translateY(-8px);
+}
+
+.spk-cara-nombre {
+  border-top: 1px solid rgba(18, 48, 69, 0.18);
+  padding-top: 12px;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--spk-tinta-suave);
+  transition: color 400ms var(--spk-curva);
+}
+
+.spk-cara:hover .spk-cara-nombre,
+.spk-cara:focus-visible .spk-cara-nombre {
+  color: var(--spk-tinta);
+}
+
+.spk-cara:focus-visible {
+  outline: 2px solid #11324f;
+  outline-offset: 6px;
+  border-radius: 6px;
+}
+
+/* ---- 3 · El pliego ----------------------------------------------------- */
+
+.spk-programa,
+.spk-equipo {
+  width: 100%;
+  max-width: 1240px;
+  margin: clamp(56px, 9svh, 120px) auto 0;
+  padding: 0 clamp(20px, 3vw, 48px);
+}
+
+.spk-programa-cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px 24px;
+  padding-bottom: clamp(20px, 2.4svh, 32px);
+}
+
+.spk-aviso {
+  font-family: var(--spk-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--spk-tinta-tenue);
+}
+
+.spk-pliego {
+  border-bottom: 1px solid var(--spk-regla);
+}
+
+.spk-fila {
+  position: relative;
+  border-top: 1px solid var(--spk-regla);
+  scroll-margin-top: 110px;
+  transition: background-color 600ms var(--spk-curva);
+}
+
+/* Al pasar por encima, la fila se aclara como una hoja iluminada. El color del
+   tipo NO se toca: la pestaña del canto ya lo dice. */
+.spk-fila:hover {
+  background-color: rgba(255, 255, 255, 0.72);
+}
+
+.spk-pestana {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 3px;
+  opacity: 0.6;
+  transition: opacity 400ms var(--spk-curva);
+}
+
+.spk-fila:hover .spk-pestana {
+  opacity: 1;
+}
+
+.spk-rejilla {
+  display: grid;
+  grid-template-columns: 92px 240px minmax(0, 1fr);
+  gap: 0 clamp(24px, 2.4vw, 40px);
+  padding: clamp(22px, 2.6svh, 34px) 0 clamp(22px, 2.6svh, 34px) clamp(20px, 2vw, 34px);
+}
+
+/* Fila sin retrato (pausa, almuerzo, panel, equipo): se aprieta. `:has` es lo
+   que permite decidirlo sin duplicar la fila en dos componentes. */
+.spk-fila:not(:has(.spk-retrato)):not(:has(.spk-placa)) .spk-rejilla {
+  padding-top: clamp(14px, 1.6svh, 20px);
+  padding-bottom: clamp(14px, 1.6svh, 20px);
+}
+
+.spk-reloj {
+  padding-top: 2px;
+}
+
+.spk-hora {
+  font-family: var(--spk-mono);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--spk-tinta);
+}
+
+.spk-hora-fin {
+  margin-top: 6px;
+  font-family: var(--spk-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--spk-tinta-tenue);
+}
+
+/* El retrato apoya en la regla de abajo: `align-items: flex-end`. */
+.spk-media {
+  --spk-alto: clamp(140px, 15vw, 196px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.spk-retrato {
+  height: var(--spk-alto);
+  max-width: 100%;
+  width: auto;
+  object-fit: contain;
+  object-position: bottom;
+}
+
+/* Recuadro de quien es ponente y todavía no tiene foto: mismo sitio, mismo
+   canto inferior y mismas iniciales que luego serán su retrato. */
+.spk-placa {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: 132px;
+  height: clamp(140px, 15vw, 196px);
+  border-radius: 4px;
+  background: rgba(18, 48, 69, 0.05);
+  box-shadow: inset 0 0 0 1px rgba(18, 48, 69, 0.08);
+  padding-bottom: 14px;
+  font-family: var(--spk-mono);
+  font-size: 24px;
+  letter-spacing: 0.08em;
+  color: rgba(18, 48, 69, 0.42);
+}
+
+.spk-texto {
+  max-width: 64ch;
+}
+
+.spk-tipo {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-family: var(--spk-mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--spk-tinta-suave);
+}
+
+.spk-punto {
+  width: 7px;
+  height: 7px;
+  border-radius: 2px;
+  flex: none;
+}
+
+.spk-nombre {
+  margin-top: clamp(10px, 1.2svh, 16px);
+  font-size: clamp(1.15rem, 1.5vw, 1.5rem);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+}
+
+.spk-tema {
+  margin-top: 10px;
+  max-width: 58ch;
+  font-size: clamp(0.95rem, 1.05vw, 1.08rem);
+  line-height: 1.5;
+  color: var(--spk-tinta-media);
+}
+
+.spk-nota {
+  margin-top: 10px;
+  font-family: var(--spk-mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--spk-tinta-tenue);
+}
+
+/* La biografía: la persona, no la sesión. La regla de arriba es la misma que
+   separa las filas del pliego, así que no estrena recurso. */
+.spk-bio {
+  max-width: 62ch;
+  margin-top: clamp(16px, 1.9svh, 24px);
+  border-top: 1px solid var(--spk-regla);
+  padding-top: clamp(14px, 1.7svh, 21px);
+  font-size: 0.95rem;
+  line-height: 1.62;
+  color: var(--spk-tinta-suave);
+}
+
+/* ---- 4 · Equipo -------------------------------------------------------- */
+
+.spk-equipo-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0;
+  border-top: 1px solid var(--spk-regla);
+}
+
+.spk-equipo-item {
+  padding: clamp(18px, 2.2svh, 28px) clamp(16px, 1.6vw, 26px) clamp(18px, 2.2svh, 28px) 0;
+}
+
+.spk-equipo-item + .spk-equipo-item {
+  border-left: 1px solid var(--spk-regla);
+  padding-left: clamp(16px, 1.6vw, 26px);
+}
+
+.spk-equipo-item dt {
+  font-family: var(--spk-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--spk-tinta-tenue);
+}
+
+.spk-equipo-item dd {
+  margin-top: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+/* ---- 5 · Cierre -------------------------------------------------------- */
+
+.spk-cierre {
+  width: 100%;
+  max-width: 1240px;
+  margin: clamp(48px, 7svh, 96px) auto 0;
+  padding: 0 clamp(20px, 3vw, 48px);
+}
+
+.spk-cierre-texto {
+  max-width: 46ch;
+  font-size: clamp(1.1rem, 1.6vw, 1.5rem);
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+}
+
+.spk-cierre-botones {
+  display: flex;
+  align-items: center;
+  gap: clamp(20px, 2.4vw, 40px);
+  margin-top: clamp(20px, 2.6svh, 32px);
+}
+
+/* Botón con el icono metido en su propio círculo, pegado al relleno derecho:
+   el mismo aire que el botón del hero de la landing. */
+.spk-boton {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  border-radius: 999px;
+  background: #11324f;
+  padding: 9px 9px 9px 26px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+  text-decoration: none;
+  transition: background-color 400ms var(--spk-curva);
+}
+
+.spk-boton:hover {
+  background: #1f4d75;
+}
+
+.spk-boton:focus-visible {
+  outline: 2px solid #11324f;
+  outline-offset: 3px;
+}
+
+.spk-boton-icono {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  transition: transform 500ms var(--spk-curva);
+}
+
+.spk-boton-icono svg {
+  width: 17px;
+  height: 17px;
+}
+
+.spk-boton:hover .spk-boton-icono {
+  transform: translateX(3px);
+}
+
+.spk-volver {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--spk-tinta);
+  text-decoration: none;
+  transition: opacity 300ms var(--spk-curva);
+}
+
+.spk-volver:hover {
+  opacity: 0.65;
+}
+
+/* ---- Entrada de las filas --------------------------------------------- */
+
+.spk-rev {
+  opacity: 0;
+  transform: translateY(22px);
+  transition:
+    transform 900ms var(--spk-curva),
+    opacity 900ms var(--spk-curva);
+}
+
+.spk-rev-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* Quien pide menos movimiento ve las filas aparecer, pero quietas. */
+@media (prefers-reduced-motion: reduce) {
+  .spk-rev {
+    transform: none;
+    transition: opacity 200ms linear;
+  }
+
+  .spk-cara-foto img,
+  .spk-boton-icono {
+    transition: none;
+  }
+}
+
+/* ---- Móvil ---------------------------------------------------------------
+ *
+ * Aquí SÍ hay diseño, y no es la retícula de escritorio encogida: en 393 px las
+ * tres columnas del pliego (hora / retrato / texto) no caben, así que la fila se
+ * recompone en dos columnas y el orden cambia para que lo primero que se lea sea
+ * lo que importa.
+ *
+ * La pieza que lo permite es `display: contents` en el bloque de texto: sin caja
+ * propia, sus hijos (tipo, nombre, tema, apunte, biografía) pasan a ser celdas de
+ * la retícula de la fila. Así el TIPO DE SESIÓN sube a la línea de la HORA —que
+ * es su sitio, como en un orden de participación— y el RETRATO puede quedarse al
+ * lado del NOMBRE en vez de empujarlo todo hacia abajo.
+ *
+ * La retícula se declara con áreas con nombre y `row-gap: 0`. El cero es
+ * deliberado: las filas de logística (pausa, almuerzo, preguntas) no tienen
+ * retrato ni nombre, y con separación entre filas esas áreas vacías dejarían
+ * cuatro huecos apilados. Sin separación no ocupan nada, y el aire lo pone cada
+ * elemento con su propio margen.
+ */
+@media (max-width: 767px) {
+  /* --- Arranque --- */
+  .spk-hero {
+    padding: clamp(84px, 11svh, 116px) 18px 30px;
+  }
+
+  .spk-h1 {
+    font-size: clamp(2rem, 9.4vw, 2.8rem);
+  }
+
+  .spk-hero-columnas {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 26px;
+  }
+
+  .spk-lead,
+  .spk-parrafo {
+    font-size: 1rem;
+  }
+
+  .spk-parrafo {
+    margin-top: 15px;
+  }
+
+  .spk-cita {
+    margin-top: 22px;
+    padding-left: 16px;
+  }
+
+  .spk-pregunta {
+    font-size: 1.6rem;
+  }
+
+  .spk-ficha {
+    max-width: none;
+  }
+
+  .spk-ficha-cuerpo {
+    padding: 16px 18px;
+  }
+
+  .spk-dato + .spk-dato {
+    margin-top: 11px;
+    padding-top: 11px;
+  }
+
+  .spk-tira-seccion,
+  .spk-programa,
+  .spk-equipo,
+  .spk-cierre {
+    padding: 0 18px;
+  }
+
+  /* --- Tira de retratos: tres por fila --- */
+  .spk-tira {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    row-gap: 26px;
+  }
+
+  /* Sin relleno lateral: el ancho de la celda es el que decide si un retrato
+     apaisado se encoge, y si se encoge deja de tener la misma altura que los
+     demás. El más ancho es el de Carlos (1,14 de proporción), así que el alto se
+     elige para que quepa holgado. */
+  .spk-cara {
+    padding: 0;
+  }
+
+  .spk-cara-foto {
+    --spk-alto: clamp(84px, 25vw, 104px);
+  }
+
+  .spk-cara-nombre {
+    padding-top: 9px;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+  }
+
+  /* --- Fila del pliego --- */
+  .spk-texto {
+    display: contents;
+  }
+
+  .spk-rejilla {
+    grid-template-columns: minmax(0, clamp(108px, 33vw, 132px)) minmax(0, 1fr);
+    column-gap: 12px;
+    row-gap: 0;
+    /* Centrado, no alineado arriba: el retrato (110 px) es más alto que el
+       nombre y el tema juntos, y en una fila corta como la de "Testimony" el
+       sobrante se repartía entre las filas de texto y abría un hueco entre el
+       nombre y su tema. Centrado, el bloque de texto queda a la altura del
+       retrato y el hueco desaparece. */
+    align-items: center;
+    padding: 16px 0 18px 14px;
+  }
+
+  /* La hora manda la línea, y el tipo se alinea a su derecha en la misma línea:
+     las dos cosas son la cabecera del tramo. */
+  .spk-reloj {
+    grid-column: 1;
+    grid-row: 1;
+    display: flex;
+    align-items: baseline;
+    align-self: baseline;
+    gap: 7px;
+    padding-top: 0;
+  }
+
+  .spk-hora {
+    font-size: 14px;
+  }
+
+  .spk-hora-fin {
+    margin-top: 0;
+  }
+
+  .spk-tipo {
+    grid-column: 2;
+    grid-row: 1;
+    /* Comparte línea base con la hora: la retícula centra por defecto, y sin
+       esto el rótulo quedaría centrado mientras la hora va a su línea base. */
+    align-self: baseline;
+    justify-content: flex-end;
+  }
+
+  .spk-media {
+    grid-column: 1;
+    grid-row: 2;
+    /* 112 px de alto y una columna de 132 dan de sobra para el retrato más
+       apaisado (128 px): si la columna lo apretara, este se encogería y rompería
+       la altura común. */
+    --spk-alto: clamp(92px, 28vw, 112px);
+    justify-content: flex-start;
+  }
+
+  .spk-sesion {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .spk-nombre {
+    font-size: 1.15rem;
+  }
+
+  .spk-tema {
+    margin-top: 7px;
+    font-size: 0.95rem;
+  }
+
+  .spk-nota {
+    margin-top: 8px;
+  }
+
+  /* Fila sin retrato (bienvenida, adoración, panel, anuncios): el texto ocupa
+     las dos columnas. Si no, quedaría sangrado a la derecha por una columna de
+     retrato que no existe. */
+  .spk-fila-sola .spk-sesion {
+    grid-column: 1 / -1;
+  }
+
+  .spk-bio {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    max-width: none;
+    margin-top: 14px;
+    padding-top: 13px;
+    font-size: 0.93rem;
+  }
+
+  /* --- Equipo y cierre --- */
+  .spk-equipo-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .spk-equipo-item {
+    padding-right: 0;
+  }
+
+  .spk-equipo-item + .spk-equipo-item {
+    border-left: 0;
+    border-top: 1px solid var(--spk-regla);
+    padding-left: 0;
+  }
+
+  .spk-cierre-botones {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+}
