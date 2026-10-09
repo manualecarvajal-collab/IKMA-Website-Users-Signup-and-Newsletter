@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { Montserrat } from "next/font/google"
+import localFont from "next/font/local"
 import "./globals.css"
 import { NextIntlClientProvider } from "next-intl"
 import { getLocale, getMessages } from "next-intl/server"
@@ -20,10 +20,29 @@ import JsonLd from "@/components/JsonLd"
 import { SITE_URL, SITE_TITLE, SITE_DESCRIPTION } from "@/lib/site"
 import { organizationSchema, websiteSchema, jsonLdGraph } from "@/lib/structured-data"
 
-const montserrat = Montserrat({
+/**
+ * Montserrat, AUTOALOJADA en el repositorio.
+ *
+ * Antes venía de `next/font/google`, que descarga la fuente de Google DURANTE el
+ * build. En Vercel esa descarga falló y el build murió con
+ * "Can't resolve '@vercel/turbopack-next/internal/font/google/font'": al no
+ * llegar la fuente, Turbopack no crea el módulo virtual que el CSS referencia.
+ * En local no se veía porque la descarga estaba cacheada en
+ * `.next/cache/fetch-cache` y ahí seguía.
+ *
+ * Con el fichero dentro del repositorio el build no toca la red, así que ese
+ * fallo no puede repetirse. Es UN woff2 variable de 37 KB: Google servía el
+ * mismo fichero para 400, 500, 600 y 700 (comprobado, mismo md5 en los cuatro),
+ * y su eje `wght` va de 100 a 900, así que un solo fichero cubre todos los pesos
+ * que usa el sitio.
+ *
+ * El subset es `latin`, el mismo que se pedía antes con `subsets: ["latin"]`.
+ */
+const montserrat = localFont({
+  src: "./fonts/montserrat.woff2",
+  weight: "100 900",
+  style: "normal",
   variable: "--font-montserrat",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
   display: "swap",
 })
 

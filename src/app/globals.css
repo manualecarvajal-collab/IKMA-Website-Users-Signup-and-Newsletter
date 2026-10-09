@@ -50,13 +50,13 @@
     --color-on-background: #1a1c1c;
     --color-surface-variant: #e3e2e1;
 
-    --font-headline-xl: "Montserrat", sans-serif;
-    --font-headline-lg: "Montserrat", sans-serif;
-    --font-headline-md: "Montserrat", sans-serif;
-    --font-body-lg: "Montserrat", sans-serif;
-    --font-body-md: "Montserrat", sans-serif;
-    --font-label-bold: "Montserrat", sans-serif;
-    --font-label-sm: "Montserrat", sans-serif;
+    --font-headline-xl: var(--font-montserrat), sans-serif;
+    --font-headline-lg: var(--font-montserrat), sans-serif;
+    --font-headline-md: var(--font-montserrat), sans-serif;
+    --font-body-lg: var(--font-montserrat), sans-serif;
+    --font-body-md: var(--font-montserrat), sans-serif;
+    --font-label-bold: var(--font-montserrat), sans-serif;
+    --font-label-sm: var(--font-montserrat), sans-serif;
 
     --text-headline-xl: clamp(2.5rem, 5vw, 4rem);
     --text-headline-xl--line-height: 1.1;
@@ -100,7 +100,7 @@
 body {
     background: var(--color-background);
     color: var(--color-on-background);
-    font-family: "Montserrat", sans-serif;
+    font-family: var(--font-montserrat), sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }

@@ -57,7 +57,7 @@ export default async function HomePage() {
                 <div className="max-w-[420px] text-center md:text-left">
                 <span
                   className="text-primary md:text-[#334D96] leading-none select-none block"
-                  style={{ fontSize: "clamp(48px, 6vw, 90px)", fontFamily: "Montserrat", fontWeight: 700, lineHeight: 0.5 }}
+                  style={{ fontSize: "clamp(48px, 6vw, 90px)", fontFamily: "var(--font-montserrat)", fontWeight: 700, lineHeight: 0.5 }}
                   aria-hidden="true"
                 >
                   &ldquo;
@@ -70,7 +70,7 @@ export default async function HomePage() {
                 <div className="text-center md:text-right -mt-1">
                   <span
                     className="text-primary md:text-[#334D96] leading-none select-none inline-block scale-x-[-1] scale-y-[-1]"
-                    style={{ fontSize: "clamp(48px, 6vw, 90px)", fontFamily: "Montserrat", fontWeight: 700, lineHeight: 0.5 }}
+                    style={{ fontSize: "clamp(48px, 6vw, 90px)", fontFamily: "var(--font-montserrat)", fontWeight: 700, lineHeight: 0.5 }}
                     aria-hidden="true"
                   >
                     &ldquo;
@@ -146,7 +146,7 @@ export default async function HomePage() {
                 <div className="max-w-[420px] text-center md:text-left">
                 <span
                   className="text-primary md:text-[#334D96] leading-none select-none block"
-                  style={{ fontSize: "clamp(48px, 6vw, 90px)", fontFamily: "Montserrat", fontWeight: 700, lineHeight: 0.5 }}
+                  style={{ fontSize: "clamp(48px, 6vw, 90px)", fontFamily: "var(--font-montserrat)", fontWeight: 700, lineHeight: 0.5 }}
                   aria-hidden="true"
                 >
                   &ldquo;
@@ -159,7 +159,7 @@ export default async function HomePage() {
                 <div className="text-center md:text-right -mt-1">
                   <span
                     className="text-primary md:text-[#334D96] leading-none select-none inline-block scale-x-[-1] scale-y-[-1]"
-                    style={{ fontSize: "clamp(48px, 6vw, 90px)", fontFamily: "Montserrat", fontWeight: 700, lineHeight: 0.5 }}
+                    style={{ fontSize: "clamp(48px, 6vw, 90px)", fontFamily: "var(--font-montserrat)", fontWeight: 700, lineHeight: 0.5 }}
                     aria-hidden="true"
                   >
                     &ldquo;
