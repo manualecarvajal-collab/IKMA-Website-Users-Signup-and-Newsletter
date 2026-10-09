@@ -235,8 +235,10 @@ export default async function SpeakersPage() {
           </div>
         </section>
 
-        {/* 4 · Quién más sostiene el día. Sale de la línea de moderación del
-            documento; los nombres no se traducen. */}
+        {/* 4 · Quién más sostiene el día. Sale del bloque de moderación del
+            documento (que en esta versión cambia: Gratia Boneza deja de ser
+            moderadora y aparece Manuel Carvajal en medios). Los nombres no se
+            traducen; los rótulos sí. */}
         <section className="spk-equipo">
           <h2 className="spk-h2">{t("credits.title")}</h2>
           <dl className="spk-equipo-grid">
@@ -251,6 +253,10 @@ export default async function SpeakersPage() {
             <div className="spk-equipo-item">
               <dt>{t("credits.translation")}</dt>
               <dd>{t("credits.translationValue")}</dd>
+            </div>
+            <div className="spk-equipo-item">
+              <dt>{t("credits.media")}</dt>
+              <dd>{EQUIPO.media.join(" · ")}</dd>
             </div>
             <div className="spk-equipo-item">
               <dt>{t("credits.worship")}</dt>

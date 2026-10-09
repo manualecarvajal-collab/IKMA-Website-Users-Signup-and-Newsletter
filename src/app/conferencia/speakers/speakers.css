@@ -214,10 +214,18 @@
 
 .spk-cara-foto {
   --spk-alto: clamp(120px, 13vw, 178px);
+  /* Escala del zoom al pasar por encima. Es una sola constante porque la usan
+     dos sitios que tienen que cuadrar: el alto de la caja y el `scale`. */
+  --spk-zoom: 1.08;
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  min-height: var(--spk-alto);
+  /* La caja mide un 8 % MÁS que el retrato y recorta lo que se salga. El margen
+     no es decorativo: el zoom crece desde los pies hacia arriba, así que sin ese
+     8 % de aire el recorte le cortaría la cabeza. Con él, el retrato ampliado
+     cabe justo —el 8 % de la caja es el 8 % del zoom— y nada sobresale. */
+  min-height: calc(var(--spk-alto) * var(--spk-zoom));
+  overflow: hidden;
 }
 
 .spk-cara-foto img {
@@ -226,12 +234,25 @@
   width: auto;
   object-fit: contain;
   object-position: bottom;
+  /* El zoom sale de los pies y no del centro: así el retrato no se despega de la
+     regla en la que está apoyado y el movimiento se lee como que la persona se
+     acerca, no como que la foto flota. */
+  transform-origin: 50% 100%;
   transition: transform 700ms var(--spk-curva);
 }
 
-.spk-cara:hover .spk-cara-foto img,
+/* ZOOM IN al pasar por encima. Va bajo `hover: hover` a propósito: en una
+   pantalla táctil el `:hover` se queda pegado después del toque y el retrato se
+   quedaría ampliado sin manera de deshacerlo. El foco de teclado sí vale en
+   cualquier dispositivo, que ahí no hay toque que se pegue. */
+@media (hover: hover) {
+  .spk-cara:hover .spk-cara-foto img {
+    transform: scale(var(--spk-zoom));
+  }
+}
+
 .spk-cara:focus-visible .spk-cara-foto img {
-  transform: translateY(-8px);
+  transform: scale(var(--spk-zoom));
 }
 
 .spk-cara-nombre {
@@ -444,19 +465,20 @@
 /* ---- 4 · Equipo -------------------------------------------------------- */
 
 .spk-equipo-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0;
   border-top: 1px solid var(--spk-regla);
 }
 
+/* Una fila por crédito, con el rótulo a la izquierda y el valor a la derecha:
+   el mismo pliego que las sesiones. Se pasó de una banda de columnas a esto
+   cuando el documento añadió el crédito de medios —con cinco, cuatro columnas
+   dejaban uno huérfano en una segunda fila, y ese hueco se lee como un error—. */
 .spk-equipo-item {
-  padding: clamp(18px, 2.2svh, 28px) clamp(16px, 1.6vw, 26px) clamp(18px, 2.2svh, 28px) 0;
-}
-
-.spk-equipo-item + .spk-equipo-item {
-  border-left: 1px solid var(--spk-regla);
-  padding-left: clamp(16px, 1.6vw, 26px);
+  display: grid;
+  grid-template-columns: 190px minmax(0, 1fr);
+  gap: 0 26px;
+  align-items: baseline;
+  border-bottom: 1px solid var(--spk-regla);
+  padding: clamp(13px, 1.5svh, 18px) 0;
 }
 
 .spk-equipo-item dt {
@@ -469,7 +491,6 @@
 }
 
 .spk-equipo-item dd {
-  margin-top: 10px;
   font-size: 0.95rem;
   font-weight: 600;
   line-height: 1.45;
@@ -581,6 +602,11 @@
   .spk-cara-foto img,
   .spk-boton-icono {
     transition: none;
+  }
+
+  .spk-cara:hover .spk-cara-foto img,
+  .spk-cara:focus-visible .spk-cara-foto img {
+    transform: none;
   }
 }
 
@@ -772,18 +798,9 @@
   }
 
   /* --- Equipo y cierre --- */
-  .spk-equipo-grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
   .spk-equipo-item {
-    padding-right: 0;
-  }
-
-  .spk-equipo-item + .spk-equipo-item {
-    border-left: 0;
-    border-top: 1px solid var(--spk-regla);
-    padding-left: 0;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px 0;
   }
 
   .spk-cierre-botones {

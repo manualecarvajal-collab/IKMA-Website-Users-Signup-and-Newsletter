@@ -3,7 +3,7 @@ import { Montserrat } from "next/font/google"
 import "./globals.css"
 import { NextIntlClientProvider } from "next-intl"
 import { getLocale, getMessages } from "next-intl/server"
-import { headers } from "next/headers"
+import ChromeSitio from "@/components/ChromeSitio"
 import Navbar from "@/components/Navbar"
 import Footer from "@/components/Footer"
 import FooterWrapper from "@/components/FooterWrapper"
@@ -106,13 +106,6 @@ export default async function RootLayout({
   const locale = await getLocale()
   const messages = await getMessages()
 
-  // La landing de la conferencia trae su propia nav, así que se omite el
-  // chrome del sitio. El pathname llega por header desde src/proxy.ts, de modo
-  // que la decisión es server-side y no hay parpadeo al hidratar.
-  const pathname = (await headers()).get("x-pathname") ?? ""
-  const sinChrome =
-    pathname === "/conferencia" || pathname.startsWith("/conferencia/")
-
   return (
     <html
       lang={locale}
@@ -125,23 +118,30 @@ export default async function RootLayout({
       </head>
       <body className="min-h-full flex flex-col bg-background text-on-background selection:bg-primary-container selection:text-on-primary-container">
         <NextIntlClientProvider locale={locale} messages={messages}>
-          {!sinChrome && (
+          {/* El chrome del sitio va dentro de `ChromeSitio`, que decide por ruta.
+              NO se decide aquí con el pathname: el layout raíz no se vuelve a
+              renderizar en las navegaciones de cliente, así que un `if` aquí se
+              queda pegado al de la primera carga. El porqué completo, en el
+              comentario de `ChromeSitio`. */}
+          <ChromeSitio>
             <div className="sticky top-0 z-50">
               <IncompleteRegistrationBanner />
               <Navbar />
             </div>
-          )}
+          </ChromeSitio>
           <main className="flex-grow">{children}</main>
-          {!sinChrome && (
+          <ChromeSitio>
             <FooterWrapper>
               <NewsletterCTAVisibility>
                 <NewsletterCTA />
               </NewsletterCTAVisibility>
               <Footer />
             </FooterWrapper>
-          )}
+          </ChromeSitio>
           <ToastContainer />
-          {!sinChrome && <CookieConsent />}
+          <ChromeSitio>
+            <CookieConsent />
+          </ChromeSitio>
           <LocaleSwitch />
         </NextIntlClientProvider>
         <SpeedInsights />

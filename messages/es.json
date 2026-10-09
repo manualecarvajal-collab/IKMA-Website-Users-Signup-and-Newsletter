@@ -19,7 +19,7 @@
         "dateLabel": "Fecha",
         "timeLabel": "Hora",
         "formatLabel": "Formato",
-        "time": "9:00 a. m. – 3:00 p. m., hora de Coro (UTC−4)",
+        "time": "9:00 a. m. – 3:30 p. m., hora de Coro (UTC−4)",
         "format": "En línea"
       },
       "lineup": {
@@ -46,6 +46,7 @@
         "host": "Moderación",
         "announcements": "Anuncios",
         "translation": "Traducción",
+        "media": "Transmisión",
         "translationValue": "Dalia Beltran y equipo",
         "worship": "Adoración",
         "worshipValue": "Grupo de adoración de la iglesia La Ciudad de las Águilas, Coro"

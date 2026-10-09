@@ -8,21 +8,56 @@ import type { Ponente } from "./ponentes"
  * que es un orden de participación de producción: horas de reloj, quién habla y
  * de qué. Aquí no se inventa nada: lo que el documento no dice, no está.
  *
- * DOS AVISOS SOBRE EL ORIGINAL (respetados a propósito):
+ * SEGUNDA VERSIÓN (la que manda ahora). IKMA corrigió el horario: el día acaba
+ * a las 15:30 y no a las 15:00, hay un SEGUNDO tramo de adoración por la tarde,
+ * Victoria De León pasa de 45 a 40 minutos, y la moderación y los medios cambian
+ * de personas. Todo eso está aplicado.
  *
- *  1. Las horas van en hora de Coro (UTC−4). El documento titula la columna
- *     "EDT - Coro" y en la primera línea dice "9 am EST – 3 pm EST". EST es
- *     UTC−5: no puede ser lo mismo que Coro. Manda la tabla horaria, que es la
- *     que cuadra con `EVENT_DATE` (9:00 a 09:00−04:00), y por eso la página
- *     escribe "hora de Coro (UTC−4)" y no "EST".
+ * LAS ERRATAS DEL DOCUMENTO, Y POR QUÉ SE CORRIGEN.
  *
- *  2. El documento se contradice en las duraciones: la lista de ponentes dice
- *     30 min para Amanda Majanen y 45 para Victoria De León, y su propia tabla
- *     horaria les da 20 min a cada una (10:45–11:05 y 14:15–14:35). También el
- *     panel: 30 min en la lista, 55 en la tabla. Aquí NO se imprime ninguna
- *     duración en minutos —solo la hora de inicio y de fin—, así que la página
- *     enseña el dato que el propio documento sostiene sin elegir bando en la
- *     contradicción. Cuando IKMA la resuelva, se corrige en la tabla horaria.
+ * La tabla horaria nueva trae tres horas imposibles —el tiempo iría hacia
+ * atrás— y una errata de tecleo. No se copian tal cual: una página pública no
+ * puede anunciar un tramo que empieza antes de terminar. Cada arreglo lo imponen
+ * los propios datos del documento —las duraciones que él mismo escribe y la hora
+ * de inicio del tramo siguiente—, no una interpretación mía.
+ *
+ *   1. Francisco Hernandez. El documento dice "10:10- 10:45 / (30 min)". 10:10
+ *      más 30 minutos son 10:40, y la pausa empieza a las 10:40. Se pone
+ *      10:10–10:40: así cuadran sus dos datos; con 10:45, la pausa empezaría
+ *      antes de que él acabe.
+ *
+ *   2. Adoración de la tarde. El documento escribe "12:55- 13-10": un guion donde
+ *      va un dos puntos. Son las 13:10, y además es justo lo que dura el tramo
+ *      (15 min).
+ *
+ *   3. Jocelyn Gabillas. "13:10- 14:55 / (45 min)": 13:10 más 45 minutos son
+ *      13:55. Se pone 13:10–13:55.
+ *
+ *   4. Jesualy Suárez. "14:55- 14:25" termina antes de empezar. Con el arreglo
+ *      anterior (Jocelyn acaba a las 13:55) y sus 30 minutos, el tramo es
+ *      13:55–14:25, y encaja con el siguiente: Victoria empieza a las 14:25.
+ *
+ *   5. Anuncios. "15:20- 15:30)" con un paréntesis suelto.
+ *
+ * Con esos cinco arreglos el día cierra por los dos extremos: empieza a las
+ * 09:00 y acaba a las 15:30, como dice la cabecera del documento, y las
+ * duraciones que él mismo escribe van cuadrando una detrás de otra. Además, la
+ * suma de las duraciones escritas (380 min) se queda 10 minutos corta respecto
+ * al reloj, y esos 10 son exactamente las dos diferencias que el documento tiene
+ * entre lo que rotula y lo que marca: Amanda Majanen (30 rotulados, 35 en el
+ * reloj) y las preguntas (10 rotulados, 15 en el reloj).
+ *
+ * LAS HORAS VAN EN HORA DE CORO (UTC−4). El documento titula la columna
+ * "EDT - Coro" y arriba escribe "9 am EST – 3:30 pm EST". EST es UTC−5: no puede
+ * ser lo mismo que Coro. Manda la tabla horaria, que es la que cuadra con
+ * `EVENT_DATE` (09:00 a 09:00−04:00), y por eso la página escribe "hora de Coro
+ * (UTC−4)". Su cabecera de la tabla dice "9:00 am - 3:10 PM EST", que tampoco
+ * puede ser: la propia tabla acaba a las 15:30.
+ *
+ * POR QUÉ NO SE IMPRIME NINGUNA DURACIÓN EN MINUTOS. Porque el documento se
+ * contradice en dos tramos (Amanda y las preguntas, arriba): rotula 30 y 10
+ * donde el reloj da 35 y 15. La página enseña solo la hora de inicio y de fin,
+ * que es el dato que el documento sostiene sin contradecirse.
  *
  * Los nombres NO se traducen y, cuando la persona ya tiene ficha en `PONENTES`,
  * tampoco se repiten aquí: se enlazan por `ponenteId`, que es lo que ata el
@@ -62,7 +97,7 @@ export interface Sesion {
   tipo: TipoSesion
   /** Ficha de `PONENTES`, cuando la persona ya está en la landing. */
   ponenteId?: string
-  /** Nombre suelto cuando no hay ficha (anfitriona, grupo, junta…). */
+  /** Nombre suelto cuando no hay ficha (anfitrión, grupo, junta…). */
   nombre?: string
   /**
    * Iniciales para el recuadro. Solo para quien ES ponente y todavía no tiene
@@ -108,6 +143,7 @@ export const PROGRAMA: Sesion[] = [
       en: "Welcoming everyone, introducing the conference and IKMA",
       es: "Bienvenida, presentación de la conferencia y de IKMA",
     },
+    nota: { en: "Moderator", es: "Moderador" },
   },
   {
     id: "adoracion",
@@ -128,29 +164,40 @@ export const PROGRAMA: Sesion[] = [
     tema: { en: "Share a few words", es: "Comparte unas palabras" },
   },
   { id: "carlos", inicio: "09:40", fin: "10:10", tipo: "ensenanza", ponenteId: "apostol" },
-  { id: "francisco", inicio: "10:10", fin: "10:35", tipo: "ensenanza", ponenteId: "francisco" },
-  { id: "pausa", inicio: "10:35", fin: "10:45", tipo: "pausa" },
+  // 10:40 y no 10:45: ver la errata 1 de la cabecera.
+  { id: "francisco", inicio: "10:10", fin: "10:40", tipo: "ensenanza", ponenteId: "francisco" },
+  { id: "pausa", inicio: "10:40", fin: "10:50", tipo: "pausa" },
   {
     id: "amanda",
-    inicio: "10:45",
-    fin: "11:05",
+    inicio: "10:50",
+    fin: "11:25",
     tipo: "testimonio",
     ponenteId: "amanda",
     tema: { en: "Testimony", es: "Testimonio" },
   },
   {
     id: "panel",
-    inicio: "11:05",
-    fin: "12:00",
+    inicio: "11:25",
+    fin: "11:55",
     tipo: "panel",
     tema: { en: "IKMA Forward — what is in store", es: "IKMA Forward: lo que está por venir" },
     nota: { en: "With members of the board", es: "Con miembros de la junta directiva" },
   },
-  { id: "almuerzo", inicio: "12:00", fin: "13:00", tipo: "almuerzo" },
+  { id: "almuerzo", inicio: "11:55", fin: "12:55", tipo: "almuerzo" },
+  // Segundo tramo de adoración: es nuevo en esta versión del documento.
+  {
+    id: "adoracion-tarde",
+    inicio: "12:55",
+    fin: "13:10",
+    tipo: "adoracion",
+    nombre: "La Ciudad de las Águilas",
+    tema: { en: "Worship the Lord", es: "Adorar al Señor" },
+    nota: { en: "Coro, Venezuela", es: "Coro, Venezuela" },
+  },
   {
     id: "joselin",
-    inicio: "13:00",
-    fin: "13:45",
+    inicio: "13:10", // 13:55 y no 14:55: ver la errata 3.
+    fin: "13:55",
     tipo: "ensenanza",
     ponenteId: "joselin",
     tema: {
@@ -161,16 +208,16 @@ export const PROGRAMA: Sesion[] = [
   },
   {
     id: "jeusali",
-    inicio: "13:45",
-    fin: "14:15",
+    inicio: "13:55", // ver la errata 4.
+    fin: "14:25",
     tipo: "testimonio",
     ponenteId: "jeusali",
     tema: { en: "Testimony of healing", es: "Testimonio de sanación" },
   },
   {
     id: "victoria",
-    inicio: "14:15",
-    fin: "14:35",
+    inicio: "14:25",
+    fin: "15:05",
     tipo: "ensenanza",
     ponenteId: "deleon",
     tema: {
@@ -178,13 +225,19 @@ export const PROGRAMA: Sesion[] = [
       es: "Cómo superar el duelo: cuando la sanación no ocurre",
     },
   },
-  { id: "preguntas", inicio: "14:35", fin: "14:50", tipo: "preguntas" },
+  { id: "preguntas", inicio: "15:05", fin: "15:20", tipo: "preguntas" },
   {
     id: "anuncios",
-    inicio: "14:50",
-    fin: "15:00",
+    inicio: "15:20",
+    fin: "15:30",
     tipo: "anuncios",
-    tema: { en: "IKMA International Congress 2027", es: "Congreso Internacional IKMA 2027" },
+    tema: {
+      // El documento los escribe como tres líneas sueltas ("IKMA International
+      // congress 2027 / Website / Associate Membership"). Aquí van en una frase
+      // porque en la página son el tema de un tramo, no una lista de apuntes.
+      en: "IKMA International Congress 2027, the IKMA website and associate membership",
+      es: "El Congreso Internacional IKMA 2027, la web de IKMA y la membresía",
+    },
   },
 ]
 
@@ -210,14 +263,19 @@ export function sesionDePonente(ponenteId: string): Sesion | undefined {
 }
 
 /**
- * Quién más sostiene el día, de la línea de moderación del documento.
+ * Quién más sostiene el día, del bloque de moderación del documento.
  *
  * Son listas y no texto suelto porque los nombres no se traducen: viven aquí y
  * el rótulo ("Moderación", "Traducción"…) sí va en i18n.
+ *
+ * OJO CON LA MODERACIÓN: en la primera versión del documento Gratia Boneza
+ * figuraba como moderadora; en la segunda ya no, solo como la persona de los
+ * anuncios. Se ha quitado de ahí, que es lo que dice la versión nueva.
  */
 export const EQUIPO = {
-  moderator: ["Alexis Lastra", "Amanda Majanen", "Gratia Boneza"],
+  moderator: ["Alexis Lastra", "Amanda Majanen"],
   announcements: ["Gratia Boneza"],
+  media: ["Manuel Carvajal"],
 }
 
 /**

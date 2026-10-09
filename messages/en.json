@@ -19,7 +19,7 @@
         "dateLabel": "Date",
         "timeLabel": "Time",
         "formatLabel": "Format",
-        "time": "9:00 am – 3:00 pm, Coro time (UTC−4)",
+        "time": "9:00 am – 3:30 pm, Coro time (UTC−4)",
         "format": "Online"
       },
       "lineup": {
@@ -46,6 +46,7 @@
         "host": "Moderating",
         "announcements": "Announcements",
         "translation": "Translation",
+        "media": "Media",
         "translationValue": "Dalia Beltran and team",
         "worship": "Worship",
         "worshipValue": "Worship group of La Ciudad de las Águilas church, Coro"
