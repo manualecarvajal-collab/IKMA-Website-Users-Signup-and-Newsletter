@@ -114,7 +114,7 @@
       "errTooManyAttempts": "Too many failed attempts. Request a new code.",
       "confirmadoTitulo": "Registration confirmed",
       "confirmadoTexto": "We sent you an email with your access link. Open it from any device — your phone, your laptop — and you'll go straight in. No need to sign up again.",
-      "confirmadoRecordatorio": "On Saturday, November 14, that same link takes you to the live stream.",
+      "confirmadoRecordatorio": "On Saturday, November 14, that page takes you to the live stream.",
       "confirmadoReenviar": "Resend the link",
       "confirmadoReenviando": "Sending…",
       "confirmadoReenviado": "We've sent it again. If you don't see it, check your spam folder.",

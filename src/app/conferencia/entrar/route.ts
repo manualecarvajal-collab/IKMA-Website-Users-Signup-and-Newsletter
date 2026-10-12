@@ -38,13 +38,12 @@ export async function GET(request: NextRequest) {
   const registro = await findRegistro(await createAdminClient(), email)
   if (registro?.estado !== "confirmado") return volver("sinconfirmar")
 
-  // Se entra al directo, no a la portada: el correo promete "accede a la
-  // conferencia", y el día del evento eso es el marco de la transmisión. Antes
-  // de la fecha, ahí está el contador. El ancla `#directo` la entiende el riel,
-  // que coloca el marco centrado (y con carga completa, que es este caso, la
-  // expansión funciona).
+  // Se entra a la página de PONENTES, que es el sitio que se decidió para esto:
+  // el enlace del correo deja al usuario ahí, con el navegador ya marcado, y
+  // desde esa misma página tiene el botón "Ver la conferencia" para entrar a la
+  // transmisión (que es lo que el correo promete para el día del evento).
   const respuesta = NextResponse.redirect(
-    new URL("/conferencia#directo", request.url)
+    new URL("/conferencia/speakers", request.url)
   )
 
   respuesta.cookies.set(REGISTRO_COOKIE, encodeURIComponent(email), {

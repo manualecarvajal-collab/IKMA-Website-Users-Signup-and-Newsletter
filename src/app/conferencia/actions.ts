@@ -205,8 +205,9 @@ function welcomeEmailHtml(name: string, email: string, base: string): string {
           </a>
         </p>
         <p style="margin:0;font-size:13px;line-height:1.6;color:#777">
-          Keep this email. This same link is your way in, from any device, and on
-          Saturday, November 14 it takes you straight to the live stream.
+          Keep this email. This same link is your way in, from any device: it
+          opens the speakers page, and from there you go to the live stream on
+          Saturday, November 14.
         </p>
       </div>
     </div>`
