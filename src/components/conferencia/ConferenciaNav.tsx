@@ -30,7 +30,18 @@ export default function ConferenciaNav() {
     const onScroll = () => {
       const section = document.getElementById(FORM_SECTION_ID)
       if (!section) return
-      const reachedForm = section.getBoundingClientRect().top <= 4
+
+      // "El formulario ya se está mirando", no "el formulario ya ha llegado
+      // arriba".
+      //
+      // Antes se abría cuando el borde de la sección tocaba el borde de la
+      // ventana (`top <= 4`), y eso llegaba tarde: medido, con la sección a
+      // 100 px de llegar el usuario ya tenía el formulario entero y centrado
+      // delante, y la píldora seguía cerrada; había que bajar un poco más para
+      // que se abriera. Ahora se abre cuando la sección entra en el tercio
+      // inferior de la pantalla, que es cuando el formulario ya está a la vista.
+      const reachedForm =
+        section.getBoundingClientRect().top <= window.innerHeight * 0.35
       setAtForm((prev) => {
         if (reachedForm) return true
         return window.scrollY <= 8 ? false : prev
