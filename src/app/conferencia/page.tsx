@@ -318,13 +318,20 @@ export default async function ConferenciaPage() {
         {/* Paneles 2..7 — una tarjeta por PONENTE, cuadradas y del mismo
             tamaño. Son seis (antes tres): el riel reparte el abanico según
             cuántas haya, así que añadir tarjetas no necesita tocar nada más. */}
-        {PONENTES.map((ponente) => (
-          <GalleryCard
-            key={ponente.id}
-            foto={ponente.foto}
-            nombre={ponente.nombre}
-          />
-        ))}
+        {/* Las fichas de los ponentes solo van para quien está dentro. Tenían
+            sentido como transición hacia el marco del directo —el abanico se
+            abría y el marco entraba—, pero quitado el marco para los demás
+            visitantes se quedan en una galería que se abre hacia ningún sitio, y
+            en el riel cuestan seis tramos de scroll. Quien quiera verlas tiene
+            la página de ponentes, con su foto, su biografía y su horario. */}
+        {yaInscrito &&
+          PONENTES.map((ponente) => (
+            <GalleryCard
+              key={ponente.id}
+              foto={ponente.foto}
+              nombre={ponente.nombre}
+            />
+          ))}
 
         {/* Panel 5 — el directo. NO se pinta para quien no está dentro: una
             transmisión bloqueada no le sirve de nada a quien tiene que

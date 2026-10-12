@@ -149,14 +149,21 @@ export default async function RootLayout({
             </div>
           </ChromeSitio>
           <main className="flex-grow">{children}</main>
+          {/* El aviso de boletín y el pie van separados a propósito: en la
+              landing de la conferencia se calla el primero —es una invitación a
+              otra cosa, en medio de una página que ya tiene su propio cierre— y
+              sí se deja el pie. Ahí se acaba el sitio y el visitante espera
+              encontrarlo, con sus enlaces legales y su contacto. */}
           <ChromeSitio>
             <FooterWrapper>
               <NewsletterCTAVisibility>
                 <NewsletterCTA />
               </NewsletterCTAVisibility>
-              <Footer />
             </FooterWrapper>
           </ChromeSitio>
+          <FooterWrapper>
+            <Footer />
+          </FooterWrapper>
           <ToastContainer />
           <ChromeSitio>
             <CookieConsent />
