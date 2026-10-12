@@ -5,6 +5,7 @@ import {
   REGISTRO_COOKIE_MAX_AGE,
   emailDeEnlace,
   findRegistro,
+  valorCookieInscripcion,
 } from "@/lib/conferencia"
 
 /**
@@ -46,7 +47,7 @@ export async function GET(request: NextRequest) {
     new URL("/conferencia/speakers", request.url)
   )
 
-  respuesta.cookies.set(REGISTRO_COOKIE, encodeURIComponent(email), {
+  respuesta.cookies.set(REGISTRO_COOKIE, valorCookieInscripcion(email), {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",

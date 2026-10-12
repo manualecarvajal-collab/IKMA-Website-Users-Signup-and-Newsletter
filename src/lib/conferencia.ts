@@ -73,6 +73,51 @@ function firmar(payload: string): string {
 }
 
 /**
+ * Valor firmado que se guarda en las cookies de inscripción.
+ *
+ * POR QUÉ NO VALE SOLO EL CORREO. La cookie de acceso la escribe el navegador de
+ * quien la recibe, así que cualquiera puede escribir la suya a mano. Mientras el
+ * valor fue el correo a secas, bastaba con saber el correo de una persona ya
+ * confirmada para entrar como ella: comprobado, el servidor la aceptaba. Ahora el
+ * valor lleva el correo MÁS una firma HMAC con el secreto del servidor, y sin ese
+ * secreto no se puede fabricar.
+ *
+ * La comprobación contra la base se mantiene aparte: una firma válida de un correo
+ * sin confirmar tampoco sirve.
+ *
+ * El correo va codificado para que quepa en una cookie sin caracteres raros, y la
+ * firma es base64url, que no lleva puntos: por eso se puede partir por el ÚLTIMO
+ * punto sin ambigüedad.
+ */
+export function valorCookieInscripcion(email: string): string {
+  const limpio = normalizeEmail(email)
+  return `${encodeURIComponent(limpio)}.${firmar(`inscripcion:${limpio}`)}`
+}
+
+/**
+ * Correo que hay dentro de una cookie de inscripción, o `null` si el valor no
+ * está firmado por nosotros. No consulta la base: eso lo hace quien llama.
+ */
+export function emailDeCookieInscripcion(valor: string): string | null {
+  const corte = valor.lastIndexOf(".")
+  if (corte <= 0) return null
+
+  let email: string
+  try {
+    email = normalizeEmail(decodeURIComponent(valor.slice(0, corte)))
+  } catch {
+    return null // cookie corrupta: se ignora en vez de reventar la página
+  }
+  if (!email) return null
+
+  const a = Buffer.from(valor.slice(corte + 1))
+  const b = Buffer.from(firmar(`inscripcion:${email}`))
+  if (a.length !== b.length || !timingSafeEqual(a, b)) return null
+
+  return email
+}
+
+/**
  * Enlace de acceso que viaja en el correo de bienvenida.
  *
  * Es una llave, no una dirección bonita: lleva el correo y la fecha tope
@@ -212,14 +257,12 @@ export async function emailConfirmado(): Promise<string | null> {
   const raw = (await cookies()).get(REGISTRO_COOKIE)?.value
   if (!raw) return null
 
-  let email: string
-  try {
-    email = normalizeEmail(decodeURIComponent(raw))
-  } catch {
-    return null // cookie corrupta: se ignora en vez de reventar la página
-  }
+  // Sin firma no hay nada que comprobar: es una cookie inventada o de antes de
+  // que existiera la firma, y en los dos casos se trata como si no estuviera.
+  const email = emailDeCookieInscripcion(raw)
   if (!email) return null
 
+  // Y aun con firma válida, manda la base.
   const admin = await createAdminClient()
   const registro = await findRegistro(admin, email)
   return registro?.estado === "confirmado" ? email : null
@@ -236,12 +279,7 @@ export async function emailPendiente(): Promise<string | null> {
   const raw = (await cookies()).get(REGISTRO_PENDIENTE_COOKIE)?.value
   if (!raw) return null
 
-  let email: string
-  try {
-    email = normalizeEmail(decodeURIComponent(raw))
-  } catch {
-    return null
-  }
+  const email = emailDeCookieInscripcion(raw)
   if (!email) return null
 
   const registro = await findRegistro(await createAdminClient(), email)

@@ -239,22 +239,32 @@ confirma y recibe un enlace nuevo. Además, la pantalla de confirmación lleva u
 botón de reenviar con un límite de uno por minuto (cookie `conf_reenvio`,
 `reenviarEnlace` en `actions.ts`).
 
-### La cookie `conf_registro` NO es una credencial
+### La cookie `conf_registro` va FIRMADA
 
 `emailConfirmado()` la valida contra la base antes de dar el estado por bueno, y
 gracias a ella al recargar el servidor ya sabe que este navegador está inscrito y
 **no pinta el formulario**.
 
-**Pero eso solo demuestra que el email está confirmado, NO que quien tiene el
-navegador sea esa persona.** Cualquiera puede escribir esa cookie a mano. Por
-eso:
+Antes su valor era el correo a secas, y eso era un agujero: la cookie la escribe
+el navegador de quien la recibe, así que **bastaba con saber el correo de alguien
+ya confirmado para entrar como esa persona**. Comprobado: el servidor la aceptaba.
+Los correos de la comunidad no son un secreto, así que con la transmisión en
+marcha eso era verla sin inscribirse.
 
-- Sirve **únicamente** para decidir si se renderiza el panel del formulario.
-  Es cosmética.
-- **Jamás debe usarse como permiso de acceso al directo.** La credencial de
-  verdad es el enlace firmado del correo; esta cookie no.
+Ahora el valor es `correo-codificado.FIRMA`, con un HMAC del secreto del servidor
+(el mismo que firma los enlaces, `valorCookieInscripcion` / `emailDeCookieInscripcion`
+en `src/lib/conferencia.ts`). Sin el secreto no se puede fabricar, y la firma se
+compara en tiempo constante. La marca cosmética `conf_pendiente` va firmada igual,
+para que nadie pueda provocar reenvíos de correo a una inscripción ajena.
+
+Se siguen comprobando **las dos cosas**: la firma y que en la base el estado sea
+`confirmado`. Una firma válida de un correo sin confirmar no sirve de nada.
 
 La cookie va `httpOnly` (no la puede leer el JS de la página).
+
+**Nota de migración:** las cookies escritas antes de la firma dejan de valer (se
+tratan como si no estuvieran). Quien tuviera una tiene que abrir otra vez el
+enlace de su correo —o volver a inscribirse— una sola vez.
 
 **Volver desde otro navegador: resuelto por el enlace.** Antes se le mandaba un
 código otra vez y al confirmarlo se le ponía la cookie — funcionaba a medias y

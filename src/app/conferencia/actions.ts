@@ -12,6 +12,7 @@ import {
   REGISTRO_COOKIE,
   REGISTRO_PENDIENTE_COOKIE,
   REGISTRO_PENDIENTE_MAX_AGE,
+  valorCookieInscripcion,
 } from "@/lib/conferencia"
 
 /** Marca de tiempo del último reenvío del enlace, para no encadenar envíos. */
@@ -508,7 +509,7 @@ export async function verificarCodigo(
     // Con ella la landing deja de enseñarle el formulario —que es lo que le
     // hacía pensar que tenía que inscribirse otra vez— y le habla de su enlace.
     // No da acceso a nada: eso lo sigue dando solo el enlace del correo.
-    ;(await cookies()).set(REGISTRO_PENDIENTE_COOKIE, encodeURIComponent(email), {
+    ;(await cookies()).set(REGISTRO_PENDIENTE_COOKIE, valorCookieInscripcion(email), {
       httpOnly: true,
       sameSite: "lax",
       secure: process.env.NODE_ENV === "production",
