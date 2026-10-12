@@ -462,6 +462,12 @@
   color: var(--spk-tinta-suave);
 }
 
+/* El botón que lleva a la transmisión, debajo de la ficha del día. Usa la misma
+   píldora que el resto de la página; sólo necesita separarse de la ficha. */
+.spk-ver {
+  margin-top: clamp(14px, 1.6svh, 20px);
+}
+
 /* ---- 4 · Equipo -------------------------------------------------------- */
 
 .spk-equipo-grid {
@@ -503,21 +509,6 @@
   max-width: 1240px;
   margin: clamp(48px, 7svh, 96px) auto 0;
   padding: 0 clamp(20px, 3vw, 48px);
-}
-
-.spk-cierre-texto {
-  max-width: 46ch;
-  font-size: clamp(1.1rem, 1.6vw, 1.5rem);
-  font-weight: 700;
-  line-height: 1.3;
-  letter-spacing: -0.02em;
-}
-
-.spk-cierre-botones {
-  display: flex;
-  align-items: center;
-  gap: clamp(20px, 2.4vw, 40px);
-  margin-top: clamp(20px, 2.6svh, 32px);
 }
 
 /* Botón con el icono metido en su propio círculo, pegado al relleno derecho:
@@ -801,11 +792,5 @@
   .spk-equipo-item {
     grid-template-columns: minmax(0, 1fr);
     gap: 8px 0;
-  }
-
-  .spk-cierre-botones {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 16px;
   }
 }

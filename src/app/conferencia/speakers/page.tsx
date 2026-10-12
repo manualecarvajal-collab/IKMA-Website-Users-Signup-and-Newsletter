@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { getLocale, getTranslations } from "next-intl/server"
+import BotonDirecto from "@/components/conferencia/BotonDirecto"
 import ConferenciaNav from "@/components/conferencia/ConferenciaNav"
 import FondoBarras from "@/components/conferencia/FondoBarras"
 import Revelar from "@/components/conferencia/Revelar"
@@ -22,6 +23,12 @@ import "./speakers.css"
  * Página anexa a la landing, con la misma identidad (mismo fondo de barras,
  * misma nav flotante, misma paleta) pero con otro trabajo: aquí no se pide la
  * inscripción, se presenta a la gente del día.
+ *
+ * ES LA PÁGINA PARA CONOCER A LOS PONENTES, y se llega a ella desde donde
+ * apetezca: desde el enlace del correo, desde el botón del hero de la landing o
+ * por su dirección. Por eso NO hay ninguna invitación a inscribirse —quien
+ * llega aquí normalmente ya lo está— y lo que hay es el botón para entrar a la
+ * transmisión, debajo de la ficha del día.
  *
  * ARRANCA CON EL TEXTO DE LA CONFERENCIA, entero y en los dos idiomas (los
  * párrafos que mandó IKMA, con la pregunta "¿Qué tienes en tu mano?" sacada a su
@@ -98,6 +105,11 @@ export default async function SpeakersPage() {
 
             {/* Ficha del día: caja dentro de caja, como las tarjetas blancas de
                 la landing (el borde y el radio interior son concéntricos). */}
+            {/* La ficha del día y el botón de la transmisión comparten columna.
+                El botón NO puede ser hijo directo de la retícula: como pieza
+                suelta se coloca en la columna del texto y se estira a lo ancho
+                (inline-flex dentro de una retícula se comporta como bloque). */}
+            <div className="spk-columna-ficha">
             <dl className="spk-ficha">
               <div className="spk-ficha-cuerpo">
                 <div className="spk-dato">
@@ -114,6 +126,12 @@ export default async function SpeakersPage() {
                 </div>
               </div>
             </dl>
+
+            {/* Debajo de la ficha del día: el atajo para entrar a la
+                transmisión. El porqué de la carga completa está en el propio
+                componente; aquí solo va el sitio que ocupa. */}
+            <BotonDirecto label={t("verDirecto")} className="spk-boton spk-ver" />
+            </div>
           </div>
         </section>
 
@@ -265,23 +283,16 @@ export default async function SpeakersPage() {
           </dl>
         </section>
 
-        {/* 5 · Vuelta a la inscripción. */}
+        {/* 5 · Vuelta a la conferencia.
+            Aquí había un botón de "Inscríbete ahora" con su reclamo, y ya no
+            tiene sentido: a esta página se llega DESPUÉS de inscribirse (el
+            formulario manda aquí al confirmar el código, y el correo de
+            bienvenida también trae aquí). Ofrecerle a alguien una inscripción
+            que ya tiene solo le hace dudar. Queda el enlace de vuelta. */}
         <section className="spk-cierre">
-          <p className="spk-cierre-texto">{t("cierre.lead")}</p>
-          <div className="spk-cierre-botones">
-            <Link href="/conferencia#registro" className="spk-boton">
-              {t("cierre.primary")}
-              <span className="spk-boton-icono" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
-                  <path d="M5 12h13" />
-                  <path d="m12 6 6 6-6 6" />
-                </svg>
-              </span>
-            </Link>
-            <Link href="/conferencia" className="spk-volver">
-              {t("cierre.back")}
-            </Link>
-          </div>
+          <Link href="/conferencia" className="spk-volver">
+            {t("cierre.back")}
+          </Link>
         </section>
       </main>
     </>

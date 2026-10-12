@@ -52,10 +52,9 @@
         "worshipValue": "Grupo de adoración de la iglesia La Ciudad de las Águilas, Coro"
       },
       "cierre": {
-        "lead": "Reserva tu lugar y te enviaremos todo lo que necesitas para conectarte.",
-        "primary": "Inscríbete ahora",
         "back": "Volver a la conferencia"
-      }
+      },
+      "verDirecto": "Ver la conferencia"
     },
     "nav": {
       "callUs": "Llámanos"
@@ -112,7 +111,19 @@
       "errExpired": "El código ha caducado. Pide uno nuevo.",
       "errCodeIncomplete": "Escribe los 6 dígitos del código.",
       "errWrongCode": "El código no es correcto. Te quedan {attempts} intentos.",
-      "errTooManyAttempts": "Demasiados intentos fallidos. Pide un código nuevo."
+      "errTooManyAttempts": "Demasiados intentos fallidos. Pide un código nuevo.",
+      "confirmadoTitulo": "Inscripción confirmada",
+      "confirmadoTexto": "Te enviamos un correo con tu enlace de acceso. Ábrelo desde cualquier dispositivo —el celular, la laptop— y entrarás directo: no hace falta que te inscribas otra vez.",
+      "confirmadoRecordatorio": "El sábado 14 de noviembre, ese mismo enlace te lleva al directo.",
+      "confirmadoReenviar": "Reenviar el enlace",
+      "confirmadoReenviando": "Enviando…",
+      "confirmadoReenviado": "Te lo hemos vuelto a enviar. Si no lo ves, mira en la carpeta de spam.",
+      "confirmadoEspera": "Espera un minuto antes de volver a pedirlo.",
+      "confirmadoError": "No pudimos enviarlo. Inténtalo en un momento.",
+      "confirmadoSinCorreo": "El correo no llegó a salir. Pulsa «Reenviar el enlace».",
+      "confirmadoPonentes": "Mientras tanto, conoce a los ponentes",
+      "enlaceNovale": "Ese enlace ya no sirve. Vuelve a inscribirte con tu correo y te mandamos uno nuevo.",
+      "enlaceSinConfirmar": "Ese enlace es de una inscripción sin confirmar. Termina el registro con tu correo y te mandamos tu enlace de acceso."
     },
     "live": {
       "badge": "En directo",

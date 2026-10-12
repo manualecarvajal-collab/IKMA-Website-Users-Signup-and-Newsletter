@@ -5,11 +5,15 @@ import { cookies } from "next/headers"
 import { createAdminClient } from "@/lib/supabase/server"
 import { sendResendEmail } from "@/lib/resend"
 import {
+  baseDelSitio,
+  enlaceAcceso,
   findRegistro,
   normalizeEmail,
   REGISTRO_COOKIE,
-  REGISTRO_COOKIE_MAX_AGE,
 } from "@/lib/conferencia"
+
+/** Marca de tiempo del último reenvío del enlace, para no encadenar envíos. */
+const REENVIO_COOKIE = "conf_reenvio"
 
 /**
  * Inscripción a la conferencia en dos pasos.
@@ -63,7 +67,12 @@ export type RequestCodeResult =
   | { ok: false; reason: "cooldown"; retryInSeconds: number }
 
 export type VerifyCodeResult =
-  | { ok: true }
+  /**
+   * `enlaceEnviado` dice si el correo con la llave llegó a salir. Con la puerta
+   * única, un correo que falla deja al usuario fuera, así que la pantalla tiene
+   * que poder avisarle y ofrecerle reenviar en vez de dejarlo esperando.
+   */
+  | { ok: true; enlaceEnviado?: boolean }
   | { ok: false; reason: "invalid" | "notFound" | "expired" | "tooManyAttempts" | "unknown" }
   | { ok: false; reason: "wrongCode"; attemptsLeft: number }
 
@@ -161,7 +170,7 @@ function codeEmailHtml(name: string, code: string): string {
  * confirmada; mandarlo por correo sería abrir esa puerta por escrito, y
  * reenviar un correo es trivial.
  */
-function welcomeEmailHtml(name: string): string {
+function welcomeEmailHtml(name: string, email: string, base: string): string {
   // El dominio real, escrito a mano y no leído del entorno.
   //
   // Este enlace sale en un correo: si depende de `NEXT_PUBLIC_SITE_URL`, en
@@ -169,8 +178,11 @@ function welcomeEmailHtml(name: string): string {
   // una bandeja de verdad. Fijarlo aquí hace imposible ese fallo en cualquier
   // entorno. `ikmaglobal.com` sin `www` responde 308 hacia esta misma URL, así
   // que esta es la forma canónica.
-  const SITIO = "https://www.ikmaglobal.com"
-  const landing = `${SITIO}/conferencia`
+  // EL BOTÓN ES LA LLAVE. No lleva a una página: lleva a `/conferencia/entrar`
+  // con una credencial firmada, y abrirlo es lo que marca ese navegador como
+  // "dentro". Por eso este correo ya no se puede perder: sin él no se entra
+  // desde un dispositivo nuevo.
+  const acceso = enlaceAcceso(email, base)
   const saludo = name.trim() ? `Hi ${escapeHtml(name.trim())},` : "Hi,"
   return `
     <div style="font-family:Inter,Helvetica,Arial,sans-serif;max-width:520px;margin:0 auto">
@@ -188,13 +200,13 @@ function welcomeEmailHtml(name: string): string {
           <strong>Saturday, November 14, 2026 &middot; 9:00 AM (EST)</strong>
         </p>
         <p style="margin:0 0 28px">
-          <a href="${landing}" style="display:inline-block;background:#0068B6;color:#ffffff;text-decoration:none;font-size:15px;font-weight:700;padding:14px 28px;border-radius:999px">
-            Go to the conference
+          <a href="${acceso}" style="display:inline-block;background:#0068B6;color:#ffffff;text-decoration:none;font-size:15px;font-weight:700;padding:14px 28px;border-radius:999px">
+            Enter the conference
           </a>
         </p>
         <p style="margin:0;font-size:13px;line-height:1.6;color:#777">
-          Keep this email. On the day, the live stream opens from that same page
-          and only for registered attendees.
+          Keep this email. This same link is your way in, from any device, and on
+          Saturday, November 14 it takes you straight to the live stream.
         </p>
       </div>
     </div>`
@@ -466,15 +478,20 @@ export async function verificarCodigo(
     // confirmado y el código consumido, así que si Resend falla se registra y se
     // sigue. Dejar a alguien sin inscripción por un correo sería mucho peor que
     // no recibirlo.
+    // Si este correo no sale, el usuario no tiene llave: se anota para que la
+    // pantalla se lo diga y le ofrezca reenviar, en vez de dejarlo esperando un
+    // correo que no va a llegar.
+    let bienvenidaEnviada = false
     try {
       const { fromName, fromEmail } = await senderConfig(admin)
       const bienvenida = await sendResendEmail({
         to: email,
-        subject: "You're in — IKMA Conference",
-        html: welcomeEmailHtml(registro.nombre ?? ""),
+        subject: "Your access link — IKMA Conference",
+        html: welcomeEmailHtml(registro.nombre ?? "", email, await baseDelSitio()),
         fromName,
         fromEmail,
       })
+      bienvenidaEnviada = bienvenida.ok
       if (!bienvenida.ok) {
         const cuerpo = await bienvenida.text().catch(() => "")
         console.error("[verificarCodigo] bienvenida:", bienvenida.status, cuerpo.slice(0, 300))
@@ -484,19 +501,17 @@ export async function verificarCodigo(
     }
 
 
-    // Se recuerda en el navegador para que al recargar no vuelva a salir el
-    // formulario. Es solo comodidad: el estado que de verdad manda sigue
-    // estando en la base, y al leerlo se vuelve a comprobar (emailConfirmado
-    // nunca se fía de la cookie).
-    ;(await cookies()).set(REGISTRO_COOKIE, encodeURIComponent(email), {
-      httpOnly: true,
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-      path: "/",
-      maxAge: REGISTRO_COOKIE_MAX_AGE,
-    })
-
-    return { ok: true }
+    // AQUÍ NO SE MARCA EL NAVEGADOR, y es a propósito.
+    //
+    // Antes esta línea ponía la cookie y el usuario quedaba dentro sin más. Ahora
+    // la única puerta es el enlace del correo (`/conferencia/entrar`): así hay
+    // UNA sola forma de entrar y es la misma que sirve en el celular y en la
+    // laptop. El código sigue siendo imprescindible, pero para otra cosa:
+    // demuestra que el correo es de quien lo metió.
+    //
+    // La pantalla que ve el usuario después explica justo esto, y trae el botón
+    // de reenviar por si el correo tarda o cae en spam.
+    return { ok: true, enlaceEnviado: bienvenidaEnviada }
   } catch (e) {
     console.error("[verificarCodigo]", e)
     return { ok: false, reason: "unknown" }
@@ -510,6 +525,68 @@ export async function verificarCodigo(
  * primero deja al siguiente viendo "ya estás dentro" y sin manera de
  * registrarse con su propio correo. No borra nada de la base.
  */
+/**
+ * Reenvía el enlace de acceso a quien ya está confirmado.
+ *
+ * Existe porque con esta puerta única el correo es la llave: si se pierde, o cae
+ * en spam, o el envío falló, el usuario se queda fuera en un dispositivo nuevo y
+ * no hay otra forma de entrar. La pantalla de confirmación lo ofrece por eso.
+ *
+ * LÍMITE DE ENVÍOS: uno cada 60 segundos, apuntado en una cookie. Es un límite
+ * de buena fe, no una fortaleza —quien borre la cookie puede pedir otro—, y se
+ * acepta a cambio de no meter una tabla nueva solo para esto. Lo que evita es el
+ * caso real: alguien dándole al botón en bucle.
+ */
+export async function reenviarEnlace(
+  rawEmail: string
+): Promise<{ ok: boolean; motivo?: "noConfirmado" | "espera" | "envio" }> {
+  const email = normalizeEmail(rawEmail)
+  if (!email) return { ok: false, motivo: "noConfirmado" }
+
+  const jar = await cookies()
+  const ultimo = Number(jar.get(REENVIO_COOKIE)?.value ?? 0)
+  if (ultimo && Date.now() - ultimo < 60_000) {
+    return { ok: false, motivo: "espera" }
+  }
+
+  // Solo para inscripciones confirmadas: así este botón no sirve para mandar
+  // correos a direcciones que no han demostrado ser suyas.
+  const admin = await createAdminClient()
+  const registro = await findRegistro(admin, email)
+  if (!registro || registro.estado !== "confirmado") {
+    return { ok: false, motivo: "noConfirmado" }
+  }
+
+  try {
+    const { fromName, fromEmail } = await senderConfig(admin)
+    const envio = await sendResendEmail({
+      to: email,
+      subject: "Your access link — IKMA Conference",
+      html: welcomeEmailHtml(registro.nombre ?? "", email, await baseDelSitio()),
+      fromName,
+      fromEmail,
+    })
+    if (!envio.ok) {
+      const cuerpo = await envio.text().catch(() => "")
+      console.error("[reenviarEnlace]", envio.status, cuerpo.slice(0, 300))
+      return { ok: false, motivo: "envio" }
+    }
+  } catch (e) {
+    console.error("[reenviarEnlace]", e instanceof Error ? e.message : e)
+    return { ok: false, motivo: "envio" }
+  }
+
+  jar.set(REENVIO_COOKIE, String(Date.now()), {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    maxAge: 60 * 60,
+  })
+
+  return { ok: true }
+}
+
 export async function olvidarRegistro(): Promise<void> {
   ;(await cookies()).delete(REGISTRO_COOKIE)
 }

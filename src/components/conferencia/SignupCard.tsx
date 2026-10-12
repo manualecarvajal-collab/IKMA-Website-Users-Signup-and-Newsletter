@@ -1,10 +1,12 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { useRouter } from "next/navigation"
+import Link from "next/link"
+import { useSearchParams } from "next/navigation"
 import { useLocale, useTranslations } from "next-intl"
 import {
   reenviarCodigo,
+  reenviarEnlace,
   solicitarCodigo,
   verificarCodigo,
   type PerfilProfesional,
@@ -12,7 +14,7 @@ import {
 import { countryOptions } from "./countries"
 
 /**
- * Tarjeta de inscripción de la conferencia, en dos pasos.
+ * Tarjeta de inscripción de la conferencia: formulario, código y pantalla final.
  *
  *   Paso 1 `form` — datos del asistente. Al enviar se guarda el registro con
  *     `estado = 'nuevo'` y se le manda un código al correo.
@@ -52,8 +54,8 @@ type Tone = "error" | "info" | "success"
 
 export default function SignupCard() {
   const t = useTranslations("Conferencia.form")
-  const router = useRouter()
   const locale = useLocale()
+  const motivoEnlace = useSearchParams().get("enlace")
 
   const [step, setStep] = useState<Step>("form")
 
@@ -67,6 +69,15 @@ export default function SignupCard() {
   const [busy, setBusy] = useState(false)
   /** El email ya estaba confirmado: está volviendo desde otro navegador. */
   const [vuelve, setVuelve] = useState(false)
+  /**
+   * Confirmado el código, con el dato de si el correo con la llave llegó a
+   * salir. `null` mientras no se ha confirmado.
+   */
+  const [confirmado, setConfirmado] = useState<{ enlaceEnviado: boolean } | null>(
+    null
+  )
+  const [reenvio, setReenvio] = useState<"listo" | "enviando">("listo")
+  const [avisoReenvio, setAvisoReenvio] = useState("")
   const [message, setMessage] = useState("")
   const [tone, setTone] = useState<Tone>("info")
 
@@ -178,11 +189,14 @@ export default function SignupCard() {
     const res = await verificarCodigo(email, code)
 
     if (res.ok) {
-      // Se deja `busy` en true a propósito: el botón queda en "Comprobando…"
-      // hasta que llega el render nuevo, que ya no incluye este formulario.
-      // Si volviera a `false` habría un instante en el que el usuario vería la
-      // casilla del código otra vez, ya confirmada.
-      router.refresh()
+      // El código era correcto, pero AQUÍ NO SE ENTRA. El navegador se marca
+      // abriendo el enlace del correo, no metiendo el código; ver el porqué en
+      // `verificarCodigo` y en `/conferencia/entrar`.
+      //
+      // Así que en vez de navegar a ningún sitio, se cambia a la pantalla que
+      // explica dónde está la llave. `busy` se queda en true: da igual, ese
+      // botón ya no se pinta.
+      setConfirmado({ enlaceEnviado: res.enlaceEnviado !== false })
       return
     }
     setBusy(false)
@@ -255,6 +269,81 @@ export default function SignupCard() {
     </p>
   )
 
+  // ------------------------------------------------- pantalla final
+  //
+  // Se llega aquí con el código ya confirmado. No es una celebración: el usuario
+  // todavía NO está dentro. Entra quien abre el enlace que le llegó al correo, y
+  // por eso la pantalla sirve para tres cosas concretas: decir dónde está la
+  // llave, avisar de que el día del evento ese mismo enlace lleva al directo, y
+  // ofrecer reenviarla — que es la única salida si el correo no llegó o se fue a
+  // spam.
+  if (confirmado) {
+    return (
+      <div className="w-full">
+        <h2 className="text-[20px] font-bold leading-[1.25] text-[#123045] md:text-[24px]">
+          {t("confirmadoTitulo")}
+        </h2>
+        <p className="mt-3 text-[13px] leading-[1.6] text-[#3C4A56]">
+          {t("confirmadoTexto")}
+        </p>
+        <p className="mt-3 text-[13px] font-semibold leading-[1.6] text-[#123045]">
+          {t("confirmadoRecordatorio")}
+        </p>
+
+        {!confirmado.enlaceEnviado && (
+          <p className="mt-4 rounded-[12px] bg-[#FDF3E7] px-4 py-3 text-[12.5px] leading-[1.5] text-[#8A5A1E]">
+            {t("confirmadoSinCorreo")}
+          </p>
+        )}
+
+        <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3">
+          <button
+            type="button"
+            onClick={onReenviarEnlace}
+            disabled={reenvio === "enviando"}
+            className="rounded-full bg-[#11324F] px-6 py-2.5 text-[13px] font-bold text-white transition-colors hover:bg-[#1F4D75] disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#11324F] focus-visible:ring-offset-2"
+          >
+            {reenvio === "enviando" ? t("confirmadoReenviando") : t("confirmadoReenviar")}
+          </button>
+          <Link
+            href="/conferencia/speakers"
+            className="text-[12.5px] font-semibold text-[#11324F] underline-offset-2 hover:underline"
+          >
+            {t("confirmadoPonentes")}
+          </Link>
+        </div>
+
+        {avisoReenvio && (
+          <p className="mt-4 text-[12.5px] leading-[1.5] text-[#8A8A8E]">
+            {avisoReenvio}
+          </p>
+        )}
+      </div>
+    )
+  }
+
+  /**
+   * Reenviar la llave. Es la única salida cuando el correo tarda, se va a spam o
+   * el envío falló, así que los tres finales distintos se dicen con sus palabras:
+   * enviado, espera y error.
+   */
+  async function onReenviarEnlace() {
+    setReenvio("enviando")
+    setAvisoReenvio("")
+    const r = await reenviarEnlace(email)
+    setReenvio("listo")
+
+    if (r.ok) {
+      setAvisoReenvio(t("confirmadoReenviado"))
+      return
+    }
+    if (r.motivo === "espera") {
+      setAvisoReenvio(t("confirmadoEspera"))
+      return
+    }
+    setAvisoReenvio(t("confirmadoError"))
+  }
+
   // ------------------------------------------------------------- paso 2
   if (step === "code") {
     return (
@@ -324,6 +413,15 @@ export default function SignupCard() {
   // ------------------------------------------------------------- paso 1
   return (
     <form onSubmit={onSubmitForm} noValidate className="w-full">
+      {/* Se llega aquí con `?enlace=...` cuando el enlace del correo no vale:
+          caducado, manipulado o de una inscripción sin confirmar. Sin este
+          aviso, el usuario aterrizaría en el formulario sin saber por qué. */}
+      {motivoEnlace && (
+        <p className="mb-5 rounded-[12px] bg-[#FDF3E7] px-4 py-3 text-[12.5px] leading-[1.5] text-[#8A5A1E]">
+          {t(motivoEnlace === "sinconfirmar" ? "enlaceSinConfirmar" : "enlaceNovale")}
+        </p>
+      )}
+
       <h2 className="text-[20px] font-bold leading-[1.25] text-[#123045] md:text-[24px]">
         {t("title")}
       </h2>

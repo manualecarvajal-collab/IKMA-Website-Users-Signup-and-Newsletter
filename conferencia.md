@@ -192,7 +192,7 @@ y este documento:
   sobre la conferencia. Con sesión iniciada no se nota, porque ese camino sí
   lo lleva.
 
-## Inscripción en dos pasos y puerta de acceso
+## Inscripción, verificación y la puerta del correo
 
 **Condición de negocio: sin inscripción confirmada no hay acceso a la
 transmisión.** `estado` no es cosmético, es la puerta.
@@ -206,12 +206,44 @@ cancelado   → baja                                → sin acceso
 Cualquier comprobación de acceso al directo (el enlace de Zoom, un token, lo
 que sea) **debe filtrar por `estado = 'confirmado'`**. Nada más.
 
+### Entrar tiene una sola puerta: el enlace del correo
+
+Para que un navegador pase al estado "inscrito" hay **un único camino**: abrir
+el enlace firmado que llega en el correo de bienvenida
+(`/conferencia/entrar?t=<credencial>`).
+
+- **El código de 6 dígitos ya no marca el navegador.** Sigue siendo
+  imprescindible, pero para otra cosa: demuestra que el buzón es de quien lo
+  metió. Al confirmarlo se manda el correo con la llave.
+- El enlace lleva el correo y una fecha tope firmados con un HMAC
+  (`enlaceAcceso` y `emailDeEnlace`, en `src/lib/conferencia.ts`). Sin el secreto
+  no se puede fabricar uno, y la firma se compara en tiempo constante.
+- La ruta comprueba tres cosas: la firma, la fecha tope (`ENLACE_HASTA`, un mes
+  después de la conferencia) y que en la base la inscripción esté `confirmado`.
+  Si algo falla vuelve a la landing con `?enlace=novale` o
+  `?enlace=sinconfirmar`, y el formulario enseña el motivo.
+- Al pasar, escribe la cookie y manda a `/conferencia#directo`, que es lo que el
+  correo promete: el día del evento, el directo.
+
+**Por qué una sola puerta.** Una cookie no viaja entre navegadores, pero el
+correo lo tiene la persona. Celular y laptop entran igual, sin volver a
+inscribirse, y hay un solo mecanismo que auditar en vez de dos.
+
+**El secreto.** `CONFERENCIA_LINK_SECRET` si está configurado; si no, la clave de
+servicio de Supabase, que ya es un secreto de servidor. Consecuencia, dicha
+clara: rotar esa clave invalida los enlaces ya enviados.
+
+**El correo se manda en CADA confirmación**, no solo la primera. Es lo que hace
+que quien perdió el correo tenga salida: vuelve a pedir código con su email, lo
+confirma y recibe un enlace nuevo. Además, la pantalla de confirmación lleva un
+botón de reenviar con un límite de uno por minuto (cookie `conf_reenvio`,
+`reenviarEnlace` en `actions.ts`).
+
 ### La cookie `conf_registro` NO es una credencial
 
-Al verificar se guarda una cookie `conf_registro` con el email, y
-`emailConfirmado()` la valida contra la base antes de dar el estado por bueno.
-Gracias a ella, al recargar el servidor ya sabe que este navegador está
-inscrito y **no pinta el formulario**.
+`emailConfirmado()` la valida contra la base antes de dar el estado por bueno, y
+gracias a ella al recargar el servidor ya sabe que este navegador está inscrito y
+**no pinta el formulario**.
 
 **Pero eso solo demuestra que el email está confirmado, NO que quien tiene el
 navegador sea esa persona.** Cualquiera puede escribir esa cookie a mano. Por
@@ -219,26 +251,19 @@ eso:
 
 - Sirve **únicamente** para decidir si se renderiza el panel del formulario.
   Es cosmética.
-- **Jamás debe usarse como permiso de acceso al directo.** Si algún día se
-  protege el streaming, hace falta algo que demuestre posesión de verdad —
-  por ejemplo un token firmado enviado tras confirmar, o sesión real —, no
-  esta cookie.
+- **Jamás debe usarse como permiso de acceso al directo.** La credencial de
+  verdad es el enlace firmado del correo; esta cookie no.
 
 La cookie va `httpOnly` (no la puede leer el JS de la página).
 
-**Volver desde otro navegador.** Como la cookie es la única forma de entrar en
-el estado sin formulario, y solo se escribe al verificar un código, un email ya
-confirmado sin cookie se quedaba sin salida: el formulario le aparecía, lo
-rechazaba con "ya estás inscrito" y nunca podía llegar a la cookie. Le pasa a
-cualquiera que cambie de móvil, de navegador o borre las cookies.
+**Volver desde otro navegador: resuelto por el enlace.** Antes se le mandaba un
+código otra vez y al confirmarlo se le ponía la cookie — funcionaba a medias y
+el usuario no sabía que el correo servía para algo. Ahora el correo que ya tiene
+en la bandeja es la entrada, y si lo perdió, la pantalla de confirmación le
+ofrece reenviarlo.
 
-Arreglado así: **un email ya confirmado tampoco se rechaza; se le manda código
-otra vez.** Vuelve a demostrar que el buzón es suyo y entra. El paso 2 le
-muestra otro texto (`codeDescriptionReturning`) porque no se está inscribiendo,
-está volviendo.
-
-**Caso abierto — equipo compartido.** El botón "Register with another email"
-que borraba la cookie vivía en la tarjeta de confirmación, y esa tarjeta ya no
+**Caso abierto — equipo compartido.** El botón "Register with another email" que
+borraba la cookie vivía en la tarjeta de confirmación, y esa tarjeta ya no
 existe porque el panel entero desaparece al inscribirse. Hoy, en un navegador
 compartido, el segundo usuario vería la página sin formulario y sin manera de
 inscribirse: la cookie dura 180 días. La acción `olvidarRegistro()` sigue en

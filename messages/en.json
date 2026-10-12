@@ -52,10 +52,9 @@
         "worshipValue": "Worship group of La Ciudad de las Águilas church, Coro"
       },
       "cierre": {
-        "lead": "Save your place and we'll send you everything you need to join.",
-        "primary": "Sign Up Now",
         "back": "Back to the conference"
-      }
+      },
+      "verDirecto": "Watch the conference"
     },
     "nav": {
       "callUs": "Give us a call"
@@ -112,7 +111,19 @@
       "errExpired": "The code has expired. Request a new one.",
       "errCodeIncomplete": "Enter the 6 digits of the code.",
       "errWrongCode": "That code isn't correct. You have {attempts} attempts left.",
-      "errTooManyAttempts": "Too many failed attempts. Request a new code."
+      "errTooManyAttempts": "Too many failed attempts. Request a new code.",
+      "confirmadoTitulo": "Registration confirmed",
+      "confirmadoTexto": "We sent you an email with your access link. Open it from any device — your phone, your laptop — and you'll go straight in. No need to sign up again.",
+      "confirmadoRecordatorio": "On Saturday, November 14, that same link takes you to the live stream.",
+      "confirmadoReenviar": "Resend the link",
+      "confirmadoReenviando": "Sending…",
+      "confirmadoReenviado": "We've sent it again. If you don't see it, check your spam folder.",
+      "confirmadoEspera": "Wait a minute before asking for it again.",
+      "confirmadoError": "We couldn't send it. Please try again in a moment.",
+      "confirmadoSinCorreo": "The email didn't go out. Tap “Resend the link”.",
+      "confirmadoPonentes": "In the meantime, meet the speakers",
+      "enlaceNovale": "That link no longer works. Sign up again with your email and we'll send you a new one.",
+      "enlaceSinConfirmar": "That link belongs to an unconfirmed registration. Finish signing up with your email and we'll send you your access link."
     },
     "live": {
       "badge": "Live now",

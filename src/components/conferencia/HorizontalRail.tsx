@@ -143,7 +143,15 @@ function place(
   // marco al inicio del contenedor, asomaban por debajo. Ahora se van a la
   // izquierda a medida que el marco entra: la secuencia es formulario → fichas
   // → marco, y cada paso despeja el anterior.
-  const salida = clamp(p - fanSize, 0, 1)
+  // La salida de las fichas empieza en la ÚLTIMA FICHA, no en `fanSize`.
+  //
+  // Coinciden cuando hay formulario (count - 2), pero sin él `fanSize` vale
+  // count - 1, que es el índice del marco: el progreso nunca llega hasta ahí, así
+  // que las fichas no se iban y el marco del directo aparecía rodeado del abanico
+  // entero. Se veía al llegar con el botón "ver la conferencia", que es justo
+  // adonde lleva la inscripción.
+  const ultimaFicha = count - 2
+  const salida = clamp(p - ultimaFicha, 0, 1)
 
   return {
     x: OFFSCREEN * (1 - arrive) + slot * sep * arrive,
@@ -196,6 +204,31 @@ export default function HorizontalRail({
 
   const p = progress * Math.max(0, count - 1)
   const { sep, angulo } = abanico(ancho || 1440)
+
+  /**
+   * Entrar directo al marco de la transmisión.
+   *
+   * El marco es el ÚLTIMO panel del riel, y este riel no avanza con un ancla
+   * normal: el navegador salta a la sección, pero la sección es un tramo de
+   * scroll secuestrado, así que el salto deja al usuario en el PRIMER panel (el
+   * formulario o la primera tarjeta), no en el marco. Por eso, si la URL trae
+   * `#directo`, aquí se coloca el scroll a mano en el punto que deja el marco
+   * centrado: el final del recorrido del riel.
+   *
+   * Depende de `count` a propósito: al confirmarse una inscripción el número de
+   * paneles cambia y con él la altura de la sección, así que el destino se
+   * recalcula.
+   */
+  useEffect(() => {
+    if (window.location.hash !== "#directo") return
+    const section = sectionRef.current
+    if (!section) return
+    const destino =
+      section.getBoundingClientRect().top +
+      window.scrollY +
+      Math.max(0, section.offsetHeight - window.innerHeight)
+    window.scrollTo(0, destino)
+  }, [count])
 
 
   return (

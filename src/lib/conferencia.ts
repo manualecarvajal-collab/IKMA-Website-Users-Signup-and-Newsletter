@@ -1,4 +1,5 @@
-import { cookies } from "next/headers"
+import { createHmac, timingSafeEqual } from "node:crypto"
+import { cookies, headers } from "next/headers"
 import { createAdminClient } from "@/lib/supabase/server"
 import { esEstadoDirecto, type EstadoDirecto } from "@/components/conferencia/directo"
 
@@ -11,16 +12,136 @@ import { esEstadoDirecto, type EstadoDirecto } from "@/components/conferencia/di
  */
 
 /**
- * Cookie que recuerda qué correo quedó confirmado en ESTE navegador.
+ * Cookie que recuerda qué correo está dentro EN ESTE navegador.
  *
- * Existe porque sin ella, al recargar la página el formulario volvía a
- * aparecer aunque el usuario ya estuviera inscrito: el paso del formulario
- * solo vivía en memoria.
+ * SOLO la escribe una cosa: abrir el enlace que llega al correo
+ * (`/conferencia/entrar`). Meter el código de verificación ya NO marca el
+ * navegador —solo confirma que el correo es de quien lo metió—, y es a
+ * propósito: así hay una única forma de entrar y es la misma que funciona en
+ * cualquier dispositivo. Ver `enlaceAcceso`.
  */
 export const REGISTRO_COOKIE = "conf_registro"
 
 /** 180 días: cubre de sobra el ciclo de vida de la landing. */
 export const REGISTRO_COOKIE_MAX_AGE = 60 * 60 * 24 * 180
+
+/**
+ * Hasta cuándo sirve el enlace de acceso.
+ *
+ * Un mes después de la conferencia: el recordatorio de la pantalla de
+ * confirmación dice que "ese mismo enlace" sirve el día del evento, así que no
+ * puede caducar antes. Pasada esta fecha deja de valer, para no dejar una llave
+ * abierta para siempre.
+ */
+export const ENLACE_HASTA = "2026-12-14"
+
+/**
+ * Secreto para firmar los enlaces de acceso.
+ *
+ * Se prefiere uno propio, pero si no está configurado se usa la clave de
+ * servicio de Supabase, que ya es un secreto de servidor: así el enlace funciona
+ * sin obligar a configurar nada nuevo. La consecuencia, dicha clara: rotar esa
+ * clave invalida los enlaces ya enviados.
+ */
+function secretoEnlace(): string {
+  return (
+    process.env.CONFERENCIA_LINK_SECRET ||
+    process.env.SUPABASE_SERVICE_ROLE_KEY ||
+    ""
+  )
+}
+
+function firmar(payload: string): string {
+  return createHmac("sha256", secretoEnlace()).update(payload).digest("base64url")
+}
+
+/**
+ * Enlace de acceso que viaja en el correo de bienvenida.
+ *
+ * Es una llave, no una dirección bonita: lleva el correo y la fecha tope
+ * firmados con un HMAC. Sin el secreto no se puede fabricar uno, y abrirlo es lo
+ * único que marca el navegador como "dentro".
+ *
+ * El dominio va escrito a mano por el mismo motivo que en el correo: en local
+ * `NEXT_PUBLIC_SITE_URL` vale `localhost` y el enlace llegaría roto a una
+ * bandeja de verdad.
+ */
+export function enlaceAcceso(email: string, base: string): string {
+  const payload = `${normalizeEmail(email)}|${ENLACE_HASTA}`
+  const token = `${Buffer.from(payload, "utf8").toString("base64url")}.${firmar(payload)}`
+  return `${base}/conferencia/entrar?t=${token}`
+}
+
+/**
+ * Dónde vive ESTE servidor: la base de los enlaces que se mandan por correo.
+ *
+ * Aquí NO vale fijar el dominio de producción a mano, y el motivo es la firma:
+ * el enlace se firma con el secreto del entorno que lo genera, así que uno hecho
+ * en local no vale en producción —producción no reconoce su firma— ni al revés.
+ * Si el enlace apuntara siempre a producción, probar el flujo en local mandaría
+ * correos con enlaces rotos, que es exactamente lo que pasó: un 404.
+ *
+ * Por eso la base sale de la propia petición: en producción es
+ * `www.ikmaglobal.com` y en local `localhost:3000`, y cada uno valida lo suyo.
+ *
+ * La lista blanca no es decorativa: sin ella, un `Host` manipulado en la petición
+ * haría que el correo llevara un enlace al dominio de otro. Si el host no es de
+ * confianza, se cae al canónico de producción.
+ */
+const HOSTS_DE_CONFIANZA = [
+  "www.ikmaglobal.com",
+  "ikmaglobal.com",
+  "localhost:3000",
+  "127.0.0.1:3000",
+]
+
+export async function baseDelSitio(): Promise<string> {
+  const host = ((await headers()).get("host") ?? "").toLowerCase()
+
+  // Los despliegues de Vercel (preview incluidos) también son de confianza: son
+  // los únicos donde se puede probar el enlace de verdad antes de publicarlo.
+  if (host.endsWith(".vercel.app")) return `https://${host}`
+
+  if (HOSTS_DE_CONFIANZA.includes(host)) {
+    const local = host.startsWith("localhost") || host.startsWith("127.")
+    return `${local ? "http" : "https"}://${host}`
+  }
+
+  return "https://www.ikmaglobal.com"
+}
+
+/**
+ * Correo de un enlace de acceso, o `null` si el enlace no vale.
+ *
+ * Comprueba tres cosas y en este orden: que venga la firma, que la firma sea la
+ * nuestra (comparada en tiempo constante, como el código OTP) y que no hayamos
+ * pasado la fecha tope.
+ */
+export function emailDeEnlace(token: string): string | null {
+  const [cuerpo, firmaRecibida] = token.split(".")
+  if (!cuerpo || !firmaRecibida) return null
+
+  let payload: string
+  try {
+    payload = Buffer.from(cuerpo, "base64url").toString("utf8")
+  } catch {
+    return null
+  }
+
+  const esperada = firmar(payload)
+  const a = Buffer.from(firmaRecibida)
+  const b = Buffer.from(esperada)
+  if (a.length !== b.length || !timingSafeEqual(a, b)) return null
+
+  const [email, hasta] = payload.split("|")
+  if (!email || !hasta) return null
+
+  // Comparar fechas ISO como texto es válido y no arrastra zonas horarias.
+  const hoy = new Date().toISOString().slice(0, 10)
+  if (hoy > hasta) return null
+
+  return normalizeEmail(email)
+}
 
 export function normalizeEmail(email: string): string {
   return email.trim().toLowerCase()
