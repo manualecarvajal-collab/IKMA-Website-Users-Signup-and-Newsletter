@@ -80,11 +80,12 @@ function place(
   p: number,
   count: number,
   hasForm: boolean,
+  hasVideo: boolean,
   sep: number,
   angulo: number
 ): Placement {
   const isForm = hasForm && i === 0
-  const isVideo = i === count - 1
+  const isVideo = hasVideo && i === count - 1
   const t = p - i // 0 → este panel está centrado
 
   if (isForm) {
@@ -129,7 +130,8 @@ function place(
   // todavía fuera de pantalla y no se vería nada.
   const shift = hasForm ? 0 : 1
   const cardIndex = hasForm ? i - 1 : i
-  const fanSize = count - (hasForm ? 2 : 1)
+  // Cuántas fichas hay: todas menos el formulario (si está) y el marco (si está).
+  const fanSize = count - (hasForm ? 1 : 0) - (hasVideo ? 1 : 0)
   const arrive = clamp(p - cardIndex + shift, 0, 1)
   const settled = clamp(p + shift, 0, fanSize)
   const slot = cardIndex - (settled - 1) / 2
@@ -150,8 +152,9 @@ function place(
   // que las fichas no se iban y el marco del directo aparecía rodeado del abanico
   // entero. Se veía al llegar con el botón "ver la conferencia", que es justo
   // adonde lleva la inscripción.
-  const ultimaFicha = count - 2
-  const salida = clamp(p - ultimaFicha, 0, 1)
+  const ultimaFicha = count - 1 - (hasVideo ? 1 : 0)
+  // Sin marco no hay nada a lo que despejar el paso: las fichas se quedan.
+  const salida = hasVideo ? clamp(p - ultimaFicha, 0, 1) : 0
 
   return {
     x: OFFSCREEN * (1 - arrive) + slot * sep * arrive,
@@ -166,6 +169,7 @@ export default function HorizontalRail({
   children,
   id,
   hasForm = true,
+  hasVideo = true,
 }: {
   children: ReactNode
   id?: string
@@ -174,6 +178,14 @@ export default function HorizontalRail({
    * Ver `place()`: sin este dato el abanico se descoloca.
    */
   hasForm?: boolean
+  /**
+   * `false` cuando NO hay marco del directo entre los hijos. Sin este dato el
+   * riel trataría a la última ficha como si fuera el marco: la haría subir desde
+   * abajo, la expandiría a horizontal y despejaría el abanico para un panel que
+   * no existe. Es lo que pasa cuando el visitante no está inscrito: el marco no
+   * se pinta, porque no tiene sentido enseñarle una transmisión que no puede ver.
+   */
+  hasVideo?: boolean
 }) {
   const panels = Children.toArray(children)
   const count = panels.length
@@ -200,7 +212,7 @@ export default function HorizontalRail({
     // `count` en las dependencias a propósito: al confirmarse la inscripción el
     // número de paneles cambia (5 → 4) y con él la altura de la sección, así que
     // hay que recalcular el progreso sin esperar a que el usuario haga scroll.
-  }, [count])
+  }, [count, hasVideo])
 
   const p = progress * Math.max(0, count - 1)
   const { sep, angulo } = abanico(ancho || 1440)
@@ -220,6 +232,7 @@ export default function HorizontalRail({
    * recalcula.
    */
   useEffect(() => {
+    if (!hasVideo) return
     if (window.location.hash !== "#directo") return
     const section = sectionRef.current
     if (!section) return
@@ -242,7 +255,15 @@ export default function HorizontalRail({
     >
       <div className="conf-pista sticky top-0 h-svh overflow-hidden">
         {panels.map((panel, i) => {
-          const { x, y, rot, opacity, ty } = place(i, p, count, hasForm, sep, angulo)
+          const { x, y, rot, opacity, ty } = place(
+            i,
+            p,
+            count,
+            hasForm,
+            hasVideo,
+            sep,
+            angulo
+          )
           return (
             <div
               key={i}

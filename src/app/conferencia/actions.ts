@@ -10,6 +10,8 @@ import {
   findRegistro,
   normalizeEmail,
   REGISTRO_COOKIE,
+  REGISTRO_PENDIENTE_COOKIE,
+  REGISTRO_PENDIENTE_MAX_AGE,
 } from "@/lib/conferencia"
 
 /** Marca de tiempo del último reenvío del enlace, para no encadenar envíos. */
@@ -502,7 +504,19 @@ export async function verificarCodigo(
     }
 
 
-    // AQUÍ NO SE MARCA EL NAVEGADOR, y es a propósito.
+    // Marca cosmética: este navegador confirmó el código, pero NO está dentro.
+    // Con ella la landing deja de enseñarle el formulario —que es lo que le
+    // hacía pensar que tenía que inscribirse otra vez— y le habla de su enlace.
+    // No da acceso a nada: eso lo sigue dando solo el enlace del correo.
+    ;(await cookies()).set(REGISTRO_PENDIENTE_COOKIE, encodeURIComponent(email), {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      maxAge: REGISTRO_PENDIENTE_MAX_AGE,
+    })
+
+    // AQUÍ NO SE MARCA EL NAVEGADOR COMO "DENTRO", y es a propósito.
     //
     // Antes esta línea ponía la cookie y el usuario quedaba dentro sin más. Ahora
     // la única puerta es el enlace del correo (`/conferencia/entrar`): así hay
@@ -590,4 +604,5 @@ export async function reenviarEnlace(
 
 export async function olvidarRegistro(): Promise<void> {
   ;(await cookies()).delete(REGISTRO_COOKIE)
+  ;(await cookies()).delete(REGISTRO_PENDIENTE_COOKIE)
 }

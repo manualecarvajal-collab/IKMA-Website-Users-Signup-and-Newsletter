@@ -11,6 +11,7 @@ import {
   verificarCodigo,
   type PerfilProfesional,
 } from "@/app/conferencia/actions"
+import ModalBienvenida from "./ModalBienvenida"
 import { countryOptions } from "./countries"
 
 /**
@@ -52,7 +53,16 @@ const PERFILES: PerfilProfesional[] = [
 type Step = "form" | "code"
 type Tone = "error" | "info" | "success"
 
-export default function SignupCard() {
+export default function SignupCard({
+  pendiente,
+}: {
+  /**
+   * Email de una inscripción ya confirmada en ESTE navegador que todavía no ha
+   * abierto el enlace del correo (marca cosmética). Cuando llega, la tarjeta no
+   * enseña el formulario: enseña dónde está la llave.
+   */
+  pendiente?: string | null
+} = {}) {
   const t = useTranslations("Conferencia.form")
   const locale = useLocale()
   const motivoEnlace = useSearchParams().get("enlace")
@@ -76,6 +86,7 @@ export default function SignupCard() {
   const [confirmado, setConfirmado] = useState<{ enlaceEnviado: boolean } | null>(
     null
   )
+  const [modal, setModal] = useState(false)
   const [reenvio, setReenvio] = useState<"listo" | "enviando">("listo")
   const [avisoReenvio, setAvisoReenvio] = useState("")
   const [message, setMessage] = useState("")
@@ -197,6 +208,10 @@ export default function SignupCard() {
       // explica dónde está la llave. `busy` se queda en true: da igual, ese
       // botón ya no se pinta.
       setConfirmado({ enlaceEnviado: res.enlaceEnviado !== false })
+      // Y el aviso de bienvenida, una sola vez, justo aquí: es el único momento
+      // en el que el usuario necesita que le digan que su paso siguiente está en
+      // el correo y no en esta pantalla.
+      setModal(true)
       return
     }
     setBusy(false)
@@ -277,8 +292,18 @@ export default function SignupCard() {
   // llave, avisar de que el día del evento ese mismo enlace lleva al directo, y
   // ofrecer reenviarla — que es la única salida si el correo no llegó o se fue a
   // spam.
-  if (confirmado) {
+  // La pantalla del enlace se enseña en los dos casos: recién confirmado y
+  // confirmado que vuelve sin haber abierto el enlace. En ambos lo que necesita
+  // es el correo, no volver a inscribirse.
+  if (confirmado || pendiente) {
     return (
+      <>
+        {modal && (
+          <ModalBienvenida
+            email={email || pendiente || ""}
+            onCerrar={() => setModal(false)}
+          />
+        )}
       <div className="w-full">
         <h2 className="text-[20px] font-bold leading-[1.25] text-[#123045] md:text-[24px]">
           {t("confirmadoTitulo")}
@@ -290,7 +315,7 @@ export default function SignupCard() {
           {t("confirmadoRecordatorio")}
         </p>
 
-        {!confirmado.enlaceEnviado && (
+        {confirmado?.enlaceEnviado === false && (
           <p className="mt-4 rounded-[12px] bg-[#FDF3E7] px-4 py-3 text-[12.5px] leading-[1.5] text-[#8A5A1E]">
             {t("confirmadoSinCorreo")}
           </p>
@@ -319,6 +344,7 @@ export default function SignupCard() {
           </p>
         )}
       </div>
+      </>
     )
   }
 

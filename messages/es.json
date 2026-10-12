@@ -1,7 +1,6 @@
 {
   "Conferencia": {
     "speakers": {
-      "cardCta": "Conoce a nuestros speakers",
       "meta": {
         "title": "Ponentes — Conferencia IKMA, 14 de noviembre de 2026",
         "description": "Conoce a los ponentes de la Conferencia IKMA Forward y consulta el programa completo de la jornada, sesión por sesión."
@@ -71,7 +70,11 @@
       "days": "{count, plural, one {día} other {días}}",
       "hours": "{count, plural, one {hora} other {horas}}",
       "minutes": "{count, plural, one {minuto} other {minutos}}",
-      "seconds": "{count, plural, one {segundo} other {segundos}}"
+      "seconds": "{count, plural, one {segundo} other {segundos}}",
+      "descriptionDentro": "Tu lugar está reservado. El día de la conferencia entras desde el enlace que te enviamos al correo, desde cualquier dispositivo.",
+      "ctaReenviar": "Reenviar enlace",
+      "ctaPonentes": "Conoce a nuestros ponentes",
+      "scrollConferencia": "Haz scroll para ver la conferencia"
     },
     "form": {
       "title": "Reserva tu lugar en la Conferencia IKMA",
@@ -92,7 +95,6 @@
       "submit": "Inscribirme ahora",
       "sending": "Enviando…",
       "success": "¡Listo! Tu inscripción quedó registrada.",
-      "doneCta": "Únete a la conferencia",
       "error": "No pudimos completar tu inscripción. Inténtalo de nuevo.",
       "consentRequired": "Debes aceptar para continuar.",
       "codeTitle": "Confirma tu correo",
@@ -123,7 +125,14 @@
       "confirmadoSinCorreo": "El correo no llegó a salir. Pulsa «Reenviar el enlace».",
       "confirmadoPonentes": "Mientras tanto, conoce a los ponentes",
       "enlaceNovale": "Ese enlace ya no sirve. Vuelve a inscribirte con tu correo y te mandamos uno nuevo.",
-      "enlaceSinConfirmar": "Ese enlace es de una inscripción sin confirmar. Termina el registro con tu correo y te mandamos tu enlace de acceso."
+      "enlaceSinConfirmar": "Ese enlace es de una inscripción sin confirmar. Termina el registro con tu correo y te mandamos tu enlace de acceso.",
+      "bienvenidaTitulo": "¡Bienvenido a IKMA Forward!",
+      "bienvenidaSaludo": "Tu inscripción está confirmada",
+      "bienvenidaTexto": "Nos alegra tenerte con nosotros. Que disfrutes la conferencia: será una jornada de enseñanza, testimonio y medicina.",
+      "bienvenidaRecordatorio": "Puedes entrar desde cualquier dispositivo —el celular, la laptop— con el enlace que te enviamos al correo. Guárdalo: el día de la conferencia es tu entrada.",
+      "bienvenidaCta": "Entendido",
+      "bienvenidaReenviar": "¿No te llegó? Reenviar el enlace",
+      "bienvenidaCerrar": "Cerrar"
     },
     "live": {
       "badge": "En directo",

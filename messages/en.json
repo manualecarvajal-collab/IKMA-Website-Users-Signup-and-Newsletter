@@ -1,7 +1,6 @@
 {
   "Conferencia": {
     "speakers": {
-      "cardCta": "Meet our speakers",
       "meta": {
         "title": "Speakers — IKMA Conference, November 14, 2026",
         "description": "Meet the speakers of the IKMA Forward Conference and see the full running order of the day, session by session."
@@ -71,7 +70,11 @@
       "days": "{count, plural, one {day} other {days}}",
       "hours": "{count, plural, one {hour} other {hours}}",
       "minutes": "{count, plural, one {minute} other {minutes}}",
-      "seconds": "{count, plural, one {second} other {seconds}}"
+      "seconds": "{count, plural, one {second} other {seconds}}",
+      "descriptionDentro": "Your place is reserved. On the day, you get in from the link we sent to your email — from any device.",
+      "ctaReenviar": "Resend link",
+      "ctaPonentes": "Meet our speakers",
+      "scrollConferencia": "Scroll down to see the conference"
     },
     "form": {
       "title": "Save your place at the IKMA Conference",
@@ -92,7 +95,6 @@
       "submit": "Sign Up Now",
       "sending": "Sending…",
       "success": "You're in! Your registration is confirmed.",
-      "doneCta": "Join the conference",
       "error": "We couldn't complete your registration. Please try again.",
       "consentRequired": "Please accept to continue.",
       "codeTitle": "Confirm your email",
@@ -123,7 +125,14 @@
       "confirmadoSinCorreo": "The email didn't go out. Tap “Resend the link”.",
       "confirmadoPonentes": "In the meantime, meet the speakers",
       "enlaceNovale": "That link no longer works. Sign up again with your email and we'll send you a new one.",
-      "enlaceSinConfirmar": "That link belongs to an unconfirmed registration. Finish signing up with your email and we'll send you your access link."
+      "enlaceSinConfirmar": "That link belongs to an unconfirmed registration. Finish signing up with your email and we'll send you your access link.",
+      "bienvenidaTitulo": "Welcome to IKMA Forward!",
+      "bienvenidaSaludo": "Your registration is confirmed",
+      "bienvenidaTexto": "We are glad to have you with us. Enjoy the conference — a day of teaching, testimony and medicine.",
+      "bienvenidaRecordatorio": "You can get in from any device — your phone, your laptop — with the link we sent to your email. Keep it: on the day, that link is your way in.",
+      "bienvenidaCta": "Got it",
+      "bienvenidaReenviar": "Didn't get it? Resend the link",
+      "bienvenidaCerrar": "Close"
     },
     "live": {
       "badge": "Live now",

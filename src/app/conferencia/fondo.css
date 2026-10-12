@@ -108,3 +108,53 @@
     transition: opacity 200ms linear;
   }
 }
+
+/* ---- Flecha de "haz scroll" y entrada del aviso de bienvenida -------------
+ *
+ * La flecha es el único movimiento que se ha añadido a la landing, y solo lo ve
+ * quien ya está dentro. Un solo gesto, lento y con retorno: el chevron baja y
+ * vuelve. Nada más se mueve para pedir atención.
+ */
+@keyframes conf-flecha {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translateY(6px);
+    opacity: 1;
+  }
+}
+
+.conf-flecha {
+  animation: conf-flecha 2.4s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+
+/* El aviso de bienvenida: el velo funde y la tarjeta sube un poco. */
+@keyframes conf-velo {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes conf-aviso {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .conf-flecha {
+    animation: none;
+    opacity: 0.8;
+  }
+}

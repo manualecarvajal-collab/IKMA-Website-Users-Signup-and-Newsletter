@@ -26,6 +26,23 @@ export const REGISTRO_COOKIE = "conf_registro"
 export const REGISTRO_COOKIE_MAX_AGE = 60 * 60 * 24 * 180
 
 /**
+ * Cookie que recuerda que ESTE navegador confirmó el código, aunque todavía no
+ * haya abierto el enlace del correo.
+ *
+ * Es COSMÉTICA y no da acceso a nada: sirve para que la landing no le vuelva a
+ * enseñar el formulario a quien acaba de inscribirse —que es justo lo que hacía
+ * pensar que había que registrarse otra vez— y para saber que a esa persona hay
+ * que hablarle de su enlace, no de inscribirse.
+ *
+ * El acceso al directo sigue dependiendo SOLO de `REGISTRO_COOKIE` (el enlace) y
+ * de que en la base el estado sea `confirmado`.
+ */
+export const REGISTRO_PENDIENTE_COOKIE = "conf_pendiente"
+
+/** 30 días: una vez abierto el enlace, esta ya no hace falta. */
+export const REGISTRO_PENDIENTE_MAX_AGE = 60 * 60 * 24 * 30
+
+/**
  * Hasta cuándo sirve el enlace de acceso.
  *
  * Un mes después de la conferencia: el recordatorio de la pantalla de
@@ -205,6 +222,29 @@ export async function emailConfirmado(): Promise<string | null> {
 
   const admin = await createAdminClient()
   const registro = await findRegistro(admin, email)
+  return registro?.estado === "confirmado" ? email : null
+}
+
+/**
+ * Email confirmado en este navegador pero SIN haber abierto todavía el enlace
+ * del correo, o `null`.
+ *
+ * Igual que `emailConfirmado`, no se fía de la cookie: comprueba la base. Se
+ * diferencia de ella en que esta NO significa "puede ver la transmisión".
+ */
+export async function emailPendiente(): Promise<string | null> {
+  const raw = (await cookies()).get(REGISTRO_PENDIENTE_COOKIE)?.value
+  if (!raw) return null
+
+  let email: string
+  try {
+    email = normalizeEmail(decodeURIComponent(raw))
+  } catch {
+    return null
+  }
+  if (!email) return null
+
+  const registro = await findRegistro(await createAdminClient(), email)
   return registro?.estado === "confirmado" ? email : null
 }
 
