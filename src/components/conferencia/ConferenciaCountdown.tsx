@@ -53,11 +53,11 @@ const STYLES: Record<
   },
   panel: {
     wrapper:
-      "flex flex-wrap items-start justify-center gap-x-8 gap-y-5 md:gap-x-16",
+      "flex flex-wrap items-start justify-center gap-x-4 gap-y-5 sm:gap-x-8 md:gap-x-16",
     value:
-      "text-[clamp(2.25rem,6vw,5.5rem)] font-bold leading-none text-[#0068B6] tabular-nums",
+      "text-[clamp(1.25rem,5.2vw,5.5rem)] font-bold leading-none text-[#0068B6] tabular-nums",
     label:
-      "mt-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#0068B6]/70 md:text-[14px] md:tracking-[0.2em]",
+      "mt-3 text-[9px] font-semibold uppercase tracking-[0.1em] text-[#0068B6]/70 sm:text-[11px] md:text-[14px] md:tracking-[0.2em]",
     sep: "",
   },
 }

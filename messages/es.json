@@ -18,7 +18,7 @@
         "dateLabel": "Fecha",
         "timeLabel": "Hora",
         "formatLabel": "Formato",
-        "time": "9:00 a. m. – 3:30 p. m., hora de Coro (UTC−4)",
+        "time": "9:00 a. m. – 3:30 p. m. (EST)",
         "format": "En línea"
       },
       "lineup": {
@@ -26,7 +26,7 @@
       },
       "programme": {
         "title": "El día, sesión por sesión",
-        "tz": "Todas las horas en hora de Coro (UTC−4)."
+        "tz": "Todas las horas en EST."
       },
       "tipos": {
         "bienvenida": "Bienvenida",

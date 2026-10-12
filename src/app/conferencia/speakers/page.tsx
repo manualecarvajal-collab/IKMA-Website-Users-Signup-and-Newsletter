@@ -80,8 +80,6 @@ export default async function SpeakersPage() {
             lo que da sentido a la página: los ponentes son la respuesta. */}
         <section className="spk-hero">
           <p className="spk-eyebrow">{t("hero.eyebrow")}</p>
-          <h1 className="spk-h1">{t("hero.title")}</h1>
-
           <div className="spk-hero-columnas">
             {/* El texto de la conferencia, entero y en su orden. No es un
                 resumen: son los párrafos que mandó IKMA, y la pregunta va
@@ -140,6 +138,11 @@ export default async function SpeakersPage() {
             una regla continua y el nombre va debajo, como el pie de una foto de
             grupo. Las tres columnas de móvil son caída, no diseño. */}
         <section className="spk-tira-seccion" aria-label={t("lineup.title")}>
+          {/* El titular va AQUÍ, justo encima de los ponentes, y no al principio
+              de la página. Lo pidió IKMA: primero lo que es la conferencia —la
+              descripción—, después el titular presentando a quien viene, y luego
+              el día. Estaba al revés. */}
+          <h1 className="spk-h1 spk-titulo-ponentes">{t("hero.title")}</h1>
           <div className="spk-tira">
             {CON_FOTO.map((ponente) => (
               <a

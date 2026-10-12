@@ -12,6 +12,13 @@ import type { ReactNode } from "react"
  * La última tarjeta lleva `expandToVideo`: cuando queda **centrada en la
  * pantalla** crece de cuadrada a horizontal (16:9) para meter el vídeo.
  *
+ * EL MARCO ES 16:9 EN MÓVIL Y 16:9 TAMBIÉN EN ESCRITORIO, pero por caminos
+ * distintos: en escritorio el alto y el ancho van fijos (1238×666 en una ventana
+ * de 1440, que ya es 16:9), y en móvil se pide la proporción directamente
+ * (`aspect-[16/9]`), porque con un alto fijo la tarjeta salía casi cuadrada
+ * —338×380 en un móvil de 393— y el marco del directo tiene que leerse
+ * horizontal, que es como llega la señal.
+ *
  * La detección de "centrada" se hace con un `rootMargin` lateral negativo, que
  * deja una franja estrecha en el centro horizontal de la ventana: la tarjeta
  * solo se considera activa cuando su centro cae dentro de esa franja. Así no
@@ -61,7 +68,7 @@ export default function GalleryCard({
         expandToVideo ? "conf-directo" : "",
         "transition-[width,height] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none",
         expanded
-          ? "h-[min(380px,72svh)] w-[86vw] md:h-[min(720px,74svh)] md:w-[min(1280px,86vw)]"
+          ? "aspect-[16/9] h-auto w-[86vw] md:aspect-auto md:h-[min(720px,74svh)] md:w-[min(1280px,86vw)]"
           : "h-[240px] w-[240px] md:h-[460px] md:w-[460px]",
       ].join(" ")}
     >

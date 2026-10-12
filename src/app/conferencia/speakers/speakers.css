@@ -794,3 +794,9 @@
     gap: 8px 0;
   }
 }
+
+/* El titular de la página, que ahora vive encima de la tira de ponentes y no al
+   principio: necesita aire debajo para separarse de los retratos. */
+.spk-titulo-ponentes {
+  margin-bottom: clamp(22px, 3svh, 40px);
+}

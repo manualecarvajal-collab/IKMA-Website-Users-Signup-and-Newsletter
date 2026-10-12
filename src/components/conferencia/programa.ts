@@ -47,12 +47,17 @@ import type { Ponente } from "./ponentes"
  * entre lo que rotula y lo que marca: Amanda Majanen (30 rotulados, 35 en el
  * reloj) y las preguntas (10 rotulados, 15 en el reloj).
  *
- * LAS HORAS VAN EN HORA DE CORO (UTC−4). El documento titula la columna
- * "EDT - Coro" y arriba escribe "9 am EST – 3:30 pm EST". EST es UTC−5: no puede
- * ser lo mismo que Coro. Manda la tabla horaria, que es la que cuadra con
- * `EVENT_DATE` (09:00 a 09:00−04:00), y por eso la página escribe "hora de Coro
- * (UTC−4)". Su cabecera de la tabla dice "9:00 am - 3:10 PM EST", que tampoco
- * puede ser: la propia tabla acaba a las 15:30.
+ * EL RÓTULO HORARIO DICE EST, Y ES A PETICIÓN DE IKMA.
+ *
+ * Conviene saber que no es exacto: la tabla del documento va en hora de Coro
+ * (UTC−4) —así titula su columna, "EDT - Coro"— y EST es UTC−5, una hora menos.
+ * IKMA pidió expresamente rotular todo en EST ("Change all to time in EST") y sus
+ * correos también dicen EST, así que la página lo escribe así para no
+ * contradecirlos. Si algún día prefieren que sea exacto, el rótulo correcto para
+ * esta tabla es "hora de Coro (UTC−4)".
+ *
+ * Las horas que se imprimen son las del documento, sin convertir nada: quien lea
+ * "12:55" lee lo que dice la tabla de IKMA.
  *
  * POR QUÉ NO SE IMPRIME NINGUNA DURACIÓN EN MINUTOS. Porque el documento se
  * contradice en dos tramos (Amanda y las preguntas, arriba): rotula 30 y 10
@@ -236,7 +241,7 @@ export const PROGRAMA: Sesion[] = [
       // congress 2027 / Website / Associate Membership"). Aquí van en una frase
       // porque en la página son el tema de un tramo, no una lista de apuntes.
       en: "IKMA International Congress 2027, the IKMA website and associate membership",
-      es: "El Congreso Internacional IKMA 2027, la web de IKMA y la membresía",
+      es: "El Congreso Internacional IKMA 2027, la web de IKMA y la membresía asociada",
     },
   },
 ]

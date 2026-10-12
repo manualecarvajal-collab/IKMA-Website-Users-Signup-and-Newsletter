@@ -68,6 +68,11 @@
     transform: none !important;
     opacity: 1 !important;
     pointer-events: auto !important;
+    /* La píldora de la conferencia va FLOTANDO arriba, así que sin este hueco el
+       primer panel empezaba debajo de ella y su título quedaba tapado: se veía
+       "Reserva tu lugar…" a medias. El hueco va aquí y no en el relleno de la
+       pista porque ahí ya se probó y ensuciaba el fondo. */
+    margin-top: 76px;
   }
 
   /* Las fichas de ponente NO van en móvil. El abanico solo tiene sentido con el
@@ -76,15 +81,17 @@
   .conf-panel:has(.conf-ficha) {
       display: none;
     }
-  /* El marco del directo tampoco va en el flujo de móvil: ahí la transmisión se
-     abre en un pop-up desde el botón del hero. Se oculta el ENVOLTORIO —no la
-     tarjeta— para que su `gap` no siga ocupando espacio.
-     Se busca por la clase de la tarjeta y NO con `:last-child`: así no depende
-     de qué sea el último hijo del riel, que es justo lo que se rompió cuando el
-     riel tuvo un pie (el marco se colaba en el flujo del móvil). */
-  .conf-panel:has(.conf-directo) {
-    display: none;
-  }
+  /* El marco del directo SÍ va ahora en el flujo de móvil.
+   *
+   * Antes se ocultaba aquí porque la transmisión se abría en un pop-up desde el
+   * botón del hero. Al cambiar los botones del hero —"Reenviar enlace" y "Conoce
+   * a nuestros ponentes"— ese pop-up desapareció, y con él la única forma de
+   * llegar al directo desde el celular. Ahora el marco es un bloque más de la
+   * columna, después de la tarjeta, y la flecha de "haz scroll para ver la
+   * conferencia" dice la verdad en móvil: está ahí abajo.
+   *
+   * Sigue sin pintarse para quien no está dentro: eso se decide en el servidor
+   * (`hasVideo`), no aquí. */
   /* Entrada del formulario al llegar a su sección. Solo en móvil: en escritorio
      el riel ya anima la entrada de sus paneles y dos animaciones se pelearían. */
   .conf-revelar {
