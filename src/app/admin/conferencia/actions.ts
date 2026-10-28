@@ -4,7 +4,7 @@ import { createAdminClient, createClient } from "@/lib/supabase/server"
 import { sendResendEmail } from "@/lib/resend"
 import { getSenderConfig } from "@/lib/conferencia"
 import { componerCorreo, type PlantillaId } from "@/lib/conferencia-plantilla"
-import { esEstadoDirecto, type EstadoDirecto } from "@/components/conferencia/directo"
+import { getAjustes } from "@/lib/conferencia-admin"
 
 /**
  * Acciones del panel de la conferencia.
@@ -129,9 +129,13 @@ export async function enviarInvitacion(
   const { fromName, fromEmail } = await getSenderConfig(admin)
   const envios = () => admin.schema("conferencia").from("envios")
 
+  // El enlace de la reunión solo lo usa la plantilla de la víspera, y se lee una
+  // vez para todo el lote: es el mismo para todos.
+  const { urlEnlace } = (await getAjustes(admin)).data
+
   for (const r of destinatarios) {
     const email = r.email ?? ""
-    const html = componerCorreo(plantilla, cuerpo, { nombre: r.nombre ?? "", email })
+    const html = componerCorreo(plantilla, cuerpo, { nombre: r.nombre ?? "", email, enlace: urlEnlace })
 
     const res = await sendResendEmail({ to: email, subject: asunto, html, fromName, fromEmail })
 
@@ -174,27 +178,37 @@ export async function enviarInvitacion(
 export async function enviarPrueba(
   asunto: string,
   cuerpo: string,
-  plantilla: PlantillaId
+  plantilla: PlantillaId,
+  destino?: string,
+  enlace?: string
 ): Promise<{ ok: boolean; error?: string; destino?: string }> {
   const guard = await requireAdmin()
   if (!guard.ok) return { ok: false, error: guard.error }
-  if (!guard.email) return { ok: false, error: "No se pudo determinar tu correo" }
+
+  // Sin destino, la prueba va al correo de quien está logueado: así el botón
+  // nunca puede escribir a un tercero por accidente. Con destino, se comprueba
+  // que sea un correo con forma de correo —es texto libre de un formulario—.
+  const para = (destino ?? "").trim() || guard.email
+  if (!para) return { ok: false, error: "No se pudo determinar el correo de destino" }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(para)) {
+    return { ok: false, error: `Correo de destino no válido: ${para}` }
+  }
 
   if (!asunto.trim() || !cuerpo.trim()) return { ok: false, error: "Asunto y cuerpo son obligatorios" }
 
   const admin = await createAdminClient()
   const { fromName, fromEmail } = await getSenderConfig(admin)
-  const html = componerCorreo(plantilla, cuerpo, { nombre: "Prueba", email: guard.email })
+  const html = componerCorreo(plantilla, cuerpo, { nombre: "Prueba", email: para, enlace })
 
   const res = await sendResendEmail({
-    to: guard.email,
+    to: para,
     subject: `[PRUEBA] ${asunto}`,
     html,
     fromName,
     fromEmail,
   })
 
-  if (res.ok) return { ok: true, destino: guard.email }
+  if (res.ok) return { ok: true, destino: para }
   const body = await res.text().catch(() => "")
   return { ok: false, error: `${res.status} ${body.slice(0, 160)}` }
 }
@@ -206,27 +220,25 @@ export async function enviarPrueba(
  * está guardando: si no, editar el recordatorio pisaría la invitación.
  */
 export async function guardarAjustes(entrada: {
-  directoUrl?: string
-  directoEmbed?: string
-  directoEstado?: EstadoDirecto
   plantillaId?: PlantillaId
   asunto?: string
   cuerpo?: string
+  /** Enlace de Zoom. Solo lo usa la plantilla de la víspera. */
+  urlEnlace?: string
 }): Promise<{ ok: boolean; error?: string }> {
   const guard = await requireAdmin()
   if (!guard.ok) return { ok: false, error: guard.error }
 
   const filas: { clave: string; valor: string }[] = []
-  if (entrada.directoUrl !== undefined) filas.push({ clave: "directo_url", valor: entrada.directoUrl.trim() })
-  if (entrada.directoEmbed !== undefined)
-    filas.push({ clave: "directo_embed", valor: entrada.directoEmbed.trim() })
-  // El estado del directo se valida antes de escribirlo: esto es un endpoint
-  // POST como cualquier server action, así que lo que llega no se cree.
-  if (entrada.directoEstado !== undefined) {
-    if (!esEstadoDirecto(entrada.directoEstado)) {
-      return { ok: false, error: `Estado del directo no válido: ${entrada.directoEstado}` }
+
+  if (entrada.urlEnlace !== undefined) {
+    // Solo http(s): este valor acaba dentro de un `href`, y un `javascript:`
+    // ahí sería un enlace envenenado enviado por correo a los inscritos.
+    const url = entrada.urlEnlace.trim()
+    if (url && !/^https?:\/\//i.test(url)) {
+      return { ok: false, error: "El enlace de Zoom tiene que empezar por https://" }
     }
-    filas.push({ clave: "directo_estado", valor: entrada.directoEstado })
+    filas.push({ clave: "plantilla_recordatorio_url", valor: url })
   }
 
   if (entrada.plantillaId) {

@@ -36,7 +36,7 @@ export type UserDeletionInfo = {
   detalle: string | null
 }
 
-export const motivoLabels: Record<MotivoEliminacion, string> = {
+const motivoLabels: Record<MotivoEliminacion, string> = {
   usuario: "Deleted by the user",
   admin: "Deleted by an admin",
 }

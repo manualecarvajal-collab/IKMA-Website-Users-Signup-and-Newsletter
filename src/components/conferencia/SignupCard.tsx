@@ -1,12 +1,10 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react"
 import Link from "next/link"
-import { useSearchParams } from "next/navigation"
 import { useLocale, useTranslations } from "next-intl"
 import {
   reenviarCodigo,
-  reenviarEnlace,
   solicitarCodigo,
   verificarCodigo,
   type PerfilProfesional,
@@ -53,19 +51,15 @@ const PERFILES: PerfilProfesional[] = [
 type Step = "form" | "code"
 type Tone = "error" | "info" | "success"
 
-export default function SignupCard({
-  pendiente,
-}: {
-  /**
-   * Email de una inscripción ya confirmada en ESTE navegador que todavía no ha
-   * abierto el enlace del correo (marca cosmética). Cuando llega, la tarjeta no
-   * enseña el formulario: enseña dónde está la llave.
-   */
-  pendiente?: string | null
-} = {}) {
+/** No hay ningún evento externo: la lista cambia con el idioma, no con el tiempo. */
+const suscribirPaises = () => () => {}
+
+/** Instantánea del servidor: vacía, para no depender de Intl de Node. */
+const SIN_PAISES: { code: string; name: string }[] = []
+
+export default function SignupCard() {
   const t = useTranslations("Conferencia.form")
   const locale = useLocale()
-  const motivoEnlace = useSearchParams().get("enlace")
 
   const [step, setStep] = useState<Step>("form")
 
@@ -80,15 +74,15 @@ export default function SignupCard({
   /** El email ya estaba confirmado: está volviendo desde otro navegador. */
   const [vuelve, setVuelve] = useState(false)
   /**
-   * Confirmado el código, con el dato de si el correo con la llave llegó a
-   * salir. `null` mientras no se ha confirmado.
+   * Confirmado el código. `correoEnviado` es la confirmación normal;
+   * `enlaceEnviado` significa que se inscribió dentro de las últimas 24 horas y
+   * el enlace de Zoom salió en ese mismo momento. `null` = aún no confirmado.
    */
-  const [confirmado, setConfirmado] = useState<{ enlaceEnviado: boolean } | null>(
-    null
-  )
+  const [confirmado, setConfirmado] = useState<{
+    correoEnviado: boolean
+    enlaceEnviado: boolean
+  } | null>(null)
   const [modal, setModal] = useState(false)
-  const [reenvio, setReenvio] = useState<"listo" | "enviando">("listo")
-  const [avisoReenvio, setAvisoReenvio] = useState("")
   const [message, setMessage] = useState("")
   const [tone, setTone] = useState<Tone>("info")
 
@@ -99,13 +93,22 @@ export default function SignupCard({
   const [cooldown, setCooldown] = useState(0)
   const codeInput = useRef<HTMLInputElement>(null)
 
-  // Nombres de país localizados. Se rellenan en el cliente a propósito:
-  // Intl.DisplayNames produce resultados distintos en Node y en el navegador,
-  // y renderizarlos en el servidor provocaba un fallo de hidratación.
-  const [countries, setCountries] = useState<{ code: string; name: string }[]>([])
-  useEffect(() => {
-    setCountries(countryOptions(locale))
-  }, [locale])
+  // Nombres de país localizados. Se resuelven SOLO en el cliente a propósito:
+  // Intl.DisplayNames produce resultados distintos en Node y en el navegador, y
+  // renderizarlos en el servidor provocaba un fallo de hidratación.
+  //
+  // `useSyncExternalStore` es la forma de decir justo eso: el servidor pinta una
+  // lista vacía, el navegador pinta la suya, y React sabe que el cambio es
+  // esperado. Con un `useState` rellenado desde un efecto, React lo veía como un
+  // render en cascada (y el linter lo marcaba). La lista va memorizada porque la
+  // instantánea tiene que ser la MISMA referencia entre renders: si se
+  // recalculara, React entraría en bucle.
+  const listaPaises = useMemo(() => countryOptions(locale), [locale])
+  const countries = useSyncExternalStore(
+    suscribirPaises,
+    () => listaPaises,
+    () => SIN_PAISES
+  )
 
   // Cuenta atrás del reenvío.
   useEffect(() => {
@@ -200,17 +203,13 @@ export default function SignupCard({
     const res = await verificarCodigo(email, code)
 
     if (res.ok) {
-      // El código era correcto, pero AQUÍ NO SE ENTRA. El navegador se marca
-      // abriendo el enlace del correo, no metiendo el código; ver el porqué en
-      // `verificarCodigo` y en `/conferencia/entrar`.
-      //
-      // Así que en vez de navegar a ningún sitio, se cambia a la pantalla que
-      // explica dónde está la llave. `busy` se queda en true: da igual, ese
-      // botón ya no se pinta.
-      setConfirmado({ enlaceEnviado: res.enlaceEnviado !== false })
-      // Y el aviso de bienvenida, una sola vez, justo aquí: es el único momento
-      // en el que el usuario necesita que le digan que su paso siguiente está en
-      // el correo y no en esta pantalla.
+      // Inscripción confirmada. `busy` se queda en true: ese botón ya no se
+      // pinta. Lo que sigue no es una celebración sino un dato: el enlace de
+      // Zoom llega por correo el 13 de noviembre, 24 horas antes.
+      setConfirmado({
+        correoEnviado: res.correoEnviado === true,
+        enlaceEnviado: res.enlaceEnviado === true,
+      })
       setModal(true)
       return
     }
@@ -286,88 +285,40 @@ export default function SignupCard({
 
   // ------------------------------------------------- pantalla final
   //
-  // Se llega aquí con el código ya confirmado. No es una celebración: el usuario
-  // todavía NO está dentro. Entra quien abre el enlace que le llegó al correo, y
-  // por eso la pantalla sirve para tres cosas concretas: decir dónde está la
-  // llave, avisar de que el día del evento ese mismo enlace lleva al directo, y
-  // ofrecer reenviarla — que es la única salida si el correo no llegó o se fue a
-  // spam.
-  // La pantalla del enlace se enseña en los dos casos: recién confirmado y
-  // confirmado que vuelve sin haber abierto el enlace. En ambos lo que necesita
-  // es el correo, no volver a inscribirse.
-  if (confirmado || pendiente) {
+  // Se llega aquí con el código ya confirmado: la inscripción está hecha y este
+  // navegador queda marcado. La pantalla dice lo único que hace falta saber
+  // después —que el enlace de Zoom llega por correo 24 horas antes— y ofrece la
+  // página de ponentes, que es lo siguiente que se puede mirar.
+  if (confirmado) {
     return (
       <>
-        {modal && (
-          <ModalBienvenida
-            email={email || pendiente || ""}
-            onCerrar={() => setModal(false)}
-          />
-        )}
-      <div className="w-full">
-        <h2 className="text-[20px] font-bold leading-[1.25] text-[#123045] md:text-[24px]">
-          {t("confirmadoTitulo")}
-        </h2>
-        <p className="mt-3 text-[13px] leading-[1.6] text-[#3C4A56]">
-          {t("confirmadoTexto")}
-        </p>
-        <p className="mt-3 text-[13px] font-semibold leading-[1.6] text-[#123045]">
-          {t("confirmadoRecordatorio")}
-        </p>
-
-        {confirmado?.enlaceEnviado === false && (
-          <p className="mt-4 rounded-[12px] bg-[#FDF3E7] px-4 py-3 text-[12.5px] leading-[1.5] text-[#8A5A1E]">
-            {t("confirmadoSinCorreo")}
+        {modal && <ModalBienvenida email={email} onCerrar={() => setModal(false)} />}
+        <div className="w-full">
+          <h2 className="text-[20px] font-bold leading-[1.25] text-[#123045] md:text-[24px]">
+            {t("confirmadoTitulo")}
+          </h2>
+          <p className="mt-3 text-[13px] leading-[1.6] text-[#3C4A56]">{t("confirmadoTexto")}</p>
+          <p className="mt-3 text-[13px] font-semibold leading-[1.6] text-[#123045]">
+            {confirmado.enlaceEnviado ? t("confirmadoEnlaceEnviado") : t("confirmadoRecordatorio")}
           </p>
-        )}
 
-        <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3">
-          <button
-            type="button"
-            onClick={onReenviarEnlace}
-            disabled={reenvio === "enviando"}
-            className="rounded-full bg-[#11324F] px-6 py-2.5 text-[13px] font-bold text-white transition-colors hover:bg-[#1F4D75] disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#11324F] focus-visible:ring-offset-2"
-          >
-            {reenvio === "enviando" ? t("confirmadoReenviando") : t("confirmadoReenviar")}
-          </button>
-          <Link
-            href="/conferencia/speakers"
-            className="text-[12.5px] font-semibold text-[#11324F] underline-offset-2 hover:underline"
-          >
-            {t("confirmadoPonentes")}
-          </Link>
+          {!confirmado.correoEnviado && !confirmado.enlaceEnviado && (
+            <p className="mt-4 rounded-[12px] bg-[#FDF3E7] px-4 py-3 text-[12.5px] leading-[1.5] text-[#8A5A1E]">
+              {t("confirmadoSinCorreo")}
+            </p>
+          )}
+
+          <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3">
+            <Link
+              href="/conferencia/speakers"
+              className="rounded-full bg-[#11324F] px-6 py-2.5 text-[13px] font-bold text-white transition-colors hover:bg-[#1F4D75] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#11324F] focus-visible:ring-offset-2"
+            >
+              {t("confirmadoPonentes")}
+            </Link>
+          </div>
         </div>
-
-        {avisoReenvio && (
-          <p className="mt-4 text-[12.5px] leading-[1.5] text-[#8A8A8E]">
-            {avisoReenvio}
-          </p>
-        )}
-      </div>
       </>
     )
-  }
-
-  /**
-   * Reenviar la llave. Es la única salida cuando el correo tarda, se va a spam o
-   * el envío falló, así que los tres finales distintos se dicen con sus palabras:
-   * enviado, espera y error.
-   */
-  async function onReenviarEnlace() {
-    setReenvio("enviando")
-    setAvisoReenvio("")
-    const r = await reenviarEnlace(email)
-    setReenvio("listo")
-
-    if (r.ok) {
-      setAvisoReenvio(t("confirmadoReenviado"))
-      return
-    }
-    if (r.motivo === "espera") {
-      setAvisoReenvio(t("confirmadoEspera"))
-      return
-    }
-    setAvisoReenvio(t("confirmadoError"))
   }
 
   // ------------------------------------------------------------- paso 2
@@ -439,15 +390,6 @@ export default function SignupCard({
   // ------------------------------------------------------------- paso 1
   return (
     <form onSubmit={onSubmitForm} noValidate className="w-full">
-      {/* Se llega aquí con `?enlace=...` cuando el enlace del correo no vale:
-          caducado, manipulado o de una inscripción sin confirmar. Sin este
-          aviso, el usuario aterrizaría en el formulario sin saber por qué. */}
-      {motivoEnlace && (
-        <p className="mb-5 rounded-[12px] bg-[#FDF3E7] px-4 py-3 text-[12.5px] leading-[1.5] text-[#8A5A1E]">
-          {t(motivoEnlace === "sinconfirmar" ? "enlaceSinConfirmar" : "enlaceNovale")}
-        </p>
-      )}
-
       <h2 className="text-[20px] font-bold leading-[1.25] text-[#123045] md:text-[24px]">
         {t("title")}
       </h2>

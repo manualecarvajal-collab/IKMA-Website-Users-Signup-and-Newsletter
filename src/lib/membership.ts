@@ -24,7 +24,7 @@ export const statusLabels: Record<string, string> = {
   eliminado: "Deleted",
 }
 
-export type MembershipApplicationState = {
+type MembershipApplicationState = {
   tipo_miembro: number | null
   estado: string | null
 }

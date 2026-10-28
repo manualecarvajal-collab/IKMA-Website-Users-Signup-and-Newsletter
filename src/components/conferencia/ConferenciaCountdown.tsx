@@ -7,23 +7,16 @@ import { EVENT_DATE } from "./event"
 /**
  * Contador de la conferencia.
  *
- * La fecha límite NO vive aquí: se importa de `./event`, de modo que el hero y
- * el panel del directo cuentan siempre hacia el mismo instante.
+ * La fecha límite NO vive aquí: se importa de `./event`.
  *
  * El primer render (servidor y cliente) usa ceros para que no haya desajuste de
  * hidratación; el valor real se calcula ya en el cliente.
  *
- * Variantes:
- * Las dos variantes usan la misma estructura —número grande y etiqueta debajo—
- * y solo cambian los estilos. Antes el hero los pintaba como un reloj
- * (39:17:26:58, sin etiquetas) y el panel con etiquetas, lo que obligaba a
- * mantener dos formas de renderizar lo mismo.
- *
- *   - `hero`  — en el azul marino del titular.
- *   - `panel` — en el azul corporativo, sobre la tarjeta blanca del riel.
+ * Tuvo dos variantes de estilo (`hero` y `panel`, esta última para el marco del
+ * directo). Quitado el reproductor solo se usa en el hero, así que mantener el
+ * mapa de estilos para una sola presentación era código muerto esperando a que
+ * alguien lo copiara.
  */
-
-type Variant = "hero" | "panel"
 
 interface Remaining {
   days: number
@@ -34,32 +27,14 @@ interface Remaining {
 
 const ZERO: Remaining = { days: 0, hours: 0, minutes: 0, seconds: 0 }
 
-/**
- * Clases por variante. Van en un mapa (y no con un ternario dentro del JSX) para
- * que las dos presentaciones se lean de un vistazo y no se mezclen a medias.
- */
-const STYLES: Record<
-  Variant,
-  { wrapper: string; value: string; label: string; sep: string }
-> = {
-  hero: {
-    wrapper:
-      "mt-[0.6svh] flex flex-wrap items-start justify-center gap-x-[min(2.4vw,4.2svh)] gap-y-[0.8svh] text-[#123045]",
-    value:
-      "text-[clamp(min(2rem,2.96svh),min(3.4vw,6.05svh),5rem)] font-bold leading-none tracking-[-0.01em] tabular-nums",
-    sep: "",
-    label:
-      "mt-[0.5svh] text-[clamp(min(0.55rem,0.8svh),min(0.6vw,1svh),0.85rem)] font-semibold uppercase tracking-[0.14em] text-[#123045]/70",
-  },
-  panel: {
-    wrapper:
-      "flex flex-wrap items-start justify-center gap-x-4 gap-y-5 sm:gap-x-8 md:gap-x-16",
-    value:
-      "text-[clamp(1.25rem,5.2vw,5.5rem)] font-bold leading-none text-[#0068B6] tabular-nums",
-    label:
-      "mt-3 text-[9px] font-semibold uppercase tracking-[0.1em] text-[#0068B6]/70 sm:text-[11px] md:text-[14px] md:tracking-[0.2em]",
-    sep: "",
-  },
+/** Estilos del contador en el hero: en el azul marino del titular. */
+const STYLES = {
+  wrapper:
+    "mt-[0.6svh] flex flex-wrap items-start justify-center gap-x-[min(2.4vw,4.2svh)] gap-y-[0.8svh] text-[#123045]",
+  value:
+    "text-[clamp(min(2rem,2.96svh),min(3.4vw,6.05svh),5rem)] font-bold leading-none tracking-[-0.01em] tabular-nums",
+  label:
+    "mt-[0.5svh] text-[clamp(min(0.55rem,0.8svh),min(0.6vw,1svh),0.85rem)] font-semibold uppercase tracking-[0.14em] text-[#123045]/70",
 }
 
 function remaining(target: number): Remaining {
@@ -90,14 +65,9 @@ function Unit({
   )
 }
 
-export default function ConferenciaCountdown({
-  variant = "hero",
-}: {
-  variant?: Variant
-}) {
+export default function ConferenciaCountdown() {
   const t = useTranslations("Conferencia.hero")
   const [left, setLeft] = useState<Remaining>(ZERO)
-  const styles = STYLES[variant]
 
   useEffect(() => {
     if (!EVENT_DATE) return
@@ -111,18 +81,18 @@ export default function ConferenciaCountdown({
   }, [])
 
   return (
-    <div className={styles.wrapper} aria-live="off">
-      <Unit value={left.days} label={t("days", { count: left.days })} styles={styles} />
-      <Unit value={left.hours} label={t("hours", { count: left.hours })} styles={styles} />
+    <div className={STYLES.wrapper} aria-live="off">
+      <Unit value={left.days} label={t("days", { count: left.days })} styles={STYLES} />
+      <Unit value={left.hours} label={t("hours", { count: left.hours })} styles={STYLES} />
       <Unit
         value={left.minutes}
         label={t("minutes", { count: left.minutes })}
-        styles={styles}
+        styles={STYLES}
       />
       <Unit
         value={left.seconds}
         label={t("seconds", { count: left.seconds })} 
-        styles={styles}
+        styles={STYLES}
       />
     </div>
   )

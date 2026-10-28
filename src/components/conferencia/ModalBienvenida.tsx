@@ -1,8 +1,7 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef } from "react"
 import { useTranslations } from "next-intl"
-import { reenviarEnlace } from "@/app/conferencia/actions"
 
 /**
  * Aviso emergente que aparece UNA vez, justo después de confirmar el código.
@@ -11,10 +10,9 @@ import { reenviarEnlace } from "@/app/conferencia/actions"
  *
  * Lo normal sería no interrumpir. Aquí la interrupción está justificada y es la
  * única del recorrido: el usuario acaba de terminar algo y su siguiente paso NO
- * está en esta pantalla —está en su bandeja de correo—, así que si no se lo
- * decimos aquí, se queda mirando una página que no le explica por qué ya no ve
- * el formulario y pensará que tiene que inscribirse otra vez. Es la duda exacta
- * que hay que evitar el día de la conferencia.
+ * está en esta pantalla —está en su bandeja de correo, el 13 de noviembre—, así
+ * que si no se lo decimos aquí, se queda mirando una página que no le explica
+ * qué pasa ahora ni cuándo recibirá el enlace de Zoom.
  *
  * Por eso: aparece una sola vez, en ese momento, se cierra con Escape, con la
  * equis o pulsando fuera, y el foco entra en el botón principal al abrirse.
@@ -28,8 +26,6 @@ export default function ModalBienvenida({
 }) {
   const t = useTranslations("Conferencia.form")
   const cerrarRef = useRef<HTMLButtonElement>(null)
-  const [aviso, setAviso] = useState("")
-  const [enviando, setEnviando] = useState(false)
 
   // Foco al abrir, y Escape para cerrar. Y bloqueo del scroll de detrás: si el
   // fondo se mueve mientras el aviso está delante, el aviso deja de ser un aviso.
@@ -46,16 +42,6 @@ export default function ModalBienvenida({
       window.removeEventListener("keydown", alPulsar)
     }
   }, [onCerrar])
-
-  async function reenviar() {
-    setEnviando(true)
-    setAviso("")
-    const r = await reenviarEnlace(email)
-    setEnviando(false)
-    if (r.ok) return setAviso(t("confirmadoReenviado"))
-    if (r.motivo === "espera") return setAviso(t("confirmadoEspera"))
-    return setAviso(t("confirmadoError"))
-  }
 
   return (
     <div
@@ -105,6 +91,11 @@ export default function ModalBienvenida({
 
         <div className="px-7 py-6">
           <p className="text-[14px] leading-[1.6] text-[#3C4A56]">{t("bienvenidaTexto")}</p>
+          {/* A qué dirección va a llegar: es el dato que evita el "¿y a dónde
+              me lo mandan?", que es la duda real al cerrar este aviso. */}
+          {email && (
+            <p className="mt-2 break-all text-[13.5px] font-bold text-[#11324F]">{email}</p>
+          )}
 
           {/* El recordatorio, destacado: es LA información que evita que el día
               del evento vuelva a inscribirse. */}
@@ -120,21 +111,7 @@ export default function ModalBienvenida({
             >
               {t("bienvenidaCta")}
             </button>
-            <button
-              type="button"
-              onClick={reenviar}
-              disabled={enviando}
-              className="text-[12.5px] font-semibold text-[#11324F] underline-offset-2 hover:underline disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#11324F] focus-visible:ring-offset-2"
-            >
-              {enviando ? t("confirmadoReenviando") : t("bienvenidaReenviar")}
-            </button>
           </div>
-
-          {aviso && (
-            <p className="mt-4 text-[12.5px] leading-[1.5] text-[#8A8A8E]" role="status">
-              {aviso}
-            </p>
-          )}
         </div>
       </div>
     </div>

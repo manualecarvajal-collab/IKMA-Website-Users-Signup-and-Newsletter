@@ -462,12 +462,6 @@
   color: var(--spk-tinta-suave);
 }
 
-/* El botón que lleva a la transmisión, debajo de la ficha del día. Usa la misma
-   píldora que el resto de la página; sólo necesita separarse de la ficha. */
-.spk-ver {
-  margin-top: clamp(14px, 1.6svh, 20px);
-}
-
 /* ---- 4 · Equipo -------------------------------------------------------- */
 
 .spk-equipo-grid {
@@ -511,51 +505,6 @@
   padding: 0 clamp(20px, 3vw, 48px);
 }
 
-/* Botón con el icono metido en su propio círculo, pegado al relleno derecho:
-   el mismo aire que el botón del hero de la landing. */
-.spk-boton {
-  display: inline-flex;
-  align-items: center;
-  gap: 14px;
-  border-radius: 999px;
-  background: #11324f;
-  padding: 9px 9px 9px 26px;
-  font-size: 1rem;
-  font-weight: 700;
-  color: #fff;
-  text-decoration: none;
-  transition: background-color 400ms var(--spk-curva);
-}
-
-.spk-boton:hover {
-  background: #1f4d75;
-}
-
-.spk-boton:focus-visible {
-  outline: 2px solid #11324f;
-  outline-offset: 3px;
-}
-
-.spk-boton-icono {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.14);
-  transition: transform 500ms var(--spk-curva);
-}
-
-.spk-boton-icono svg {
-  width: 17px;
-  height: 17px;
-}
-
-.spk-boton:hover .spk-boton-icono {
-  transform: translateX(3px);
-}
-
 .spk-volver {
   font-size: 1rem;
   font-weight: 700;
@@ -578,6 +527,9 @@
     opacity 900ms var(--spk-curva);
 }
 
+/* OJO: esta clase NO aparece escrita en ningún TSX. La pone `Revelar`
+   concatenando `${className}-visible`, así que borrarla deja las filas del
+   pliego invisibles para siempre. */
 .spk-rev-visible {
   opacity: 1;
   transform: none;
@@ -590,8 +542,7 @@
     transition: opacity 200ms linear;
   }
 
-  .spk-cara-foto img,
-  .spk-boton-icono {
+  .spk-cara-foto img {
     transition: none;
   }
 

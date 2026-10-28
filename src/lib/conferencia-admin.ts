@@ -1,6 +1,10 @@
 import { createAdminClient } from "@/lib/supabase/server"
-import type { PlantillaId } from "@/lib/conferencia-plantilla"
-import { esEstadoDirecto, type EstadoDirecto } from "@/components/conferencia/directo"
+import {
+  PLANTILLAS,
+  PLANTILLAS_POR_DEFECTO,
+  type Plantilla,
+  type PlantillaId,
+} from "@/lib/conferencia-plantilla"
 
 /**
  * Consultas del panel de la conferencia (`/admin/conferencia`).
@@ -30,23 +34,19 @@ export interface ConferenciaStats {
   confirmados: number
   pendientes: number
   cancelados: number
-  conectados: number
   porPais: { pais: string; total: number }[]
   porPerfil: { perfil: string; total: number }[]
 }
 
-export interface Plantilla {
-  asunto: string
-  cuerpo: string
-}
-
 export interface Ajustes {
-  /** Qué enseña la landing en el panel del directo. Ver `directo.ts`. */
-  directoEstado: EstadoDirecto
-  directoUrl: string
-  directoEmbed: string
-  /** Las dos plantillas, indexadas por id: `invitacion` y `recordatorio`. */
+  /** Las tres plantillas, indexadas por id. Ver `conferencia-plantilla.ts`. */
   plantillas: Record<PlantillaId, Plantilla>
+  /**
+   * Enlace de Zoom de la reunión. Es el botón de la plantilla `recordatorio`,
+   * la que se manda la víspera: se pega en el panel ese mismo día, cuando quien
+   * organiza la reunión lo comparte.
+   */
+  urlEnlace: string
 }
 
 /**
@@ -63,23 +63,7 @@ export interface Resultado<T> {
   error?: string
 }
 
-const DEFAULTS: Ajustes = {
-  directoEstado: "antes",
-  directoUrl: "",
-  directoEmbed: "",
-  plantillas: {
-    invitacion: { asunto: "", cuerpo: "" },
-    recordatorio: { asunto: "", cuerpo: "" },
-  },
-}
-
-/**
- * Minutos de margen para contar a alguien como conectado.
- *
- * El latido se manda cada 20 s, así que 90 s tolera que a alguien se le
- * duerma una pestaña sin darlo por ido, y a la vez no cuenta a quien cerró.
- */
-export const PRESENCIA_VENTANA_MINUTOS = 1.5
+const DEFAULTS: Ajustes = { plantillas: PLANTILLAS_POR_DEFECTO, urlEnlace: "" }
 
 /**
  * Traduce los errores de PostgREST a algo accionable.
@@ -141,31 +125,18 @@ export async function getStats(
       .sort((a, b) => b.total - a.total)
   }
 
-  const desde = new Date(Date.now() - PRESENCIA_VENTANA_MINUTOS * 60 * 1000).toISOString()
-  const { count, error } = await admin
-    .schema("conferencia")
-    .from("presencia")
-    .select("sesion_id", { count: "exact", head: true })
-    .gte("last_seen", desde)
-
-  if (error) console.error("[getStats/presencia]", error.message, error.code)
-
   return {
     data: {
       total: registros.length,
       confirmados: cuenta("confirmado"),
       pendientes: cuenta("nuevo"),
       cancelados: cuenta("cancelado"),
-      // Si falla la presencia se muestra 0: los contadores de inscritos
-      // siguen siendo válidos y no tiene sentido tumbar el panel entero.
-      conectados: count ?? 0,
       porPais: agrupa((r) => r.pais).map((x) => ({ pais: x.clave, total: x.total })),
       porPerfil: agrupa((r) => r.perfil_profesional).map((x) => ({
         perfil: x.clave,
         total: x.total,
       })),
     },
-    error: error ? describeError(error.code, error.message) : undefined,
   }
 }
 
@@ -180,23 +151,17 @@ export async function getAjustes(admin: Admin): Promise<Resultado<Ajustes>> {
   const mapa: Record<string, string> = {}
   for (const row of data ?? []) mapa[row.clave] = row.valor ?? ""
 
-  return {
-    data: {
-      // Texto libre en la base: un valor desconocido cae a `antes`, que es el
-      // estado que no enseña nada a nadie.
-      directoEstado: esEstadoDirecto(mapa.directo_estado) ? mapa.directo_estado : "antes",
-      directoUrl: mapa.directo_url ?? "",
-      directoEmbed: mapa.directo_embed ?? "",
-      plantillas: {
-        invitacion: {
-          asunto: mapa.plantilla_invitacion_asunto ?? "",
-          cuerpo: mapa.plantilla_invitacion_cuerpo ?? "",
-        },
-        recordatorio: {
-          asunto: mapa.plantilla_recordatorio_asunto ?? "",
-          cuerpo: mapa.plantilla_recordatorio_cuerpo ?? "",
-        },
-      },
-    },
+  // Cada plantilla cae a su texto por defecto si la clave no existe todavía: la
+  // de confirmación se envía sola al verificar el código, así que un correo con
+  // el cuerpo vacío sería peor que uno con el texto de partida.
+  const plantillas = {} as Record<PlantillaId, Plantilla>
+  for (const id of PLANTILLAS) {
+    const porDefecto = PLANTILLAS_POR_DEFECTO[id]
+    plantillas[id] = {
+      asunto: mapa[`plantilla_${id}_asunto`] ?? porDefecto.asunto,
+      cuerpo: mapa[`plantilla_${id}_cuerpo`] ?? porDefecto.cuerpo,
+    }
   }
+
+  return { data: { plantillas, urlEnlace: mapa.plantilla_recordatorio_url ?? "" } }
 }

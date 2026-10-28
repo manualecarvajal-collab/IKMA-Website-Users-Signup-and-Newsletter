@@ -52,8 +52,7 @@
       },
       "cierre": {
         "back": "Volver a la conferencia"
-      },
-      "verDirecto": "Ver la conferencia"
+      }
     },
     "nav": {
       "callUs": "Llámanos"
@@ -71,10 +70,8 @@
       "hours": "{count, plural, one {hora} other {horas}}",
       "minutes": "{count, plural, one {minuto} other {minutos}}",
       "seconds": "{count, plural, one {segundo} other {segundos}}",
-      "descriptionDentro": "Tu lugar está reservado. El día de la conferencia entras desde el enlace que te enviamos al correo, desde cualquier dispositivo.",
-      "ctaReenviar": "Reenviar enlace",
-      "ctaPonentes": "Conoce a nuestros ponentes",
-      "scrollConferencia": "Haz scroll para ver la conferencia"
+      "descriptionDentro": "Tu lugar está reservado. El enlace de Zoom te llega por correo el viernes 13 de noviembre, 24 horas antes — no tienes que hacer nada más.",
+      "ctaConferencia": "Ir a la conferencia"
     },
     "form": {
       "title": "Reserva tu lugar en la Conferencia IKMA",
@@ -115,42 +112,27 @@
       "errWrongCode": "El código no es correcto. Te quedan {attempts} intentos.",
       "errTooManyAttempts": "Demasiados intentos fallidos. Pide un código nuevo.",
       "confirmadoTitulo": "Inscripción confirmada",
-      "confirmadoTexto": "Te enviamos un correo con tu enlace de acceso. Ábrelo desde cualquier dispositivo —el celular, la laptop— y entrarás directo: no hace falta que te inscribas otra vez.",
-      "confirmadoRecordatorio": "El sábado 14 de noviembre, desde esa página entras al directo.",
-      "confirmadoReenviar": "Reenviar el enlace",
-      "confirmadoReenviando": "Enviando…",
-      "confirmadoReenviado": "Te lo hemos vuelto a enviar. Si no lo ves, mira en la carpeta de spam.",
-      "confirmadoEspera": "Espera un minuto antes de volver a pedirlo.",
-      "confirmadoError": "No pudimos enviarlo. Inténtalo en un momento.",
-      "confirmadoSinCorreo": "El correo no llegó a salir. Pulsa «Reenviar el enlace».",
+      "confirmadoTexto": "Tu plaza está confirmada. Nos alegra tenerte con nosotros.",
+      "confirmadoRecordatorio": "El enlace de Zoom te llega por correo el viernes 13 de noviembre, 24 horas antes de la conferencia.",
+      "confirmadoSinCorreo": "No pudimos enviar el correo de confirmación, pero tu inscripción está guardada. Si el 13 de noviembre no te llega el enlace, escríbenos.",
       "confirmadoPonentes": "Mientras tanto, conoce a los ponentes",
-      "enlaceNovale": "Ese enlace ya no sirve. Vuelve a inscribirte con tu correo y te mandamos uno nuevo.",
-      "enlaceSinConfirmar": "Ese enlace es de una inscripción sin confirmar. Termina el registro con tu correo y te mandamos tu enlace de acceso.",
       "bienvenidaTitulo": "¡Bienvenido a IKMA Forward!",
       "bienvenidaSaludo": "Tu inscripción está confirmada",
-      "bienvenidaTexto": "Nos alegra tenerte con nosotros. Que disfrutes la conferencia: será una jornada de enseñanza, testimonio y medicina.",
-      "bienvenidaRecordatorio": "Puedes entrar desde cualquier dispositivo —el celular, la laptop— con el enlace que te enviamos al correo. Guárdalo: el día de la conferencia es tu entrada.",
+      "bienvenidaTexto": "Nos alegra tenerte con nosotros. Será una jornada de enseñanza, testimonio y medicina.",
+      "bienvenidaRecordatorio": "Guarda este correo. El enlace de Zoom te llega el viernes 13 de noviembre, 24 horas antes, a esta misma dirección.",
       "bienvenidaCta": "Entendido",
-      "bienvenidaReenviar": "¿No te llegó? Reenviar el enlace",
-      "bienvenidaCerrar": "Cerrar"
-    },
-    "live": {
-      "badge": "En directo",
-      "lockedTitle": "La conferencia está en directo",
-      "lockedText": "Inscríbete para ver la transmisión. Solo necesitas tu nombre y tu correo, y confirmas con un código que te llega al buzón.",
-      "lockedCta": "Inscríbete para verla",
-      "watch": "Ver la transmisión",
-      "starting": "La transmisión está a punto de empezar…",
-      "badgeWaiting": "En pausa",
-      "waitingTitle": "Volvemos enseguida",
-      "waitingText": "Estamos en pausa. La transmisión se reanuda en unos minutos.",
-      "endedTitle": "Gracias por acompañarnos",
-      "endedText": "La conferencia ha terminado. Si quieres seguir formando parte de esta comunidad, puedes hacerte miembro de IKMA y acceder a nuestros contenidos, revistas y próximos encuentros.",
-      "endedCta": "Hazte miembro"
+      "bienvenidaCerrar": "Cerrar",
+      "confirmadoEnlaceEnviado": "El enlace de Zoom ya está en tu correo: te lo acabamos de enviar. Si en un par de minutos no lo ves, mira en la carpeta de correo no deseado."
     },
     "meta": {
       "title": "Conferencia IKMA — 14 de noviembre de 2026",
       "description": "Inscríbete en la Conferencia IKMA: una jornada de enseñanza, testimonio y medicina. Reserva tu lugar y recibirás todos los detalles."
+    },
+    "marco": {
+      "badge": "Por Zoom",
+      "titulo": "La conferencia se transmite por Zoom",
+      "texto": "Te enviamos el enlace de la reunión por correo el viernes 13 de noviembre, 24 horas antes, a esta dirección:",
+      "spam": "Si ese día no lo ves, mira en la carpeta de correo no deseado."
     }
   },
   "Navbar": {
@@ -801,8 +783,6 @@
       "kpiConfirmedNote": "verificaron el código · con acceso",
       "kpiPending": "Sin verificar",
       "kpiPendingNote": "no tienen acceso",
-      "kpiOnline": "Conectados ahora",
-      "kpiOnlineNote": "en la página en el último minuto y medio",
       "byCountry": "Por país",
       "byProfile": "Por perfil",
       "tableTitle": "Inscritos",
@@ -837,8 +817,6 @@
       "testSent": "Prueba enviada a {email}",
       "testFailed": "No se pudo enviar: {error}",
       "saved": "Plantilla y ajustes guardados",
-      "saveLive": "Guardar enlaces",
-      "savedLive": "Enlaces guardados",
       "saveFailed": "No se pudo guardar: {error}",
       "omitWarning": "{count, plural, one {# de los seleccionados no está confirmado y se omitirá.} other {# de los seleccionados no están confirmados y se omitirán.}}",
       "resultSent": "Enviados: {sent} · Fallidos: {failed}",
@@ -850,24 +828,14 @@
       "previewSubject": "Asunto: {subject}",
       "noSubject": "(sin asunto)",
       "previewFrame": "Vista previa del correo",
-      "liveTitle": "Directo",
-      "liveDesc": "El link de invitación de Zoom se abre como enlace, no se incrusta: la página de Zoom lanza la aplicación y dentro de un iframe queda en blanco (comprobado). Si algún día reemites a YouTube o HLS, pon esa URL en el segundo campo y sí se incrustará.",
-      "zoomLabel": "Enlace de Zoom (botón «Entrar»)",
-      "embedLabel": "URL incrustable (YouTube / HLS)",
-      "livePending": "El estado se guarda al pulsar el botón y la landing lo lee en cada visita, así que el cambio se ve al instante. El enlace de la transmisión solo llega al navegador de quien tiene la inscripción confirmada.",
       "templateInvitation": "Invitación a membresía",
-      "templateReminder": "Recordatorio de la conferencia",
+      "templateReminder": "Enlace de Zoom (víspera)",
       "templateLabel": "Plantilla",
-      "liveStateLabel": "Estado del directo",
-      "stateBefore": "Antes",
-      "stateLive": "En vivo",
-      "stateWaiting": "En espera",
-      "stateEnded": "Finalizado",
-      "stateHintBefore": "La landing enseña el contador. Lo ve todo el mundo.",
-      "stateHintLive": "Quien está inscrito ve la transmisión; quien no, un bloqueo que le invita a inscribirse. El enlace no se le manda a nadie más.",
-      "stateHintWaiting": "Aviso de pausa para todos. Quien no está inscrito conserva el botón de inscribirse.",
-      "stateHintEnded": "Pantalla de cierre con la invitación a hacerse miembro.",
-      "savedState": "Directo actualizado"
+      "templateConfirmation": "Confirmación",
+      "zoomLinkLabel": "Enlace de Zoom de la reunión",
+      "zoomLinkHint": "Es el botón del correo y el marcador {{enlace}} del cuerpo. Se pega aquí el día antes.",
+      "testTo": "Probar a",
+      "testToPlaceholder": "vacío = tu propio correo"
     }
   },
   "IncompleteRegistration": {

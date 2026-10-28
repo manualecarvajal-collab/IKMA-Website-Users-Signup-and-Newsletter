@@ -1,6 +1,6 @@
 const RESEND_URL = "https://api.resend.com/emails"
 
-export function resendFrom(fromName?: string | null, fromEmail?: string | null): string {
+function resendFrom(fromName?: string | null, fromEmail?: string | null): string {
   return `${fromName || "IKMA"} <${fromEmail || "onboarding@resend.dev"}>`
 }
 

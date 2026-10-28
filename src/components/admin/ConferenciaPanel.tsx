@@ -9,9 +9,13 @@ import {
   type EnvioResumen,
 } from "@/app/admin/conferencia/actions"
 import TiptapEditor from "@/components/TiptapEditor"
-import { componerCorreo, type PlantillaId } from "@/lib/conferencia-plantilla"
-import { ESTADOS_DIRECTO, type EstadoDirecto } from "@/components/conferencia/directo"
-import type { Ajustes, ConferenciaStats, Plantilla, RegistroAdmin } from "@/lib/conferencia-admin"
+import {
+  PLANTILLAS,
+  componerCorreo,
+  type Plantilla,
+  type PlantillaId,
+} from "@/lib/conferencia-plantilla"
+import type { Ajustes, ConferenciaStats, RegistroAdmin } from "@/lib/conferencia-admin"
 
 /**
  * Panel de la conferencia.
@@ -39,25 +43,11 @@ const PERFILES: Record<string, string> = {
   non_professional: "profileOther",
 }
 
-/**
- * Aspecto de cada estado del directo en el panel.
- *
- * `Record<EstadoDirecto, ...>` a propósito: si algún día se añade un estado,
- * esto deja de compilar y no se queda un botón sin pintar.
- */
-const ESTADO_UI: Record<EstadoDirecto, { etiqueta: string; clase: string }> = {
-  antes: { etiqueta: "stateBefore", clase: "bg-gray-700 text-white" },
-  vivo: { etiqueta: "stateLive", clase: "bg-red-600 text-white" },
-  espera: { etiqueta: "stateWaiting", clase: "bg-amber-500 text-white" },
-  final: { etiqueta: "stateEnded", clase: "bg-ikmaBlue text-white" },
-}
-
-/** Qué hace cada estado, para que el panel no deje adivinar. */
-const ESTADO_HINT: Record<EstadoDirecto, string> = {
-  antes: "stateHintBefore",
-  vivo: "stateHintLive",
-  espera: "stateHintWaiting",
-  final: "stateHintEnded",
+/** Clave de i18n de la pestaña de cada plantilla. */
+const ETIQUETA_PLANTILLA: Record<PlantillaId, string> = {
+  confirmacion: "templateConfirmation",
+  recordatorio: "templateReminder",
+  invitacion: "templateInvitation",
 }
 
 const FILTROS = ["todos", "confirmado", "nuevo", "cancelado"] as const
@@ -113,18 +103,16 @@ export default function ConferenciaPanel({
     setBorradores((prev) => ({ ...prev, [plantilla]: { ...prev[plantilla], [campo]: valor } }))
   }
 
-  const [directoEstado, setDirectoEstado] = useState(ajustes.directoEstado)
-  // El enlace de Zoom ya no se edita desde aquí: la emisión va por el embed de
-  // YouTube. Se sigue enviando al guardar para NO borrar el que hubiera — es el
-  // que le da a los inscritos el botón para entrar a la reunión.
-  const directoUrl = ajustes.directoUrl
-  const [directoEmbed, setDirectoEmbed] = useState(ajustes.directoEmbed)
+  /**
+   * Enlace de Zoom de la reunión. Es el botón del correo de la víspera y el
+   * `{{enlace}}` del cuerpo: se pega aquí el día 13, cuando quien organiza la
+   * reunión lo comparte.
+   */
+  const [urlEnlace, setUrlEnlace] = useState(ajustes.urlEnlace)
+  /** Destino de la prueba. Vacío = el correo del administrador con sesión. */
+  const [destinoPrueba, setDestinoPrueba] = useState("")
   const [resultado, setResultado] = useState<EnvioResumen | null>(null)
   const [aviso, setAviso] = useState<string>("")
-  // El directo tiene su propio aviso: `aviso` se pinta dentro de la caja
-  // del correo, así que reutilizarlo hacía que "Directo guardado" saliera
-  // en la sección equivocada.
-  const [avisoDirecto, setAvisoDirecto] = useState<string>("")
   const [pendiente, start] = useTransition()
 
   const visibles = useMemo(
@@ -186,8 +174,12 @@ export default function ConferenciaPanel({
    */
   const previewCompleto = useMemo(
     () =>
-      componerCorreo(plantilla, cuerpo, { nombre: "María González", email: "maria@ejemplo.com" }),
-    [plantilla, cuerpo]
+      componerCorreo(plantilla, cuerpo, {
+        nombre: "María González",
+        email: "maria@ejemplo.com",
+        enlace: urlEnlace,
+      }),
+    [plantilla, cuerpo, urlEnlace]
   )
 
   return (
@@ -224,7 +216,6 @@ export default function ConferenciaPanel({
           nota={t("kpiConfirmedNote")}
         />
         <Kpi valor={stats.pendientes} etiqueta={t("kpiPending")} nota={t("kpiPendingNote")} />
-        <Kpi valor={stats.conectados} etiqueta={t("kpiOnline")} nota={t("kpiOnlineNote")} />
       </div>
 
       {(stats.porPais.length > 0 || stats.porPerfil.length > 0) && (
@@ -352,11 +343,11 @@ export default function ConferenciaPanel({
         <p className="font-semibold text-gray-800">{t("emailTitle")}</p>
         <p className="mt-1 text-sm text-gray-600">{t("emailDesc")}</p>
 
-        {/* Selector de plantilla. Las dos se guardan y se envían por separado;
+        {/* Selector de plantilla. Las tres se guardan y se envían por separado;
             lo editado en una no se pierde al cambiar a la otra. */}
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <span className="text-sm font-medium text-gray-700">{t("templateLabel")}:</span>
-          {(["invitacion", "recordatorio"] as PlantillaId[]).map((id) => (
+          {PLANTILLAS.map((id) => (
             <button
               key={id}
               type="button"
@@ -371,7 +362,7 @@ export default function ConferenciaPanel({
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
             >
-              {t(id === "invitacion" ? "templateInvitation" : "templateReminder")}
+              {t(ETIQUETA_PLANTILLA[id])}
             </button>
           ))}
         </div>
@@ -392,7 +383,8 @@ export default function ConferenciaPanel({
               <p className="mb-1 text-xs text-gray-500">
                 {t("markersHint")}{" "}
                 <code className="rounded bg-gray-100 px-1">{"{{nombre}}"}</code>{" "}
-                <code className="rounded bg-gray-100 px-1">{"{{email}}"}</code>
+                <code className="rounded bg-gray-100 px-1">{"{{email}}"}</code>{" "}
+                <code className="rounded bg-gray-100 px-1">{"{{enlace}}"}</code>
               </p>
               <TiptapEditor
                 content={cuerpo}
@@ -400,6 +392,20 @@ export default function ConferenciaPanel({
                 onImageUpload={subirImagen}
               />
             </div>
+
+            {/* Solo la plantilla de la víspera lleva enlace de reunión. */}
+            {plantilla === "recordatorio" && (
+              <label className="block">
+                <span className="text-sm font-medium text-gray-700">{t("zoomLinkLabel")}</span>
+                <input
+                  value={urlEnlace}
+                  onChange={(e) => setUrlEnlace(e.target.value)}
+                  placeholder="https://zoom.us/j/1234567890?pwd=…"
+                  className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+                />
+                <span className="mt-1 block text-xs text-gray-500">{t("zoomLinkHint")}</span>
+              </label>
+            )}
 
             <div className="flex flex-wrap items-center gap-2">
               <button
@@ -428,7 +434,13 @@ export default function ConferenciaPanel({
                   start(async () => {
                     setAviso("")
                     setResultado(null)
-                    const r = await enviarPrueba(asunto, cuerpo, plantilla)
+                    const r = await enviarPrueba(
+                      asunto,
+                      cuerpo,
+                      plantilla,
+                      destinoPrueba.trim(),
+                      urlEnlace
+                    )
                     setAviso(
                       r.ok
                         ? t("testSent", { email: r.destino ?? "" })
@@ -441,12 +453,22 @@ export default function ConferenciaPanel({
                 {t("sendTest")}
               </button>
 
+              <label className="flex items-center gap-2 text-sm text-gray-700">
+                <span className="whitespace-nowrap">{t("testTo")}</span>
+                <input
+                  value={destinoPrueba}
+                  onChange={(e) => setDestinoPrueba(e.target.value)}
+                  placeholder={t("testToPlaceholder")}
+                  className="w-56 rounded-lg border border-gray-300 px-3 py-2 text-sm"
+                />
+              </label>
+
               <button
                 type="button"
                 disabled={pendiente}
                 onClick={() =>
                   start(async () => {
-                    const r = await guardarAjustes({ plantillaId: plantilla, asunto, cuerpo })
+                    const r = await guardarAjustes({ plantillaId: plantilla, asunto, cuerpo, urlEnlace })
                     setAviso(r.ok ? t("saved") : t("saveFailed", { error: r.error ?? "" }))
                   })
                 }
@@ -499,84 +521,6 @@ export default function ConferenciaPanel({
             />
           </div>
         </div>
-      </div>
-
-      {/* -------------------------------------------------------- directo */}
-      <div className="rounded-xl border border-gray-200 bg-white p-4">
-        <p className="font-semibold text-gray-800">{t("liveTitle")}</p>
-        <p className="mt-1 text-sm text-gray-600">{t("liveDesc")}</p>
-
-        {/* Control del directo. Cuatro estados y un clic cada uno: el día del
-            evento se cambia de uno a otro con prisa, y un desplegable sería un
-            paso de más. El color distingue el estado de un vistazo. */}
-        <div className="mt-4 rounded-xl bg-gray-50 p-3">
-          <span className="text-sm font-medium text-gray-700">{t("liveStateLabel")}</span>
-          <div className="mt-2 flex flex-wrap gap-2">
-            {ESTADOS_DIRECTO.map((e) => (
-              <button
-                key={e}
-                type="button"
-                disabled={pendiente}
-                // Se guarda al pulsar, sin botón de por medio. El estado del
-                // directo se cambia EN DIRECTO, con el evento en marcha: un
-                // cambio que se queda sin guardar porque nadie se acordó de
-                // pulsar un botón es justo el fallo que no se puede permitir
-                // ese día. Los enlaces sí llevan su botón: esos se configuran
-                // con calma, antes.
-                onClick={() =>
-                  start(async () => {
-                    setAvisoDirecto("")
-                    const r = await guardarAjustes({ directoEstado: e })
-                    // El botón solo se mueve si el servidor lo aceptó: pintarlo
-                    // optimista dejaría el panel mintiendo sobre lo que se ve
-                    // en la landing.
-                    if (r.ok) setDirectoEstado(e)
-                    setAvisoDirecto(
-                      r.ok ? t("savedState") : t("saveFailed", { error: r.error ?? "" })
-                    )
-                  })
-                }
-                aria-pressed={directoEstado === e}
-                className={`rounded-full px-4 py-1.5 text-sm font-semibold transition-colors ${
-                  directoEstado === e ? ESTADO_UI[e].clase : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                }`}
-              >
-                {t(ESTADO_UI[e].etiqueta)}
-              </button>
-            ))}
-          </div>
-          <p className="mt-2 text-xs text-gray-500">{t(ESTADO_HINT[directoEstado])}</p>
-        </div>
-
-        {avisoDirecto && <p className="mt-2 text-sm text-gray-700">{avisoDirecto}</p>}
-
-        <div className="mt-4 grid gap-3">
-          <label className="block">
-            <span className="text-sm font-medium text-gray-700">{t("embedLabel")}</span>
-            <input
-              value={directoEmbed}
-              onChange={(e) => setDirectoEmbed(e.target.value)}
-              placeholder="https://www.youtube.com/embed/…"
-              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
-            />
-          </label>
-        </div>
-
-        <button
-          type="button"
-          disabled={pendiente}
-          onClick={() =>
-            start(async () => {
-              const r = await guardarAjustes({ directoUrl, directoEmbed })
-              setAvisoDirecto(r.ok ? t("savedLive") : t("saveFailed", { error: r.error ?? "" }))
-            })
-          }
-          className="mt-3 rounded-full bg-gray-100 px-5 py-2.5 text-sm font-semibold text-gray-700 disabled:opacity-50"
-        >
-          {t("saveLive")}
-        </button>
-
-        <p className="mt-3 text-xs text-gray-500">{t("livePending")}</p>
       </div>
     </div>
   )

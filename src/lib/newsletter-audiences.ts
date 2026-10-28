@@ -1,6 +1,6 @@
 export type Audience = "registrados" | "estudiantes" | "residentes" | "licenciados" | "no_medicos"
 
-export const AUDIENCE_TIPOS: Record<Exclude<Audience, "registrados">, number> = {
+const AUDIENCE_TIPOS: Record<Exclude<Audience, "registrados">, number> = {
   estudiantes: 3,
   residentes: 2,
   licenciados: 1,

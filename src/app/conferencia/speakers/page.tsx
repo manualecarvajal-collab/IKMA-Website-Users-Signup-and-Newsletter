@@ -1,7 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { getLocale, getTranslations } from "next-intl/server"
-import BotonDirecto from "@/components/conferencia/BotonDirecto"
 import ConferenciaNav from "@/components/conferencia/ConferenciaNav"
 import FondoBarras from "@/components/conferencia/FondoBarras"
 import Revelar from "@/components/conferencia/Revelar"
@@ -10,7 +9,7 @@ import {
   CON_FOTO,
   EQUIPO,
   PROGRAMA,
-  nombreDe,
+  encabezadoDe,
   ponenteDe,
   sesionDePonente,
 } from "@/components/conferencia/programa"
@@ -103,10 +102,7 @@ export default async function SpeakersPage() {
 
             {/* Ficha del día: caja dentro de caja, como las tarjetas blancas de
                 la landing (el borde y el radio interior son concéntricos). */}
-            {/* La ficha del día y el botón de la transmisión comparten columna.
-                El botón NO puede ser hijo directo de la retícula: como pieza
-                suelta se coloca en la columna del texto y se estira a lo ancho
-                (inline-flex dentro de una retícula se comporta como bloque). */}
+            {/* La ficha del día vive en su columna, dentro de una caja propia. */}
             <div className="spk-columna-ficha">
             <dl className="spk-ficha">
               <div className="spk-ficha-cuerpo">
@@ -124,11 +120,6 @@ export default async function SpeakersPage() {
                 </div>
               </div>
             </dl>
-
-            {/* Debajo de la ficha del día: el atajo para entrar a la
-                transmisión. El porqué de la carga completa está en el propio
-                componente; aquí solo va el sitio que ocupa. */}
-            <BotonDirecto label={t("verDirecto")} className="spk-boton spk-ver" />
             </div>
           </div>
         </section>
@@ -169,7 +160,8 @@ export default async function SpeakersPage() {
           <div className="spk-pliego">
             {PROGRAMA.map((sesion) => {
               const ponente = ponenteDe(sesion)
-              const nombre = nombreDe(sesion)
+              // Encabezado: título propio si el tramo no es de una persona.
+              const nombre = encabezadoDe(sesion, locale)
               const color = COLOR_TIPO[sesion.tipo]
               return (
                 <Revelar key={sesion.id} className="spk-rev">

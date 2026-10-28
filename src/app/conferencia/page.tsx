@@ -9,14 +9,10 @@ import GalleryCard from "@/components/conferencia/GalleryCard"
 import Revelar from "@/components/conferencia/Revelar"
 import { PONENTES } from "@/components/conferencia/ponentes"
 import HorizontalRail from "@/components/conferencia/HorizontalRail"
-import BotonReenviarEnlace from "@/components/conferencia/BotonReenviarEnlace"
 import SignUpButton from "@/components/conferencia/SignUpButton"
 import SignupCard from "@/components/conferencia/SignupCard"
-import Presencia from "@/components/conferencia/Presencia"
-import DirectoPanel from "@/components/conferencia/DirectoPanel"
-import DirectoVivo from "@/components/conferencia/DirectoVivo"
-import { emailConfirmado, emailPendiente, getDirecto } from "@/lib/conferencia"
-import { createAdminClient } from "@/lib/supabase/server"
+import MarcoZoom from "@/components/conferencia/MarcoZoom"
+import { emailConfirmado } from "@/lib/conferencia"
 import "./fondo.css"
 
 /**
@@ -62,22 +58,8 @@ export default async function ConferenciaPage() {
   // en absoluto: el riel arranca en las tarjetas. Se resuelve en el servidor
   // para que no haya un parpadeo mostrando el formulario.
   const yaInscrito = await emailConfirmado()
-
-  // Confirmado en este navegador pero SIN haber abierto todavía el enlace del
-  // correo. No puede ver la transmisión —eso lo da el enlace—, pero tampoco
-  // tiene que volver a inscribirse: su sitio es la pantalla que le habla de su
-  // correo. Distinguir esto es lo que evita que el día del evento alguien repita
-  // el registro creyendo que no llegó a hacerlo.
-  const pendiente = yaInscrito ? null : await emailPendiente()
-  /** Confirmado, con enlace abierto o sin él: ya no se le ofrece inscribirse. */
-  const registrado = !!(yaInscrito || pendiente)
-  /** A quién se le reenvía el enlace. */
-  const suEmail = yaInscrito ?? pendiente ?? ""
-
-  // Estado del directo, que fija un administrador desde el panel. El panel 5
-  // reacciona a él: contador mientras no haya nada que ver, la transmisión para
-  // quien está dentro, el bloqueo para quien no.
-  const directo = await getDirecto(await createAdminClient())
+  /** A qué correo se le va a mandar el enlace de Zoom. */
+  const suEmail = yaInscrito ?? ""
 
   return (
     <>
@@ -86,9 +68,6 @@ export default async function ConferenciaPage() {
       <FondoBarras />
 
       <ConferenciaNav />
-
-      {/* Latido anónimo que alimenta "conectados ahora" en el panel */}
-      <Presencia />
 
       {/* 1 · Hero — scroll normal.
           Collage arriba (dos bloques planos + el recorte del grupo) y bloque de
@@ -205,8 +184,8 @@ export default async function ConferenciaPage() {
           {/* Descripción. El ancho va en `ch` a propósito: así el corte de línea
               se mantiene al cambiar el tamaño de la fuente, y el texto parte por
               donde parte en el prototipo ("…who serve / their communities…"). */}
-          <p className="mt-[min(13px,1.15svh)] max-w-[62ch] text-[clamp(min(0.9rem,1.33svh),min(0.87vw,1.55svh),1.05rem)] font-semibold leading-[1.4] text-[#123045]">
-            {registrado ? t("descriptionDentro") : t("description")}
+          <p className="mt-[min(13px,1.15svh)] max-w-[62ch] text-[clamp(min(1.05rem,1.55svh),min(1.02vw,1.8svh),1.25rem)] font-semibold leading-[1.4] text-[#123045]">
+            {yaInscrito ? t("descriptionDentro") : t("description")}
           </p>
 
           {/* Botones. Cambian según el estado, y no es cosmético: a quien ya
@@ -214,33 +193,26 @@ export default async function ConferenciaPage() {
               mandar a "contacta para más información", que era lo que decía el
               botón cuando la duda del usuario era otra. */}
           <div className="mt-[min(13px,1.15svh)] flex flex-wrap items-center justify-center gap-x-10 gap-y-3">
-            {registrado ? (
-              <>
-                {/* Lo único que puede necesitar quien ya está dentro: que le
-                    vuelva a llegar la llave. */}
-                <BotonReenviarEnlace
-                  email={suEmail}
-                  label={t("ctaReenviar")}
-                  className="rounded-full bg-[#11324F] px-[min(28px,2.6svh)] py-[min(10px,0.95svh)] text-[clamp(min(0.8rem,1.19svh),min(0.78vw,1.38svh),1rem)] font-bold text-white transition-colors hover:bg-[#1F4D75] disabled:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#11324F] focus-visible:ring-offset-2"
-                />
-                <Link
-                  href="/conferencia/speakers"
-                  className="text-[clamp(min(0.8rem,1.19svh),min(0.78vw,1.38svh),1rem)] font-bold text-[#123045] transition-opacity hover:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#123045] focus-visible:ring-offset-2"
-                >
-                  {t("ctaPonentes")}
-                </Link>
-              </>
+            {yaInscrito ? (
+              /* Relleno, como el botón principal: es la única acción que tiene
+                 quien ya está inscrito y hasta ahora era un enlace de texto. */
+              <Link
+                href="/conferencia/speakers"
+                className="rounded-full bg-[#11324F] px-[min(28px,2.6svh)] py-[min(10px,0.95svh)] text-[clamp(min(0.9rem,1.32svh),min(0.85vw,1.52svh),1.08rem)] font-bold text-white transition-colors hover:bg-[#1F4D75] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#11324F] focus-visible:ring-offset-2"
+              >
+                {t("ctaConferencia")}
+              </Link>
             ) : (
               <>
                 <SignUpButton
                   label={t("ctaPrimary")}
-                  className="rounded-full bg-[#11324F] px-[min(28px,2.6svh)] py-[min(10px,0.95svh)] text-[clamp(min(0.8rem,1.19svh),min(0.78vw,1.38svh),1rem)] font-bold text-white transition-colors hover:bg-[#1F4D75] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#11324F] focus-visible:ring-offset-2"
+                  className="rounded-full bg-[#11324F] px-[min(28px,2.6svh)] py-[min(10px,0.95svh)] text-[clamp(min(0.9rem,1.32svh),min(0.85vw,1.52svh),1.08rem)] font-bold text-white transition-colors hover:bg-[#1F4D75] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#11324F] focus-visible:ring-offset-2"
                 />
                 {/* El secundario es TEXTO, sin borde ni pastilla: así aparece en
                     el prototipo. */}
                 <a
                   href="/contact-us"
-                  className="text-[clamp(min(0.8rem,1.19svh),min(0.78vw,1.38svh),1rem)] font-bold text-[#123045] transition-opacity hover:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#123045] focus-visible:ring-offset-2"
+                  className="text-[clamp(min(0.9rem,1.32svh),min(0.85vw,1.52svh),1.08rem)] font-bold text-[#123045] transition-opacity hover:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#123045] focus-visible:ring-offset-2"
                 >
                   {t("ctaSecondary")}
                 </a>
@@ -249,36 +221,13 @@ export default async function ConferenciaPage() {
           </div>
 
           {/* Fecha y contador */}
-          <p className="mt-[min(22px,2svh)] text-[clamp(min(0.95rem,1.41svh),min(0.9vw,1.6svh),1.15rem)] font-semibold tracking-[0.01em] text-[#123045]">
+          <p className="mt-[min(22px,2svh)] text-[clamp(min(1.1rem,1.63svh),min(1.05vw,1.85svh),1.35rem)] font-semibold tracking-[0.01em] text-[#123045]">
             {t("date")}
           </p>
-          <p className="mt-[min(5px,0.45svh)] text-[clamp(min(0.8rem,1.19svh),min(0.78vw,1.38svh),1rem)] font-semibold text-[#123045]">
+          <p className="mt-[min(5px,0.45svh)] text-[clamp(min(0.95rem,1.4svh),min(0.9vw,1.6svh),1.15rem)] font-semibold text-[#123045]">
             {t("countdownLabel")}
           </p>
           <ConferenciaCountdown />
-
-          {/* Debajo del contador: la invitación a bajar. Solo la ve quien puede
-              ver la conferencia —a quien no está inscrito no se le ofrece una
-              salida de la página, que lo que tiene que hacer es el formulario—.
-              Es un enlace de verdad: además de pedirlo, lleva al riel. */}
-          {yaInscrito && (
-            <a
-              href="#registro"
-              className="mt-[min(20px,1.8svh)] inline-flex flex-col items-center gap-1 text-[clamp(min(0.72rem,1.07svh),min(0.7vw,1.24svh),0.9rem)] font-semibold text-[#123045] transition-opacity hover:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#11324F] focus-visible:ring-offset-2"
-            >
-              {t("scrollConferencia")}
-              <svg
-                viewBox="0 0 24 24"
-                className="conf-flecha h-4 w-4"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                aria-hidden="true"
-              >
-                <path d="M6 9l6 6 6-6" />
-              </svg>
-            </a>
-          )}
         </div>
       </section>
 
@@ -290,9 +239,6 @@ export default async function ConferenciaPage() {
       <HorizontalRail
         id="registro"
         hasForm={!yaInscrito}
-        // El marco del directo SOLO se pinta para quien puede verlo: enseñar
-        // una transmisión bloqueada a quien tiene que inscribirse no aporta
-        // nada, y en el riel cuesta un tramo entero de scroll.
         hasVideo={!!yaInscrito}
       >
         {/* Panel 1 — formulario + vídeo. Solo para quien no se ha inscrito.
@@ -303,7 +249,7 @@ export default async function ConferenciaPage() {
           <div className="w-[min(92vw,1040px)] overflow-hidden rounded-[28px] bg-white shadow-[0_24px_70px_rgba(8,18,38,0.35)] md:grid md:w-[1040px] md:grid-cols-[1fr_400px]">
             {/* Formulario — laterales +20 %: 24 → 28,8 px y 40 → 48 px */}
             <div className="px-[1.8rem] py-8 md:flex md:items-center md:px-12 md:py-10">
-              <SignupCard pendiente={pendiente} />
+              <SignupCard />
             </div>
 
             {/* Vídeo vertical a la derecha: testimonios de la asociación.
@@ -333,28 +279,18 @@ export default async function ConferenciaPage() {
             />
           ))}
 
-        {/* Panel 5 — el directo. NO se pinta para quien no está dentro: una
-            transmisión bloqueada no le sirve de nada a quien tiene que
-            inscribirse, y en el riel costaba un tramo entero de scroll que
-            además el visitante no podía aprovechar. Por eso el riel recibe
-            `hasVideo`: sin él trataría a la última ficha como si fuera el marco.
-            Qué se ve aquí lo decide `DirectoPanel` a partir del estado que fija
-            el panel de administración: contador, transmisión, aviso de pausa o
-            cierre. */}
+        {/* Última pieza del riel: qué pasa con la transmisión. NO se pinta para
+            quien no está dentro —quien tiene que inscribirse no necesita saber
+            a qué correo le llegará el enlace— y por eso el riel recibe
+            `hasVideo`: sin ese dato trataría la última ficha de ponente como si
+            fuera el marco.
+
+            Ya no hay reproductor: la conferencia se emite por Zoom y el enlace
+            llega por correo 24 horas antes. Este marco lo dice, y dice a qué
+            dirección. */}
         {yaInscrito && (
           <GalleryCard expandToVideo>
-            {/* Escucha los cambios de estado para que lleguen sin recargar. */}
-            <DirectoVivo
-              estado={directo.estado}
-              url={directo.url}
-              embed={directo.embed}
-            />
-            <DirectoPanel
-              estado={directo.estado}
-              inscrito
-              url={directo.url}
-              embed={directo.embed}
-            />
+            <MarcoZoom email={suEmail} />
           </GalleryCard>
         )}
       </HorizontalRail>

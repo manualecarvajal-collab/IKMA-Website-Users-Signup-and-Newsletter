@@ -10,6 +10,41 @@ datos completamente aislada using PostgreSQL schemas.
 **Base de datos:** Mismo Supabase, schema separado `conferencia`
 **Objetivo temporal:** Se puede borrar completo sin afectar nada
 
+## Cómo funciona HOY (2026-10-27) — leer antes que nada
+
+La página **no emite nada**. Se inscribe gente y nada más.
+
+1. El asistente se inscribe (nombre + correo) y confirma con un código de
+   6 dígitos que llega al buzón. Eso lo deja en la lista `confirmado` y marca
+   su navegador.
+2. Recibe un correo de confirmación que dice, con esas palabras, que **el
+   enlace de Zoom llega el viernes 13 de noviembre**, 24 horas antes.
+3. El 13 de noviembre un administrador pega el enlace de la reunión en
+   **Admin → Conferencia → plantilla «Enlace de Zoom (víspera)»**, manda una
+   prueba a su propio correo y después lo envía a todos los confirmados.
+   **Salvo quien se inscriba dentro de las últimas 24 horas**: esa persona
+   recibe el enlace en el mismo momento de confirmar el código, sin esperar al
+   envío manual. Lo decide `enVentanaDeEnlace()` (`components/conferencia/event.ts`),
+   que cubre desde las 9:00 del viernes 13 hasta el final del evento el sábado a
+   las 15:30 —quien se inscribe con la conferencia ya empezada también entra—.
+   En ese caso `verificarCodigo` manda la plantilla del enlace en lugar de la de
+   confirmación, y la pantalla final dice «el enlace ya está en tu correo».
+4. La conferencia se ve **en Zoom**, fuera de la web. La landing no tiene
+   reproductor, ni estados de directo, ni enlace de acceso: nada que
+   desbloquear.
+
+Por eso desaparecieron el marco con `<iframe>`, la máquina de estados
+`antes/vivo/espera/final`, `/api/conferencia/directo`, la presencia, la ruta
+`/conferencia/entrar` y el enlace firmado del correo. Si algo de eso aparece
+en un documento más abajo, está SUPERADO: vale como historia, no como
+instrucción.
+
+Lo único que queda en pie de todo aquello es la cookie firmada
+`conf_registro`, que ya no protege nada: solo evita que a quien se acaba de
+inscribir le vuelvan a pedir el formulario. La base manda igualmente
+(`emailState = confirmado`), porque `emailConfirmado()` la comprueba en cada
+visita.
+
 ## Arquitectura
 
 ```
@@ -192,7 +227,7 @@ y este documento:
   sobre la conferencia. Con sesión iniciada no se nota, porque ese camino sí
   lo lleva.
 
-## Inscripción, verificación y la puerta del correo
+## Inscripción, verificación y la puerta del correo (SUPERADO — historia)
 
 **Condición de negocio: sin inscripción confirmada no hay acceso a la
 transmisión.** `estado` no es cosmético, es la puerta.
@@ -559,7 +594,7 @@ aplicada la migración 00056?"* en vez del mensaje críptico de la API.
 Silenciar el error parecía defensivo y era lo contrario: llevaba a decidir
 sobre datos que no existían.
 
-## Puerta del directo y cierre de seguridad (2026-10-06)
+## Puerta del directo y cierre de seguridad (2026-10-06) (SUPERADO — historia)
 
 ### La puerta
 

@@ -5,7 +5,7 @@
 // datos antiguos) y un <iframe> en el navegador del miembro, así que merece
 // pruebas propias.
 
-export const DOMINIOS_EMBED_PERMITIDOS = [
+const DOMINIOS_EMBED_PERMITIDOS = [
   "www.youtube.com",
   "youtube.com",
   "youtu.be",

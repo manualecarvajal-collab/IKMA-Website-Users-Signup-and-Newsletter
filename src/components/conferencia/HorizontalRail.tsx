@@ -30,7 +30,7 @@ import type { CSSProperties, ReactNode } from "react"
  * "sigue hacia abajo") necesita exactamente este valor: duplicarlo crearía dos
  * números que se separarían al primer ajuste.
  */
-export const SCROLL_PER_STEP = 520
+const SCROLL_PER_STEP = 520
 
 /**
  * Separación y giro del abanico, según el ancho disponible.
@@ -241,7 +241,7 @@ export default function HorizontalRail({
       window.scrollY +
       Math.max(0, section.offsetHeight - window.innerHeight)
     window.scrollTo(0, destino)
-  }, [count])
+  }, [count, hasVideo])
 
 
   return (

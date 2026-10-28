@@ -22,13 +22,34 @@ const LOGO_IKMA =
  * inglés y la plantilla que se siembra también lo está. El cuerpo es lo único
  * traducible por el usuario desde el panel.
  */
-export function buildConferenciaInvitacionHtml(config: {
-  nombre: string
+/**
+ * Shell común de los correos de la conferencia.
+ *
+ * Cabecera con el logo, cuerpo editable y pie. La llamada a la acción es
+ * OPCIONAL: el correo de confirmación no lleva botón —hasta la víspera no hay
+ * nada que pulsar— y el de la víspera lleva el enlace de Zoom. Está extraído
+ * aquí porque las tres plantillas lo tenían copiado y pegado, y con tres copias
+ * el pie (privacidad, "you are receiving this email because…") acaba
+ * olvidándose en una de ellas.
+ *
+ * El cuerpo (`contenido_html`) es lo único editable desde el panel; la
+ * cabecera, el botón y el pie son estructura, para que el correo no se
+ * desmonte por un descuido.
+ */
+function shellConferencia(config: {
   contenido_html: string
-  ctaTexto?: string
+  cta?: { titulo: string; linea: string; href: string; texto: string }
 }) {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
-  const cta = config.ctaTexto?.trim() || "Become a member"
+  const cta = config.cta
+    ? `
+      <!-- Llamada a la acción -->
+      <div style="background-color: #1a4d6d; padding: 40px 32px; text-align: center;">
+        <h2 style="color: #ffffff; font-size: 26px; font-weight: 600; margin: 0 0 14px;">${config.cta.titulo}</h2>
+        <p style="color: #cae6ff; font-size: 15px; line-height: 1.7; margin: 0 auto 28px; max-width: 420px;">${config.cta.linea}</p>
+        <a href="${config.cta.href}" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 16px 40px; background-color: #ffffff; color: #003652; border-radius: 9999px; font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; text-decoration: none;">${config.cta.texto}</a>
+      </div>`
+    : ""
 
   return `
     <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; border: 1px solid #e0e0e0;">
@@ -43,14 +64,7 @@ export function buildConferenciaInvitacionHtml(config: {
           ${config.contenido_html}
         </div>
       </div>
-
-      <!-- Llamada a la acción: hacerse miembro -->
-      <div style="background-color: #1a4d6d; padding: 40px 32px; text-align: center;">
-        <h2 style="color: #ffffff; font-size: 26px; font-weight: 600; margin: 0 0 14px;">Be part of IKMA</h2>
-        <p style="color: #cae6ff; font-size: 15px; line-height: 1.7; margin: 0 auto 28px; max-width: 420px;">Join the association and get access to our content, journals and upcoming gatherings.</p>
-        <a href="${siteUrl}/membresia" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 16px 40px; background-color: #ffffff; color: #003652; border-radius: 9999px; font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; text-decoration: none;">${cta}</a>
-      </div>
-
+${cta}
       <!-- Pie -->
       <div style="background-color: #e6e8e9; padding: 32px; text-align: center; border-top: 1px solid #d8dadb;">
         <div style="color: #003652; font-weight: 700; font-size: 18px; margin-bottom: 12px;">IKMA</div>
@@ -66,54 +80,99 @@ export function buildConferenciaInvitacionHtml(config: {
 }
 
 /**
- * Recordatorio de la conferencia, para cuando el evento está cerca.
+ * Correo con el código de verificación. Es el PRIMERO que recibe un asistente,
+ * así que lleva la misma cabecera y el mismo pie que los demás: antes era un
+ * HTML aparte, sin logo, y el primer correo de IKMA llegaba con otra cara.
  *
- * Mismo shell que la invitación a membresía (logo, cuerpo, llamada y pie),
- * pero el botón apunta a **la landing**, no al link de Zoom. Es deliberado:
- * así el enlace de la reunión nunca sale por correo y no se puede reenviar a
- * terceros. Quien quiera entrar, pasa por la página.
+ * Sin botón y sin llamada a la acción: lo único que hay que hacer es copiar seis
+ * dígitos en la página que ya está abierta.
  */
-export function buildConferenciaRecordatorioHtml(config: {
+export function buildConferenciaCodigoHtml(config: {
+  nombre: string
+  codigo: string
+  minutos: number
+}) {
+  const saludo = config.nombre.trim() ? `Hi ${config.nombre.trim()},` : "Hi,"
+  return shellConferencia({
+    contenido_html: [
+      `<p>${saludo}</p>`,
+      "<p>Use this code to confirm your registration for the conference:</p>",
+      `<p style="font-size:34px;font-weight:700;letter-spacing:.18em;color:#0068B6;margin:24px 0">${config.codigo}</p>`,
+      `<p style="font-size:14px;color:#777">It expires in ${config.minutos} minutes. If you didn't request this registration, you can ignore this message.</p>`,
+    ].join("\n"),
+  })
+}
+
+/**
+ * Correo de confirmación: se manda al verificar el código.
+ *
+ * NO LLEVA BOTÓN, y es lo correcto: al terminar de inscribirse no hay nada que
+ * pulsar. El enlace de Zoom llega 24 horas antes, y este correo es donde se
+ * dice, para que nadie se quede esperando algo parecido a una entrada
+ * inmediata. La fecha de la víspera va en el pie del correo, no en el cuerpo:
+ * así no se puede borrar por accidente al editar el texto.
+ */
+export function buildConferenciaConfirmacionHtml(config: { contenido_html: string }) {
+  return shellConferencia({ contenido_html: config.contenido_html })
+}
+
+/**
+ * Invitación a hacerse miembro, para después del evento.
+ *
+ * El botón apunta a `/membresia`, que es donde se solicita la membresía. NO se
+ * añade saludo aquí: el cuerpo editable ya lo trae, y si lo pusiéramos en los
+ * dos sitios saldría repetido.
+ *
+ * Los textos fijos van en inglés a propósito: la asociación se comunica en
+ * inglés y la plantilla que se siembra también lo está. El cuerpo es lo único
+ * traducible por el usuario desde el panel.
+ */
+export function buildConferenciaInvitacionHtml(config: {
   nombre: string
   contenido_html: string
   ctaTexto?: string
 }) {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
-  const cta = config.ctaTexto?.trim() || "Go to the conference"
 
-  return `
-    <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; border: 1px solid #e0e0e0;">
-      <!-- Cabecera con el logo -->
-      <div style="background-color: #074469; padding: 32px 24px; text-align: center;">
-        <img src="${LOGO_IKMA}" alt="IKMA" style="max-width: 240px; max-height: 100px;">
-      </div>
+  return shellConferencia({
+    contenido_html: config.contenido_html,
+    cta: {
+      titulo: "Be part of IKMA",
+      linea:
+        "Join the association and get access to our content, journals and upcoming gatherings.",
+      href: `${siteUrl}/membresia`,
+      texto: config.ctaTexto?.trim() || "Become a member",
+    },
+  })
+}
 
-      <!-- Cuerpo editable -->
-      <div style="padding: 32px 24px;">
-        <div style="color: #49454f; line-height: 1.8; font-size: 16px;">
-          ${config.contenido_html}
-        </div>
-      </div>
+/**
+ * Correo de la víspera: el que lleva el enlace de Zoom.
+ *
+ * `enlace` es la URL de la reunión tal como la pega un administrador en el
+ * panel. Si no hay ninguna configurada, el botón cae a la landing en vez de
+ * salir vacío: un botón sin `href` en un correo que ya está enviado no se puede
+ * arreglar.
+ */
+export function buildConferenciaRecordatorioHtml(config: {
+  contenido_html: string
+  ctaTexto?: string
+  enlace?: string
+}) {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+  const enlace = config.enlace?.trim() ?? ""
 
-      <!-- Llamada a la acción: la landing de la conferencia -->
-      <div style="background-color: #1a4d6d; padding: 40px 32px; text-align: center;">
-        <h2 style="color: #ffffff; font-size: 26px; font-weight: 600; margin: 0 0 14px;">See you at the conference</h2>
-        <p style="color: #cae6ff; font-size: 15px; line-height: 1.7; margin: 0 auto 28px; max-width: 420px;">Everything you need to join us on the day is on the conference page.</p>
-        <a href="${siteUrl}/conferencia" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 16px 40px; background-color: #ffffff; color: #003652; border-radius: 9999px; font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; text-decoration: none;">${cta}</a>
-      </div>
-
-      <!-- Pie -->
-      <div style="background-color: #e6e8e9; padding: 32px; text-align: center; border-top: 1px solid #d8dadb;">
-        <div style="color: #003652; font-weight: 700; font-size: 18px; margin-bottom: 12px;">IKMA</div>
-        <p style="color: #41474d; font-size: 13px; line-height: 1.7; margin: 0 0 20px;">International Kingdom Medical Association<br>Dedicated to excellence in global health.</p>
-        <p style="color: #41474d; font-size: 12px; line-height: 1.8; margin: 0;">
-          &copy; 2026 IKMA. All rights reserved.<br>
-          You are receiving this email because you registered for the IKMA Conference.<br>
-          <a href="${siteUrl}/privacy-policy" style="color: #41474d; text-decoration: underline;">Privacy Policy</a>
-        </p>
-      </div>
-    </div>
-  `
+  return shellConferencia({
+    contenido_html: config.contenido_html,
+    cta: {
+      titulo: "See you at the conference",
+      linea: enlace
+        ? "The meeting opens in the Zoom app. You can join a few minutes early."
+        : "Everything you need to join us on the day is on the conference page.",
+      href: enlace || `${siteUrl}/conferencia`,
+      texto: config.ctaTexto?.trim() || (enlace ? "Join the meeting" : "Go to the conference"),
+    },
+  })
 }
 
 export function buildMembershipMessageHtml(config: {

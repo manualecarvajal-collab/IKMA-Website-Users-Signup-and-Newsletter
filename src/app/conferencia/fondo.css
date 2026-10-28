@@ -77,18 +77,14 @@
 
   /* Las fichas de ponente NO van en móvil. El abanico solo tiene sentido con el
      riel, y sin él serían seis tarjetas seguidas empujando el formulario hacia
-     abajo. Se quedan el formulario y el panel del directo, en ese orden. */
+     abajo. Se quedan el formulario y el marco de Zoom, en ese orden. */
   .conf-panel:has(.conf-ficha) {
       display: none;
     }
-  /* El marco del directo SÍ va ahora en el flujo de móvil.
-   *
-   * Antes se ocultaba aquí porque la transmisión se abría en un pop-up desde el
-   * botón del hero. Al cambiar los botones del hero —"Reenviar enlace" y "Conoce
-   * a nuestros ponentes"— ese pop-up desapareció, y con él la única forma de
-   * llegar al directo desde el celular. Ahora el marco es un bloque más de la
-   * columna, después de la tarjeta, y la flecha de "haz scroll para ver la
-   * conferencia" dice la verdad en móvil: está ahí abajo.
+  /* El marco de Zoom SÍ va en el flujo de móvil: es un bloque más de la
+   * columna, después de la tarjeta. Ya no reproduce nada —la conferencia se
+   * emite por Zoom y el enlace llega por correo 24 horas antes—, así que lo que
+   * hace es decir exactamente eso y a qué dirección va a llegar.
    *
    * Sigue sin pintarse para quien no está dentro: eso se decide en el servidor
    * (`hasVideo`), no aquí. */
@@ -116,28 +112,6 @@
   }
 }
 
-/* ---- Flecha de "haz scroll" y entrada del aviso de bienvenida -------------
- *
- * La flecha es el único movimiento que se ha añadido a la landing, y solo lo ve
- * quien ya está dentro. Un solo gesto, lento y con retorno: el chevron baja y
- * vuelve. Nada más se mueve para pedir atención.
- */
-@keyframes conf-flecha {
-  0%,
-  100% {
-    transform: translateY(0);
-    opacity: 0.5;
-  }
-  50% {
-    transform: translateY(6px);
-    opacity: 1;
-  }
-}
-
-.conf-flecha {
-  animation: conf-flecha 2.4s cubic-bezier(0.45, 0, 0.55, 1) infinite;
-}
-
 /* El aviso de bienvenida: el velo funde y la tarjeta sube un poco. */
 @keyframes conf-velo {
   from {
@@ -156,12 +130,5 @@
   to {
     opacity: 1;
     transform: none;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .conf-flecha {
-    animation: none;
-    opacity: 0.8;
   }
 }

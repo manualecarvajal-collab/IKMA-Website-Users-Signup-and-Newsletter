@@ -7,7 +7,7 @@
  * un listado de nombres en i18n.
  */
 
-export const COUNTRY_CODES: string[] = [
+const COUNTRY_CODES: string[] = [
   "AF","AL","DZ","AD","AO","AG","AR","AM","AU","AT","AZ","BS","BH","BD","BB","BY",
   "BE","BZ","BJ","BT","BO","BA","BW","BR","BN","BG","BF","BI","CV","KH","CM","CA",
   "CF","TD","CL","CN","CO","KM","CG","CD","CR","CI","HR","CU","CY","CZ","DK","DJ",
@@ -38,7 +38,7 @@ function displayNames(locale: string): Intl.DisplayNames | null {
 }
 
 /** Nombre del país en el idioma pedido; cae al código si no hay datos. */
-export function countryName(code: string, locale: string): string {
+function countryName(code: string, locale: string): string {
   return displayNames(locale)?.of(code) ?? code
 }
 

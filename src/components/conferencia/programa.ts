@@ -105,6 +105,12 @@ export interface Sesion {
   /** Nombre suelto cuando no hay ficha (anfitrión, grupo, junta…). */
   nombre?: string
   /**
+   * Título del tramo cuando NO es el nombre de una persona: "Inicio de la
+   * conferencia". Va en los dos idiomas, a diferencia de `nombre`, porque un
+   * nombre propio no se traduce y un título sí. Manda sobre `nombre`.
+   */
+  titulo?: Texto
+  /**
    * Iniciales para el recuadro. Solo para quien ES ponente y todavía no tiene
    * foto: así su fila no queda coja respecto a las demás. No se usa para
    * logística ni para el panel, que no son personas.
@@ -143,12 +149,13 @@ export const PROGRAMA: Sesion[] = [
     inicio: "09:00",
     fin: "09:10",
     tipo: "bienvenida",
-    nombre: "Alexis Lastra",
+    // Sin nombre propio a propósito: el arranque del día no se anuncia como el
+    // tramo de una persona. Quien modera sigue apareciendo en los créditos.
+    titulo: { en: "Start of the conference", es: "Inicio de la conferencia" },
     tema: {
       en: "Welcoming everyone, introducing the conference and IKMA",
       es: "Bienvenida, presentación de la conferencia y de IKMA",
     },
-    nota: { en: "Moderator", es: "Moderador" },
   },
   {
     id: "adoracion",
@@ -236,13 +243,11 @@ export const PROGRAMA: Sesion[] = [
     inicio: "15:20",
     fin: "15:30",
     tipo: "anuncios",
-    tema: {
-      // El documento los escribe como tres líneas sueltas ("IKMA International
-      // congress 2027 / Website / Associate Membership"). Aquí van en una frase
-      // porque en la página son el tema de un tramo, no una lista de apuntes.
-      en: "IKMA International Congress 2027, the IKMA website and associate membership",
-      es: "El Congreso Internacional IKMA 2027, la web de IKMA y la membresía asociada",
-    },
+    // SIN TEMA, a propósito: IKMA pidió dejar solo el rótulo "Anuncios".
+    // Antes se listaba aquí lo que se anuncia (el congreso de 2027, la web y la
+    // membresía asociada), y esas dos últimas son frases sueltas del documento
+    // más que un tema del programa. La fila queda como las de pausa y almuerzo:
+    // tipo y hora.
   },
 ]
 
@@ -260,6 +265,15 @@ export function ponenteDe(sesion: Sesion): Ponente | undefined {
  */
 export function nombreDe(sesion: Sesion): string {
   return ponenteDe(sesion)?.nombre ?? sesion.nombre ?? ""
+}
+
+/**
+ * Encabezado del tramo tal como se imprime: título propio si lo hay (tramos sin
+ * persona, como el arranque del día), y si no el nombre de quien habla.
+ */
+export function encabezadoDe(sesion: Sesion, locale: string): string {
+  if (sesion.titulo) return sesion.titulo[locale === "es" ? "es" : "en"]
+  return nombreDe(sesion)
 }
 
 /** La sesión que lleva un ponente, para que su retrato enlace a su tramo. */
