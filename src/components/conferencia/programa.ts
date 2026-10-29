@@ -171,8 +171,8 @@ export const PROGRAMA: Sesion[] = [
     inicio: "09:30",
     fin: "09:40",
     tipo: "palabras",
-    nombre: "Mum Carmen Boney",
-    iniciales: "CB",
+    // Con ficha propia desde que hay foto: nombre y retrato salen de `PONENTES`.
+    ponenteId: "carmen",
     tema: { en: "Share a few words", es: "Comparte unas palabras" },
   },
   { id: "carlos", inicio: "09:40", fin: "10:10", tipo: "ensenanza", ponenteId: "apostol" },

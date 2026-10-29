@@ -1,5 +1,5 @@
 /**
- * Los seis ponentes de la conferencia.
+ * Los siete ponentes de la conferencia.
  *
  * El título va DENTRO del nombre ("Dr.", "Pastor"…), que es como lo pidió IKMA;
  * por eso no hay un campo aparte para el cargo.
@@ -91,5 +91,12 @@ export const PONENTES: Ponente[] = [
       en: "Dr. Amanda Majanen is a medical doctor practicing Family Medicine in Finland. She is passionate about promoting holistic health and views herself as a Kingdom Ambassador and an agent of positive change within the medical field. Her mission is to help individuals experience wellness in spirit, soul, and body, while guiding those seeking healing toward Jehovah Rapha, whom she believes is the ultimate source of health and restoration.",
       es: "La Dra. Amanda Majanen es médica de Familia en Finlandia. Le apasiona promover la salud integral y se considera embajadora del Reino y agente de cambio positivo dentro del área médica. Su misión es ayudar a las personas a experimentar bienestar en espíritu, alma y cuerpo, y guiar a quienes buscan sanidad hacia Jehová Rapha, a quien considera la fuente última de salud y restauración.",
     },
+  },
+  {
+    id: "carmen",
+    nombre: "Mum Carmen Boney",
+    foto: "/images/conferencia/speakers/carmen.webp",
+    // SIN `bio`: IKMA todavía no la ha mandado. La página sabe vivir sin ella
+    // (no imprime el párrafo), así que se añade en cuanto llegue el texto.
   },
 ]

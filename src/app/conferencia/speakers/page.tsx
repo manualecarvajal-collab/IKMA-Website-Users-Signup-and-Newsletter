@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import type { CSSProperties } from "react"
 import Link from "next/link"
 import { getLocale, getTranslations } from "next-intl/server"
 import ConferenciaNav from "@/components/conferencia/ConferenciaNav"
@@ -134,7 +135,12 @@ export default async function SpeakersPage() {
               descripción—, después el titular presentando a quien viene, y luego
               el día. Estaba al revés. */}
           <h1 className="spk-h1 spk-titulo-ponentes">{t("hero.title")}</h1>
-          <div className="spk-tira">
+          <div
+            className="spk-tira"
+            /* Una columna por cara: si mañana entra o sale un ponente, la tira
+               se reparte sola en vez de dejar una fila coja. */
+            style={{ "--spk-caras": CON_FOTO.length } as CSSProperties}
+          >
             {CON_FOTO.map((ponente) => (
               <a
                 key={ponente.id}

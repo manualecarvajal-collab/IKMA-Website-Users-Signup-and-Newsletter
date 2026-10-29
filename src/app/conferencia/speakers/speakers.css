@@ -185,11 +185,14 @@
   padding: 0 clamp(20px, 3vw, 48px);
 }
 
-/* Seis columnas iguales SIN separación: así las reglas de los pies se tocan y
-   forman UNA sola línea por debajo de las caras. Con `gap` quedaría a trozos. */
+/* Una columna por ponente, SIN separación: así las reglas de los pies se tocan
+   y forman UNA sola línea por debajo de las caras. Con `gap` quedaría a trozos.
+   El número lo pone el componente (`--spk-caras`): la tira no puede llevar un 6
+   fijo, que al entrar la séptima cara se partía en dos filas con una sola
+   persona debajo. */
 .spk-tira {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(var(--spk-caras, 7), minmax(0, 1fr));
 }
 
 .spk-cara {
@@ -213,7 +216,29 @@
    manda: misma altura, pies en la misma regla. */
 
 .spk-cara-foto {
-  --spk-alto: clamp(120px, 13vw, 178px);
+  /* EL ALTO SALE DEL ANCHO DE LA CELDA, no de un valor fijo.
+   *
+   * La regla de la tira es que TODAS las caras midan lo mismo (IKMA lo pidió
+   * así). Con una altura fija eso se rompe en cuanto entra un ponente más: la
+   * celda se estrecha, y el retrato más apaisado —el de Carlos, 1,146 de
+   * proporción— ya no cabe a lo ancho, así que el navegador lo encoge y su
+   * cabeza queda más pequeña que las demás.
+   *
+   * Por eso el alto se deriva del ancho real de una celda: ancho del contenedor
+   * (1240 como mucho) menos sus dos rellenos y los de las celdas, dividido entre
+   * el número de caras y entre 1,16 —la proporción del retrato más ancho, con un
+   * pelo de margen—. El tope de 178 px mantiene el tamaño de siempre si algún
+   * día vuelven a ser seis. */
+  --spk-alto: min(
+    178px,
+    calc(
+      (
+          min(100vw, 1240px) - 2 * clamp(20px, 3vw, 48px) - 2 *
+            clamp(6px, 0.7vw, 14px) * var(--spk-caras, 7)
+        ) /
+        var(--spk-caras, 7) / 1.16
+    )
+  );
   /* Escala del zoom al pasar por encima. Es una sola constante porque la usan
      dos sitios que tienen que cuadrar: el alto de la caja y el `scale`. */
   --spk-zoom: 1.08;
@@ -636,6 +661,14 @@
      elige para que quepa holgado. */
   .spk-cara {
     padding: 0;
+  }
+
+  /* Si el número de ponentes no es múltiplo de tres, la última cara se queda
+     sola en su fila. Con `3n + 1` se detecta justo ese caso y se coloca en la
+     columna de en medio; con 6, 8 o 9 ponentes la regla no se aplica y no toca
+     nada. */
+  .spk-cara:last-child:nth-child(3n + 1) {
+    grid-column: 2;
   }
 
   .spk-cara-foto {
