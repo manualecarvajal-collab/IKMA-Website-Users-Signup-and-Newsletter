@@ -71,7 +71,15 @@
       "minutes": "{count, plural, one {minute} other {minutes}}",
       "seconds": "{count, plural, one {second} other {seconds}}",
       "descriptionDentro": "Your place is reserved. The Zoom link arrives by email on Friday, November 13 — 24 hours before. There is nothing else you need to do.",
-      "ctaConferencia": "Go to conference"
+      "ctaConferencia": "Go to conference",
+      "descriptionVispera": "Your Zoom link is ready: we emailed it yesterday, and you can also join from this page.",
+      "descriptionEnMarcha": "The conference is underway. You can join the meeting from this page.",
+      "descriptionTerminado": "The conference has ended. Thank you for being with us.",
+      "estadoVispera": "Starts tomorrow at 9:00 am (EST)",
+      "estadoEnMarcha": "Happening right now",
+      "estadoTerminado": "Conference finished",
+      "ctaEntrar": "Join in Zoom",
+      "ctaVerPrograma": "See the programme and speakers"
     },
     "form": {
       "title": "Save your place at the IKMA Conference",
@@ -132,7 +140,27 @@
       "badge": "On Zoom",
       "titulo": "The conference is held on Zoom",
       "texto": "We will email you the meeting link on Friday, November 13 — 24 hours before — at this address:",
-      "spam": "If you do not see it that day, please check your spam folder."
+      "spam": "If you do not see it that day, please check your spam folder.",
+      "badgeVispera": "Available now",
+      "badgeEnMarcha": "Live",
+      "visperaTitulo": "Your Zoom link is ready",
+      "enMarchaTitulo": "The conference is underway",
+      "entrar": "Join in Zoom",
+      "tambienEn": "We also sent it to {email}",
+      "sinEnlaceTitulo": "The link is on its way to your inbox",
+      "sinEnlaceTexto": "It is not published here yet. Check your inbox (and your spam folder).",
+      "terminadoTitulo": "The conference has ended",
+      "terminadoTexto": "Thank you for joining us. If you would like to stay close to the community, write to us.",
+      "terminadoCta": "Write to us"
+    },
+    "entrar": {
+      "badge": "Old link",
+      "metaTitle": "Old link — IKMA Conference",
+      "titulo": "This link is no longer in use",
+      "texto": "How you join the conference has changed: it is held on Zoom, and the meeting link is sent to you by email, a new one for each send.",
+      "aviso": "We will email you the new link on Friday, November 13 — 24 hours before the conference.",
+      "cta": "Go to the conference",
+      "pie": "Your registration is still valid. There is nothing else you need to do."
     }
   },
   "Navbar": {
@@ -806,11 +834,11 @@
       "selectAll": "Select visible",
       "selectOne": "Select {nombre}",
       "emailTitle": "Emails to registrants",
-      "emailDesc": "Pick recipients in the table and which template to send. Only confirmed ones are emailed: an unverified address gets nothing, because anyone could have typed it.",
+      "emailDesc": "Three ways to send: pick the template, check the preview, then send to the selected, to a single person from the table, or to everyone confirmed. Nothing goes out unless you ask.",
       "subject": "Subject",
       "message": "Message",
       "markersHint": "Available placeholders, replaced with each attendee's data:",
-      "sendTo": "{count, plural, =0 {Send to nobody} one {Send to # confirmed} other {Send to # confirmed}}",
+      "sendTo": "{count, plural, =0 {Send to selected} one {Send to the # selected} other {Send to the # selected}}",
       "sending": "Sending…",
       "sendTest": "Send me a test",
       "saveTemplate": "Save template",
@@ -833,9 +861,25 @@
       "templateLabel": "Template",
       "templateConfirmation": "Confirmation",
       "zoomLinkLabel": "Zoom link for the meeting",
-      "zoomLinkHint": "It is the button in the email and the {{enlace}} marker in the body. Paste it here the day before.",
+      "zoomLinkHint": "It is the button in the email, the '{{enlace}}' marker in the body, and the «Join in Zoom» button on the website during the event window (from 24 h before until the end). Paste it here the day before.",
       "testTo": "Test to",
-      "testToPlaceholder": "empty = your own email"
+      "testToPlaceholder": "empty = your own email",
+      "colSendLink": "Link",
+      "sendLink": "Send link",
+      "sendLinkDone": "Sent",
+      "sendAll": "Send to all {count} confirmed",
+      "sendAllConfirm": "Send to {count} people? This cannot be undone.",
+      "sendAllYes": "Yes, send",
+      "sendAllNo": "Cancel",
+      "sendingProgress": "Sending {done} of {total}…",
+      "linkMissing": "The Zoom link is missing: paste it above before sending.",
+      "pendingEmails": "{count} of {total} confirmed have not received any email yet.",
+      "templateVerification": "Verification",
+      "sendVerify": "Resend verification",
+      "sendVerifyAll": "Resend to the {count} unverified",
+      "verifyPending": "{count} registrants have not confirmed their email",
+      "verifyResult": "Verification resent: {sent} sent, {failed} failed",
+      "verifyHint": "This template carries a NEW code on every send: you do not type the code, use '{{codigo}}'. It expires in '{{minutos}}' minutes."
     }
   },
   "IncompleteRegistration": {

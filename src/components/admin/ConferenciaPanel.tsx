@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from "next-intl"
 import {
   enviarInvitacion,
   enviarPrueba,
+  enviarVerificacion,
   guardarAjustes,
   type EnvioResumen,
 } from "@/app/admin/conferencia/actions"
@@ -46,6 +47,7 @@ const PERFILES: Record<string, string> = {
 /** Clave de i18n de la pestaña de cada plantilla. */
 const ETIQUETA_PLANTILLA: Record<PlantillaId, string> = {
   confirmacion: "templateConfirmation",
+  verificacion: "templateVerification",
   recordatorio: "templateReminder",
   invitacion: "templateInvitation",
 }
@@ -56,6 +58,48 @@ const ETIQUETA_FILTRO: Record<string, string> = {
   confirmado: "statusConfirmed",
   nuevo: "statusPending",
   cancelado: "statusCancelled",
+}
+
+/**
+ * Botón de envío de una fila, con su propio estado: "Enviar enlace" → "Enviando…"
+ * → "Enviado" o el error. Va aparte para no arrastrar la tabla entera a un
+ * rerender por cada fila que se toca.
+ */
+function BotonFila({
+  estado,
+  onEnviar,
+  etiqueta,
+  enviando,
+  hecho,
+}: {
+  estado?: string
+  onEnviar: () => void
+  etiqueta: string
+  enviando: string
+  hecho: string
+}) {
+  if (estado === "enviando") {
+    return <span className="text-xs text-gray-500">{enviando}</span>
+  }
+  if (estado === "ok") {
+    return <span className="text-xs font-semibold text-emerald-700">✓ {hecho}</span>
+  }
+  if (estado?.startsWith("error:")) {
+    return (
+      <span className="text-xs text-red-700" title={estado.slice(6)}>
+        ✗ {estado.slice(6, 40)}
+      </span>
+    )
+  }
+  return (
+    <button
+      type="button"
+      onClick={onEnviar}
+      className="whitespace-nowrap rounded-full border border-ikmaBlue px-3 py-1 text-xs font-semibold text-ikmaBlue transition-colors hover:bg-ikmaBlue hover:text-white"
+    >
+      {etiqueta}
+    </button>
+  )
 }
 
 function Kpi({ valor, etiqueta, nota }: { valor: number | string; etiqueta: string; nota?: string }) {
@@ -115,6 +159,19 @@ export default function ConferenciaPanel({
   const [aviso, setAviso] = useState<string>("")
   const [pendiente, start] = useTransition()
 
+  /**
+   * Resultado del botón de cada fila, por id: "enviando", "ok" o el error.
+   * Va por fila para que un envío no bloquee la tabla entera ni borre el
+   * mensaje de la que acaba de fallar.
+   */
+  const [filaEnvio, setFilaEnvio] = useState<Record<string, string>>({})
+  /** Progreso del envío masivo: `{ hechos, total }` mientras corre. */
+  const [lote, setLote] = useState<{ hechos: number; total: number } | null>(null)
+  /** El envío a todos pide confirmación: es irreversible y no tiene deshacer. */
+  const [confirmarTodos, setConfirmarTodos] = useState(false)
+  /** Resultado de los reenvíos de verificación, aparte del de las plantillas. */
+  const [resultadoVerif, setResultadoVerif] = useState<EnvioResumen | null>(null)
+
   const visibles = useMemo(
     () => (filtro === "todos" ? registros : registros.filter((r) => r.estado === filtro)),
     [registros, filtro]
@@ -123,6 +180,93 @@ export default function ConferenciaPanel({
   const seleccionados = useMemo(() => registros.filter((r) => sel.has(r.id)), [registros, sel])
   const confirmadosSeleccionados = seleccionados.filter((r) => r.estado === "confirmado").length
   const noConfirmadosSeleccionados = seleccionados.length - confirmadosSeleccionados
+
+  /** Todo el mundo que ha confirmado el código, sin importar el filtro. */
+  const confirmados = useMemo(() => registros.filter((r) => r.estado === "confirmado"), [registros])
+  /** Confirmados que todavía no han recibido NINGÚN correo. */
+  const sinCorreos = confirmados.filter((r) => r.envios === 0).length
+  /** Se inscribieron y no llegaron a meter el código. */
+  const sinVerificar = useMemo(() => registros.filter((r) => r.estado === "nuevo"), [registros])
+  const faltaEnlace = plantilla === "recordatorio" && !urlEnlace.trim()
+
+  /**
+   * Envía en tandas de 50.
+   *
+   * La acción del servidor tiene un tope por llamada (una tanda de 300 correos
+   * en una sola petición se pasaría del tiempo máximo de la función), así que
+   * el troceo se hace aquí y se acumula el resultado. Se detiene en seco si
+   * Resend dice que no queda cuota: seguir solo gasta tiempo y llena el registro
+   * de fallos idénticos.
+   */
+  async function enviarPorTandas(ids: string[], plantillaEnvio: PlantillaId) {
+    const TANDA = 50
+    const total = { enviados: 0, fallidos: 0, omitidosNoConfirmados: 0, cortadoPorCuota: false, detalle: [] as EnvioResumen["detalle"] }
+    setLote({ hechos: 0, total: ids.length })
+    for (let i = 0; i < ids.length; i += TANDA) {
+      const tanda = ids.slice(i, i + TANDA)
+      const borrador = borradores[plantillaEnvio]
+      const r = await enviarInvitacion(tanda, borrador.asunto, borrador.cuerpo, plantillaEnvio, urlEnlace)
+      total.enviados += r.enviados
+      total.fallidos += r.fallidos
+      total.omitidosNoConfirmados += r.omitidosNoConfirmados
+      total.detalle.push(...r.detalle)
+      setLote({ hechos: Math.min(i + TANDA, ids.length), total: ids.length })
+      if (r.cortadoPorCuota) {
+        total.cortadoPorCuota = true
+        break
+      }
+      // Un error global (sin destinatario) significa que no tiene sentido seguir:
+      // falta el enlace o la plantilla está vacía.
+      if (r.detalle.some((d) => !d.email && !d.ok)) break
+    }
+    setLote(null)
+    setResultado(total)
+  }
+
+  /**
+   * Reenvía la verificación a quien no terminó. No manda «un recordatorio»: emite
+   * un código NUEVO (el anterior caduca a los 15 minutos), por eso se trocea y se
+   * respeta el mismo tope por llamada que el resto.
+   */
+  async function reenviarVerificacion(ids: string[]) {
+    const TANDA = 50
+    const total = { enviados: 0, fallidos: 0, omitidosNoConfirmados: 0, cortadoPorCuota: false, detalle: [] as EnvioResumen["detalle"] }
+    setLote({ hechos: 0, total: ids.length })
+    for (let i = 0; i < ids.length; i += TANDA) {
+      const r = await enviarVerificacion(ids.slice(i, i + TANDA))
+      total.enviados += r.enviados
+      total.fallidos += r.fallidos
+      total.omitidosNoConfirmados += r.omitidosNoConfirmados
+      total.detalle.push(...r.detalle)
+      setLote({ hechos: Math.min(i + TANDA, ids.length), total: ids.length })
+      if (r.cortadoPorCuota) {
+        total.cortadoPorCuota = true
+        break
+      }
+    }
+    setLote(null)
+    setResultadoVerif(total)
+  }
+
+  /** Botón de una fila sin verificar. */
+  async function reenviarVerificacionUna(id: string) {
+    setFilaEnvio((prev) => ({ ...prev, [id]: "enviando" }))
+    const r = await enviarVerificacion([id])
+    const error = r.detalle.find((d) => !d.ok)?.error
+    setFilaEnvio((prev) => ({ ...prev, [id]: r.enviados > 0 ? "ok" : `error:${error ?? "?"}` }))
+  }
+
+  /** Botón de una fila: manda la plantilla del enlace a esa persona sola. */
+  async function enviarUna(id: string) {
+    setFilaEnvio((prev) => ({ ...prev, [id]: "enviando" }))
+    const borrador = borradores.recordatorio
+    const r = await enviarInvitacion([id], borrador.asunto, borrador.cuerpo, "recordatorio", urlEnlace)
+    const error = r.detalle.find((d) => !d.ok)?.error
+    setFilaEnvio((prev) => ({
+      ...prev,
+      [id]: r.enviados > 0 ? "ok" : `error:${error ?? "?"}`,
+    }))
+  }
 
   const etiquetaEstado = (estado: string) =>
     ESTADOS[estado] ? t(ESTADOS[estado].key) : estado
@@ -273,9 +417,118 @@ export default function ConferenciaPanel({
               </button>
             ))}
           </div>
+
+          {/* Reenvío de la verificación: solo aparece si hay alguien a medias,
+              porque es el único caso en el que sirve. */}
+          {sinVerificar.length > 0 && (
+            <div className="mt-3 flex flex-wrap items-center gap-3 rounded-lg bg-amber-50 px-3 py-2">
+              <span className="text-sm font-medium text-amber-900">
+                {t("verifyPending", { count: sinVerificar.length })}
+              </span>
+              <button
+                type="button"
+                disabled={Boolean(lote)}
+                onClick={() => reenviarVerificacion(sinVerificar.map((r) => r.id))}
+                className="rounded-full bg-amber-700 px-4 py-1.5 text-sm font-semibold text-white disabled:opacity-50"
+              >
+                {lote
+                  ? t("sendingProgress", { done: lote.hechos, total: lote.total })
+                  : t("sendVerifyAll", { count: sinVerificar.length })}
+              </button>
+            </div>
+          )}
+
+          {resultadoVerif && (
+            <div className="mt-3 rounded-lg bg-gray-50 p-3 text-sm">
+              <p className="font-medium text-gray-800">
+                {t("verifyResult", { sent: resultadoVerif.enviados, failed: resultadoVerif.fallidos })}
+              </p>
+              {resultadoVerif.cortadoPorCuota && <p className="mt-1 text-red-700">{t("quotaCut")}</p>}
+              <ul className="mt-2 max-h-32 space-y-1 overflow-y-auto">
+                {resultadoVerif.detalle.map((d, i) => (
+                  <li key={i} className={d.ok ? "text-emerald-700" : "text-red-700"}>
+                    {d.ok ? "✓" : "✗"} {d.email || t("noEmail")}
+                    {d.error && ` — ${d.error}`}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
 
-        <div className="overflow-x-auto">
+        {/* ---------------------------------------------------- móvil
+            En un teléfono la tabla no cabe —necesita 1.086 px— y el botón de
+            enviar quedaba cortado en el borde. Aquí cada registro es una ficha
+            con lo imprescindible y el botón entero. */}
+        <div className="md:hidden">
+          <label className="mb-1 flex items-center gap-2 border-b border-gray-200 pb-2 text-xs uppercase tracking-wide text-gray-500">
+            <input
+              type="checkbox"
+              aria-label={t("selectAll")}
+              checked={visibles.length > 0 && visibles.every((r) => sel.has(r.id))}
+              onChange={alternarVisibles}
+            />
+            {t("selectAll")}
+          </label>
+          {visibles.length === 0 && (
+            <p className="py-6 text-center text-gray-500">{t("empty")}</p>
+          )}
+          <div className="divide-y divide-gray-100">
+            {visibles.map((r) => (
+              <div key={r.id} className="flex items-start gap-3 py-3">
+                <input
+                  type="checkbox"
+                  aria-label={t("selectOne", { nombre: r.nombre })}
+                  checked={sel.has(r.id)}
+                  onChange={() => alternar(r.id)}
+                  className="mt-1"
+                />
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium text-gray-800">{r.nombre}</p>
+                  <p className="break-all text-xs text-gray-600">{r.email}</p>
+                  <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-gray-500">
+                    <span
+                      className={`rounded-full px-2 py-0.5 ${
+                        ESTADOS[r.estado]?.clase ?? "bg-gray-100 text-gray-700"
+                      }`}
+                    >
+                      {etiquetaEstado(r.estado)}
+                    </span>
+                    {r.pais && <span>{r.pais}</span>}
+                    <span>
+                      {r.envios} · {t("colEmails")}
+                    </span>
+                  </div>
+                  {r.estado === "confirmado" && (
+                    <div className="mt-2">
+                      <BotonFila
+                        estado={filaEnvio[r.id]}
+                        onEnviar={() => enviarUna(r.id)}
+                        etiqueta={t("sendLink")}
+                        enviando={t("sending")}
+                        hecho={t("sendLinkDone")}
+                      />
+                    </div>
+                  )}
+                  {r.estado === "nuevo" && (
+                    <div className="mt-2">
+                      <BotonFila
+                        estado={filaEnvio[r.id]}
+                        onEnviar={() => reenviarVerificacionUna(r.id)}
+                        etiqueta={t("sendVerify")}
+                        enviando={t("sending")}
+                        hecho={t("sendLinkDone")}
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* -------------------------------------------------- escritorio */}
+        <div className="hidden overflow-x-auto md:block">
           <table className="w-full text-sm">
             <thead className="bg-gray-50 text-left text-xs uppercase tracking-wide text-gray-500">
               <tr>
@@ -289,24 +542,27 @@ export default function ConferenciaPanel({
                 </th>
                 <th className="p-3">{t("colName")}</th>
                 <th className="p-3">{t("colEmail")}</th>
-                <th className="p-3">{t("colCountry")}</th>
-                <th className="p-3">{t("colProfile")}</th>
+                <th className="hidden p-3 xl:table-cell">{t("colCountry")}</th>
+                <th className="hidden p-3 xl:table-cell">{t("colProfile")}</th>
                 <th className="p-3">{t("colStatus")}</th>
-                <th className="p-3">{t("colCreated")}</th>
-                <th className="p-3">{t("colVerified")}</th>
+                <th className="hidden p-3 xl:table-cell">{t("colCreated")}</th>
+                <th className="hidden p-3 xl:table-cell">{t("colVerified")}</th>
                 <th className="p-3">{t("colEmails")}</th>
+                <th className="sticky right-0 z-10 border-l border-gray-200 bg-gray-50 p-3 shadow-[-8px_0_10px_-8px_rgba(0,0,0,0.18)]">
+                  {t("colSendLink")}
+                </th>
               </tr>
             </thead>
             <tbody>
               {visibles.length === 0 && (
                 <tr>
-                  <td colSpan={9} className="p-6 text-center text-gray-500">
+                  <td colSpan={10} className="p-6 text-center text-gray-500">
                     {t("empty")}
                   </td>
                 </tr>
               )}
               {visibles.map((r) => (
-                <tr key={r.id} className="border-t border-gray-100 hover:bg-gray-50">
+                <tr key={r.id} className="group border-t border-gray-100 hover:bg-gray-50">
                   <td className="p-3">
                     <input
                       type="checkbox"
@@ -316,9 +572,9 @@ export default function ConferenciaPanel({
                     />
                   </td>
                   <td className="p-3 font-medium text-gray-800">{r.nombre}</td>
-                  <td className="p-3 text-gray-600">{r.email}</td>
-                  <td className="p-3 text-gray-600">{r.pais ?? "—"}</td>
-                  <td className="p-3 text-gray-600">{etiquetaPerfil(r.perfil_profesional)}</td>
+                  <td className="break-all p-3 text-gray-600">{r.email}</td>
+                  <td className="hidden p-3 text-gray-600 xl:table-cell">{r.pais ?? "—"}</td>
+                  <td className="hidden p-3 text-gray-600 xl:table-cell">{etiquetaPerfil(r.perfil_profesional)}</td>
                   <td className="p-3">
                     <span
                       className={`rounded-full px-2 py-0.5 text-xs ${
@@ -328,9 +584,34 @@ export default function ConferenciaPanel({
                       {etiquetaEstado(r.estado)}
                     </span>
                   </td>
-                  <td className="p-3 text-gray-500">{fecha(r.created_at)}</td>
-                  <td className="p-3 text-gray-500">{fecha(r.verificado_at)}</td>
+                  <td className="hidden p-3 text-gray-500 xl:table-cell">{fecha(r.created_at)}</td>
+                  <td className="hidden p-3 text-gray-500 xl:table-cell">{fecha(r.verificado_at)}</td>
                   <td className="p-3 text-gray-500">{r.envios}</td>
+                  <td className="sticky right-0 z-10 border-l border-gray-200 bg-white p-3 group-hover:bg-gray-50">
+                    {/* Envío individual: solo tiene sentido para quien confirmó
+                        el código. Un registro `nuevo` no ha demostrado que el
+                        buzón sea suyo, y mandarle correo sería escribir a un
+                        tercero. */}
+                    {r.estado === "confirmado" ? (
+                      <BotonFila
+                        estado={filaEnvio[r.id]}
+                        onEnviar={() => enviarUna(r.id)}
+                        etiqueta={t("sendLink")}
+                        enviando={t("sending")}
+                        hecho={t("sendLinkDone")}
+                      />
+                    ) : r.estado === "nuevo" ? (
+                      <BotonFila
+                        estado={filaEnvio[r.id]}
+                        onEnviar={() => reenviarVerificacionUna(r.id)}
+                        etiqueta={t("sendVerify")}
+                        enviando={t("sending")}
+                        hecho={t("sendLinkDone")}
+                      />
+                    ) : (
+                      <span className="text-xs text-gray-400">—</span>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -384,8 +665,15 @@ export default function ConferenciaPanel({
                 {t("markersHint")}{" "}
                 <code className="rounded bg-gray-100 px-1">{"{{nombre}}"}</code>{" "}
                 <code className="rounded bg-gray-100 px-1">{"{{email}}"}</code>{" "}
-                <code className="rounded bg-gray-100 px-1">{"{{enlace}}"}</code>
+                <code className="rounded bg-gray-100 px-1">{"{{enlace}}"}</code>{" "}
+                <code className="rounded bg-gray-100 px-1">{"{{codigo}}"}</code>{" "}
+                <code className="rounded bg-gray-100 px-1">{"{{minutos}}"}</code>
               </p>
+              {plantilla === "verificacion" && (
+                <p className="mb-2 rounded-lg bg-blue-50 px-3 py-2 text-xs text-blue-900">
+                  {t("verifyHint")}
+                </p>
+              )}
               <TiptapEditor
                 content={cuerpo}
                 onChange={(html) => editar("cuerpo", html)}
@@ -404,28 +692,76 @@ export default function ConferenciaPanel({
                   className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
                 />
                 <span className="mt-1 block text-xs text-gray-500">{t("zoomLinkHint")}</span>
+                {!urlEnlace.trim() && (
+                  <span className="mt-1 block rounded-lg bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800">
+                    {t("linkMissing")}
+                  </span>
+                )}
               </label>
             )}
 
+            {sinCorreos > 0 && (
+              <p className="text-xs text-gray-500">
+                {t("pendingEmails", { count: sinCorreos, total: confirmados.length })}
+              </p>
+            )}
+
             <div className="flex flex-wrap items-center gap-2">
+              {/* 1 · a los seleccionados (marcados en la tabla) */}
               <button
                 type="button"
-                disabled={pendiente}
-                onClick={() =>
-                  start(async () => {
-                    setAviso("")
-                    setResultado(null)
-                    const ids = seleccionados.map((r) => r.id)
-                    const res = await enviarInvitacion(ids, asunto, cuerpo, plantilla)
-                    setResultado(res)
-                  })
-                }
+                disabled={pendiente || Boolean(lote) || faltaEnlace || confirmadosSeleccionados === 0}
+                onClick={async () => {
+                  setAviso("")
+                  setResultado(null)
+                  await enviarPorTandas(
+                    seleccionados.filter((r) => r.estado === "confirmado").map((r) => r.id),
+                    plantilla
+                  )
+                }}
                 className="rounded-full bg-ikmaBlue px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
               >
-                {pendiente
-                  ? t("sending")
-                  : t("sendTo", { count: confirmadosSeleccionados })}
+                {lote ? t("sendingProgress", { done: lote.hechos, total: lote.total }) : t("sendTo", { count: confirmadosSeleccionados })}
               </button>
+
+              {/* 2 · a TODOS los confirmados, con confirmación de por medio:
+                  esto no se puede deshacer. */}
+              {confirmarTodos ? (
+                <span className="flex flex-wrap items-center gap-2 rounded-full bg-amber-50 px-3 py-1.5">
+                  <span className="text-sm font-semibold text-amber-900">
+                    {t("sendAllConfirm", { count: confirmados.length })}
+                  </span>
+                  <button
+                    type="button"
+                    disabled={Boolean(lote) || faltaEnlace}
+                    onClick={async () => {
+                      setConfirmarTodos(false)
+                      setAviso("")
+                      setResultado(null)
+                      await enviarPorTandas(confirmados.map((r) => r.id), plantilla)
+                    }}
+                    className="rounded-full bg-amber-700 px-4 py-1.5 text-sm font-semibold text-white disabled:opacity-50"
+                  >
+                    {t("sendAllYes")}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setConfirmarTodos(false)}
+                    className="text-sm font-semibold text-amber-900 underline"
+                  >
+                    {t("sendAllNo")}
+                  </button>
+                </span>
+              ) : (
+                <button
+                  type="button"
+                  disabled={Boolean(lote) || faltaEnlace || confirmados.length === 0}
+                  onClick={() => setConfirmarTodos(true)}
+                  className="rounded-full border border-ikmaBlue px-5 py-2.5 text-sm font-semibold text-ikmaBlue disabled:opacity-50"
+                >
+                  {t("sendAll", { count: confirmados.length })}
+                </button>
+              )}
 
               <button
                 type="button"

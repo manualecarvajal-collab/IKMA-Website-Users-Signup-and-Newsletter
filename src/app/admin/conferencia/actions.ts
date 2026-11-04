@@ -5,6 +5,7 @@ import { sendResendEmail } from "@/lib/resend"
 import { getSenderConfig } from "@/lib/conferencia"
 import { componerCorreo, type PlantillaId } from "@/lib/conferencia-plantilla"
 import { getAjustes } from "@/lib/conferencia-admin"
+import { CODE_TTL_MINUTES, emitirCodigo } from "@/lib/conferencia-codigo"
 
 /**
  * Acciones del panel de la conferencia.
@@ -76,7 +77,9 @@ export async function enviarInvitacion(
   ids: string[],
   asunto: string,
   cuerpo: string,
-  plantilla: PlantillaId
+  plantilla: PlantillaId,
+  /** Enlace de Zoom tal como está en el campo del panel. Si falta, se usa el guardado. */
+  enlaceDelPanel?: string
 ): Promise<EnvioResumen> {
   const resumen: EnvioResumen = {
     enviados: 0,
@@ -130,8 +133,21 @@ export async function enviarInvitacion(
   const envios = () => admin.schema("conferencia").from("envios")
 
   // El enlace de la reunión solo lo usa la plantilla de la víspera, y se lee una
-  // vez para todo el lote: es el mismo para todos.
-  const { urlEnlace } = (await getAjustes(admin)).data
+  // vez para todo el lote: es el mismo para todos. Manda el que está en el campo
+  // del panel —lo que se ve en la vista previa es lo que se manda— y si viene
+  // vacío se usa el guardado.
+  const { urlEnlace: enlaceGuardado } = (await getAjustes(admin)).data
+  const urlEnlace = (enlaceDelPanel ?? "").trim() || enlaceGuardado
+
+  // Y si aun así no hay enlace, NO se manda: un correo que dice «este es tu
+  // enlace» con el enlace vacío es peor que no enviarlo, porque el inscrito se
+  // queda esperando y ya no vuelve a mirar.
+  if (plantilla === "recordatorio" && !urlEnlace) {
+    return {
+      ...resumen,
+      detalle: [{ email: "", ok: false, error: "Falta el enlace de Zoom: pégalo antes de enviar." }],
+    }
+  }
 
   for (const r of destinatarios) {
     const email = r.email ?? ""
@@ -195,6 +211,9 @@ export async function enviarPrueba(
   }
 
   if (!asunto.trim() || !cuerpo.trim()) return { ok: false, error: "Asunto y cuerpo son obligatorios" }
+  if (plantilla === "recordatorio" && !(enlace ?? "").trim()) {
+    return { ok: false, error: "Falta el enlace de Zoom: pégalo antes de enviar la prueba." }
+  }
 
   const admin = await createAdminClient()
   const { fromName, fromEmail } = await getSenderConfig(admin)
@@ -211,6 +230,131 @@ export async function enviarPrueba(
   if (res.ok) return { ok: true, destino: para }
   const body = await res.text().catch(() => "")
   return { ok: false, error: `${res.status} ${body.slice(0, 160)}` }
+}
+
+/**
+ * Reenvía la verificación a quien se inscribió y no terminó.
+ *
+ * NO es un recordatorio cualquiera: el código caduca a los 15 minutos y en la
+ * base solo vive su hash, así que no se puede «volver a mandar el mismo». Aquí
+ * se EMITE UNO NUEVO (misma maquinaria que la landing, en
+ * `@/lib/conferencia-codigo`) y se manda con la plantilla `verificacion`, que es
+ * editable desde el panel.
+ *
+ * Solo toca registros en `nuevo`: a quien ya confirmó no se le manda un código
+ * que no necesita, y a quien está cancelado tampoco.
+ *
+ * Cada envío queda anotado en `envios`, igual que los demás.
+ */
+export async function enviarVerificacion(ids: string[]): Promise<EnvioResumen> {
+  const resumen: EnvioResumen = {
+    enviados: 0,
+    fallidos: 0,
+    omitidosNoConfirmados: 0,
+    cortadoPorCuota: false,
+    detalle: [],
+  }
+
+  const guard = await requireAdmin()
+  if (!guard.ok) {
+    return { ...resumen, detalle: [{ email: "", ok: false, error: guard.error }] }
+  }
+
+  if (ids.length === 0) return resumen
+  if (ids.length > MAX_POR_ENVIO) {
+    return { ...resumen, detalle: [{ email: "", ok: false, error: `Máximo ${MAX_POR_ENVIO} por envío` }] }
+  }
+
+  const admin = await createAdminClient()
+  const { data, error } = await admin
+    .schema("conferencia")
+    .from("registros")
+    .select("id, nombre, email, estado")
+    .in("id", ids)
+
+  if (error) {
+    console.error("[enviarVerificacion] lectura:", error.message, error.code)
+    return { ...resumen, detalle: [{ email: "", ok: false, error: error.message }] }
+  }
+
+  const { plantillas } = (await getAjustes(admin)).data
+  const plantilla = plantillas.verificacion
+  const { fromName, fromEmail } = await getSenderConfig(admin)
+  const envios = () => admin.schema("conferencia").from("envios")
+
+  for (const r of data ?? []) {
+    const email = r.email ?? ""
+    if (r.estado !== "nuevo") {
+      resumen.omitidosNoConfirmados++
+      resumen.detalle.push({
+        email,
+        ok: false,
+        error: "Ya está confirmado: no necesita código",
+      })
+      continue
+    }
+
+    if (!plantilla.asunto.trim() || !plantilla.cuerpo.trim()) {
+      resumen.fallidos++
+      resumen.detalle.push({ email, ok: false, error: "La plantilla de verificación está vacía" })
+      continue
+    }
+
+    const emision = await emitirCodigo(admin, r.id, "admin")
+    if (!emision.ok) {
+      resumen.fallidos++
+      resumen.detalle.push({
+        email,
+        ok: false,
+        error:
+          emision.reason === "cooldown"
+            ? `Espera ${emision.retryInSeconds} s: se le acaba de enviar otro código`
+            : "No se pudo emitir el código",
+      })
+      continue
+    }
+
+    const html = componerCorreo("verificacion", plantilla.cuerpo, {
+      nombre: r.nombre ?? "",
+      email,
+      codigo: emision.codigo,
+      minutos: String(CODE_TTL_MINUTES),
+    })
+
+    const res = await sendResendEmail({
+      to: email,
+      subject: plantilla.asunto,
+      html,
+      fromName,
+      fromEmail,
+    })
+
+    if (res.ok) {
+      resumen.enviados++
+      resumen.detalle.push({ email, ok: true })
+      await envios().insert({ registro_id: r.id, email, asunto: plantilla.asunto, ok: true })
+      continue
+    }
+
+    const cuerpo = await res.text().catch(() => "")
+    resumen.fallidos++
+    resumen.detalle.push({ email, ok: false, error: `${res.status}` })
+    await envios().insert({
+      registro_id: r.id,
+      email,
+      asunto: plantilla.asunto,
+      ok: false,
+      error: `${res.status} ${cuerpo.slice(0, 200)}`,
+    })
+
+    if (res.status === 429) {
+      resumen.cortadoPorCuota = true
+      console.error("[enviarVerificacion] cuota agotada, se detiene el lote")
+      break
+    }
+  }
+
+  return resumen
 }
 
 /**

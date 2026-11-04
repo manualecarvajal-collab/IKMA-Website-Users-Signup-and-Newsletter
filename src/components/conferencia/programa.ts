@@ -47,14 +47,21 @@ import type { Ponente } from "./ponentes"
  * entre lo que rotula y lo que marca: Amanda Majanen (30 rotulados, 35 en el
  * reloj) y las preguntas (10 rotulados, 15 en el reloj).
  *
- * EL RÓTULO HORARIO DICE EST, Y ES A PETICIÓN DE IKMA.
+ * EL RÓTULO HORARIO DICE EST, Y YA NO ES UNA APROXIMACIÓN.
  *
- * Conviene saber que no es exacto: la tabla del documento va en hora de Coro
- * (UTC−4) —así titula su columna, "EDT - Coro"— y EST es UTC−5, una hora menos.
- * IKMA pidió expresamente rotular todo en EST ("Change all to time in EST") y sus
- * correos también dicen EST, así que la página lo escribe así para no
- * contradecirlos. Si algún día prefieren que sea exacto, el rótulo correcto para
- * esta tabla es "hora de Coro (UTC−4)".
+ * La tabla del documento titula su columna "EDT - Coro", y EDT es UTC−4. IKMA
+ * pidió rotular todo en EST ("Change all to time in EST"), así que al principio
+ * la página imprimía horas de Coro con la etiqueta EST: una hora de diferencia
+ * escondida, porque en noviembre el Este ya está en horario de invierno.
+ *
+ * El 29 de octubre de 2026 se cerró el asunto con el dato definitivo: la
+ * invitación de Zoom de EATC fija la conferencia el 14 de noviembre a las 9:00
+ * **Eastern Time**, que son las 10:00 en Venezuela. Con eso, las horas que
+ * imprime esta tabla y la etiqueta EST dicen lo mismo, y el contador de la
+ * landing (`EVENT_DATE`) cuenta al mismo instante.
+ *
+ * Quien lea "09:00" en el pliego y esté en Coro tiene que saber que su reloj
+ * marcará las 10:00.
  *
  * Las horas que se imprimen son las del documento, sin convertir nada: quien lea
  * "12:55" lee lo que dice la tabla de IKMA.

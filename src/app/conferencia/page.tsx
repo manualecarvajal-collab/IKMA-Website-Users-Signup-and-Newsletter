@@ -12,7 +12,9 @@ import HorizontalRail from "@/components/conferencia/HorizontalRail"
 import SignUpButton from "@/components/conferencia/SignUpButton"
 import SignupCard from "@/components/conferencia/SignupCard"
 import MarcoZoom from "@/components/conferencia/MarcoZoom"
-import { emailConfirmado } from "@/lib/conferencia"
+import { emailConfirmado, getEnlaceReunion } from "@/lib/conferencia"
+import { createAdminClient } from "@/lib/supabase/server"
+import { enVentanaDeEnlace, momentoDelEvento } from "@/components/conferencia/event"
 import "./fondo.css"
 
 /**
@@ -60,6 +62,19 @@ export default async function ConferenciaPage() {
   const yaInscrito = await emailConfirmado()
   /** A qué correo se le va a mandar el enlace de Zoom. */
   const suEmail = yaInscrito ?? ""
+
+  // En qué tramo del evento estamos: antes, víspera, en marcha o terminado.
+  const momento = momentoDelEvento()
+
+  /**
+   * El enlace de Zoom SOLO se lee —y por tanto solo viaja al navegador— para un
+   * inscrito y dentro de la ventana del evento. Es el límite de esta pantalla y
+   * se ve aquí, no escondido dentro de una lib: fuera de la ventana, el HTML no
+   * lleva el enlace y no hay nada que sacar del inspector.
+   */
+  const enlace = yaInscrito && enVentanaDeEnlace()
+    ? await getEnlaceReunion(await createAdminClient())
+    : ""
 
   return (
     <>
@@ -185,7 +200,15 @@ export default async function ConferenciaPage() {
               se mantiene al cambiar el tamaño de la fuente, y el texto parte por
               donde parte en el prototipo ("…who serve / their communities…"). */}
           <p className="mt-[min(13px,1.15svh)] max-w-[62ch] text-[clamp(min(1.05rem,1.55svh),min(1.02vw,1.8svh),1.25rem)] font-semibold leading-[1.4] text-[#123045]">
-            {yaInscrito ? t("descriptionDentro") : t("description")}
+            {!yaInscrito
+              ? t("description")
+              : momento === "vispera"
+                ? t("descriptionVispera")
+                : momento === "enMarcha"
+                  ? t("descriptionEnMarcha")
+                  : momento === "terminado"
+                    ? t("descriptionTerminado")
+                    : t("descriptionDentro")}
           </p>
 
           {/* Botones. Cambian según el estado, y no es cosmético: a quien ya
@@ -194,14 +217,29 @@ export default async function ConferenciaPage() {
               botón cuando la duda del usuario era otra. */}
           <div className="mt-[min(13px,1.15svh)] flex flex-wrap items-center justify-center gap-x-10 gap-y-3">
             {yaInscrito ? (
-              /* Relleno, como el botón principal: es la única acción que tiene
-                 quien ya está inscrito y hasta ahora era un enlace de texto. */
-              <Link
-                href="/conferencia/speakers"
-                className="rounded-full bg-[#11324F] px-[min(28px,2.6svh)] py-[min(10px,0.95svh)] text-[clamp(min(0.9rem,1.32svh),min(0.85vw,1.52svh),1.08rem)] font-bold text-white transition-colors hover:bg-[#1F4D75] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#11324F] focus-visible:ring-offset-2"
-              >
-                {t("ctaConferencia")}
-              </Link>
+              /* Dentro de la ventana del evento la acción principal es ENTRAR a
+                 la reunión, no pasear por el programa: el enlace ya existe y
+                 quien está aquí es porque quiere entrar. Fuera de la ventana el
+                 botón vuelve a llevar a los ponentes, que es lo único que hay
+                 que ver mientras se espera. */
+              <>
+                {enlace && (
+                  <a
+                    href={enlace}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="rounded-full bg-[#11324F] px-[min(28px,2.6svh)] py-[min(10px,0.95svh)] text-[clamp(min(0.9rem,1.32svh),min(0.85vw,1.52svh),1.08rem)] font-bold text-white transition-colors hover:bg-[#1F4D75] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#11324F] focus-visible:ring-offset-2"
+                  >
+                    {t("ctaEntrar")}
+                  </a>
+                )}
+                <Link
+                  href="/conferencia/speakers"
+                  className="text-[clamp(min(0.9rem,1.32svh),min(0.85vw,1.52svh),1.08rem)] font-bold text-[#123045] transition-opacity hover:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#123045] focus-visible:ring-offset-2"
+                >
+                  {enlace ? t("ctaVerPrograma") : t("ctaConferencia")}
+                </Link>
+              </>
             ) : (
               <>
                 <SignUpButton
@@ -224,10 +262,25 @@ export default async function ConferenciaPage() {
           <p className="mt-[min(22px,2svh)] text-[clamp(min(1.1rem,1.63svh),min(1.05vw,1.85svh),1.35rem)] font-semibold tracking-[0.01em] text-[#123045]">
             {t("date")}
           </p>
-          <p className="mt-[min(5px,0.45svh)] text-[clamp(min(0.95rem,1.4svh),min(0.9vw,1.6svh),1.15rem)] font-semibold text-[#123045]">
-            {t("countdownLabel")}
-          </p>
-          <ConferenciaCountdown />
+          {/* El contador solo tiene sentido ANTES. Después se quedaría en
+              0:0:0:0 bajo "la conferencia comienza en", que es una frase falsa:
+              por eso a partir de la víspera se sustituye por el estado. */}
+          {momento === "antes" ? (
+            <>
+              <p className="mt-[min(5px,0.45svh)] text-[clamp(min(0.95rem,1.4svh),min(0.9vw,1.6svh),1.15rem)] font-semibold text-[#123045]">
+                {t("countdownLabel")}
+              </p>
+              <ConferenciaCountdown />
+            </>
+          ) : (
+            <p className="mt-[min(10px,0.9svh)] text-[clamp(min(1rem,1.45svh),min(0.95vw,1.7svh),1.2rem)] font-bold text-[#11324F]">
+              {momento === "vispera"
+                ? t("estadoVispera")
+                : momento === "enMarcha"
+                  ? t("estadoEnMarcha")
+                  : t("estadoTerminado")}
+            </p>
+          )}
         </div>
       </section>
 
@@ -290,7 +343,7 @@ export default async function ConferenciaPage() {
             dirección. */}
         {yaInscrito && (
           <GalleryCard expandToVideo>
-            <MarcoZoom email={suEmail} />
+            <MarcoZoom email={suEmail} momento={momento} url={enlace} />
           </GalleryCard>
         )}
       </HorizontalRail>

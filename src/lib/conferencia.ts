@@ -154,6 +154,30 @@ export async function emailConfirmado(): Promise<string | null> {
 }
 
 /**
+ * Enlace de la reunión de Zoom, tal como lo pega un administrador en el panel
+ * (clave `plantilla_recordatorio_url` de `conferencia.ajustes`).
+ *
+ * OJO CON QUIÉN LO PIDE. Esta función devuelve el enlace a quien pregunte; el
+ * límite está en `page.tsx`, que solo lo pide para un inscrito y solo dentro de
+ * la ventana del evento. Esconderlo aquí a escondidas enterraría la decisión de
+ * seguridad dentro de una lib, que es justo donde no se puede ser vago.
+ *
+ * Se filtra a `http(s)`: el valor acaba en un `href`, y un `javascript:` ahí
+ * sería XSS servido por nosotros.
+ */
+export async function getEnlaceReunion(admin: Admin): Promise<string> {
+  const { data } = await admin
+    .schema("conferencia")
+    .from("ajustes")
+    .select("valor")
+    .eq("clave", "plantilla_recordatorio_url")
+    .maybeSingle()
+
+  const valor = (data?.valor ?? "").trim()
+  return /^https?:\/\//i.test(valor) ? valor : ""
+}
+
+/**
  * Remitente del sitio, el mismo que usan el resto de correos (tabla
  * `app_config` del schema `public`).
  *

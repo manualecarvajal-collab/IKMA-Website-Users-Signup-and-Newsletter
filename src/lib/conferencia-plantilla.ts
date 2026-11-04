@@ -1,5 +1,5 @@
 import {
-  buildConferenciaConfirmacionHtml,
+  buildConferenciaAvisoHtml,
   buildConferenciaInvitacionHtml,
   buildConferenciaRecordatorioHtml,
 } from "./email-template"
@@ -18,6 +18,10 @@ import {
  *   `confirmacion` — al verificar el código. Dice que la plaza está confirmada y
  *                    que el enlace de Zoom llega 24 horas antes. No lleva botón:
  *                    en ese momento no hay nada que pulsar.
+ *   `verificacion` — a mano desde el panel, para quien se inscribió y no llegó a
+ *                    meter el código. Lleva un código NUEVO ({{codigo}}) porque
+ *                    el anterior caduca a los 15 minutos: un recordatorio sin
+ *                    código no sirve de nada.
  *   `recordatorio` — la víspera, a mano desde el panel. Lleva el enlace de Zoom,
  *                    que se pega en el panel ese mismo día.
  *   `invitacion`   — después del evento. Invita a hacerse miembro → /membresia.
@@ -27,7 +31,7 @@ import {
  * enlace es justo lo que hay que hacer llegar a cada inscrito.
  */
 
-export const PLANTILLAS = ["confirmacion", "recordatorio", "invitacion"] as const
+export const PLANTILLAS = ["confirmacion", "verificacion", "recordatorio", "invitacion"] as const
 
 export type PlantillaId = (typeof PLANTILLAS)[number]
 
@@ -56,17 +60,30 @@ export const PLANTILLAS_POR_DEFECTO: Record<PlantillaId, Plantilla> = {
       "<p>If you do not see it that day, please check your spam folder.</p>",
     ].join("\n"),
   },
+  verificacion: {
+    asunto: "Finish your registration — new code inside",
+    cuerpo: [
+      "<p>Hi {{nombre}},</p>",
+      "<p>You started registering for the IKMA Conference but did not finish: we still need to confirm your email.</p>",
+      "<p>This is your new code:</p>",
+      '<p style="font-size:32px;font-weight:700;letter-spacing:.18em;color:#0068B6;margin:20px 0">{{codigo}}</p>',
+      "<p>It expires in {{minutos}} minutes. Enter it on the conference page and your place is booked.</p>",
+      "<p>If you did not try to register, you can ignore this message.</p>",
+    ].join("\n"),
+  },
   recordatorio: {
     // Sin "tomorrow" a propósito: este correo sale en DOS momentos —el envío
     // manual del día antes y el envío inmediato a quien se inscribe dentro de
     // las últimas 24 h— y "mañana" sería mentira en el segundo.
+    // El ID y el passcode van escritos aparte del enlace: si el botón no abre
+    // donde uno espera, esos dos datos son la vía de emergencia.
     asunto: "Your Zoom link for the IKMA Conference",
     cuerpo: [
       "<p>Hi {{nombre}},</p>",
-      "<p>The IKMA Conference is on <strong>Saturday, November 14</strong>, from 9:00 am to 3:30 pm (EST).</p>",
-      "<p>This is your link to the meeting:</p>",
+      "<p>The IKMA Conference is <strong>Saturday, November 14</strong>. This is your link to the meeting:</p>",
       '<p><a href="{{enlace}}">{{enlace}}</a></p>',
-      "<p>You can join a few minutes early. If Zoom asks you for a passcode, it is the one included in the link.</p>",
+      "<p><strong>Meeting ID:</strong> 876 6174 6391<br/><strong>Passcode:</strong> 457744</p>",
+      "<p>If Zoom asks you to install the app, do it a few minutes before we start — it only takes a moment. You can also join straight from a browser.</p>",
       "<p>See you there,<br/>The IKMA team</p>",
     ].join("\n"),
   },
@@ -85,6 +102,10 @@ interface DatosPlantilla {
   email: string
   /** Enlace de Zoom de la reunión. Solo lo usa la plantilla de la víspera. */
   enlace?: string
+  /** Código de verificación. Solo lo usa la plantilla del recordatorio de alta. */
+  codigo?: string
+  /** Minutos que le quedan de vida al código. */
+  minutos?: string
 }
 
 /**
@@ -103,6 +124,8 @@ function renderPlantilla(texto: string, datos: DatosPlantilla): string {
     .replaceAll("{{nombre}}", escapar(datos.nombre || "asistente"))
     .replaceAll("{{email}}", escapar(datos.email))
     .replaceAll("{{enlace}}", escapar(datos.enlace ?? ""))
+    .replaceAll("{{codigo}}", escapar(datos.codigo ?? ""))
+    .replaceAll("{{minutos}}", escapar(datos.minutos ?? ""))
 }
 
 /**
@@ -117,7 +140,9 @@ export function componerCorreo(
 ): string {
   const contenido_html = renderPlantilla(contenidoHtml, datos)
 
-  if (plantilla === "confirmacion") return buildConferenciaConfirmacionHtml({ contenido_html })
+  if (plantilla === "confirmacion" || plantilla === "verificacion") {
+    return buildConferenciaAvisoHtml({ contenido_html })
+  }
   if (plantilla === "recordatorio") {
     return buildConferenciaRecordatorioHtml({ contenido_html, ctaTexto, enlace: datos.enlace })
   }

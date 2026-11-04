@@ -71,7 +71,15 @@
       "minutes": "{count, plural, one {minuto} other {minutos}}",
       "seconds": "{count, plural, one {segundo} other {segundos}}",
       "descriptionDentro": "Tu lugar está reservado. El enlace de Zoom te llega por correo el viernes 13 de noviembre, 24 horas antes — no tienes que hacer nada más.",
-      "ctaConferencia": "Ir a la conferencia"
+      "ctaConferencia": "Ir a la conferencia",
+      "descriptionVispera": "Ya tienes tu enlace de Zoom: te lo enviamos ayer por correo y también puedes entrar desde esta página.",
+      "descriptionEnMarcha": "La conferencia está en marcha. Puedes entrar a la reunión desde esta misma página.",
+      "descriptionTerminado": "La conferencia ha terminado. Gracias por habernos acompañado.",
+      "estadoVispera": "Empieza mañana a las 9:00 (EST)",
+      "estadoEnMarcha": "En marcha ahora mismo",
+      "estadoTerminado": "Conferencia finalizada",
+      "ctaEntrar": "Entrar en Zoom",
+      "ctaVerPrograma": "Ver programa y ponentes"
     },
     "form": {
       "title": "Reserva tu lugar en la Conferencia IKMA",
@@ -132,7 +140,27 @@
       "badge": "Por Zoom",
       "titulo": "La conferencia se transmite por Zoom",
       "texto": "Te enviamos el enlace de la reunión por correo el viernes 13 de noviembre, 24 horas antes, a esta dirección:",
-      "spam": "Si ese día no lo ves, mira en la carpeta de correo no deseado."
+      "spam": "Si ese día no lo ves, mira en la carpeta de correo no deseado.",
+      "badgeVispera": "Ya disponible",
+      "badgeEnMarcha": "En directo",
+      "visperaTitulo": "Tu enlace de Zoom ya está listo",
+      "enMarchaTitulo": "La conferencia está en marcha",
+      "entrar": "Entrar en Zoom",
+      "tambienEn": "También te lo enviamos a {email}",
+      "sinEnlaceTitulo": "El enlace va camino de tu correo",
+      "sinEnlaceTexto": "Todavía no está publicado aquí. Búscalo en tu bandeja (mira también en la carpeta de correo no deseado).",
+      "terminadoTitulo": "La conferencia ha terminado",
+      "terminadoTexto": "Gracias por acompañarnos. Si quieres seguir cerca de la comunidad, escríbenos.",
+      "terminadoCta": "Escríbenos"
+    },
+    "entrar": {
+      "badge": "Enlace antiguo",
+      "metaTitle": "Enlace antiguo — Conferencia IKMA",
+      "titulo": "Este enlace ya no se usa",
+      "texto": "La forma de entrar a la conferencia ha cambiado: se emite por Zoom y el enlace de la reunión te llega por correo, uno nuevo para cada envío.",
+      "aviso": "Te enviaremos el enlace nuevo el viernes 13 de noviembre, 24 horas antes de la conferencia.",
+      "cta": "Ir a la conferencia",
+      "pie": "Tu inscripción sigue siendo válida. No tienes que hacer nada más."
     }
   },
   "Navbar": {
@@ -806,11 +834,11 @@
       "selectAll": "Seleccionar los visibles",
       "selectOne": "Seleccionar {nombre}",
       "emailTitle": "Correos a los inscritos",
-      "emailDesc": "Elige destinatarios en la tabla y qué plantilla enviar. Solo se escribe a los confirmados: a un correo sin verificar no se le manda nada, porque pudo escribirlo cualquiera.",
+      "emailDesc": "Tres formas de enviar: elige la plantilla, revisa la vista previa y luego manda a los marcados, a una sola persona desde la tabla, o a todos los confirmados. Nada sale sin que lo pidas.",
       "subject": "Asunto",
       "message": "Mensaje",
       "markersHint": "Marcadores disponibles, se sustituyen por los datos de cada asistente:",
-      "sendTo": "{count, plural, =0 {Enviar a ninguno} one {Enviar a # confirmado} other {Enviar a # confirmados}}",
+      "sendTo": "{count, plural, =0 {Enviar a los marcados} one {Enviar al marcado} other {Enviar a los # marcados}}",
       "sending": "Enviando…",
       "sendTest": "Enviarme una prueba",
       "saveTemplate": "Guardar plantilla",
@@ -833,9 +861,25 @@
       "templateLabel": "Plantilla",
       "templateConfirmation": "Confirmación",
       "zoomLinkLabel": "Enlace de Zoom de la reunión",
-      "zoomLinkHint": "Es el botón del correo y el marcador {{enlace}} del cuerpo. Se pega aquí el día antes.",
+      "zoomLinkHint": "Es el botón del correo, el marcador '{{enlace}}' del cuerpo y el botón «Entrar en Zoom» de la web mientras dura la ventana del evento (24 h antes y hasta el final). Se pega aquí el día antes.",
       "testTo": "Probar a",
-      "testToPlaceholder": "vacío = tu propio correo"
+      "testToPlaceholder": "vacío = tu propio correo",
+      "colSendLink": "Enlace",
+      "sendLink": "Enviar enlace",
+      "sendLinkDone": "Enviado",
+      "sendAll": "Enviar a los {count} confirmados",
+      "sendAllConfirm": "¿Enviar a {count} personas? No se puede deshacer.",
+      "sendAllYes": "Sí, enviar",
+      "sendAllNo": "Cancelar",
+      "sendingProgress": "Enviando {done} de {total}…",
+      "linkMissing": "Falta el enlace de Zoom: pégalo arriba antes de enviar.",
+      "pendingEmails": "{count} de {total} confirmados no han recibido ningún correo todavía.",
+      "templateVerification": "Verificación",
+      "sendVerify": "Reenviar verificación",
+      "sendVerifyAll": "Reenviar a los {count} sin verificar",
+      "verifyPending": "{count} inscritos sin confirmar el correo",
+      "verifyResult": "Verificación reenviada: {sent} enviadas, {failed} fallidas",
+      "verifyHint": "Esta plantilla lleva un código NUEVO en cada envío: no hace falta escribir el código a mano, usa '{{codigo}}'. Caduca en '{{minutos}}' minutos."
     }
   },
   "IncompleteRegistration": {

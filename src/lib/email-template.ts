@@ -104,7 +104,12 @@ export function buildConferenciaCodigoHtml(config: {
 }
 
 /**
- * Correo de confirmación: se manda al verificar el código.
+ * Correo sin llamada a la acción: cabecera, cuerpo y pie.
+ *
+ * Lo usan la CONFIRMACIÓN (al verificar el código) y el RECORDATORIO DE
+ * VERIFICACIÓN (cuando un administrador reenvía el código a quien se quedó a
+ * medias). En los dos casos no hay nada que pulsar: lo que hay que hacer es
+ * copiar seis dígitos o, simplemente, saber qué pasa después.
  *
  * NO LLEVA BOTÓN, y es lo correcto: al terminar de inscribirse no hay nada que
  * pulsar. El enlace de Zoom llega 24 horas antes, y este correo es donde se
@@ -112,7 +117,7 @@ export function buildConferenciaCodigoHtml(config: {
  * inmediata. La fecha de la víspera va en el pie del correo, no en el cuerpo:
  * así no se puede borrar por accidente al editar el texto.
  */
-export function buildConferenciaConfirmacionHtml(config: { contenido_html: string }) {
+export function buildConferenciaAvisoHtml(config: { contenido_html: string }) {
   return shellConferencia({ contenido_html: config.contenido_html })
 }
 

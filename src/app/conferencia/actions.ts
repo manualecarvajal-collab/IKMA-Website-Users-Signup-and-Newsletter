@@ -1,6 +1,5 @@
 "use server"
 
-import { createHash, randomInt, timingSafeEqual } from "crypto"
 import { cookies } from "next/headers"
 import { createAdminClient } from "@/lib/supabase/server"
 import { sendResendEmail } from "@/lib/resend"
@@ -14,6 +13,15 @@ import {
 import { getAjustes } from "@/lib/conferencia-admin"
 import { componerCorreo } from "@/lib/conferencia-plantilla"
 import { buildConferenciaCodigoHtml } from "@/lib/email-template"
+import {
+  CODE_DIGITS,
+  CODE_TTL_MINUTES,
+  MAX_ATTEMPTS,
+  RESEND_COOLDOWN_SECONDS,
+  emitirCodigo,
+  hashCode,
+  hashesMatch,
+} from "@/lib/conferencia-codigo"
 import { enVentanaDeEnlace } from "@/components/conferencia/event"
 
 /**
@@ -89,34 +97,11 @@ type IssueResult =
 
 // ---------------------------------------------------------------- parámetros
 
-const CODE_DIGITS = 6
-const CODE_TTL_MINUTES = 15
-const MAX_ATTEMPTS = 5
-const RESEND_COOLDOWN_SECONDS = 60
-const MAX_CODES_PER_HOUR = 5
-
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+/** Forma de un correo. La compartían dos validaciones; el resto de la lógica de
+ * códigos se mudó a `@/lib/conferencia-codigo`. */
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 
 type Admin = Awaited<ReturnType<typeof createAdminClient>>
-
-// ---------------------------------------------------------------- utilidades
-
-function hashCode(code: string, registroId: string): string {
-  // El id del registro hace de sal: el mismo código en dos inscripciones da
-  // hashes distintos, así que no se puede precomputar una tabla.
-  return createHash("sha256").update(`${code}:${registroId}`).digest("hex")
-}
-
-function hashesMatch(a: string, b: string): boolean {
-  const ba = Buffer.from(a, "hex")
-  const bb = Buffer.from(b, "hex")
-  return ba.length === bb.length && timingSafeEqual(ba, bb)
-}
-
-function newCode(): string {
-  // randomInt es criptográficamente seguro; Math.random no lo es.
-  return String(randomInt(0, 10 ** CODE_DIGITS)).padStart(CODE_DIGITS, "0")
-}
 
 /**
  * Remitente del sitio, el mismo que usan el resto de correos (tabla
@@ -208,7 +193,7 @@ export async function solicitarCodigo(input: RegistroInput): Promise<RequestCode
       registroId = data.id
     }
 
-    const sent = await issueCode(admin, registroId, email, input.nombre.trim())
+    const sent = await emitirYEnviarCodigo(admin, registroId, email, input.nombre.trim())
     return sent.ok ? { ...sent, alreadyRegistered } : sent
   } catch (e) {
     console.error("[solicitarCodigo]", e)
@@ -234,7 +219,7 @@ export async function reenviarCodigo(rawEmail: string): Promise<RequestCodeResul
     // Un registro confirmado también puede pedir otro código: es el caso de
     // volver desde otro navegador. Ver el comentario de `solicitarCodigo`.
 
-    const sent = await issueCode(admin, registro.id, email, registro.nombre ?? "")
+    const sent = await emitirYEnviarCodigo(admin, registro.id, email, registro.nombre ?? "")
     return sent.ok
       ? { ...sent, alreadyRegistered: registro.estado === "confirmado" }
       : sent
@@ -245,63 +230,31 @@ export async function reenviarCodigo(rawEmail: string): Promise<RequestCodeResul
 }
 
 /**
- * Emite y envía un código, aplicando cooldown y tope por hora.
+ * Emite un código y manda el correo con ese código.
  *
- * Los dos límites existen porque el formulario es público: sin ellos,
- * cualquiera podría usar la landing para inundar de correos la bandeja de un
- * tercero pidiendo códigos en su nombre.
+ * El trabajo fino —límites, hash, caducidad— está en `@/lib/conferencia-codigo`,
+ * compartido con el panel. Aquí solo se compone el correo, que en este camino es
+ * fijo a propósito: la plantilla editable del panel no puede tocar el correo que
+ * alguien necesita para entrar.
  */
-async function issueCode(
+async function emitirYEnviarCodigo(
   admin: Admin,
   registroId: string,
   email: string,
   nombre: string
 ): Promise<IssueResult> {
-  const codigos = () => admin.schema("conferencia").from("codigos")
-  const since = (ms: number) => new Date(Date.now() - ms).toISOString()
-
-  const { data: recent, error: readError } = await codigos()
-    .select("created_at")
-    .eq("registro_id", registroId)
-    .gte("created_at", since(60 * 60 * 1000))
-    .order("created_at", { ascending: false })
-
-  if (readError) {
-    console.error("[issueCode] read:", readError.message, readError.code)
-    return { ok: false, reason: "unknown" }
-  }
-
-  const asked = recent ?? []
-  if (asked.length >= MAX_CODES_PER_HOUR) return { ok: false, reason: "tooManyRequests" }
-
-  if (asked.length > 0) {
-    const elapsed = (Date.now() - new Date(asked[0].created_at).getTime()) / 1000
-    if (elapsed < RESEND_COOLDOWN_SECONDS) {
-      return {
-        ok: false,
-        reason: "cooldown",
-        retryInSeconds: Math.ceil(RESEND_COOLDOWN_SECONDS - elapsed),
-      }
-    }
-  }
-
-  const code = newCode()
-  const { error: insertError } = await codigos().insert({
-    registro_id: registroId,
-    code_hash: hashCode(code, registroId),
-    expires_at: new Date(Date.now() + CODE_TTL_MINUTES * 60 * 1000).toISOString(),
-  })
-
-  if (insertError) {
-    console.error("[issueCode] insert:", insertError.message, insertError.code)
-    return { ok: false, reason: "unknown" }
-  }
+  const emision = await emitirCodigo(admin, registroId, "publico")
+  if (!emision.ok) return emision as IssueResult
 
   const { fromName, fromEmail } = await senderConfig(admin)
   const res = await sendResendEmail({
     to: email,
     subject: "Your confirmation code — IKMA Conference",
-    html: buildConferenciaCodigoHtml({ nombre, codigo: code, minutos: CODE_TTL_MINUTES }),
+    html: buildConferenciaCodigoHtml({
+      nombre,
+      codigo: emision.codigo,
+      minutos: CODE_TTL_MINUTES,
+    }),
     fromName,
     fromEmail,
   })
@@ -309,8 +262,8 @@ async function issueCode(
   if (!res.ok) {
     // El código ya está guardado, así que si el correo falla el usuario puede
     // pedir otro con "reenviar". Se registra el detalle para diagnosticar.
-    const body = await res.text().catch(() => "")
-    console.error("[issueCode] resend:", res.status, body.slice(0, 300))
+    const cuerpo = await res.text().catch(() => "")
+    console.error("[emitirYEnviarCodigo] resend:", res.status, cuerpo.slice(0, 300))
     return { ok: false, reason: "sendFailed" }
   }
 
