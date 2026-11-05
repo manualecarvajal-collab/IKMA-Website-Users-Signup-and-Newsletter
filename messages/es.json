@@ -913,7 +913,9 @@
       "sendVerifyAll": "Reenviar a los {count} sin verificar",
       "verifyPending": "{count} inscritos sin confirmar el correo",
       "verifyResult": "Verificación reenviada: {sent} enviadas, {failed} fallidas",
-      "verifyHint": "Esta plantilla lleva un código NUEVO en cada envío: no hace falta escribir el código a mano, usa '{{codigo}}'. Caduca en '{{minutos}}' minutos."
+      "verifyHint": "Esta plantilla lleva un código NUEVO en cada envío: no hace falta escribir el código a mano, usa '{{codigo}}'. Caduca en '{{minutos}}' minutos.",
+      "templateAccess": "Acceso (enlace de entrada)",
+      "accesoHint": "Este correo sale solo al terminar el registro, y cada vez que alguien pide un enlace desde «Iniciar sesión». El botón lo pone el sistema con el enlace firmado: aquí editas el texto, no la llave."
     }
   },
   "IncompleteRegistration": {

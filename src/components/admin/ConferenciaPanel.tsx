@@ -47,6 +47,7 @@ const PERFILES: Record<string, string> = {
 /** Clave de i18n de la pestaña de cada plantilla. */
 const ETIQUETA_PLANTILLA: Record<PlantillaId, string> = {
   confirmacion: "templateConfirmation",
+  acceso: "templateAccess",
   verificacion: "templateVerification",
   recordatorio: "templateReminder",
   invitacion: "templateInvitation",
@@ -322,6 +323,9 @@ export default function ConferenciaPanel({
         nombre: "María González",
         email: "maria@ejemplo.com",
         enlace: urlEnlace,
+        // En la vista previa el enlace de acceso es de mentira: el real lo
+        // genera el servidor para cada persona al enviar.
+        acceso: plantilla === "acceso" ? "https://www.ikmaglobal.com/conferencia/acceso/validar?t=muestra" : undefined,
       }),
     [plantilla, cuerpo, urlEnlace]
   )
@@ -672,6 +676,11 @@ export default function ConferenciaPanel({
               {plantilla === "verificacion" && (
                 <p className="mb-2 rounded-lg bg-blue-50 px-3 py-2 text-xs text-blue-900">
                   {t("verifyHint")}
+                </p>
+              )}
+              {plantilla === "acceso" && (
+                <p className="mb-2 rounded-lg bg-blue-50 px-3 py-2 text-xs text-blue-900">
+                  {t("accesoHint")}
                 </p>
               )}
               <TiptapEditor

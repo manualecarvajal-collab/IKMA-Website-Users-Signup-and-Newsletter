@@ -1,4 +1,5 @@
 import {
+  buildConferenciaAccesoHtml,
   buildConferenciaAvisoHtml,
   buildConferenciaInvitacionHtml,
   buildConferenciaRecordatorioHtml,
@@ -18,6 +19,9 @@ import {
  *   `confirmacion` — al verificar el código. Dice que la plaza está confirmada y
  *                    que el enlace de Zoom llega 24 horas antes. No lleva botón:
  *                    en ese momento no hay nada que pulsar.
+ *   `acceso`       — al terminar el registro y cada vez que se pide un enlace
+ *                    desde la pantalla de inicio de sesión. Lleva el enlace
+ *                    firmado ({{acceso}}), que es la llave para volver a entrar.
  *   `verificacion` — a mano desde el panel, para quien se inscribió y no llegó a
  *                    meter el código. Lleva un código NUEVO ({{codigo}}) porque
  *                    el anterior caduca a los 15 minutos: un recordatorio sin
@@ -31,7 +35,7 @@ import {
  * enlace es justo lo que hay que hacer llegar a cada inscrito.
  */
 
-export const PLANTILLAS = ["confirmacion", "verificacion", "recordatorio", "invitacion"] as const
+export const PLANTILLAS = ["confirmacion", "acceso", "verificacion", "recordatorio", "invitacion"] as const
 
 export type PlantillaId = (typeof PLANTILLAS)[number]
 
@@ -58,6 +62,17 @@ export const PLANTILLAS_POR_DEFECTO: Record<PlantillaId, Plantilla> = {
       "<p><strong>Saturday, November 14, 2026 · 9:00 am – 3:30 pm (EST)</strong></p>",
       "<p>The conference is held on <strong>Zoom</strong>. We will email you the meeting link on <strong>Friday, November 13</strong> — 24 hours before the conference — to this same address, so there is nothing else you need to do today.</p>",
       "<p>If you do not see it that day, please check your spam folder.</p>",
+    ].join("\n"),
+  },
+  acceso: {
+    // Este correo lleva el enlace firmado que abre la sesión. El botón lo pone
+    // el shell (su href es {{acceso}}), así que el cuerpo puede editarse sin
+    // miedo: la llave no se toca desde el panel.
+    asunto: "Your sign-in link — IKMA Conference",
+    cuerpo: [
+      "<p>Hi {{nombre}},</p>",
+      "<p style=\"font-size:19px;font-weight:700;line-height:1.4;color:#3C4A56\">Click the button below to get access to the conference information.</p>",
+      "<p>The link works for 30 days and in any browser. If you did not ask for it, you can ignore this message: your registration is not affected.</p>",
     ].join("\n"),
   },
   verificacion: {
@@ -144,7 +159,10 @@ export function componerCorreo(
   const contenido_html = renderPlantilla(contenidoHtml, datos)
 
   if (plantilla === "confirmacion") {
-    return buildConferenciaAvisoHtml({ contenido_html, acceso: datos.acceso })
+    return buildConferenciaAvisoHtml({ contenido_html })
+  }
+  if (plantilla === "acceso") {
+    return buildConferenciaAccesoHtml({ contenido_html, acceso: datos.acceso ?? "", ctaTexto })
   }
   if (plantilla === "verificacion") {
     return buildConferenciaAvisoHtml({ contenido_html })

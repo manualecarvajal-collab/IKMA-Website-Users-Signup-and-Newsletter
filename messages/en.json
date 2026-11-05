@@ -913,7 +913,9 @@
       "sendVerifyAll": "Resend to the {count} unverified",
       "verifyPending": "{count} registrants have not confirmed their email",
       "verifyResult": "Verification resent: {sent} sent, {failed} failed",
-      "verifyHint": "This template carries a NEW code on every send: you do not type the code, use '{{codigo}}'. It expires in '{{minutos}}' minutes."
+      "verifyHint": "This template carries a NEW code on every send: you do not type the code, use '{{codigo}}'. It expires in '{{minutos}}' minutes.",
+      "templateAccess": "Access (sign-in link)",
+      "accesoHint": "This email goes out on its own when someone finishes registering, and every time someone asks for a link from «Sign in». The button is generated with the signed link: you edit the text here, not the key."
     }
   },
   "IncompleteRegistration": {

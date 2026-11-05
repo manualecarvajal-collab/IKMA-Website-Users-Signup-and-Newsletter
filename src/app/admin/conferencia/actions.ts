@@ -6,6 +6,7 @@ import { getSenderConfig } from "@/lib/conferencia"
 import { componerCorreo, type PlantillaId } from "@/lib/conferencia-plantilla"
 import { getAjustes } from "@/lib/conferencia-admin"
 import { CODE_TTL_MINUTES, emitirCodigo } from "@/lib/conferencia-codigo"
+import { baseDelSitio, enlaceAcceso } from "@/lib/conferencia"
 
 /**
  * Acciones del panel de la conferencia.
@@ -149,9 +150,19 @@ export async function enviarInvitacion(
     }
   }
 
+  // La plantilla de ACCESO lleva un enlace FIRMADO distinto para cada persona:
+  // no se puede reutilizar el de otro ni mandarlo vacío, así que se genera aquí
+  // uno por destinatario.
+  const base = plantilla === "acceso" ? await baseDelSitio() : ""
+
   for (const r of destinatarios) {
     const email = r.email ?? ""
-    const html = componerCorreo(plantilla, cuerpo, { nombre: r.nombre ?? "", email, enlace: urlEnlace })
+    const html = componerCorreo(plantilla, cuerpo, {
+      nombre: r.nombre ?? "",
+      email,
+      enlace: urlEnlace,
+      acceso: plantilla === "acceso" ? enlaceAcceso(email, base) : undefined,
+    })
 
     const res = await sendResendEmail({ to: email, subject: asunto, html, fromName, fromEmail })
 
@@ -217,7 +228,15 @@ export async function enviarPrueba(
 
   const admin = await createAdminClient()
   const { fromName, fromEmail } = await getSenderConfig(admin)
-  const html = componerCorreo(plantilla, cuerpo, { nombre: "Prueba", email: para, enlace })
+  // Con la plantilla de acceso, la prueba lleva un enlace de verdad para el
+  // correo de destino: así se puede pulsar y comprobar que entra.
+  const enlacePrueba = plantilla === "acceso" ? enlaceAcceso(para, await baseDelSitio()) : undefined
+  const html = componerCorreo(plantilla, cuerpo, {
+    nombre: "Prueba",
+    email: para,
+    enlace,
+    acceso: enlacePrueba,
+  })
 
   const res = await sendResendEmail({
     to: para,

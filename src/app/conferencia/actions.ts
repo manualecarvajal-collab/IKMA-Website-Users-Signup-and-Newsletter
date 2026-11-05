@@ -381,16 +381,10 @@ export async function verificarCodigo(
       const idPlantilla = urgente ? ("recordatorio" as const) : ("confirmacion" as const)
       const plantilla = plantillas[idPlantilla]
       const asunto = plantilla.asunto
-      // El enlace de acceso viaja también aquí: después del primer registro la
-      // persona ya tiene en su buzón la llave para volver a entrar, sin depender
-      // de que su navegador conserve la cookie. Es lo que evita que alguien
-      // acabe inscribiéndose tres veces.
-      const acceso = enlaceAcceso(email, await baseDelSitio())
       const html = componerCorreo(idPlantilla, plantilla.cuerpo, {
         nombre: registro.nombre ?? "",
         email,
         enlace: urlEnlace,
-        acceso,
       })
 
       const envio = await sendResendEmail({ to: email, subject: asunto, html, fromName, fromEmail })
@@ -400,6 +394,45 @@ export async function verificarCodigo(
       if (!envio.ok) {
         const cuerpo = await envio.text().catch(() => "")
         console.error("[verificarCodigo] correo:", envio.status, cuerpo.slice(0, 300))
+      }
+
+      // Segundo correo: el del ACCESO, con el enlace firmado que sirve para
+      // volver a entrar desde cualquier navegador. Va aparte —y con su propia
+      // plantilla editable— porque es otra cosa: la confirmación cuenta el
+      // estado de la inscripción, esto entrega la llave. Así, si alguien pierde
+      // la cookie, la llave está en su buzón desde el primer día.
+      //
+      // Si falla, la verificación NO se cae: se registra y se sigue.
+      try {
+        const plantillaAcceso = plantillas.acceso
+        const enlace = enlaceAcceso(email, await baseDelSitio())
+        const envioAcceso = await sendResendEmail({
+          to: email,
+          subject: plantillaAcceso.asunto,
+          html: componerCorreo("acceso", plantillaAcceso.cuerpo, {
+            nombre: registro.nombre ?? "",
+            email,
+            acceso: enlace,
+          }),
+          fromName,
+          fromEmail,
+        })
+        await admin
+          .schema("conferencia")
+          .from("envios")
+          .insert({
+            registro_id: registro.id,
+            email,
+            asunto: plantillaAcceso.asunto,
+            ok: envioAcceso.ok,
+            error: envioAcceso.ok ? null : String(envioAcceso.status),
+          })
+        if (!envioAcceso.ok) {
+          const cuerpo = await envioAcceso.text().catch(() => "")
+          console.error("[verificarCodigo] acceso:", envioAcceso.status, cuerpo.slice(0, 300))
+        }
+      } catch (e) {
+        console.error("[verificarCodigo] acceso:", e instanceof Error ? e.message : e)
       }
 
       // Se apunta en `envios`, que es la tabla que el panel usa para saber
@@ -442,8 +475,16 @@ export async function verificarCodigo(
 
 // ---------------------------------------------------------------- iniciar sesión
 
-/** Asunto del correo de acceso. Se usa también para limitar los reenvíos. */
-const ASUNTO_ACCESO = "Your sign-in link — IKMA Conference"
+/**
+ * Asunto con el que se registran los envíos de acceso en `envios`.
+ *
+ * Es el asunto POR DEFECTO de la plantilla, y se usa solo para contar los
+ * reenvíos recientes: si alguien edita el asunto en el panel, el límite de un
+ * enlace por minuto se apoya igualmente en las filas de `envios` con ese asunto
+ * guardado en el momento del envío… por eso se compara contra el que tenía la
+ * plantilla al enviar, no contra el actual.
+ */
+const ASUNTO_ACCESO_POR_DEFECTO = "Your sign-in link — IKMA Conference"
 
 export type AccesoResult =
   | { ok: true }
@@ -477,6 +518,10 @@ export async function solicitarAcceso(rawEmail: string): Promise<AccesoResult> {
       return { ok: false, reason: "noRegistrado" }
     }
 
+    const { plantillas } = (await getAjustes(admin)).data
+    const plantilla = plantillas.acceso
+    const asuntoActual = plantilla.asunto.trim() || ASUNTO_ACCESO_POR_DEFECTO
+
     // Un enlace cada 60 s por persona: sin esto, el formulario es un grifo
     // abierto para llenarle el buzón a cualquiera cuyo correo esté en la lista.
     const desde = new Date(Date.now() - 60_000).toISOString()
@@ -485,7 +530,7 @@ export async function solicitarAcceso(rawEmail: string): Promise<AccesoResult> {
       .from("envios")
       .select("created_at")
       .eq("registro_id", registro.id)
-      .eq("asunto", ASUNTO_ACCESO)
+      .eq("asunto", asuntoActual)
       .gte("created_at", desde)
       .limit(1)
 
@@ -498,8 +543,12 @@ export async function solicitarAcceso(rawEmail: string): Promise<AccesoResult> {
     const enlace = enlaceAcceso(email, await baseDelSitio())
     const envio = await sendResendEmail({
       to: email,
-      subject: ASUNTO_ACCESO,
-      html: buildConferenciaAccesoHtml({ nombre: registro.nombre ?? "", enlace, dias: ACCESO_DIAS }),
+      subject: plantilla.asunto,
+      html: componerCorreo("acceso", plantilla.cuerpo, {
+        nombre: registro.nombre ?? "",
+        email,
+        acceso: enlace,
+      }),
       fromName,
       fromEmail,
     })
@@ -510,7 +559,7 @@ export async function solicitarAcceso(rawEmail: string): Promise<AccesoResult> {
       .insert({
         registro_id: registro.id,
         email,
-        asunto: ASUNTO_ACCESO,
+        asunto: asuntoActual,
         ok: envio.ok,
         error: envio.ok ? null : String(envio.status),
       })

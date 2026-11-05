@@ -104,29 +104,25 @@ export function buildConferenciaCodigoHtml(config: {
 }
 
 /**
- * Correo con el enlace de acceso («iniciar sesión» sin contraseña).
+ * Shell del correo de acceso («iniciar sesión» sin contraseña).
  *
- * Lleva botón porque aquí SÍ hay algo que pulsar, y ese botón es la llave: quien
- * lo abre en cualquier navegador queda dentro. El texto de debajo dice cuánto
- * dura y que no hace falta si ya está dentro.
+ * Lleva botón porque aquí SÍ hay algo que pulsar, y ese botón ES la llave: quien
+ * lo abre en cualquier navegador queda dentro. El href lo pone `componerCorreo`
+ * con el enlace firmado; el cuerpo es lo único editable desde el panel, así que
+ * un texto mal editado no puede romper la entrada.
  */
 export function buildConferenciaAccesoHtml(config: {
-  nombre: string
-  enlace: string
-  dias: number
+  contenido_html: string
+  acceso: string
+  ctaTexto?: string
 }) {
-  const saludo = config.nombre.trim() ? `Hi ${config.nombre.trim()},` : "Hi,"
   return shellConferencia({
-    contenido_html: [
-      `<p>${saludo}</p>`,
-      "<p>This is your link to sign in to the IKMA Conference. Open it and you are in — no password needed.</p>",
-      `<p style="font-size:13px;color:#777">The link works for ${config.dias} days and in any browser. If you did not ask for it, you can ignore this message: your registration is not affected.</p>`,
-    ].join("\n"),
+    contenido_html: config.contenido_html,
     cta: {
       titulo: "Sign in to the conference",
       linea: "Your place is booked. This link takes you straight back in, from any device.",
-      href: config.enlace,
-      texto: "Sign in",
+      href: config.acceso,
+      texto: config.ctaTexto?.trim() || "Sign in",
     },
   })
 }
@@ -145,19 +141,8 @@ export function buildConferenciaAccesoHtml(config: {
  * inmediata. La fecha de la víspera va en el pie del correo, no en el cuerpo:
  * así no se puede borrar por accidente al editar el texto.
  */
-export function buildConferenciaAvisoHtml(config: { contenido_html: string; acceso?: string }) {
-  // Si viene un enlace de acceso, se añade una salida discreta al final del
-  // cuerpo: sirve para volver a entrar desde otro dispositivo sin depender de
-  // que el navegador conserve la cookie. Va DEBAJO del texto y separado por una
-  // línea, para que no compita con el mensaje principal.
-  const acceso = config.acceso
-    ? `
-      <div style="margin-top:28px;padding-top:22px;border-top:1px solid #e6e8e9">
-        <p style="font-size:19px;font-weight:700;line-height:1.4;color:#3C4A56;margin:0 0 16px">Click the button below to get access to the conference information.</p>
-        <a href="${config.acceso}" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:12px 28px;background-color:#074469;color:#ffffff;border-radius:9999px;font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:1px;text-decoration:none;">Sign in</a>
-      </div>`
-    : ""
-  return shellConferencia({ contenido_html: config.contenido_html + acceso })
+export function buildConferenciaAvisoHtml(config: { contenido_html: string }) {
+  return shellConferencia({ contenido_html: config.contenido_html })
 }
 
 /**
