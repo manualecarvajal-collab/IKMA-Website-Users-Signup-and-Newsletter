@@ -102,6 +102,8 @@ interface DatosPlantilla {
   email: string
   /** Enlace de Zoom de la reunión. Solo lo usa la plantilla de la víspera. */
   enlace?: string
+  /** Enlace firmado para volver a entrar («iniciar sesión» sin contraseña). */
+  acceso?: string
   /** Código de verificación. Solo lo usa la plantilla del recordatorio de alta. */
   codigo?: string
   /** Minutos que le quedan de vida al código. */
@@ -124,6 +126,7 @@ function renderPlantilla(texto: string, datos: DatosPlantilla): string {
     .replaceAll("{{nombre}}", escapar(datos.nombre || "asistente"))
     .replaceAll("{{email}}", escapar(datos.email))
     .replaceAll("{{enlace}}", escapar(datos.enlace ?? ""))
+    .replaceAll("{{acceso}}", escapar(datos.acceso ?? ""))
     .replaceAll("{{codigo}}", escapar(datos.codigo ?? ""))
     .replaceAll("{{minutos}}", escapar(datos.minutos ?? ""))
 }
@@ -140,7 +143,10 @@ export function componerCorreo(
 ): string {
   const contenido_html = renderPlantilla(contenidoHtml, datos)
 
-  if (plantilla === "confirmacion" || plantilla === "verificacion") {
+  if (plantilla === "confirmacion") {
+    return buildConferenciaAvisoHtml({ contenido_html, acceso: datos.acceso })
+  }
+  if (plantilla === "verificacion") {
     return buildConferenciaAvisoHtml({ contenido_html })
   }
   if (plantilla === "recordatorio") {

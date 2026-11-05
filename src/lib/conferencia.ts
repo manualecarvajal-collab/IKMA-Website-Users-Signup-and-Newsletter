@@ -31,6 +31,63 @@ export const REGISTRO_COOKIE = "conf_registro"
 export const REGISTRO_COOKIE_MAX_AGE = 60 * 60 * 24 * 180
 
 /**
+ * Cookie con la PREFERENCIA de sesión: «persistente» o «sesion».
+ *
+ * Es lo que contesta el aviso que sale al entrar por primera vez. Se guarda
+ * aparte de `conf_registro` porque sobrevive a ella: cuando la sesión caduque o
+ * se cierre, la preferencia sigue ahí para no volver a preguntar.
+ */
+export const SESION_PREF_COOKIE = "conf_sesion"
+export type PreferenciaSesion = "persistente" | "sesion"
+
+/**
+ * Opciones de la cookie de sesión, iguales en todos los sitios que la escriben.
+ *
+ * DOS COSAS QUE ARREGLAN FALLOS REALES:
+ *
+ *  1. EL DOMINIO. Sin `domain`, la cookie es «host-only»: la que se escribe en
+ *     `www.ikmaglobal.com` NO vale en `ikmaglobal.com` y al revés. Como el sitio
+ *     responde en los dos (uno redirige al otro), alguien podía inscribirse en
+ *     un hostname y «perder» la sesión al volver por el otro. Con
+ *     `domain=.ikmaglobal.com` vale en ambos.
+ *  2. LA DURACIÓN. Si la persona eligió «solo esta vez», la cookie va SIN
+ *     `maxAge`: el navegador la borra al cerrarse. Si no, 180 días.
+ *
+ * En local NO se pone `domain`: una cookie de dominio para localhost no vale y
+ * rompería el flujo de pruebas.
+ */
+export async function opcionesCookieSesion(permanente: boolean) {
+  const opciones: {
+    httpOnly: boolean
+    sameSite: "lax"
+    secure: boolean
+    path: string
+    maxAge?: number
+    domain?: string
+  } = {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+  }
+
+  if (permanente) opciones.maxAge = REGISTRO_COOKIE_MAX_AGE
+
+  const host = ((await headers()).get("host") ?? "").toLowerCase()
+  if (host === "ikmaglobal.com" || host === "www.ikmaglobal.com") {
+    opciones.domain = ".ikmaglobal.com"
+  }
+
+  return opciones
+}
+
+/** Qué contestó la persona en el aviso de «mantener la sesión», si contestó. */
+export async function preferenciaSesion(): Promise<PreferenciaSesion | null> {
+  const valor = (await cookies()).get(SESION_PREF_COOKIE)?.value
+  return valor === "persistente" || valor === "sesion" ? valor : null
+}
+
+/**
  * Secreto para firmar el valor de la cookie.
  *
  * Se prefiere uno propio, pero si no está configurado se usa la clave de
@@ -70,7 +127,7 @@ export function valorCookieInscripcion(email: string): string {
  * Correo que hay dentro de una cookie de inscripción, o `null` si el valor no
  * está firmado por nosotros. No consulta la base: eso lo hace quien llama.
  */
-function emailDeCookieInscripcion(valor: string): string | null {
+export function emailDeCookieInscripcion(valor: string): string | null {
   const corte = valor.lastIndexOf(".")
   if (corte <= 0) return null
 

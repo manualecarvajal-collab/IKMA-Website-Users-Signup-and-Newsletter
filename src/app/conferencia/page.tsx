@@ -12,7 +12,9 @@ import HorizontalRail from "@/components/conferencia/HorizontalRail"
 import SignUpButton from "@/components/conferencia/SignUpButton"
 import SignupCard from "@/components/conferencia/SignupCard"
 import MarcoZoom from "@/components/conferencia/MarcoZoom"
-import { emailConfirmado, getEnlaceReunion } from "@/lib/conferencia"
+import BotonSalir from "@/components/conferencia/BotonSalir"
+import AvisoSesionAlMontar from "@/components/conferencia/AvisoSesionAlMontar"
+import { emailConfirmado, getEnlaceReunion, preferenciaSesion } from "@/lib/conferencia"
 import { createAdminClient } from "@/lib/supabase/server"
 import { enVentanaDeEnlace, momentoDelEvento } from "@/components/conferencia/event"
 import "./fondo.css"
@@ -62,6 +64,12 @@ export default async function ConferenciaPage() {
   const yaInscrito = await emailConfirmado()
   /** A qué correo se le va a mandar el enlace de Zoom. */
   const suEmail = yaInscrito ?? ""
+
+  /**
+   * Aviso de «mantener la sesión»: solo para quien está dentro y todavía no ha
+   * contestado en este navegador.
+   */
+  const sinPreferencia = yaInscrito ? (await preferenciaSesion()) === null : false
 
   // En qué tramo del evento estamos: antes, víspera, en marcha o terminado.
   const momento = momentoDelEvento()
@@ -268,6 +276,13 @@ export default async function ConferenciaPage() {
             )}
           </div>
 
+          {/* Solo para quien está dentro, y pequeño: salir es lo raro. */}
+          {yaInscrito && (
+            <div className="mt-[min(10px,0.9svh)] flex justify-center">
+              <BotonSalir />
+            </div>
+          )}
+
           {/* Fecha y contador */}
           <p className="mt-[min(22px,2svh)] text-[clamp(min(1.1rem,1.63svh),min(1.05vw,1.85svh),1.35rem)] font-semibold tracking-[0.01em] text-[#123045]">
             {t("date")}
@@ -357,6 +372,8 @@ export default async function ConferenciaPage() {
           </GalleryCard>
         )}
       </HorizontalRail>
+      {/* Aviso de permanencia: una sola vez por navegador. */}
+      {sinPreferencia && <AvisoSesionAlMontar />}
     </>
   )
 }

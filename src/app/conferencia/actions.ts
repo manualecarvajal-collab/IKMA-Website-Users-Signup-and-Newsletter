@@ -5,10 +5,14 @@ import { createAdminClient } from "@/lib/supabase/server"
 import { sendResendEmail } from "@/lib/resend"
 import {
   ACCESO_DIAS,
+  SESION_PREF_COOKIE,
   baseDelSitio,
+  emailDeCookieInscripcion,
   enlaceAcceso,
   findRegistro,
   normalizeEmail,
+  opcionesCookieSesion,
+  preferenciaSesion,
   REGISTRO_COOKIE,
   REGISTRO_COOKIE_MAX_AGE,
   valorCookieInscripcion,
@@ -377,10 +381,16 @@ export async function verificarCodigo(
       const idPlantilla = urgente ? ("recordatorio" as const) : ("confirmacion" as const)
       const plantilla = plantillas[idPlantilla]
       const asunto = plantilla.asunto
+      // El enlace de acceso viaja también aquí: después del primer registro la
+      // persona ya tiene en su buzón la llave para volver a entrar, sin depender
+      // de que su navegador conserve la cookie. Es lo que evita que alguien
+      // acabe inscribiéndose tres veces.
+      const acceso = enlaceAcceso(email, await baseDelSitio())
       const html = componerCorreo(idPlantilla, plantilla.cuerpo, {
         nombre: registro.nombre ?? "",
         email,
         enlace: urlEnlace,
+        acceso,
       })
 
       const envio = await sendResendEmail({ to: email, subject: asunto, html, fromName, fromEmail })
@@ -414,13 +424,14 @@ export async function verificarCodigo(
     // y el marco del riel le dice a qué correo va a llegar el enlace de Zoom.
     // No protege nada —no hay nada protegido— y la base manda igualmente:
     // `emailConfirmado()` comprueba el estado en cada visita.
-    ;(await cookies()).set(REGISTRO_COOKIE, valorCookieInscripcion(email), {
-      httpOnly: true,
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-      path: "/",
-      maxAge: REGISTRO_COOKIE_MAX_AGE,
-    })
+    // Si ya contestó al aviso de «mantener la sesión», se respeta; si no, se
+    // entra como persistente y se le pregunta en la landing.
+    const preferencia = await preferenciaSesion()
+    ;(await cookies()).set(
+      REGISTRO_COOKIE,
+      valorCookieInscripcion(email),
+      await opcionesCookieSesion(preferencia !== "sesion")
+    )
 
     return { ok: true, correoEnviado, enlaceEnviado }
   } catch (e) {
@@ -515,4 +526,44 @@ export async function solicitarAcceso(rawEmail: string): Promise<AccesoResult> {
     console.error("[solicitarAcceso]", e instanceof Error ? e.message : e)
     return { ok: false, reason: "fallo" }
   }
+}
+
+// ---------------------------------------------------------------- la sesión
+
+/**
+ * Cierra la sesión en ESTE navegador.
+ *
+ * Borra la cookie de inscripción, no la preferencia: si alguien eligió «solo
+ * esta vez», esa decisión sigue guardada para la próxima.
+ */
+export async function cerrarSesion(): Promise<void> {
+  ;(await cookies()).delete(REGISTRO_COOKIE)
+}
+
+/**
+ * Guarda lo que la persona conteste en el aviso de «mantener la sesión» y
+ * reescribe la cookie en consecuencia.
+ *
+ *   · «mantener»      → cookie con 180 días de vida.
+ *   · «solo esta vez» → la misma cookie SIN `maxAge`, que es lo que la convierte
+ *                       en cookie de sesión: el navegador la borra al cerrarse.
+ *
+ * La preferencia se guarda aparte para no volver a preguntar en cada visita.
+ */
+export async function elegirPermanencia(permanecer: boolean): Promise<{ ok: boolean }> {
+  const jar = await cookies()
+  const email = emailDeCookieInscripcion(jar.get(REGISTRO_COOKIE)?.value ?? "")
+  if (!email) return { ok: false }
+
+  jar.set(REGISTRO_COOKIE, valorCookieInscripcion(email), await opcionesCookieSesion(permanecer))
+  jar.set(SESION_PREF_COOKIE, permanecer ? "persistente" : "sesion", {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    // La preferencia sí dura: es una decisión, no una sesión.
+    maxAge: REGISTRO_COOKIE_MAX_AGE,
+  })
+
+  return { ok: true }
 }

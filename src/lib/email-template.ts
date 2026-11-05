@@ -145,8 +145,19 @@ export function buildConferenciaAccesoHtml(config: {
  * inmediata. La fecha de la víspera va en el pie del correo, no en el cuerpo:
  * así no se puede borrar por accidente al editar el texto.
  */
-export function buildConferenciaAvisoHtml(config: { contenido_html: string }) {
-  return shellConferencia({ contenido_html: config.contenido_html })
+export function buildConferenciaAvisoHtml(config: { contenido_html: string; acceso?: string }) {
+  // Si viene un enlace de acceso, se añade una salida discreta al final del
+  // cuerpo: sirve para volver a entrar desde otro dispositivo sin depender de
+  // que el navegador conserve la cookie. Va DEBAJO del texto y separado por una
+  // línea, para que no compita con el mensaje principal.
+  const acceso = config.acceso
+    ? `
+      <div style="margin-top:28px;padding-top:22px;border-top:1px solid #e6e8e9">
+        <p style="font-size:14px;color:#6b7280;margin:0 0 14px">Coming back from another device? Use this link to sign in — no password needed.</p>
+        <a href="${config.acceso}" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:12px 28px;background-color:#074469;color:#ffffff;border-radius:9999px;font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:1px;text-decoration:none;">Sign in</a>
+      </div>`
+    : ""
+  return shellConferencia({ contenido_html: config.contenido_html + acceso })
 }
 
 /**

@@ -184,6 +184,17 @@
       "espera": "Wait {seconds} seconds before asking for another link.",
       "fallo": "We could not send the link. Please try again in a moment.",
       "enlaceCaducado": "That link no longer works. Ask for a new one below."
+    },
+    "sesion": {
+      "salir": "Sign out",
+      "salirConfirmar": "Yes, sign out",
+      "saliendo": "Signing out…",
+      "cancelar": "Cancel",
+      "titulo": "Keep your session open?",
+      "texto": "Your registration is remembered on this device. Would you like it to stay that way next time, even after you close the browser?",
+      "matiz": "If you choose «just this once», you will need to come back through the link in your email. It does not affect your registration: your place stays booked.",
+      "mantener": "Yes, keep it",
+      "soloEstaVez": "Just this once"
     }
   },
   "Navbar": {

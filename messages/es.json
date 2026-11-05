@@ -184,6 +184,17 @@
       "espera": "Espera {seconds} segundos antes de pedir otro enlace.",
       "fallo": "No pudimos enviar el enlace. Inténtalo en un momento.",
       "enlaceCaducado": "Ese enlace ya no sirve. Pide uno nuevo aquí abajo."
+    },
+    "sesion": {
+      "salir": "Cerrar sesión",
+      "salirConfirmar": "Sí, cerrar sesión",
+      "saliendo": "Cerrando…",
+      "cancelar": "Cancelar",
+      "titulo": "¿Mantener la sesión abierta?",
+      "texto": "Tu inscripción está recordada en este dispositivo. ¿Quieres que siga así la próxima vez que entres, aunque cierres el navegador?",
+      "matiz": "Si eliges «solo esta vez», tendrás que volver por el enlace de tu correo. No afecta a tu inscripción: tu plaza sigue reservada.",
+      "mantener": "Sí, mantener",
+      "soloEstaVez": "Solo esta vez"
     }
   },
   "Navbar": {
