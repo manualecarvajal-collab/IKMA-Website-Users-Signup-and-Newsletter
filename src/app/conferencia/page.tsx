@@ -241,9 +241,13 @@ export default async function ConferenciaPage() {
                     {t("ctaEntrar")}
                   </a>
                 )}
+                {/* Relleno cuando es la ÚNICA acción —fuera de la ventana del
+                    evento— y texto cuando comparte fila con «Entrar en Zoom»,
+                    que entonces es la principal. Un enlace de texto suelto no se
+                    lee como botón, y ahí no hay nada más que pulsar. */}
                 <Link
                   href="/conferencia/speakers"
-                  className="text-[clamp(min(0.9rem,1.32svh),min(0.85vw,1.52svh),1.08rem)] font-bold text-[#123045] transition-opacity hover:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#123045] focus-visible:ring-offset-2"
+                  className={enlace ? "text-[clamp(min(0.9rem,1.32svh),min(0.85vw,1.52svh),1.08rem)] font-bold text-[#123045] transition-opacity hover:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#123045] focus-visible:ring-offset-2" : "rounded-full bg-[#11324F] px-[min(28px,2.6svh)] py-[min(10px,0.95svh)] text-[clamp(min(0.9rem,1.32svh),min(0.85vw,1.52svh),1.08rem)] font-bold text-white transition-colors hover:bg-[#1F4D75] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#11324F] focus-visible:ring-offset-2"}
                 >
                   {enlace ? t("ctaVerPrograma") : t("ctaConferencia")}
                 </Link>
