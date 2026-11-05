@@ -1,5 +1,5 @@
 import { createHmac, timingSafeEqual } from "node:crypto"
-import { cookies } from "next/headers"
+import { cookies, headers } from "next/headers"
 import { createAdminClient } from "@/lib/supabase/server"
 
 /**
@@ -87,6 +87,97 @@ function emailDeCookieInscripcion(valor: string): string | null {
   if (a.length !== b.length || !timingSafeEqual(a, b)) return null
 
   return email
+}
+
+/* ------------------------------------------------------------------ acceso */
+
+/**
+ * Cuánto vale el enlace de acceso.
+ *
+ * Un mes: cubre de sobra el ciclo de la conferencia y evita que alguien tenga
+ * que pedir otro la víspera. Pasado ese plazo deja de valer, para no dejar una
+ * llave abierta para siempre.
+ */
+export const ACCESO_DIAS = 30
+
+/** El enlace de acceso caduca el día que se cumple el plazo, en ISO corto. */
+function fechaLimite(ahora = Date.now()): string {
+  return new Date(ahora + ACCESO_DIAS * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
+}
+
+/**
+ * Enlace que entra en la cuenta SIN CONTRASEÑA.
+ *
+ * Es el corazón del «iniciar sesión»: quien lo abre en cualquier navegador
+ * queda marcado como inscrito. Por eso lleva el correo y la fecha tope firmados
+ * con un HMAC del servidor — sin el secreto no se puede fabricar uno, y por
+ * tanto no se puede entrar como otra persona sabiendo su correo.
+ *
+ * El dominio sale de `baseDelSitio()`: en local tiene que apuntar a localhost y
+ * en producción al dominio real, porque la firma la valida el entorno que la
+ * generó.
+ */
+export function enlaceAcceso(email: string, base: string): string {
+  const payload = `${normalizeEmail(email)}|${fechaLimite()}`
+  const token = `${Buffer.from(payload, "utf8").toString("base64url")}.${firmar(payload)}`
+  return `${base}/conferencia/acceso/validar?t=${token}`
+}
+
+/**
+ * De dónde cuelga ESTE servidor, para armar los enlaces que van por correo.
+ *
+ * No se puede fijar el dominio de producción a mano: en local el enlace tiene
+ * que apuntar a localhost, porque la firma la valida el entorno que la generó.
+ * La lista blanca no es decorativa: sin ella, un `Host` manipulado haría que el
+ * correo llevara un enlace al dominio de otro. Si el host no es de confianza se
+ * cae al canónico de producción.
+ */
+const HOSTS_DE_CONFIANZA = ["www.ikmaglobal.com", "ikmaglobal.com", "localhost:3000", "127.0.0.1:3000"]
+
+export async function baseDelSitio(): Promise<string> {
+  const host = ((await headers()).get("host") ?? "").toLowerCase()
+
+  // Los despliegues de Vercel (preview incluidos) también son de confianza: son
+  // los únicos donde se puede probar el enlace de verdad antes de publicarlo.
+  if (host.endsWith(".vercel.app")) return `https://${host}`
+
+  if (HOSTS_DE_CONFIANZA.includes(host)) {
+    const local = host.startsWith("localhost") || host.startsWith("127.")
+    return `${local ? "http" : "https"}://${host}`
+  }
+
+  return "https://www.ikmaglobal.com"
+}
+
+/**
+ * Correo de un enlace de acceso, o `null` si no vale.
+ *
+ * Comprueba tres cosas y en este orden: que venga la firma, que la firma sea la
+ * nuestra (comparada en tiempo constante, como el código OTP) y que no hayamos
+ * pasado la fecha tope.
+ */
+export function emailDeEnlace(token: string): string | null {
+  const [cuerpo, firmaRecibida] = token.split(".")
+  if (!cuerpo || !firmaRecibida) return null
+
+  let payload: string
+  try {
+    payload = Buffer.from(cuerpo, "base64url").toString("utf8")
+  } catch {
+    return null
+  }
+
+  const a = Buffer.from(firmaRecibida)
+  const b = Buffer.from(firmar(payload))
+  if (a.length !== b.length || !timingSafeEqual(a, b)) return null
+
+  const [email, hasta] = payload.split("|")
+  if (!email || !hasta) return null
+
+  // Comparar fechas ISO como texto es válido y no arrastra zonas horarias.
+  if (new Date().toISOString().slice(0, 10) > hasta) return null
+
+  return normalizeEmail(email)
 }
 
 export function normalizeEmail(email: string): string {

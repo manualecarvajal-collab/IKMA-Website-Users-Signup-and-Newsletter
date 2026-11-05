@@ -67,6 +67,17 @@ export default async function EntrarPage() {
           </Link>
 
           <p className="mt-4 text-[12.5px] leading-[1.5] text-[#5F5F66]">{t("pie")}</p>
+
+          {/* Quien llega aquí con un enlace viejo probablemente quiere entrar:
+              ahora existe el acceso sin contraseña, así que se le ofrece. */}
+          <p className="mt-3">
+            <Link
+              href="/conferencia/acceso"
+              className="text-[13px] font-bold text-[#11324F] underline underline-offset-2"
+            >
+              {t("irAcceso")}
+            </Link>
+          </p>
         </div>
       </main>
     </>

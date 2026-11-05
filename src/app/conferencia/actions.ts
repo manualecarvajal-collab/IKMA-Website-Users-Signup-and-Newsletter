@@ -4,6 +4,9 @@ import { cookies } from "next/headers"
 import { createAdminClient } from "@/lib/supabase/server"
 import { sendResendEmail } from "@/lib/resend"
 import {
+  ACCESO_DIAS,
+  baseDelSitio,
+  enlaceAcceso,
   findRegistro,
   normalizeEmail,
   REGISTRO_COOKIE,
@@ -12,7 +15,7 @@ import {
 } from "@/lib/conferencia"
 import { getAjustes } from "@/lib/conferencia-admin"
 import { componerCorreo } from "@/lib/conferencia-plantilla"
-import { buildConferenciaCodigoHtml } from "@/lib/email-template"
+import { buildConferenciaAccesoHtml, buildConferenciaCodigoHtml } from "@/lib/email-template"
 import {
   CODE_DIGITS,
   CODE_TTL_MINUTES,
@@ -423,5 +426,93 @@ export async function verificarCodigo(
   } catch (e) {
     console.error("[verificarCodigo]", e)
     return { ok: false, reason: "unknown" }
+  }
+}
+
+// ---------------------------------------------------------------- iniciar sesión
+
+/** Asunto del correo de acceso. Se usa también para limitar los reenvíos. */
+const ASUNTO_ACCESO = "Your sign-in link — IKMA Conference"
+
+export type AccesoResult =
+  | { ok: true }
+  | { ok: false; reason: "noRegistrado" | "espera" | "fallo"; retryInSeconds?: number }
+
+/**
+ * «Iniciar sesión» sin contraseña.
+ *
+ * POR QUÉ EXISTE. La sesión vive en una cookie de ESE navegador: quien se
+ * inscribió en el móvil y abre la web en el portátil veía el formulario otra vez
+ * y volvía a inscribirse. Esto le da una puerta de vuelta sin pedirle una
+ * contraseña que no tiene.
+ *
+ * QUÉ NO HACE. No crea cuentas ni toca `auth.users`: solo comprueba que el
+ * correo esté en `conferencia.registros` con `estado = confirmado` —es decir,
+ * que ya demostró que el buzón es suyo— y le manda un enlace firmado que marca
+ * ese navegador como inscrito.
+ *
+ * SI EL CORREO NO ESTÁ, SE DICE. Se podría responder siempre «ok» para no
+ * revelar quién está inscrito, pero eso deja al usuario esperando un correo que
+ * no va a llegar: aquí interesa más que sepa que tiene que inscribirse.
+ */
+export async function solicitarAcceso(rawEmail: string): Promise<AccesoResult> {
+  try {
+    const email = normalizeEmail(rawEmail)
+    if (!EMAIL_RE.test(email)) return { ok: false, reason: "noRegistrado" }
+
+    const admin = await createAdminClient()
+    const registro = await findRegistro(admin, email)
+    if (!registro || registro.estado !== "confirmado") {
+      return { ok: false, reason: "noRegistrado" }
+    }
+
+    // Un enlace cada 60 s por persona: sin esto, el formulario es un grifo
+    // abierto para llenarle el buzón a cualquiera cuyo correo esté en la lista.
+    const desde = new Date(Date.now() - 60_000).toISOString()
+    const { data: reciente } = await admin
+      .schema("conferencia")
+      .from("envios")
+      .select("created_at")
+      .eq("registro_id", registro.id)
+      .eq("asunto", ASUNTO_ACCESO)
+      .gte("created_at", desde)
+      .limit(1)
+
+    if (reciente && reciente.length > 0) {
+      const pasado = (Date.now() - new Date(reciente[0].created_at).getTime()) / 1000
+      return { ok: false, reason: "espera", retryInSeconds: Math.max(1, Math.ceil(60 - pasado)) }
+    }
+
+    const { fromName, fromEmail } = await senderConfig(admin)
+    const enlace = enlaceAcceso(email, await baseDelSitio())
+    const envio = await sendResendEmail({
+      to: email,
+      subject: ASUNTO_ACCESO,
+      html: buildConferenciaAccesoHtml({ nombre: registro.nombre ?? "", enlace, dias: ACCESO_DIAS }),
+      fromName,
+      fromEmail,
+    })
+
+    await admin
+      .schema("conferencia")
+      .from("envios")
+      .insert({
+        registro_id: registro.id,
+        email,
+        asunto: ASUNTO_ACCESO,
+        ok: envio.ok,
+        error: envio.ok ? null : String(envio.status),
+      })
+
+    if (!envio.ok) {
+      const cuerpo = await envio.text().catch(() => "")
+      console.error("[solicitarAcceso] resend:", envio.status, cuerpo.slice(0, 300))
+      return { ok: false, reason: "fallo" }
+    }
+
+    return { ok: true }
+  } catch (e) {
+    console.error("[solicitarAcceso]", e instanceof Error ? e.message : e)
+    return { ok: false, reason: "fallo" }
   }
 }

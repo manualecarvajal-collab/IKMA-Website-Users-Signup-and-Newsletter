@@ -104,6 +104,34 @@ export function buildConferenciaCodigoHtml(config: {
 }
 
 /**
+ * Correo con el enlace de acceso («iniciar sesión» sin contraseña).
+ *
+ * Lleva botón porque aquí SÍ hay algo que pulsar, y ese botón es la llave: quien
+ * lo abre en cualquier navegador queda dentro. El texto de debajo dice cuánto
+ * dura y que no hace falta si ya está dentro.
+ */
+export function buildConferenciaAccesoHtml(config: {
+  nombre: string
+  enlace: string
+  dias: number
+}) {
+  const saludo = config.nombre.trim() ? `Hi ${config.nombre.trim()},` : "Hi,"
+  return shellConferencia({
+    contenido_html: [
+      `<p>${saludo}</p>`,
+      "<p>This is your link to sign in to the IKMA Conference. Open it and you are in — no password needed.</p>",
+      `<p style="font-size:13px;color:#777">The link works for ${config.dias} days and in any browser. If you did not ask for it, you can ignore this message: your registration is not affected.</p>`,
+    ].join("\n"),
+    cta: {
+      titulo: "Sign in to the conference",
+      linea: "Your place is booked. This link takes you straight back in, from any device.",
+      href: config.enlace,
+      texto: "Sign in",
+    },
+  })
+}
+
+/**
  * Correo sin llamada a la acción: cabecera, cuerpo y pie.
  *
  * Lo usan la CONFIRMACIÓN (al verificar el código) y el RECORDATORIO DE

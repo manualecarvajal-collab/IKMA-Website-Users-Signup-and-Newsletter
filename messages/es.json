@@ -79,7 +79,8 @@
       "estadoEnMarcha": "En marcha ahora mismo",
       "estadoTerminado": "Conferencia finalizada",
       "ctaEntrar": "Entrar en Zoom",
-      "ctaVerPrograma": "Ver programa y ponentes"
+      "ctaVerPrograma": "Ver programa y ponentes",
+      "ctaAcceso": "Iniciar sesión"
     },
     "form": {
       "title": "Reserva tu lugar en la Conferencia IKMA",
@@ -160,7 +161,29 @@
       "texto": "La forma de entrar a la conferencia ha cambiado: se emite por Zoom y el enlace de la reunión te llega por correo, uno nuevo para cada envío.",
       "aviso": "Te enviaremos el enlace nuevo el viernes 13 de noviembre, 24 horas antes de la conferencia.",
       "cta": "Ir a la conferencia",
-      "pie": "Tu inscripción sigue siendo válida. No tienes que hacer nada más."
+      "pie": "Tu inscripción sigue siendo válida. No tienes que hacer nada más.",
+      "irAcceso": "¿Ya te inscribiste? Inicia sesión"
+    },
+    "acceso": {
+      "metaTitle": "Iniciar sesión — Conferencia IKMA",
+      "badge": "Iniciar sesión",
+      "titulo": "Vuelve a tu inscripción",
+      "texto": "Escribe el correo con el que te inscribiste y te enviamos un enlace para entrar. Sin contraseñas.",
+      "emailLabel": "Tu correo",
+      "emailPlaceholder": "nombre@correo.com",
+      "enviar": "Enviarme el enlace",
+      "enviando": "Enviando…",
+      "enviadoTitulo": "Revisa tu correo",
+      "enviadoTexto": "Te enviamos un enlace a {email}. Ábrelo desde este u otro dispositivo y entrarás directo.",
+      "enviadoAviso": "Si no lo ves en un par de minutos, mira en la carpeta de correo no deseado.",
+      "volver": "Volver a la conferencia",
+      "volverLanding": "Volver a la conferencia",
+      "noRegistradoTitulo": "Ese correo no está inscrito",
+      "noRegistradoTexto": "No encontramos ninguna inscripción confirmada con este correo. Puede que esté escrito de otra forma o que aún no te hayas inscrito.",
+      "noRegistradoCta": "Inscribirme ahora",
+      "espera": "Espera {seconds} segundos antes de pedir otro enlace.",
+      "fallo": "No pudimos enviar el enlace. Inténtalo en un momento.",
+      "enlaceCaducado": "Ese enlace ya no sirve. Pide uno nuevo aquí abajo."
     }
   },
   "Navbar": {

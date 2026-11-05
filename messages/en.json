@@ -79,7 +79,8 @@
       "estadoEnMarcha": "Happening right now",
       "estadoTerminado": "Conference finished",
       "ctaEntrar": "Join in Zoom",
-      "ctaVerPrograma": "See the programme and speakers"
+      "ctaVerPrograma": "See the programme and speakers",
+      "ctaAcceso": "Sign in"
     },
     "form": {
       "title": "Save your place at the IKMA Conference",
@@ -160,7 +161,29 @@
       "texto": "How you join the conference has changed: it is held on Zoom, and the meeting link is sent to you by email, a new one for each send.",
       "aviso": "We will email you the new link on Friday, November 13 — 24 hours before the conference.",
       "cta": "Go to the conference",
-      "pie": "Your registration is still valid. There is nothing else you need to do."
+      "pie": "Your registration is still valid. There is nothing else you need to do.",
+      "irAcceso": "Already registered? Sign in"
+    },
+    "acceso": {
+      "metaTitle": "Sign in — IKMA Conference",
+      "badge": "Sign in",
+      "titulo": "Get back to your registration",
+      "texto": "Enter the email you registered with and we will send you a link to sign in. No passwords.",
+      "emailLabel": "Your email",
+      "emailPlaceholder": "name@email.com",
+      "enviar": "Send me the link",
+      "enviando": "Sending…",
+      "enviadoTitulo": "Check your inbox",
+      "enviadoTexto": "We sent a link to {email}. Open it on this or any other device and you will go straight in.",
+      "enviadoAviso": "If you do not see it within a couple of minutes, check your spam folder.",
+      "volver": "Back to the conference",
+      "volverLanding": "Back to the conference",
+      "noRegistradoTitulo": "That email is not registered",
+      "noRegistradoTexto": "We could not find a confirmed registration with this email. It may be spelled differently, or you may not have signed up yet.",
+      "noRegistradoCta": "Sign up now",
+      "espera": "Wait {seconds} seconds before asking for another link.",
+      "fallo": "We could not send the link. Please try again in a moment.",
+      "enlaceCaducado": "That link no longer works. Ask for a new one below."
     }
   },
   "Navbar": {

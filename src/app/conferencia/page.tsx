@@ -248,9 +248,19 @@ export default async function ConferenciaPage() {
                 />
                 {/* El secundario es TEXTO, sin borde ni pastilla: así aparece en
                     el prototipo. */}
+                {/* Iniciar sesión: la sesión vive en una cookie de ESTE
+                    navegador, así que quien se inscribió desde el móvil y entra
+                    desde el portátil veía el formulario otra vez —y se volvía a
+                    inscribir—. Esto le da la vuelta sin contraseña. */}
+                <Link
+                  href="/conferencia/acceso"
+                  className="text-[clamp(min(0.9rem,1.32svh),min(0.85vw,1.52svh),1.08rem)] font-bold text-[#123045] transition-opacity hover:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#123045] focus-visible:ring-offset-2"
+                >
+                  {t("ctaAcceso")}
+                </Link>
                 <a
                   href="/contact-us"
-                  className="text-[clamp(min(0.9rem,1.32svh),min(0.85vw,1.52svh),1.08rem)] font-bold text-[#123045] transition-opacity hover:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#123045] focus-visible:ring-offset-2"
+                  className="text-[clamp(min(0.8rem,1.19svh),min(0.78vw,1.38svh),0.95rem)] font-semibold text-[#5F5F66] transition-opacity hover:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#123045] focus-visible:ring-offset-2"
                 >
                   {t("ctaSecondary")}
                 </a>
