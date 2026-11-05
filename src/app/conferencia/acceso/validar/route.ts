@@ -1,6 +1,13 @@
 import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
-import { findRegistro, emailDeEnlace, valorCookieInscripcion, REGISTRO_COOKIE, REGISTRO_COOKIE_MAX_AGE } from "@/lib/conferencia"
+import {
+  findRegistro,
+  emailDeEnlace,
+  valorCookieInscripcion,
+  opcionesCookieSesion,
+  preferenciaSesion,
+  REGISTRO_COOKIE,
+} from "@/lib/conferencia"
 import { createAdminClient } from "@/lib/supabase/server"
 
 /**
@@ -33,13 +40,14 @@ export async function GET(request: Request) {
   const registro = await findRegistro(await createAdminClient(), email)
   if (!registro || registro.estado !== "confirmado") return volver("registro")
 
+  // Las MISMAS opciones que usan la verificación y el aviso de permanencia: si
+  // esta ruta escribiera una cookie «host-only», conviviría con la de dominio y
+  // cerrar sesión volvería a dejar una viva.
   const destino = NextResponse.redirect(new URL("/conferencia", url.origin))
-  destino.cookies.set(REGISTRO_COOKIE, valorCookieInscripcion(email), {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    path: "/",
-    maxAge: REGISTRO_COOKIE_MAX_AGE,
-  })
+  destino.cookies.set(
+    REGISTRO_COOKIE,
+    valorCookieInscripcion(email),
+    await opcionesCookieSesion((await preferenciaSesion()) !== "sesion")
+  )
   return destino
 }

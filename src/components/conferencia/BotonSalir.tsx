@@ -1,8 +1,7 @@
 "use client"
 
-import { useState, useTransition } from "react"
+import { useState } from "react"
 import { useTranslations } from "next-intl"
-import { cerrarSesion } from "@/app/conferencia/actions"
 
 /**
  * «Cerrar sesión», en el hero de quien ya está inscrito.
@@ -12,14 +11,15 @@ import { cerrarSesion } from "@/app/conferencia/actions"
  * confirmación con una segunda pulsación —no con un diálogo— porque cerrar la
  * sesión sin querer obliga a ir al correo a por el enlace de acceso.
  *
- * Al terminar recarga la página: el estado de sesión lo decide el servidor, así
- * que refrescar es lo que devuelve la landing al estado de visitante sin tener
- * que duplicar esa lógica en el cliente.
+ * Al confirmar, navega a `/conferencia/salir`, que es una ruta GET: borra la
+ * cookie de sesión (en sus dos ámbitos posibles) y devuelve a la landing. El
+ * estado de sesión lo decide el servidor, así que recargar es lo que devuelve la
+ * página al estado de visitante sin duplicar esa lógica en el cliente.
  */
 export default function BotonSalir({ className }: { className?: string }) {
   const t = useTranslations("Conferencia.sesion")
   const [confirmando, setConfirmando] = useState(false)
-  const [pendiente, start] = useTransition()
+  const [pendiente, setPendiente] = useState(false)
 
   if (confirmando) {
     return (
@@ -27,12 +27,12 @@ export default function BotonSalir({ className }: { className?: string }) {
         <button
           type="button"
           disabled={pendiente}
-          onClick={() =>
-            start(async () => {
-              await cerrarSesion()
-              window.location.assign("/conferencia")
-            })
-          }
+          onClick={() => {
+            // Navegar a la ruta que borra la cookie: es un GET normal, así que
+            // el cierre funciona aunque el JavaScript falle a mitad.
+            setPendiente(true)
+            window.location.assign("/conferencia/salir")
+          }}
           className="text-[13px] font-bold text-[#8A5A1E] underline underline-offset-2 disabled:opacity-60"
         >
           {pendiente ? t("saliendo") : t("salirConfirmar")}

@@ -531,16 +531,6 @@ export async function solicitarAcceso(rawEmail: string): Promise<AccesoResult> {
 // ---------------------------------------------------------------- la sesión
 
 /**
- * Cierra la sesión en ESTE navegador.
- *
- * Borra la cookie de inscripción, no la preferencia: si alguien eligió «solo
- * esta vez», esa decisión sigue guardada para la próxima.
- */
-export async function cerrarSesion(): Promise<void> {
-  ;(await cookies()).delete(REGISTRO_COOKIE)
-}
-
-/**
  * Guarda lo que la persona conteste en el aviso de «mantener la sesión» y
  * reescribe la cookie en consecuencia.
  *
