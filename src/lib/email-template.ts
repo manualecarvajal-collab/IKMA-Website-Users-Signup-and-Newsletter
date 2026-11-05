@@ -153,7 +153,7 @@ export function buildConferenciaAvisoHtml(config: { contenido_html: string; acce
   const acceso = config.acceso
     ? `
       <div style="margin-top:28px;padding-top:22px;border-top:1px solid #e6e8e9">
-        <p style="font-size:14px;color:#6b7280;margin:0 0 14px">Coming back from another device? Use this link to sign in — no password needed.</p>
+        <p style="font-size:19px;font-weight:700;line-height:1.4;color:#3C4A56;margin:0 0 16px">Click the button below to get access to the conference information.</p>
         <a href="${config.acceso}" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:12px 28px;background-color:#074469;color:#ffffff;border-radius:9999px;font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:1px;text-decoration:none;">Sign in</a>
       </div>`
     : ""
