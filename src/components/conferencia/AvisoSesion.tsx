@@ -31,17 +31,21 @@ export default function AvisoSesion({ onCerrar }: { onCerrar: () => void }) {
     const previo = document.body.style.overflow
     document.body.style.overflow = "hidden"
     const alPulsar = (e: KeyboardEvent) => {
-      // Escape equivale a «solo esta vez»: cerrar sin decidir no puede dejar la
-      // sesión permanente por omisión.
-      if (e.key === "Escape") void elegir(false)
+      // ESCAPE = «decidir luego», NO «solo esta vez».
+      //
+      // Antes Escape guardaba «sesion» y eso convertía la sesión de esa persona
+      // en una cookie que muere al cerrar el navegador, para siempre y sin que
+      // se enterara. Era la causa principal de «me echa cada vez que cierro».
+      // Ahora solo cierra el aviso: la sesión se queda como está —persistente
+      // por defecto— y la pregunta vuelve en otra visita.
+      if (e.key === "Escape") onCerrar()
     }
     window.addEventListener("keydown", alPulsar)
     return () => {
       document.body.style.overflow = previo
       window.removeEventListener("keydown", alPulsar)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [onCerrar])
 
   async function elegir(permanecer: boolean) {
     if (enviando) return

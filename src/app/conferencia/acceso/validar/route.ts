@@ -4,8 +4,10 @@ import {
   findRegistro,
   emailDeEnlace,
   valorCookieInscripcion,
+  opcionesCookiePreferencia,
   opcionesCookieSesion,
   preferenciaSesion,
+  YA_INSCRITO_COOKIE,
   REGISTRO_COOKIE,
 } from "@/lib/conferencia"
 import { createAdminClient } from "@/lib/supabase/server"
@@ -49,5 +51,9 @@ export async function GET(request: Request) {
     valorCookieInscripcion(email),
     await opcionesCookieSesion((await preferenciaSesion()) !== "sesion")
   )
+  // La marca de «ya inscrito»: sobrevive a la sesión para que, si la pierde, la
+  // landing se lo diga en vez de ofrecerle el formulario.
+  destino.cookies.set(YA_INSCRITO_COOKIE, "1", await opcionesCookiePreferencia())
+
   return destino
 }

@@ -194,7 +194,10 @@
       "texto": "Tu inscripción está recordada en este dispositivo. ¿Quieres que siga así la próxima vez que entres, aunque cierres el navegador?",
       "matiz": "Si eliges «solo esta vez», tendrás que volver por el enlace de tu correo. No afecta a tu inscripción: tu plaza sigue reservada.",
       "mantener": "Sí, mantener",
-      "soloEstaVez": "Solo esta vez"
+      "soloEstaVez": "Solo esta vez",
+      "perdidaTitulo": "Parece que ya te habías inscrito",
+      "perdidaTexto": "En este dispositivo hubo una sesión abierta y ahora no la hay. Si eres tú, entra con tu correo en vez de rellenar esto otra vez.",
+      "perdidaCta": "Entrar con mi correo"
     }
   },
   "Navbar": {

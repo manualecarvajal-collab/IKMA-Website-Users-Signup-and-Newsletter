@@ -41,6 +41,17 @@ export const SESION_PREF_COOKIE = "conf_sesion"
 export type PreferenciaSesion = "persistente" | "sesion"
 
 /**
+ * Marca de «aquí ya se inscribió alguien».
+ *
+ * NO da acceso a nada y sobrevive a propósito a la sesión: sirve para que, si la
+ * persona vuelve y su sesión se perdió —navegador nuevo, webview de Instagram,
+ * cookies borradas—, la landing se lo diga («¿ya te habías inscrito? entra con
+ * tu correo») en vez de ofrecerle el formulario vacío y empujarla a inscribirse
+ * por segunda vez, que es el problema que estamos persiguiendo.
+ */
+export const YA_INSCRITO_COOKIE = "conf_ya_inscrito"
+
+/**
  * Opciones de la cookie de sesión, iguales en todos los sitios que la escriben.
  *
  * DOS COSAS QUE ARREGLAN FALLOS REALES:
@@ -79,6 +90,35 @@ export async function opcionesCookieSesion(permanente: boolean) {
   }
 
   return opciones
+}
+
+/**
+ * Opciones de la cookie de PREFERENCIA.
+ *
+ * Las mismas que la de sesión pero siempre de larga duración: la preferencia es
+ * una decisión, no una sesión. Y con el mismo `domain`: si se escribiera
+ * host-only, al entrar por el otro hostname no se vería y volveríamos a
+ * preguntar lo mismo una y otra vez.
+ */
+export async function opcionesCookiePreferencia() {
+  const { maxAge: _ignorado, ...resto } = await opcionesCookieSesion(true)
+  void _ignorado
+  return { ...resto, maxAge: REGISTRO_COOKIE_MAX_AGE }
+}
+
+/**
+ * Deja la marca de «ya inscrito» en este navegador. Sin ella no hay forma de
+ * distinguir a un visitante nuevo de alguien que perdió la sesión.
+ */
+export async function marcarYaInscrito(
+  jar: Awaited<ReturnType<typeof cookies>>
+): Promise<void> {
+  jar.set(YA_INSCRITO_COOKIE, "1", await opcionesCookiePreferencia())
+}
+
+/** ¿Este navegador ya tuvo una sesión de la conferencia? */
+export async function huboSesionPrevia(): Promise<boolean> {
+  return (await cookies()).get(YA_INSCRITO_COOKIE)?.value === "1"
 }
 
 /** Qué contestó la persona en el aviso de «mantener la sesión», si contestó. */

@@ -14,7 +14,7 @@ import SignupCard from "@/components/conferencia/SignupCard"
 import MarcoZoom from "@/components/conferencia/MarcoZoom"
 import BotonSalir from "@/components/conferencia/BotonSalir"
 import AvisoSesionAlMontar from "@/components/conferencia/AvisoSesionAlMontar"
-import { emailConfirmado, getEnlaceReunion, preferenciaSesion } from "@/lib/conferencia"
+import { emailConfirmado, getEnlaceReunion, huboSesionPrevia, preferenciaSesion } from "@/lib/conferencia"
 import { createAdminClient } from "@/lib/supabase/server"
 import { enVentanaDeEnlace, momentoDelEvento } from "@/components/conferencia/event"
 import "./fondo.css"
@@ -70,6 +70,13 @@ export default async function ConferenciaPage() {
    * contestado en este navegador.
    */
   const sinPreferencia = yaInscrito ? (await preferenciaSesion()) === null : false
+
+  /**
+   * Este navegador YA tuvo sesión y ahora no la tiene: la perdió (webview de una
+   * app, cookies borradas, otro navegador) o cerró sesión. En vez de enseñarle
+   * el formulario vacío y empujarlo a inscribirse otra vez, se le ofrece entrar.
+   */
+  const sesionPerdida = !yaInscrito && (await huboSesionPrevia())
 
   // En qué tramo del evento estamos: antes, víspera, en marcha o terminado.
   const momento = momentoDelEvento()
@@ -331,7 +338,7 @@ export default async function ConferenciaPage() {
           <div className="w-[min(92vw,1040px)] overflow-hidden rounded-[28px] bg-white shadow-[0_24px_70px_rgba(8,18,38,0.35)] md:grid md:w-[1040px] md:grid-cols-[1fr_400px]">
             {/* Formulario — laterales +20 %: 24 → 28,8 px y 40 → 48 px */}
             <div className="px-[1.8rem] py-8 md:flex md:items-center md:px-12 md:py-10">
-              <SignupCard />
+              <SignupCard sesionPerdida={sesionPerdida} />
             </div>
 
             {/* Vídeo vertical a la derecha: testimonios de la asociación.

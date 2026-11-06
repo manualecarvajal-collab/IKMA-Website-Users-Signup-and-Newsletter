@@ -10,7 +10,9 @@ import {
   emailDeCookieInscripcion,
   enlaceAcceso,
   findRegistro,
+  marcarYaInscrito,
   normalizeEmail,
+  opcionesCookiePreferencia,
   opcionesCookieSesion,
   preferenciaSesion,
   REGISTRO_COOKIE,
@@ -460,11 +462,15 @@ export async function verificarCodigo(
     // Si ya contestó al aviso de «mantener la sesión», se respeta; si no, se
     // entra como persistente y se le pregunta en la landing.
     const preferencia = await preferenciaSesion()
-    ;(await cookies()).set(
+    const jar = await cookies()
+    jar.set(
       REGISTRO_COOKIE,
       valorCookieInscripcion(email),
       await opcionesCookieSesion(preferencia !== "sesion")
     )
+    // Marca que sobrevive a la sesión: si algún día la pierde, la landing se lo
+    // dirá en vez de ofrecerle el formulario otra vez.
+    await marcarYaInscrito(jar)
 
     return { ok: true, correoEnviado, enlaceEnviado }
   } catch (e) {
@@ -595,14 +601,14 @@ export async function elegirPermanencia(permanecer: boolean): Promise<{ ok: bool
   if (!email) return { ok: false }
 
   jar.set(REGISTRO_COOKIE, valorCookieInscripcion(email), await opcionesCookieSesion(permanecer))
-  jar.set(SESION_PREF_COOKIE, permanecer ? "persistente" : "sesion", {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    path: "/",
-    // La preferencia sí dura: es una decisión, no una sesión.
-    maxAge: REGISTRO_COOKIE_MAX_AGE,
-  })
+  // La preferencia va con el MISMO dominio que la sesión: si fuera host-only,
+  // al entrar por el otro hostname no se vería y volveríamos a preguntar.
+  jar.set(
+    SESION_PREF_COOKIE,
+    permanecer ? "persistente" : "sesion",
+    await opcionesCookiePreferencia()
+  )
+  await marcarYaInscrito(jar)
 
   return { ok: true }
 }

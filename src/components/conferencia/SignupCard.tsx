@@ -57,7 +57,18 @@ const suscribirPaises = () => () => {}
 /** Instantánea del servidor: vacía, para no depender de Intl de Node. */
 const SIN_PAISES: { code: string; name: string }[] = []
 
-export default function SignupCard() {
+export default function SignupCard({
+  sesionPerdida = false,
+}: {
+  /**
+   * Este navegador tuvo sesión y la perdió. Se avisa ANTES del formulario: quien
+   * se reinscribe por no saber que ya estaba dentro es el problema que estamos
+   * persiguiendo.
+   */
+  sesionPerdida?: boolean
+} = {}) {
+  const tSesion = useTranslations("Conferencia.sesion")
+
   const t = useTranslations("Conferencia.form")
   const locale = useLocale()
 
@@ -390,6 +401,19 @@ export default function SignupCard() {
   // ------------------------------------------------------------- paso 1
   return (
     <form onSubmit={onSubmitForm} noValidate className="w-full">
+      {sesionPerdida && (
+        <div className="mb-5 rounded-[14px] bg-[#F4F7FA] px-4 py-3 text-[13px] leading-[1.5] text-[#11324F]">
+          <p className="font-bold">{tSesion("perdidaTitulo")}</p>
+          <p className="mt-1">{tSesion("perdidaTexto")}</p>
+          <Link
+            href="/conferencia/acceso"
+            className="mt-2 inline-block font-bold text-[#11324F] underline underline-offset-2"
+          >
+            {tSesion("perdidaCta")}
+          </Link>
+        </div>
+      )}
+
       <h2 className="text-[20px] font-bold leading-[1.25] text-[#123045] md:text-[24px]">
         {t("title")}
       </h2>
