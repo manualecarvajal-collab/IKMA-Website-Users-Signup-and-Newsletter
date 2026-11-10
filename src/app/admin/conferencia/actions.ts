@@ -252,6 +252,74 @@ export async function enviarPrueba(
 }
 
 /**
+ * Alta manual de un inscrito, para uso administrativo.
+ *
+ * PARA QUÉ. El día del ensayo hay que probar el envío del enlace, y probarlo
+ * con las 48 personas reales no es una opción. Esto mete a alguien en la lista
+ * —solo nombre y correo— sin pasar por el código de verificación.
+ *
+ * QUÉ HACE Y QUÉ NO.
+ *   · Lo crea ya `confirmado`: si no, no aparecería en los envíos, que es para
+ *     lo que se usa. Queda marcado con `origen = 'alta-manual'` y `verificado_at`
+ *     puesto, para que dentro de un mes se sepa que esa fila no la verificó su
+ *     dueño.
+ *   · NO acepta consentimiento en su nombre: `consentimiento_at` queda nulo. Es
+ *     un dato que solo puede dar la persona.
+ *   · NO envía nada. El envío se hace después con el botón de la fila o con la
+ *     plantilla, que es justo lo que se quiere probar.
+ *   · Si el correo ya está, no lo duplica ni lo pisa: devuelve en qué estado
+ *     está, para no dejar dos filas del mismo buzón.
+ */
+export async function crearRegistroManual(
+  rawNombre: string,
+  rawEmail: string
+): Promise<{ ok: boolean; error?: string; estado?: string }> {
+  const guard = await requireAdmin()
+  if (!guard.ok) return { ok: false, error: guard.error }
+
+  const nombre = rawNombre.trim().slice(0, 120)
+  const email = rawEmail.trim().toLowerCase()
+
+  if (!nombre) return { ok: false, error: "Falta el nombre" }
+  // Misma forma de correo que usa la landing; el tope de longitud evita que un
+  // pegote de texto acabe en la tabla y en los correos.
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) || email.length > 254) {
+    return { ok: false, error: `Correo no válido: ${email}` }
+  }
+
+  const admin = await createAdminClient()
+  const { data: existente } = await admin
+    .schema("conferencia")
+    .from("registros")
+    .select("id, email, estado")
+    .ilike("email", email)
+    .limit(1)
+
+  const ya = (existente ?? []).find((r) => (r.email ?? "").toLowerCase() === email)
+  if (ya) return { ok: false, error: "Ese correo ya está en la lista", estado: ya.estado }
+
+  const ahora = new Date().toISOString()
+  const { error } = await admin.schema("conferencia").from("registros").insert({
+    nombre,
+    email,
+    estado: "confirmado",
+    verificado_at: ahora,
+    consentimiento_at: null,
+    origen: "alta-manual",
+  })
+
+  if (error) {
+    console.error("[crearRegistroManual]", error.message, error.code)
+    // 23505 = choque con el índice único sobre lower(email): alguien lo creó
+    // entre la comprobación y el insert.
+    if (error.code === "23505") return { ok: false, error: "Ese correo ya está en la lista" }
+    return { ok: false, error: error.message }
+  }
+
+  return { ok: true, estado: "confirmado" }
+}
+
+/**
  * Reenvía la verificación a quien se inscribió y no terminó.
  *
  * NO es un recordatorio cualquiera: el código caduca a los 15 minutos y en la

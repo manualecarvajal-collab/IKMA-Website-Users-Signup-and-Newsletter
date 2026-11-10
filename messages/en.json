@@ -918,7 +918,16 @@
       "verifyResult": "Verification resent: {sent} sent, {failed} failed",
       "verifyHint": "This template carries a NEW code on every send: you do not type the code, use '{{codigo}}'. It expires in '{{minutos}}' minutes.",
       "templateAccess": "Access (sign-in link)",
-      "accesoHint": "This email goes out on its own when someone finishes registering, and every time someone asks for a link from «Sign in». The button is generated with the signed link: you edit the text here, not the key."
+      "accesoHint": "This email goes out on its own when someone finishes registering, and every time someone asks for a link from «Sign in». The button is generated with the signed link: you edit the text here, not the key.",
+      "manualTitle": "Add a registrant by hand",
+      "manualDesc": "For tests and rehearsals: it is added already confirmed and no email is sent. Afterwards you can use «Send link» on its row.",
+      "manualName": "Name",
+      "manualEmail": "Email",
+      "manualSubmit": "Add to the list",
+      "manualSaving": "Adding…",
+      "manualOk": "Added. It is in the list now, with no emails sent.",
+      "manualExiste": "That email is already in the list (state: {estado}).",
+      "manualError": "Could not add: {error}"
     }
   },
   "IncompleteRegistration": {

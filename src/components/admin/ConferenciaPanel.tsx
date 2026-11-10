@@ -2,7 +2,9 @@
 
 import { useMemo, useState, useTransition } from "react"
 import { useLocale, useTranslations } from "next-intl"
+import { useRouter } from "next/navigation"
 import {
+  crearRegistroManual,
   enviarInvitacion,
   enviarPrueba,
   enviarVerificacion,
@@ -172,6 +174,15 @@ export default function ConferenciaPanel({
   const [confirmarTodos, setConfirmarTodos] = useState(false)
   /** Resultado de los reenvíos de verificación, aparte del de las plantillas. */
   const [resultadoVerif, setResultadoVerif] = useState<EnvioResumen | null>(null)
+  /**
+   * Alta manual. Existe para el ensayo: probar el envío del enlace sin tocar a
+   * los 48 inscritos de verdad. Crea la fila ya confirmada y NO manda nada.
+   */
+  const router = useRouter()
+  const [altaNombre, setAltaNombre] = useState("")
+  const [altaEmail, setAltaEmail] = useState("")
+  const [altaAviso, setAltaAviso] = useState("")
+  const [altaOcupada, setAltaOcupada] = useState(false)
 
   const visibles = useMemo(
     () => (filtro === "todos" ? registros : registros.filter((r) => r.estado === filtro)),
@@ -398,6 +409,63 @@ export default function ConferenciaPanel({
           </div>
         </div>
       )}
+
+      {/* ------------------------------------------------- alta manual */}
+      <div className="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-4">
+        <p className="font-semibold text-gray-800">{t("manualTitle")}</p>
+        <p className="mt-1 text-sm text-gray-600">{t("manualDesc")}</p>
+        <form
+          className="mt-3 flex flex-wrap items-end gap-3"
+          onSubmit={async (e) => {
+            e.preventDefault()
+            if (altaOcupada) return
+            setAltaOcupada(true)
+            setAltaAviso("")
+            const r = await crearRegistroManual(altaNombre, altaEmail)
+            setAltaOcupada(false)
+            if (r.ok) {
+              setAltaNombre("")
+              setAltaEmail("")
+              setAltaAviso(t("manualOk"))
+              // La lista la pinta el servidor: hay que pedirla otra vez.
+              router.refresh()
+              return
+            }
+            setAltaAviso(
+              r.estado ? t("manualExiste", { estado: r.estado }) : t("manualError", { error: r.error ?? "" })
+            )
+          }}
+        >
+          <label className="block">
+            <span className="text-sm font-medium text-gray-700">{t("manualName")}</span>
+            <input
+              value={altaNombre}
+              onChange={(e) => setAltaNombre(e.target.value)}
+              maxLength={120}
+              required
+              className="mt-1 w-56 rounded-lg border border-gray-300 px-3 py-2 text-sm"
+            />
+          </label>
+          <label className="block">
+            <span className="text-sm font-medium text-gray-700">{t("manualEmail")}</span>
+            <input
+              value={altaEmail}
+              onChange={(e) => setAltaEmail(e.target.value)}
+              type="email"
+              required
+              className="mt-1 w-72 rounded-lg border border-gray-300 px-3 py-2 text-sm"
+            />
+          </label>
+          <button
+            type="submit"
+            disabled={altaOcupada || !altaNombre.trim() || !altaEmail.trim()}
+            className="rounded-full bg-ikmaBlue px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
+          >
+            {altaOcupada ? t("manualSaving") : t("manualSubmit")}
+          </button>
+        </form>
+        {altaAviso && <p className="mt-2 text-sm text-gray-700">{altaAviso}</p>}
+      </div>
 
       {/* --------------------------------------------------------- tabla */}
       <div className="rounded-xl border border-gray-200 bg-white">
