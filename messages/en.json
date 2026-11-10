@@ -926,8 +926,11 @@
       "manualSubmit": "Add to the list",
       "manualSaving": "Adding…",
       "manualOk": "Added. It is in the list now, with no emails sent.",
-      "manualExiste": "That email is already in the list (state: {estado}).",
-      "manualError": "Could not add: {error}"
+      "manualExiste": "That email is already in the list (state: {estado}). For a test, use another email.",
+      "manualError": "Could not add: {error}",
+      "filterGuests": "Guests",
+      "guestBadge": "admin guest",
+      "searchPlaceholder": "Search by name or email"
     }
   },
   "IncompleteRegistration": {

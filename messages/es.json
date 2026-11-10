@@ -926,8 +926,11 @@
       "manualSubmit": "Añadir a la lista",
       "manualSaving": "Añadiendo…",
       "manualOk": "Añadido. Ya aparece en la lista, sin correos enviados.",
-      "manualExiste": "Ese correo ya está en la lista (estado: {estado}).",
-      "manualError": "No se pudo añadir: {error}"
+      "manualExiste": "Ese correo ya está en la lista (estado: {estado}). Para una prueba, usa otro correo.",
+      "manualError": "No se pudo añadir: {error}",
+      "filterGuests": "Invitados",
+      "guestBadge": "admin guest",
+      "searchPlaceholder": "Buscar por nombre o correo"
     }
   },
   "IncompleteRegistration": {

@@ -27,6 +27,12 @@ export interface RegistroAdmin {
   verificado_at: string | null
   /** Cuántas invitaciones se le han enviado ya. */
   envios: number
+  /**
+   * De dónde salió la fila: `web` (se inscribió) o `alta-manual` (la metió un
+   * administrador para probar). Los invitados se etiquetan y tienen su propio
+   * filtro, para no confundirlos con asistentes reales.
+   */
+  origen: string | null
 }
 
 export interface ConferenciaStats {
@@ -34,6 +40,8 @@ export interface ConferenciaStats {
   confirmados: number
   pendientes: number
   cancelados: number
+  /** Filas creadas a mano por un administrador (pruebas y ensayos). */
+  invitados: number
   porPais: { pais: string; total: number }[]
   porPerfil: { perfil: string; total: number }[]
 }
@@ -83,7 +91,7 @@ export async function getRegistros(admin: Admin): Promise<Resultado<RegistroAdmi
   const { data, error } = await admin
     .schema("conferencia")
     .from("registros")
-    .select("id, nombre, email, pais, perfil_profesional, estado, created_at, verificado_at, envios(id)")
+    .select("id, nombre, email, pais, perfil_profesional, estado, origen, created_at, verificado_at, envios(id)")
     .order("created_at", { ascending: false })
 
   if (error) {
@@ -103,6 +111,7 @@ export async function getRegistros(admin: Admin): Promise<Resultado<RegistroAdmi
       verificado_at: r.verificado_at,
       // `envios` llega como lista de relaciones; solo interesa cuántas hay.
       envios: Array.isArray(r.envios) ? r.envios.length : 0,
+      origen: r.origen ?? null,
     })),
   }
 }
@@ -131,6 +140,7 @@ export async function getStats(
       confirmados: cuenta("confirmado"),
       pendientes: cuenta("nuevo"),
       cancelados: cuenta("cancelado"),
+      invitados: registros.filter((r) => r.origen === "alta-manual").length,
       porPais: agrupa((r) => r.pais).map((x) => ({ pais: x.clave, total: x.total })),
       porPerfil: agrupa((r) => r.perfil_profesional).map((x) => ({
         perfil: x.clave,

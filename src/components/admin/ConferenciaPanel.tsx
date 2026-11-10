@@ -55,13 +55,24 @@ const ETIQUETA_PLANTILLA: Record<PlantillaId, string> = {
   invitacion: "templateInvitation",
 }
 
-const FILTROS = ["todos", "confirmado", "nuevo", "cancelado"] as const
+const FILTROS = ["todos", "confirmado", "nuevo", "invitado", "cancelado"] as const
 const ETIQUETA_FILTRO: Record<string, string> = {
   todos: "filterAll",
   confirmado: "statusConfirmed",
   nuevo: "statusPending",
+  invitado: "filterGuests",
   cancelado: "statusCancelled",
 }
+
+/** Un invitado es una fila que metió un administrador a mano, no una persona. */
+const esInvitado = (r: { origen: string | null }) => r.origen === "alta-manual"
+
+/**
+ * Normaliza para buscar: sin mayúsculas y sin tildes, que es como la gente
+ * escribe un nombre en el buscador («jose» para «José»).
+ */
+const normalizar = (t: string) =>
+  t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
 
 /**
  * Botón de envío de una fila, con su propio estado: "Enviar enlace" → "Enviando…"
@@ -130,6 +141,8 @@ export default function ConferenciaPanel({
   const t = useTranslations("Admin.conferencia")
   const locale = useLocale()
 
+  /** Texto del buscador. Filtra por nombre o correo, sobre lo ya filtrado. */
+  const [busqueda, setBusqueda] = useState("")
   const [sel, setSel] = useState<Set<string>>(new Set())
   // Arranca en `confirmado`, no en `todos`. Un registro `nuevo` no está
   // verificado —pudo crearlo cualquiera con el correo de otra persona—, así que
@@ -184,10 +197,20 @@ export default function ConferenciaPanel({
   const [altaAviso, setAltaAviso] = useState("")
   const [altaOcupada, setAltaOcupada] = useState(false)
 
-  const visibles = useMemo(
-    () => (filtro === "todos" ? registros : registros.filter((r) => r.estado === filtro)),
-    [registros, filtro]
-  )
+  const visibles = useMemo(() => {
+    const porFiltro =
+      filtro === "todos"
+        ? registros
+        : filtro === "invitado"
+          ? registros.filter(esInvitado)
+          : registros.filter((r) => r.estado === filtro)
+
+    const q = normalizar(busqueda.trim())
+    if (!q) return porFiltro
+    return porFiltro.filter(
+      (r) => normalizar(r.nombre).includes(q) || normalizar(r.email).includes(q)
+    )
+  }, [registros, filtro, busqueda])
 
   const seleccionados = useMemo(() => registros.filter((r) => sel.has(r.id)), [registros, sel])
   const confirmadosSeleccionados = seleccionados.filter((r) => r.estado === "confirmado").length
@@ -464,7 +487,11 @@ export default function ConferenciaPanel({
             {altaOcupada ? t("manualSaving") : t("manualSubmit")}
           </button>
         </form>
-        {altaAviso && <p className="mt-2 text-sm text-gray-700">{altaAviso}</p>}
+        {altaAviso && (
+          <p className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-sm font-medium text-amber-900">
+            {altaAviso}
+          </p>
+        )}
       </div>
 
       {/* --------------------------------------------------------- tabla */}
@@ -473,7 +500,15 @@ export default function ConferenciaPanel({
           <p className="font-semibold text-gray-800">
             {t("tableTitle")} <span className="text-gray-500">({visibles.length})</span>
           </p>
-          <div className="flex flex-wrap gap-2 text-sm">
+          <div className="flex flex-wrap items-center gap-2 text-sm">
+            <input
+              type="search"
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
+              placeholder={t("searchPlaceholder")}
+              aria-label={t("searchPlaceholder")}
+              className="w-full max-w-64 rounded-full border border-gray-300 px-4 py-1.5 text-sm sm:w-64"
+            />
             {FILTROS.map((f) => (
               <button
                 key={f}
@@ -556,7 +591,14 @@ export default function ConferenciaPanel({
                   className="mt-1"
                 />
                 <div className="min-w-0 flex-1">
-                  <p className="font-medium text-gray-800">{r.nombre}</p>
+                  <p className="font-medium text-gray-800">
+                    {r.nombre}
+                    {esInvitado(r) && (
+                      <span className="ml-2 whitespace-nowrap rounded-full bg-purple-100 px-2 py-0.5 align-middle text-[10px] font-bold uppercase tracking-wide text-purple-800">
+                        {t("guestBadge")}
+                      </span>
+                    )}
+                  </p>
                   <p className="break-all text-xs text-gray-600">{r.email}</p>
                   <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-gray-500">
                     <span
@@ -643,7 +685,14 @@ export default function ConferenciaPanel({
                       onChange={() => alternar(r.id)}
                     />
                   </td>
-                  <td className="p-3 font-medium text-gray-800">{r.nombre}</td>
+                  <td className="p-3 font-medium text-gray-800">
+                    {r.nombre}
+                    {esInvitado(r) && (
+                      <span className="ml-2 whitespace-nowrap rounded-full bg-purple-100 px-2 py-0.5 align-middle text-[10px] font-bold uppercase tracking-wide text-purple-800">
+                        {t("guestBadge")}
+                      </span>
+                    )}
+                  </td>
                   <td className="break-all p-3 text-gray-600">{r.email}</td>
                   <td className="hidden p-3 text-gray-600 xl:table-cell">{r.pais ?? "—"}</td>
                   <td className="hidden p-3 text-gray-600 xl:table-cell">{etiquetaPerfil(r.perfil_profesional)}</td>
