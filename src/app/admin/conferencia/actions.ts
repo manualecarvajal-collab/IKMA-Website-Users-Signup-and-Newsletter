@@ -191,6 +191,14 @@ export async function enviarInvitacion(
   resumen.omitidosNoConfirmados = seleccionados.length - confirmadosDelLote.length
 
   // Quién recibió YA este mismo asunto sin error.
+  //
+  // SOLO CUENTAN LAS ÚLTIMAS 24 HORAS, y esto se aprendió de un fallo real: con
+  // el filtro sin fecha, quien hubiera recibido ese mismo asunto en cualquier
+  // prueba anterior quedaba excluido para siempre. El 13 de noviembre de 2026
+  // el envío del enlace saltó al propio administrador porque tenía un envío de
+  // prueba del día 10: no le llegó nada y parecía que el botón no enviaba.
+  // Una campaña es una campaña, no todo el histórico.
+  const desde = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
   let destinatarios = confirmadosDelLote
   if (saltarYaEnviados) {
     const { data: previos } = await admin
@@ -199,6 +207,7 @@ export async function enviarInvitacion(
       .select("email")
       .eq("asunto", asunto)
       .eq("ok", true)
+      .gte("created_at", desde)
     const yaTienen = new Set((previos ?? []).map((e) => (e.email ?? "").toLowerCase()))
     destinatarios = confirmadosDelLote.filter((r) => !yaTienen.has((r.email ?? "").toLowerCase()))
     resumen.yaEnviados = confirmadosDelLote.length - destinatarios.length
