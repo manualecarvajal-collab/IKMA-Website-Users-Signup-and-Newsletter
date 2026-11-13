@@ -226,7 +226,7 @@ export async function enviarInvitacion(
   // Y si aun así no hay enlace, NO se manda: un correo que dice «este es tu
   // enlace» con el enlace vacío es peor que no enviarlo, porque el inscrito se
   // queda esperando y ya no vuelve a mirar.
-  if (plantilla === "recordatorio" && !urlEnlace) {
+  if ((plantilla === "recordatorio" || plantilla === "manana") && !urlEnlace) {
     return {
       ...resumen,
       detalle: [{ email: "", ok: false, error: "Falta el enlace de Zoom: pégalo antes de enviar." }],
@@ -306,7 +306,7 @@ export async function enviarPrueba(
   }
 
   if (!asunto.trim() || !cuerpo.trim()) return { ok: false, error: "Asunto y cuerpo son obligatorios" }
-  if (plantilla === "recordatorio" && !(enlace ?? "").trim()) {
+  if ((plantilla === "recordatorio" || plantilla === "manana") && !(enlace ?? "").trim()) {
     return { ok: false, error: "Falta el enlace de Zoom: pégalo antes de enviar la prueba." }
   }
 

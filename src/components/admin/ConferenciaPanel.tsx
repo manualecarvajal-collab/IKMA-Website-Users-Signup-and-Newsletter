@@ -52,6 +52,7 @@ const ETIQUETA_PLANTILLA: Record<PlantillaId, string> = {
   acceso: "templateAccess",
   verificacion: "templateVerification",
   recordatorio: "templateReminder",
+  manana: "templateTomorrow",
   invitacion: "templateInvitation",
 }
 
@@ -228,7 +229,7 @@ export default function ConferenciaPanel({
   const sinCorreos = confirmados.filter((r) => r.envios === 0).length
   /** Se inscribieron y no llegaron a meter el código. */
   const sinVerificar = useMemo(() => registros.filter((r) => r.estado === "nuevo"), [registros])
-  const faltaEnlace = plantilla === "recordatorio" && !urlEnlace.trim()
+  const faltaEnlace = (plantilla === "recordatorio" || plantilla === "manana") && !urlEnlace.trim()
 
   /**
    * Envía en tandas de 50.
@@ -824,7 +825,7 @@ export default function ConferenciaPanel({
             </div>
 
             {/* Solo la plantilla de la víspera lleva enlace de reunión. */}
-            {plantilla === "recordatorio" && (
+            {(plantilla === "recordatorio" || plantilla === "manana") && (
               <label className="block">
                 <span className="text-sm font-medium text-gray-700">{t("zoomLinkLabel")}</span>
                 <input

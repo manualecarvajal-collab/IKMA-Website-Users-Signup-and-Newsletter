@@ -922,7 +922,8 @@
       "guestBadge": "admin guest",
       "searchPlaceholder": "Search by name or email",
       "resultAlready": " · {count} already had it and were skipped",
-      "skipSentLabel": "Do not repeat to anyone who already got it in the last 24 hours. Uncheck to send to everyone again."
+      "skipSentLabel": "Do not repeat to anyone who already got it in the last 24 hours. Uncheck to send to everyone again.",
+      "templateTomorrow": "Day-of reminder"
     }
   },
   "IncompleteRegistration": {

@@ -28,6 +28,10 @@ import {
  *                    código no sirve de nada.
  *   `recordatorio` — la víspera, a mano desde el panel. Lleva el enlace de Zoom,
  *                    que se pega en el panel ese mismo día.
+ *   `manana`       — el recordatorio del mismo día, pensado para reenviar cuando
+ *                    el de la víspera ya salió y hay que insistir. Asunto nuevo
+ *                    y cuerpo corto a propósito: repetir el mismo correo con el
+ *                    mismo asunto es la forma más rápida de acabar en spam.
  *   `invitacion`   — después del evento. Invita a hacerse miembro → /membresia.
  *
  * Antes el recordatorio NO llevaba el enlace a propósito, para que la reunión no
@@ -35,7 +39,7 @@ import {
  * enlace es justo lo que hay que hacer llegar a cada inscrito.
  */
 
-export const PLANTILLAS = ["confirmacion", "acceso", "verificacion", "recordatorio", "invitacion"] as const
+export const PLANTILLAS = ["confirmacion", "acceso", "verificacion", "recordatorio", "manana", "invitacion"] as const
 
 export type PlantillaId = (typeof PLANTILLAS)[number]
 
@@ -100,6 +104,18 @@ export const PLANTILLAS_POR_DEFECTO: Record<PlantillaId, Plantilla> = {
       "<p><strong>Meeting ID:</strong> 876 6174 6391<br/><strong>Passcode:</strong> 457744</p>",
       "<p>If Zoom asks you to install the app, do it a few minutes before we start — it only takes a moment. You can also join straight from a browser.</p>",
       "<p>See you there,<br/>The IKMA team</p>",
+    ].join("\n"),
+  },
+  manana: {
+    // CORTO Y CON UN SOLO ENLACE, a propósito. Los correos largos con varios
+    // botones y muchas imágenes son los que más acaban en spam; este solo tiene
+    // que resolver una cosa: que la persona pueda entrar mañana.
+    asunto: "IKMA Conference — how to join on Saturday",
+    cuerpo: [
+      "<p>Hi {{nombre}},</p>",
+      "<p>The IKMA Conference is <strong>tomorrow, Saturday, November 14</strong>, from 9:00 am to 3:30 pm (EST).</p>",
+      '<p>This is your link: <a href="{{enlace}}">{{enlace}}</a></p>',
+      "<p>If you cannot find this email tomorrow, you can also join from the conference page with your email — no password needed.</p>",
     ].join("\n"),
   },
   invitacion: {
@@ -167,7 +183,7 @@ export function componerCorreo(
   if (plantilla === "verificacion") {
     return buildConferenciaAvisoHtml({ contenido_html })
   }
-  if (plantilla === "recordatorio") {
+  if (plantilla === "recordatorio" || plantilla === "manana") {
     return buildConferenciaRecordatorioHtml({ contenido_html, ctaTexto, enlace: datos.enlace })
   }
   return buildConferenciaInvitacionHtml({ nombre: datos.nombre, contenido_html, ctaTexto })
