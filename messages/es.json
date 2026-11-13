@@ -921,7 +921,8 @@
       "filterGuests": "Invitados",
       "guestBadge": "admin guest",
       "searchPlaceholder": "Buscar por nombre o correo",
-      "resultAlready": " · {count} ya lo habían recibido y no se han repetido"
+      "resultAlready": " · {count} ya lo habían recibido y no se han repetido",
+      "skipSentLabel": "No repetir a quien ya lo recibió en las últimas 24 horas. Desmárcalo para reenviar a todos desde cero."
     }
   },
   "IncompleteRegistration": {

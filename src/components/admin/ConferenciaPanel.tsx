@@ -185,6 +185,12 @@ export default function ConferenciaPanel({
   const [lote, setLote] = useState<{ hechos: number; total: number } | null>(null)
   /** El envío a todos pide confirmación: es irreversible y no tiene deshacer. */
   const [confirmarTodos, setConfirmarTodos] = useState(false)
+  /**
+   * Saltarse a quien ya recibió este mismo correo en las últimas 24 h. Viene
+   * marcado —evita duplicar al reintentar un lote cortado— y se puede
+   * desmarcar para reenviar a todos desde cero.
+   */
+  const [saltarEnviados, setSaltarEnviados] = useState(true)
   /** Resultado de los reenvíos de verificación, aparte del de las plantillas. */
   const [resultadoVerif, setResultadoVerif] = useState<EnvioResumen | null>(null)
   /**
@@ -248,7 +254,7 @@ export default function ConferenciaPanel({
         borrador.cuerpo,
         plantillaEnvio,
         urlEnlace,
-        true
+        saltarEnviados
       )
       total.enviados += r.enviados
       total.fallidos += r.fallidos
@@ -841,6 +847,16 @@ export default function ConferenciaPanel({
                 {t("pendingEmails", { count: sinCorreos, total: confirmados.length })}
               </p>
             )}
+
+            <label className="flex items-start gap-2 text-xs text-gray-600">
+              <input
+                type="checkbox"
+                checked={saltarEnviados}
+                onChange={(e) => setSaltarEnviados(e.target.checked)}
+                className="mt-0.5"
+              />
+              <span>{t("skipSentLabel")}</span>
+            </label>
 
             <div className="flex flex-wrap items-center gap-2">
               {/* 1 · a los seleccionados (marcados en la tabla) */}
