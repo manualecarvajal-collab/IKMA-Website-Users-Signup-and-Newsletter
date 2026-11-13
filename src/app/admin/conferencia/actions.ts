@@ -58,6 +58,12 @@ export interface EnvioResumen {
   fallidos: number
   /** Seleccionados que NO estaban confirmados y por tanto no se tocaron. */
   omitidosNoConfirmados: number
+  /**
+   * Seleccionados que ya habían recibido ESTE correo (mismo asunto y envío
+   * correcto) y no se les ha repetido. Evita el doble envío al reintentar un
+   * lote que se cortó a medias.
+   */
+  yaEnviados?: number
   /** Se paró porque Resend devolvió 429 (cuota agotada). */
   cortadoPorCuota: boolean
   detalle: EnvioDetalle[]
@@ -65,6 +71,54 @@ export interface EnvioResumen {
 
 /** Tope de seguridad por envío: evita disparar cientos por un clic accidental. */
 const MAX_POR_ENVIO = 50
+
+/**
+ * PAUSA ENTRE ENVÍOS.
+ *
+ * Resend acepta 2 peticiones por segundo; por encima devuelve 429. El 13 de
+ * noviembre de 2026 se pulsó «enviar a todos» y el lote se paró a los diez
+ * correos: iban en ráfaga y el primero que recibió un 429 abortó el resto.
+ *
+ * 600 ms deja el ritmo en ~1,6 por segundo, por debajo del límite, y añade
+ * ~25 s a un envío de 40 personas. Es el precio correcto.
+ */
+const PAUSA_ENTRE_ENVIOS_MS = 600
+
+const esperar = (ms: number) => new Promise((v) => setTimeout(v, ms))
+
+type EnvioResend = { ok: boolean; status: number; cuerpo: string }
+
+/**
+ * Envía un correo y, si Resend responde 429, espera y reintenta.
+ *
+ * 429 significa dos cosas distintas y hay que distinguirlas por el cuerpo:
+ *   · «rate limit» → vas demasiado rápido: se espera y se reintenta.
+ *   · «quota»      → se acabó la cuota del día: reintentar no sirve.
+ *
+ * Antes, cualquier 429 cortaba el lote entero. Ahora se reintenta con espera
+ * creciente (1 s, 2 s, 4 s) y solo se rinde si sigue diciendo que no.
+ */
+async function enviarConReintento(
+  input: Parameters<typeof sendResendEmail>[0],
+  intentos = 3
+): Promise<EnvioResend> {
+  let ultimo: EnvioResend = { ok: false, status: 0, cuerpo: "" }
+  for (let i = 0; i < intentos; i++) {
+    const res = await sendResendEmail(input)
+    if (res.ok) return { ok: true, status: res.status, cuerpo: "" }
+
+    const cuerpo = await res.text().catch(() => "")
+    ultimo = { ok: false, status: res.status, cuerpo }
+
+    const esCuota = /quota|daily|limit reach|exceeded your/i.test(cuerpo)
+    if (res.status === 429 && !esCuota && i < intentos - 1) {
+      await esperar(1000 * 2 ** i)
+      continue
+    }
+    break
+  }
+  return ultimo
+}
 
 /**
  * Envía la invitación a los registros seleccionados.
@@ -80,7 +134,13 @@ export async function enviarInvitacion(
   cuerpo: string,
   plantilla: PlantillaId,
   /** Enlace de Zoom tal como está en el campo del panel. Si falta, se usa el guardado. */
-  enlaceDelPanel?: string
+  enlaceDelPanel?: string,
+  /**
+   * Saltarse a quien ya recibió este mismo correo. Lo usan los envíos en lote:
+   * si un lote se corta a mitad, al reintentar no se duplica a los que sí
+   * llegaron. El botón de una fila NO lo usa: ahí repetir es deliberado.
+   */
+  saltarYaEnviados = false
 ): Promise<EnvioResumen> {
   const resumen: EnvioResumen = {
     enviados: 0,
@@ -127,8 +187,22 @@ export async function enviarInvitacion(
   }
 
   const seleccionados = data ?? []
-  const destinatarios = seleccionados.filter((r) => r.estado === "confirmado")
-  resumen.omitidosNoConfirmados = seleccionados.length - destinatarios.length
+  const confirmadosDelLote = seleccionados.filter((r) => r.estado === "confirmado")
+  resumen.omitidosNoConfirmados = seleccionados.length - confirmadosDelLote.length
+
+  // Quién recibió YA este mismo asunto sin error.
+  let destinatarios = confirmadosDelLote
+  if (saltarYaEnviados) {
+    const { data: previos } = await admin
+      .schema("conferencia")
+      .from("envios")
+      .select("email")
+      .eq("asunto", asunto)
+      .eq("ok", true)
+    const yaTienen = new Set((previos ?? []).map((e) => (e.email ?? "").toLowerCase()))
+    destinatarios = confirmadosDelLote.filter((r) => !yaTienen.has((r.email ?? "").toLowerCase()))
+    resumen.yaEnviados = confirmadosDelLote.length - destinatarios.length
+  }
 
   const { fromName, fromEmail } = await getSenderConfig(admin)
   const envios = () => admin.schema("conferencia").from("envios")
@@ -164,33 +238,34 @@ export async function enviarInvitacion(
       acceso: plantilla === "acceso" ? enlaceAcceso(email, base) : undefined,
     })
 
-    const res = await sendResendEmail({ to: email, subject: asunto, html, fromName, fromEmail })
+    const res = await enviarConReintento({ to: email, subject: asunto, html, fromName, fromEmail })
 
     if (res.ok) {
       resumen.enviados++
       resumen.detalle.push({ email, ok: true })
       await envios().insert({ registro_id: r.id, email, asunto, ok: true })
-      continue
+    } else {
+      resumen.fallidos++
+      resumen.detalle.push({ email, ok: false, error: `${res.status} ${res.cuerpo.slice(0, 120)}` })
+      await envios().insert({
+        registro_id: r.id,
+        email,
+        asunto,
+        ok: false,
+        error: `${res.status} ${res.cuerpo.slice(0, 200)}`,
+      })
+
+      // Solo se corta el lote si de verdad no queda cuota. Un 429 de ritmo ya
+      // se ha reintentado arriba y no debe tumbar a los que vienen detrás.
+      if (res.status === 429 && /quota|daily|limit reach|exceeded your/i.test(res.cuerpo)) {
+        resumen.cortadoPorCuota = true
+        console.error("[enviarInvitacion] cuota agotada, se detiene el lote")
+        break
+      }
     }
 
-    const body = await res.text().catch(() => "")
-    resumen.fallidos++
-    resumen.detalle.push({ email, ok: false, error: `${res.status}` })
-    await envios().insert({
-      registro_id: r.id,
-      email,
-      asunto,
-      ok: false,
-      error: `${res.status} ${body.slice(0, 200)}`,
-    })
-
-    // 429 = cuota agotada. Seguir intentando solo gasta tiempo y llena el
-    // registro de fallos idénticos, y lo que hay que saber es que se cortó.
-    if (res.status === 429) {
-      resumen.cortadoPorCuota = true
-      console.error("[enviarInvitacion] cuota agotada, se detiene el lote")
-      break
-    }
+    // Ritmo por debajo del límite de Resend (2/s).
+    if (destinatarios.indexOf(r) < destinatarios.length - 1) await esperar(PAUSA_ENTRE_ENVIOS_MS)
   }
 
   return resumen
@@ -369,7 +444,8 @@ export async function enviarVerificacion(ids: string[]): Promise<EnvioResumen> {
   const { fromName, fromEmail } = await getSenderConfig(admin)
   const envios = () => admin.schema("conferencia").from("envios")
 
-  for (const r of data ?? []) {
+  const lista = data ?? []
+  for (const r of lista) {
     const email = r.email ?? ""
     if (r.estado !== "nuevo") {
       resumen.omitidosNoConfirmados++
@@ -408,7 +484,7 @@ export async function enviarVerificacion(ids: string[]): Promise<EnvioResumen> {
       minutos: String(CODE_TTL_MINUTES),
     })
 
-    const res = await sendResendEmail({
+    const res = await enviarConReintento({
       to: email,
       subject: plantilla.asunto,
       html,
@@ -420,25 +496,23 @@ export async function enviarVerificacion(ids: string[]): Promise<EnvioResumen> {
       resumen.enviados++
       resumen.detalle.push({ email, ok: true })
       await envios().insert({ registro_id: r.id, email, asunto: plantilla.asunto, ok: true })
-      continue
+    } else {
+      resumen.fallidos++
+      resumen.detalle.push({ email, ok: false, error: `${res.status} ${res.cuerpo.slice(0, 120)}` })
+      await envios().insert({
+        registro_id: r.id,
+        email,
+        asunto: plantilla.asunto,
+        ok: false,
+        error: `${res.status} ${res.cuerpo.slice(0, 200)}`,
+      })
+      if (res.status === 429 && /quota|daily|limit reach|exceeded your/i.test(res.cuerpo)) {
+        resumen.cortadoPorCuota = true
+        console.error("[enviarVerificacion] cuota agotada, se detiene el lote")
+        break
+      }
     }
-
-    const cuerpo = await res.text().catch(() => "")
-    resumen.fallidos++
-    resumen.detalle.push({ email, ok: false, error: `${res.status}` })
-    await envios().insert({
-      registro_id: r.id,
-      email,
-      asunto: plantilla.asunto,
-      ok: false,
-      error: `${res.status} ${cuerpo.slice(0, 200)}`,
-    })
-
-    if (res.status === 429) {
-      resumen.cortadoPorCuota = true
-      console.error("[enviarVerificacion] cuota agotada, se detiene el lote")
-      break
-    }
+    if (lista.indexOf(r) < lista.length - 1) await esperar(PAUSA_ENTRE_ENVIOS_MS)
   }
 
   return resumen

@@ -920,7 +920,8 @@
       "manualError": "Could not add: {error}",
       "filterGuests": "Guests",
       "guestBadge": "admin guest",
-      "searchPlaceholder": "Search by name or email"
+      "searchPlaceholder": "Search by name or email",
+      "resultAlready": " · {count} already had it and were skipped"
     }
   },
   "IncompleteRegistration": {

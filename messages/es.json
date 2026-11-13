@@ -920,7 +920,8 @@
       "manualError": "No se pudo añadir: {error}",
       "filterGuests": "Invitados",
       "guestBadge": "admin guest",
-      "searchPlaceholder": "Buscar por nombre o correo"
+      "searchPlaceholder": "Buscar por nombre o correo",
+      "resultAlready": " · {count} ya lo habían recibido y no se han repetido"
     }
   },
   "IncompleteRegistration": {

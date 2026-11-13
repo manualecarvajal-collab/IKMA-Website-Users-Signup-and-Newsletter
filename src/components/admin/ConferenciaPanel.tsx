@@ -235,15 +235,25 @@ export default function ConferenciaPanel({
    */
   async function enviarPorTandas(ids: string[], plantillaEnvio: PlantillaId) {
     const TANDA = 50
-    const total = { enviados: 0, fallidos: 0, omitidosNoConfirmados: 0, cortadoPorCuota: false, detalle: [] as EnvioResumen["detalle"] }
+    const total: EnvioResumen = { enviados: 0, fallidos: 0, omitidosNoConfirmados: 0, yaEnviados: 0, cortadoPorCuota: false, detalle: [] }
     setLote({ hechos: 0, total: ids.length })
     for (let i = 0; i < ids.length; i += TANDA) {
       const tanda = ids.slice(i, i + TANDA)
       const borrador = borradores[plantillaEnvio]
-      const r = await enviarInvitacion(tanda, borrador.asunto, borrador.cuerpo, plantillaEnvio, urlEnlace)
+      // `saltarYaEnviados`: si un lote se cortó a medias, al reintentar no se
+      // repite a quien ya lo tenía.
+      const r = await enviarInvitacion(
+        tanda,
+        borrador.asunto,
+        borrador.cuerpo,
+        plantillaEnvio,
+        urlEnlace,
+        true
+      )
       total.enviados += r.enviados
       total.fallidos += r.fallidos
       total.omitidosNoConfirmados += r.omitidosNoConfirmados
+      total.yaEnviados = (total.yaEnviados ?? 0) + (r.yaEnviados ?? 0)
       total.detalle.push(...r.detalle)
       setLote({ hechos: Math.min(i + TANDA, ids.length), total: ids.length })
       if (r.cortadoPorCuota) {
@@ -265,7 +275,7 @@ export default function ConferenciaPanel({
    */
   async function reenviarVerificacion(ids: string[]) {
     const TANDA = 50
-    const total = { enviados: 0, fallidos: 0, omitidosNoConfirmados: 0, cortadoPorCuota: false, detalle: [] as EnvioResumen["detalle"] }
+    const total: EnvioResumen = { enviados: 0, fallidos: 0, omitidosNoConfirmados: 0, yaEnviados: 0, cortadoPorCuota: false, detalle: [] }
     setLote({ hechos: 0, total: ids.length })
     for (let i = 0; i < ids.length; i += TANDA) {
       const r = await enviarVerificacion(ids.slice(i, i + TANDA))
@@ -954,6 +964,8 @@ export default function ConferenciaPanel({
                   {t("resultSent", { sent: resultado.enviados, failed: resultado.fallidos })}
                   {resultado.omitidosNoConfirmados > 0 &&
                     t("resultOmitted", { omitted: resultado.omitidosNoConfirmados })}
+                  {(resultado.yaEnviados ?? 0) > 0 &&
+                    t("resultAlready", { count: resultado.yaEnviados ?? 0 })}
                 </p>
                 {resultado.cortadoPorCuota && (
                   <p className="mt-1 text-red-700">{t("quotaCut")}</p>
