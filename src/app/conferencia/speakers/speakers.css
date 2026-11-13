@@ -305,8 +305,7 @@
 
 /* ---- 3 · El pliego ----------------------------------------------------- */
 
-.spk-programa,
-.spk-equipo {
+.spk-programa {
   width: 100%;
   max-width: 1240px;
   margin: clamp(56px, 9svh, 120px) auto 0;
@@ -487,40 +486,6 @@
   color: var(--spk-tinta-suave);
 }
 
-/* ---- 4 · Equipo -------------------------------------------------------- */
-
-.spk-equipo-grid {
-  border-top: 1px solid var(--spk-regla);
-}
-
-/* Una fila por crédito, con el rótulo a la izquierda y el valor a la derecha:
-   el mismo pliego que las sesiones. Se pasó de una banda de columnas a esto
-   cuando el documento añadió el crédito de medios —con cinco, cuatro columnas
-   dejaban uno huérfano en una segunda fila, y ese hueco se lee como un error—. */
-.spk-equipo-item {
-  display: grid;
-  grid-template-columns: 190px minmax(0, 1fr);
-  gap: 0 26px;
-  align-items: baseline;
-  border-bottom: 1px solid var(--spk-regla);
-  padding: clamp(13px, 1.5svh, 18px) 0;
-}
-
-.spk-equipo-item dt {
-  font-family: var(--spk-mono);
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--spk-tinta-tenue);
-}
-
-.spk-equipo-item dd {
-  font-size: 0.95rem;
-  font-weight: 600;
-  line-height: 1.45;
-}
-
 /* ---- 5 · Cierre -------------------------------------------------------- */
 
 .spk-cierre {
@@ -644,7 +609,6 @@
 
   .spk-tira-seccion,
   .spk-programa,
-  .spk-equipo,
   .spk-cierre {
     padding: 0 18px;
   }
@@ -772,11 +736,7 @@
     font-size: 0.93rem;
   }
 
-  /* --- Equipo y cierre --- */
-  .spk-equipo-item {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 8px 0;
-  }
+  /* --- Cierre --- */
 }
 
 /* El titular de la página, que ahora vive encima de la tira de ponentes y no al

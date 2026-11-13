@@ -8,7 +8,6 @@ import Revelar from "@/components/conferencia/Revelar"
 import {
   COLOR_TIPO,
   CON_FOTO,
-  EQUIPO,
   PROGRAMA,
   encabezadoDe,
   ponenteDe,
@@ -252,36 +251,6 @@ export default async function SpeakersPage() {
               )
             })}
           </div>
-        </section>
-
-        {/* 4 · Quién más sostiene el día. Sale del bloque de moderación del
-            documento (que en esta versión cambia: Gratia Boneza deja de ser
-            moderadora y aparece Manuel Carvajal en medios). Los nombres no se
-            traducen; los rótulos sí. */}
-        <section className="spk-equipo">
-          <h2 className="spk-h2">{t("credits.title")}</h2>
-          <dl className="spk-equipo-grid">
-            <div className="spk-equipo-item">
-              <dt>{t("credits.host")}</dt>
-              <dd>{EQUIPO.moderator.join(" · ")}</dd>
-            </div>
-            <div className="spk-equipo-item">
-              <dt>{t("credits.announcements")}</dt>
-              <dd>{EQUIPO.announcements.join(" · ")}</dd>
-            </div>
-            <div className="spk-equipo-item">
-              <dt>{t("credits.translation")}</dt>
-              <dd>{t("credits.translationValue")}</dd>
-            </div>
-            <div className="spk-equipo-item">
-              <dt>{t("credits.media")}</dt>
-              <dd>{EQUIPO.media.join(" · ")}</dd>
-            </div>
-            <div className="spk-equipo-item">
-              <dt>{t("credits.worship")}</dt>
-              <dd>{t("credits.worshipValue")}</dd>
-            </div>
-          </dl>
         </section>
 
         {/* 5 · Vuelta a la conferencia.

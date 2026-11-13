@@ -289,22 +289,6 @@ export function sesionDePonente(ponenteId: string): Sesion | undefined {
 }
 
 /**
- * Quién más sostiene el día, del bloque de moderación del documento.
- *
- * Son listas y no texto suelto porque los nombres no se traducen: viven aquí y
- * el rótulo ("Moderación", "Traducción"…) sí va en i18n.
- *
- * OJO CON LA MODERACIÓN: en la primera versión del documento Gratia Boneza
- * figuraba como moderadora; en la segunda ya no, solo como la persona de los
- * anuncios. Se ha quitado de ahí, que es lo que dice la versión nueva.
- */
-export const EQUIPO = {
-  moderator: ["Alexis Lastra", "Amanda Majanen"],
-  announcements: ["Gratia Boneza"],
-  media: ["Manuel Carvajal"],
-}
-
-/**
  * Los ponentes que tienen foto y por tanto encabezan la tira de retratos del
  * hero (la que además sirve de índice: cada cara enlaza a su tramo del día).
  */

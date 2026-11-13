@@ -40,16 +40,6 @@
         "preguntas": "Preguntas",
         "anuncios": "Anuncios"
       },
-      "credits": {
-        "title": "También en la jornada",
-        "host": "Moderación",
-        "announcements": "Anuncios",
-        "translation": "Traducción",
-        "media": "Transmisión",
-        "translationValue": "Dalia Beltran y equipo",
-        "worship": "Adoración",
-        "worshipValue": "Grupo de adoración de la iglesia La Ciudad de las Águilas, Coro"
-      },
       "cierre": {
         "back": "Volver a la conferencia"
       }

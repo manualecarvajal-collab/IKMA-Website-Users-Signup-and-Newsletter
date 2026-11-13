@@ -40,16 +40,6 @@
         "preguntas": "Questions",
         "anuncios": "Announcements"
       },
-      "credits": {
-        "title": "Also on the day",
-        "host": "Moderating",
-        "announcements": "Announcements",
-        "translation": "Translation",
-        "media": "Media",
-        "translationValue": "Dalia Beltran and team",
-        "worship": "Worship",
-        "worshipValue": "Worship group of La Ciudad de las Águilas church, Coro"
-      },
       "cierre": {
         "back": "Back to the conference"
       }
