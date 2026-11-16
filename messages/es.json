@@ -443,14 +443,15 @@
     "congreso": {
       "eyebrow": "IV Congreso Internacional · 2027",
       "title": "Reserva la fecha",
-      "description": "El próximo congreso de IKMA ya tiene fecha y sede. Estamos preparando el programa: lo publicaremos aquí en cuanto esté cerrado.",
+      "description": "Estamos preparando el programa del próximo congreso. Lo publicaremos aquí en cuanto esté cerrado.",
       "placeLabel": "Sede",
       "place": "Coro, Venezuela",
       "dateLabel": "Fecha",
       "date": "Octubre de 2027",
       "cta": "Escríbenos para más información",
       "bigYear": "2027",
-      "bigLabel": "IV Congreso"
+      "bigLabel": "IV Congreso",
+      "saveDate": "¡Reserva la fecha!"
     }
   },
   "OutreachCommunities": {

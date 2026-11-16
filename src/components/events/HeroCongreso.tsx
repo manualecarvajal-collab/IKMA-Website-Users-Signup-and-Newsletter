@@ -1,82 +1,167 @@
-import Link from "next/link"
 import { getTranslations } from "next-intl/server"
 
 /**
- * Hero de `/events`: el anuncio del IV Congreso Internacional (2027).
+ * Hero de `/events`: el cartel del IV Congreso Internacional (2027).
  *
- * Sustituye al anuncio de la conferencia de 2026, que ya pasó. Del congreso de
- * 2027 todavía no hay programa ni inscripción —solo fecha y sede—, así que este
- * hero no lleva botón de inscripción: no hay nada a lo que apuntar. Lo que sí
- * lleva es una salida (contacto) para quien pregunte, porque una página que no
- * ofrece ninguna acción es un callejón sin salida.
+ * ESCRITORIO: el cartel es un escenario 16:9 de **800 px de alto**. Como el
+ * aspecto es fijo, el ancho se topa en 1422 px (800 x 16/9) y el escenario se
+ * centra; por debajo de 1422 px ocupa todo el ancho y la altura baja en
+ * proporción (1024 -> 576 px, 1280 -> 720 px).
  *
- * LA IMAGEN. El diseño de IKMA es una pieza compuesta —lockup del congreso,
- * «SAVE THE DATE!», sede y escudos sobre una foto de manos— y va como imagen
- * única cuando esté el archivo exportado: es la forma fiel de reproducirlo y no
- * inventar tipografías. Mientras no esté, se pinta la misma información con la
- * tipografía del sitio y un panel con el degradado azul del diseño, para que la
- * página anuncie el congreso desde hoy y no quede un hueco roto.
+ * Las piezas van colocadas con las medidas del diseño de IKMA, en porcentaje del
+ * escenario. Todas salen de medir el export (artboard de 1079x608 px) con la
+ * silueta de cada pieza, no de mirarlo a ojo:
  *
- * PARA CAMBIARLO A LA IMAGEN: poner el archivo en
- * `public/images/events/congreso-2027.jpg` y sustituir el bloque marcado
- * `PANEL` por un `<img>` con `alt` describiendo el cartel. Un solo sitio.
+ *   pieza        izquierda   arriba    ancho
+ *   logo IKMA      13,58 %   22,42 %   16,29 %
+ *   lockup          5,65 %   38,65 %   29,66 %
+ *   «reserva…»     21,69 %c  54,11 %   (auto)
+ *   regla          20,48 %   57,73 %    2,32 %
+ *   sede/fecha     21,64 %c  59,70 %   (auto)
+ *   escudos        12,05 %   66,61 %   17,98 %
+ *   manos          39,50 %  -30,00 %  108,00 %
+ *
+ * (`%c` = centro del bloque; `arriba` = borde superior de la tinta, que no es el
+ * borde de la caja de texto: de ahí los `top` con decimales.)
+ *
+ * Las manos se salen por la derecha y por abajo, como en el cartel: de ahí el
+ * `overflow-hidden` del escenario. Su resplandor azul ya viene en la imagen, así
+ * que aquí no se pinta ningún degradado.
+ *
+ * Los tamaños de letra van en `cqw` (tanto por ciento del ancho del escenario)
+ * para que todo escale junto y las proporciones se mantengan a cualquier ancho.
+ *
+ * POR QUÉ SE COMPONE Y NO ES UNA IMAGEN: el lockup («4TH INTERNATIONAL CONGRESS
+ * 2027») es una marca y va como imagen, en inglés; pero «reserva la fecha», la
+ * sede y la fecha son texto del sitio, y así la versión inglesa dice «Save the
+ * date / October 2027» sin tocar ningún archivo.
+ *
+ * MÓVIL: un escenario 16:9 a 393 px daría letra de 6 px, así que ahí no se
+ * reproduce el cartel: se apila en una columna, con las mismas piezas, colores y
+ * regla.
+ *
+ * PESO: el PNG original de las manos eran 15,7 MB; aquí van ~360 KB en WebP.
  */
 export default async function HeroCongreso() {
   const t = await getTranslations("Events.congreso")
 
+  const AZUL = "text-[#0031C7]"
+  const TINTA = "text-on-surface"
+
   return (
-    <section className="relative flex min-h-[calc(100svh-5rem)] items-center justify-center bg-surface-bright px-margin-mobile py-12 md:px-margin-desktop">
-      <div className="flex w-full max-w-container-max flex-col-reverse items-center gap-10 lg:flex-row lg:items-center lg:justify-between lg:gap-16">
-        {/* Columna de texto. Es lo primero del marcado para que el `h1` siga
-            siendo lo primero que se lee, aunque en móvil se vea debajo. */}
-        <div className="max-w-[34rem] text-center lg:text-left">
-          <p className="font-label-bold text-label-bold uppercase tracking-[0.18em] text-primary">
-            {t("eyebrow")}
-          </p>
+    <section className="relative overflow-hidden bg-white">
+      {/* ====================================================== escritorio */}
+      <div className="relative mx-auto hidden aspect-[16/9] w-full max-w-[1422px] [container-type:inline-size] lg:block">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/logo.webp"
+          alt="IKMA — International Kingdom Medical Association"
+          width={800}
+          height={339}
+          className="absolute left-[13.58%] top-[22.42%] w-[16.29%]"
+        />
 
-          <h1 className="mt-3 text-[clamp(2rem,3.4vw,3.25rem)] font-bold leading-[1.05] tracking-[-0.02em] text-on-surface">
-            {t("title")}
-          </h1>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/images/events/congreso-2027-lockup.webp"
+          alt="4th International Congress 2027"
+          width={1214}
+          height={277}
+          className="absolute left-[5.65%] top-[38.65%] w-[29.66%]"
+        />
 
-          <p className="mx-auto mt-4 max-w-[46ch] text-balance text-[clamp(0.95rem,1vw,1.05rem)] font-semibold leading-[1.5] text-on-surface-variant lg:mx-0">
-            {t("description")}
-          </p>
-
-          <dl className="mx-auto mt-6 flex flex-col gap-2 text-[clamp(0.9rem,0.95vw,1rem)] lg:mx-0">
-            <div className="flex items-baseline justify-center gap-2 lg:justify-start">
-              <dt className="font-semibold text-on-surface-variant">{t("placeLabel")}</dt>
-              <dd className="font-bold text-on-surface">{t("place")}</dd>
-            </div>
-            <div className="flex items-baseline justify-center gap-2 lg:justify-start">
-              <dt className="font-semibold text-on-surface-variant">{t("dateLabel")}</dt>
-              <dd className="font-bold text-on-surface">{t("date")}</dd>
-            </div>
-          </dl>
-
-          <Link
-            href="/contact-us"
-            className="mt-7 inline-flex items-center rounded-full bg-primary px-6 py-2.5 text-[clamp(0.85rem,0.85vw,0.95rem)] font-bold text-on-primary transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-          >
-            {t("cta")}
-          </Link>
-        </div>
-
-        {/* PANEL — aquí va la imagen del cartel cuando exista el archivo.
-            Mientras tanto, el mismo aire que el diseño: panel claro con el
-            degradado azul y, dentro, el nombre del congreso y la llamada. */}
-        <div
-          aria-hidden="true"
-          className="relative flex aspect-[4/3] w-full max-w-[34rem] shrink-0 items-center justify-center overflow-hidden rounded-[28px] bg-[linear-gradient(135deg,#F7FBFF_0%,#E8F3FF_45%,#D6E9FF_100%)] shadow-[0_24px_60px_rgba(4,14,32,0.12)] lg:aspect-[16/11] lg:max-w-[42rem]"
+        <p
+          className={`absolute left-[21.69%] top-[54.1%] -translate-x-1/2 whitespace-nowrap text-[1.38cqw] font-medium italic uppercase leading-none tracking-[0.005em] ${AZUL}`}
         >
-          <div className="px-8 text-center">
-            <p className="text-[clamp(2.4rem,5vw,4.5rem)] font-bold leading-none tracking-[-0.03em] text-primary">
-              {t("bigYear")}
-            </p>
-            <p className="mt-2 text-[clamp(0.85rem,1.1vw,1.1rem)] font-bold uppercase tracking-[0.22em] text-primary/80">
-              {t("bigLabel")}
-            </p>
-          </div>
-        </div>
+          {t("saveDate")}
+        </p>
+
+        <span
+          aria-hidden="true"
+          className="absolute left-[20.48%] top-[57.73%] h-[0.2cqw] w-[2.32%] bg-[#00A0E7]"
+        />
+
+        <p
+          className={`absolute left-[21.64%] top-[59.55%] -translate-x-1/2 whitespace-nowrap text-center text-[1.24cqw] leading-[1.12] tracking-[-0.015em] ${TINTA}`}
+        >
+          <span className="font-normal">{t("place")}</span>
+          <br />
+          <span className="font-bold">{t("date")}</span>
+        </p>
+
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/images/events/congreso-2027-escudos.webp"
+          alt="Kingdom Bible College · Emmanuel Ministries International · La Ciudad de las Águilas"
+          width={700}
+          height={226}
+          className="absolute left-[12.05%] top-[66.61%] w-[17.98%]"
+        />
+
+        {/* Las manos: se salen del escenario por la derecha y por abajo. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/images/events/congreso-2027-manos.webp"
+          alt=""
+          width={1600}
+          height={1672}
+          className="absolute left-[39.5%] top-[-30%] w-[108%] max-w-none"
+        />
+      </div>
+
+      {/* ============================================ móvil y tablet (pila) */}
+      <div className="flex w-full flex-col items-center px-margin-mobile py-12 lg:hidden">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/logo.webp"
+          alt="IKMA — International Kingdom Medical Association"
+          width={800}
+          height={339}
+          className="h-auto w-[clamp(130px,15vw,184px)]"
+        />
+
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/images/events/congreso-2027-lockup.webp"
+          alt="4th International Congress 2027"
+          width={1214}
+          height={277}
+          className="mt-6 h-auto w-[clamp(240px,42vw,470px)]"
+        />
+
+        <p className={`mt-6 text-[clamp(1.05rem,1.5vw,1.5rem)] font-bold italic uppercase tracking-[0.055em] ${AZUL}`}>
+          {t("saveDate")}
+        </p>
+
+        <span aria-hidden="true" className="mt-3 h-[2px] w-7 bg-[#00A0E7]" />
+
+        <p className={`mt-3 text-[clamp(0.95rem,1vw,1.1rem)] font-bold leading-[1.15] ${TINTA}`}>
+          {t("place")}
+          <br />
+          {t("date")}
+        </p>
+
+        <p className="mx-auto mt-4 max-w-[42ch] text-balance text-[clamp(0.85rem,0.9vw,0.95rem)] leading-[1.5] text-on-surface-variant">
+          {t("description")}
+        </p>
+
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/images/events/congreso-2027-escudos.webp"
+          alt="Kingdom Bible College · Emmanuel Ministries International · La Ciudad de las Águilas"
+          width={700}
+          height={226}
+          className="mt-7 h-auto w-[clamp(210px,30vw,300px)]"
+        />
+
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/images/events/congreso-2027-manos.webp"
+          alt=""
+          width={1600}
+          height={1672}
+          className="mt-6 h-auto w-[125%] max-w-[34rem]"
+        />
       </div>
     </section>
   )
