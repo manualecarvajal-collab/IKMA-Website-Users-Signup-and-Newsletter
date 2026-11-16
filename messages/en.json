@@ -440,8 +440,18 @@
     "may2025": "May 2025"
   },
   "Events": {
-    "emptyTitle": "No events yet. We invite you to enjoy the previous events on the Teachings page.",
-    "viewTeachings": "View Teachings"
+    "congreso": {
+      "eyebrow": "4th International Congress · 2027",
+      "title": "Save the date",
+      "description": "IKMA’s next congress already has a date and a venue. We are putting the programme together and will publish it here as soon as it is ready.",
+      "placeLabel": "Venue",
+      "place": "Coro, Venezuela",
+      "dateLabel": "Date",
+      "date": "October 2027",
+      "cta": "Write to us for more information",
+      "bigYear": "2027",
+      "bigLabel": "4th Congress"
+    }
   },
   "OutreachCommunities": {
     "badge": "Mission Chronicle",

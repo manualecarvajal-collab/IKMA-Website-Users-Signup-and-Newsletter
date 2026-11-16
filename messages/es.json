@@ -440,8 +440,18 @@
     "may2025": "Mayo 2025"
   },
   "Events": {
-    "emptyTitle": "No hay eventos aún. Te invitamos a disfrutar de los eventos anteriores en la página de Teachings.",
-    "viewTeachings": "Ver Teachings"
+    "congreso": {
+      "eyebrow": "IV Congreso Internacional · 2027",
+      "title": "Reserva la fecha",
+      "description": "El próximo congreso de IKMA ya tiene fecha y sede. Estamos preparando el programa: lo publicaremos aquí en cuanto esté cerrado.",
+      "placeLabel": "Sede",
+      "place": "Coro, Venezuela",
+      "dateLabel": "Fecha",
+      "date": "Octubre de 2027",
+      "cta": "Escríbenos para más información",
+      "bigYear": "2027",
+      "bigLabel": "IV Congreso"
+    }
   },
   "OutreachCommunities": {
     "badge": "Crónica de la Misión",

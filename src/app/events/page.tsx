@@ -1,11 +1,6 @@
 import type { Metadata } from "next"
 import { pageSeo } from "@/lib/seo"
-import FondoBarras from "@/components/conferencia/FondoBarras"
-import HeroConferencia from "@/components/events/HeroConferencia"
-// El fondo animado (barras flotantes) es el mismo de la landing: su CSS vive
-// junto a la conferencia y se importa aquí tal cual, igual que hace
-// `/conferencia/speakers`. Sin este import las barras existen pero no se mueven.
-import "../conferencia/fondo.css"
+import HeroCongreso from "@/components/events/HeroCongreso"
 
 export const metadata: Metadata = pageSeo({
   title: "Events - IKMA",
@@ -14,19 +9,15 @@ export const metadata: Metadata = pageSeo({
 })
 
 /**
- * Eventos de IKMA. Hoy la página es el anuncio de la conferencia 2026: un hero
- * que lleva a la landing (`/conferencia`), que es donde se explica el día y se
- * pide la inscripción. Antes era un estado vacío ("no hay eventos aún") y ese
- * mensaje dejó de ser cierto en cuanto hubo una conferencia que anunciar.
+ * Eventos de IKMA.
  *
- * El fondo de barras va fijo y cubre toda la ventana, así que la página no
- * necesita fondo propio: el mismo campo claro acompaña al hero.
+ * Hoy la página anuncia el **IV Congreso Internacional (2027)**, que es lo que
+ * viene. El anuncio de la conferencia de 2026 se retiró al terminar el evento.
+ *
+ * Se va también el fondo animado de barras: era parte del lenguaje visual de la
+ * conferencia y esta página vuelve a la del sitio. Si algún día se recupera,
+ * basta con volver a importar `conferencia/fondo.css` y pintar `<FondoBarras />`.
  */
 export default function EventsPage() {
-  return (
-    <>
-      <FondoBarras />
-      <HeroConferencia />
-    </>
-  )
+  return <HeroCongreso />
 }
