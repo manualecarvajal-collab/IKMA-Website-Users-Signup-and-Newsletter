@@ -40,7 +40,9 @@ import { getTranslations } from "next-intl/server"
  * reproduce el cartel: se apila en una columna, con las mismas piezas, colores y
  * regla.
  *
- * PESO: el PNG original de las manos eran 15,7 MB; aquí van ~360 KB en WebP.
+ * PESO: el PNG original de las manos eran 15,7 MB; aquí va en WebP de 2000 px y
+ * 440 KB (se ve a 1536 px en escritorio y a 914 en móvil, así que a 1600 se
+ * quedaba corta).
  */
 export default async function HeroCongreso() {
   const t = await getTranslations("Events.congreso")
@@ -103,8 +105,8 @@ export default async function HeroCongreso() {
         <img
           src="/images/events/congreso-2027-manos.webp"
           alt=""
-          width={1600}
-          height={1672}
+          width={2000}
+          height={2090}
           className="absolute left-[39.5%] top-[-30%] w-[108%] max-w-none"
         />
       </div>
@@ -141,7 +143,7 @@ export default async function HeroCongreso() {
           {t("date")}
         </p>
 
-        <p className="mx-auto mt-4 max-w-[42ch] text-balance text-[clamp(0.85rem,0.9vw,0.95rem)] leading-[1.5] text-on-surface-variant">
+        <p className="mx-auto mt-4 max-w-[42ch] text-balance text-center text-[clamp(0.85rem,0.9vw,0.95rem)] leading-[1.5] text-on-surface-variant">
           {t("description")}
         </p>
 
@@ -158,9 +160,9 @@ export default async function HeroCongreso() {
         <img
           src="/images/events/congreso-2027-manos.webp"
           alt=""
-          width={1600}
-          height={1672}
-          className="mt-6 h-auto w-[125%] max-w-[34rem]"
+          width={2000}
+          height={2090}
+          className="relative left-[10%] mt-[calc(-46.6%_-_60px)] h-auto w-[262%] max-w-none rotate-[30deg] md:left-0 md:mt-6 md:w-[125%] md:max-w-[34rem]"
         />
       </div>
     </section>
