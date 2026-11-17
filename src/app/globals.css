@@ -119,6 +119,34 @@ main {
     to { opacity: 1; }
 }
 
+/*
+ * Carrusel de fotos de la sección «Coro» (/events).
+ *
+ * La lista se pinta dos veces y la animación desplaza exactamente la mitad del
+ * ancho total: cuando llega al final, la segunda copia está donde estaba la
+ * primera y el salto no se ve. Se detiene al pasar el ratón —para poder mirar
+ * una foto o abrirla— y no se mueve si el sistema pide menos movimiento.
+ */
+@keyframes coroTicker {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+}
+
+.animate-coro-ticker {
+    animation: coroTicker 70s linear infinite;
+}
+
+.animate-coro-ticker:hover,
+.animate-coro-ticker:focus-within {
+    animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .animate-coro-ticker {
+        animation: none;
+    }
+}
+
 .scrollbar-none {
     -ms-overflow-style: none;
     scrollbar-width: none;

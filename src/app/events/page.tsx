@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { pageSeo } from "@/lib/seo"
 import HeroCongreso from "@/components/events/HeroCongreso"
+import CoroSection from "@/components/events/CoroSection"
 
 export const metadata: Metadata = pageSeo({
   title: "Events - IKMA",
@@ -17,7 +18,16 @@ export const metadata: Metadata = pageSeo({
  * Se va también el fondo animado de barras: era parte del lenguaje visual de la
  * conferencia y esta página vuelve a la del sitio. Si algún día se recupera,
  * basta con volver a importar `conferencia/fondo.css` y pintar `<FondoBarras />`.
+ *
+ * Debajo del cartel va `CoroSection`: la mayoría de los que vengan al congreso no
+ * conocen Venezuela, así que hay una sección que presenta la ciudad (historia,
+ * patrimonio y naturaleza) con fotos.
  */
 export default function EventsPage() {
-  return <HeroCongreso />
+  return (
+    <>
+      <HeroCongreso />
+      <CoroSection />
+    </>
+  )
 }
