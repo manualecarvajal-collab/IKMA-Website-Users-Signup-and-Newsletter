@@ -8,6 +8,7 @@ import {
   Mail, Menu, MinusCircle, MonitorPlay, Newspaper, PenSquare, Pencil, Play,
   PlayCircle, Plus, PlusCircle, Quote, RefreshCw, Save, Search, Send, Star,
   Stethoscope, Trash2, Trophy, Upload, User,   UserMinus, UserPlus, Users, X, MapPin,
+  FishingHook,
   type LucideProps,
 } from "lucide-react"
 
@@ -37,6 +38,7 @@ check: Check,
   groups: Users,
   expand_more: ChevronDown,
   filter_list: Filter,
+  fishing_hook: FishingHook,
   format_align_center: AlignCenter,
   format_align_justify: AlignJustify,
   format_align_left: AlignLeft,

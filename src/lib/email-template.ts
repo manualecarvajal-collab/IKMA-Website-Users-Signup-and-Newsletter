@@ -39,8 +39,11 @@ const LOGO_IKMA =
 function shellConferencia(config: {
   contenido_html: string
   cta?: { titulo: string; linea: string; href: string; texto: string }
+  /** Idioma del pie. Los correos de sistema no lo pasan y salen en inglés. */
+  idioma?: "es" | "en"
 }) {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+  const es = config.idioma === "es"
   const cta = config.cta
     ? `
       <!-- Llamada a la acción -->
@@ -70,9 +73,9 @@ ${cta}
         <div style="color: #003652; font-weight: 700; font-size: 18px; margin-bottom: 12px;">IKMA</div>
         <p style="color: #41474d; font-size: 13px; line-height: 1.7; margin: 0 0 20px;">International Kingdom Medical Association<br>Dedicated to excellence in global health.</p>
         <p style="color: #41474d; font-size: 12px; line-height: 1.8; margin: 0;">
-          &copy; 2026 IKMA. All rights reserved.<br>
-          You are receiving this email because you registered for the IKMA Conference.<br>
-          <a href="${siteUrl}/privacy-policy" style="color: #41474d; text-decoration: underline;">Privacy Policy</a>
+          ${es ? "&copy; 2026 IKMA. Todos los derechos reservados." : "&copy; 2026 IKMA. All rights reserved."}<br>
+          ${es ? "Recibes este correo porque te inscribiste en la Conferencia IKMA." : "You are receiving this email because you registered for the IKMA Conference."}<br>
+          <a href="${siteUrl}/privacy-policy" style="color: #41474d; text-decoration: underline;">${es ? "Política de privacidad" : "Privacy Policy"}</a>
         </p>
       </div>
     </div>
@@ -146,61 +149,22 @@ export function buildConferenciaAvisoHtml(config: { contenido_html: string }) {
 }
 
 /**
- * Invitación a hacerse miembro, para después del evento.
+ * Correo de una campaña de Bait (membresía, newsletter o próxima conferencia).
  *
- * El botón apunta a `/membresia`, que es donde se solicita la membresía. NO se
- * añade saludo aquí: el cuerpo editable ya lo trae, y si lo pusiéramos en los
- * dos sitios saldría repetido.
- *
- * Los textos fijos van en inglés a propósito: la asociación se comunica en
- * inglés y la plantilla que se siembra también lo está. El cuerpo es lo único
- * traducible por el usuario desde el panel.
+ * El cuerpo, el botón y el pie llegan ya resueltos en el idioma del
+ * destinatario. El cuerpo es lo único editable desde el panel; la cabecera, el
+ * botón y el pie son estructura, para que el correo no se desmonte por un
+ * descuido.
  */
-export function buildConferenciaInvitacionHtml(config: {
-  nombre: string
+export function buildConferenciaCampanaHtml(config: {
   contenido_html: string
-  ctaTexto?: string
+  cta: { titulo: string; linea: string; href: string; texto: string }
+  idioma: "es" | "en"
 }) {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
-
   return shellConferencia({
     contenido_html: config.contenido_html,
-    cta: {
-      titulo: "Be part of IKMA",
-      linea:
-        "Join the association and get access to our content, journals and upcoming gatherings.",
-      href: `${siteUrl}/membresia`,
-      texto: config.ctaTexto?.trim() || "Become a member",
-    },
-  })
-}
-
-/**
- * Correo de la víspera: el que lleva el enlace de Zoom.
- *
- * `enlace` es la URL de la reunión tal como la pega un administrador en el
- * panel. Si no hay ninguna configurada, el botón cae a la landing en vez de
- * salir vacío: un botón sin `href` en un correo que ya está enviado no se puede
- * arreglar.
- */
-export function buildConferenciaRecordatorioHtml(config: {
-  contenido_html: string
-  ctaTexto?: string
-  enlace?: string
-}) {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
-  const enlace = config.enlace?.trim() ?? ""
-
-  return shellConferencia({
-    contenido_html: config.contenido_html,
-    cta: {
-      titulo: "See you at the conference",
-      linea: enlace
-        ? "The meeting opens in the Zoom app. You can join a few minutes early."
-        : "Everything you need to join us on the day is on the conference page.",
-      href: enlace || `${siteUrl}/conferencia`,
-      texto: config.ctaTexto?.trim() || (enlace ? "Join the meeting" : "Go to the conference"),
-    },
+    cta: config.cta,
+    idioma: config.idioma,
   })
 }
 

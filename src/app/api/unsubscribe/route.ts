@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { createAdminClient } from "@/lib/supabase/server"
+import { listAllAuthUsers } from "@/lib/supabase/auth-users"
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
@@ -12,8 +13,8 @@ export async function GET(request: Request) {
   const admin = await createAdminClient()
 
   // Find user by email via auth admin API
-  const { data: users } = await admin.auth.admin.listUsers()
-  const user = users?.users.find((u) => u.email === email)
+  const authUsers = await listAllAuthUsers(admin)
+  const user = authUsers.find((u) => u.email === email)
 
   if (user) {
     await admin

@@ -2,14 +2,18 @@
 
 import { createAdminClient, createClient } from "@/lib/supabase/server"
 import { sendResendEmail } from "@/lib/resend"
-import { getSenderConfig } from "@/lib/conferencia"
-import { componerCorreo, type PlantillaId } from "@/lib/conferencia-plantilla"
-import { getAjustes } from "@/lib/conferencia-admin"
-import { CODE_TTL_MINUTES, emitirCodigo } from "@/lib/conferencia-codigo"
-import { baseDelSitio, enlaceAcceso } from "@/lib/conferencia"
+import { claveNombre, getSenderConfig, idiomaPorPais } from "@/lib/conferencia"
+import { listAllAuthUsers } from "@/lib/supabase/auth-users"
+import {
+  CAMPANAS,
+  IDIOMAS,
+  componerCampana,
+  type CampanaId,
+  type Idioma,
+} from "@/lib/conferencia-plantilla"
 
 /**
- * Acciones del panel de la conferencia.
+ * Acciones del panel de campañas de la conferencia.
  *
  * Nada se fía del cliente, y eso incluye QUIÉN llama: cada acción pasa por
  * `requireAdmin()`. El `layout.tsx` de `/admin` protege la PÁGINA, no la
@@ -18,14 +22,6 @@ import { baseDelSitio, enlaceAcceso } from "@/lib/conferencia"
  * también se vuelven a leer de la base a partir de los ids recibidos.
  */
 
-/**
- * Comprueba que quien invoca es administrador y devuelve su correo.
- *
- * Cuesta una consulta a `perfiles` por llamada, y es el precio correcto:
- * `enviarInvitacion` manda correos reales a personas reales y
- * `guardarAjustes` reescribe la configuración del directo. Ninguna de las dos
- * debería depender de dónde esté montado el componente que las llama.
- */
 async function requireAdmin(): Promise<
   { ok: true; email: string } | { ok: false; error: string }
 > {
@@ -58,6 +54,8 @@ export interface EnvioResumen {
   fallidos: number
   /** Seleccionados que NO estaban confirmados y por tanto no se tocaron. */
   omitidosNoConfirmados: number
+  /** Miembros aprobados que se saltaron al invitar a la membresía. */
+  omitidosMiembros?: number
   /**
    * Seleccionados que ya habían recibido ESTE correo (mismo asunto y envío
    * correcto) y no se les ha repetido. Evita el doble envío al reintentar un
@@ -75,12 +73,8 @@ const MAX_POR_ENVIO = 50
 /**
  * PAUSA ENTRE ENVÍOS.
  *
- * Resend acepta 2 peticiones por segundo; por encima devuelve 429. El 13 de
- * noviembre de 2026 se pulsó «enviar a todos» y el lote se paró a los diez
- * correos: iban en ráfaga y el primero que recibió un 429 abortó el resto.
- *
- * 600 ms deja el ritmo en ~1,6 por segundo, por debajo del límite, y añade
- * ~25 s a un envío de 40 personas. Es el precio correcto.
+ * Resend acepta 2 peticiones por segundo; por encima devuelve 429. 600 ms deja
+ * el ritmo en ~1,6 por segundo, por debajo del límite.
  */
 const PAUSA_ENTRE_ENVIOS_MS = 600
 
@@ -89,14 +83,8 @@ const esperar = (ms: number) => new Promise((v) => setTimeout(v, ms))
 type EnvioResend = { ok: boolean; status: number; cuerpo: string }
 
 /**
- * Envía un correo y, si Resend responde 429, espera y reintenta.
- *
- * 429 significa dos cosas distintas y hay que distinguirlas por el cuerpo:
- *   · «rate limit» → vas demasiado rápido: se espera y se reintenta.
- *   · «quota»      → se acabó la cuota del día: reintentar no sirve.
- *
- * Antes, cualquier 429 cortaba el lote entero. Ahora se reintenta con espera
- * creciente (1 s, 2 s, 4 s) y solo se rinde si sigue diciendo que no.
+ * Envía un correo y, si Resend responde 429 por ritmo, espera y reintenta.
+ * Un 429 por cuota no se reintenta: no queda nada que gastar.
  */
 async function enviarConReintento(
   input: Parameters<typeof sendResendEmail>[0],
@@ -121,31 +109,31 @@ async function enviarConReintento(
 }
 
 /**
- * Envía la invitación a los registros seleccionados.
+ * Envía una campaña a los registros seleccionados.
  *
- * Solo se escribe a quien tiene `estado = 'confirmado'`. Un email en `nuevo`
- * no está verificado: pudo escribirlo cualquiera, incluso con la dirección de
- * otra persona, así que mandarle correo sería escribir a un tercero que nunca
- * dio señales. Los omitidos se devuelven contados para poder decirlo.
+ * El idioma se decide POR DESTINATARIO: `es` o `en` según su fila; si la
+ * columna todavía no existe, se deduce por país. El asunto y el cuerpo que
+ * llegan del panel son los dos borradores (ES y EN); aquí se elige el que
+ * corresponde a cada persona.
+ *
+ * Solo se escribe a quien tiene `estado = 'confirmado'`. Un email en `nuevo` no
+ * está verificado: pudo escribirlo cualquiera, así que mandarle correo sería
+ * escribir a un tercero que nunca dio señales.
  */
-export async function enviarInvitacion(
+export async function enviarCampana(
   ids: string[],
-  asunto: string,
-  cuerpo: string,
-  plantilla: PlantillaId,
-  /** Enlace de Zoom tal como está en el campo del panel. Si falta, se usa el guardado. */
-  enlaceDelPanel?: string,
-  /**
-   * Saltarse a quien ya recibió este mismo correo. Lo usan los envíos en lote:
-   * si un lote se corta a mitad, al reintentar no se duplica a los que sí
-   * llegaron. El botón de una fila NO lo usa: ahí repetir es deliberado.
-   */
+  campana: CampanaId,
+  asuntoEs: string,
+  cuerpoEs: string,
+  asuntoEn: string,
+  cuerpoEn: string,
   saltarYaEnviados = false
 ): Promise<EnvioResumen> {
   const resumen: EnvioResumen = {
     enviados: 0,
     fallidos: 0,
     omitidosNoConfirmados: 0,
+    omitidosMiembros: 0,
     cortadoPorCuota: false,
     detalle: [],
   }
@@ -155,17 +143,14 @@ export async function enviarInvitacion(
     return { ...resumen, detalle: [{ email: "", ok: false, error: guard.error }] }
   }
 
-  // Faltar la plantilla no puede parecer "no había a quién escribir".
-  //
-  // Antes esto devolvía el resumen en ceros y el panel pintaba "0 enviados, 0
-  // fallidos" sin más, que se lee como que no había destinatarios. Es el mismo
-  // fallo que ya se corrigió en `getRegistros` —callar el error— y engaña
-  // igual: si el asunto o el cuerpo están vacíos (una clave sin sembrar, por
-  // ejemplo) hay que decirlo.
-  if (!asunto.trim() || !cuerpo.trim()) {
+  if (!CAMPANAS.includes(campana)) {
+    return { ...resumen, detalle: [{ email: "", ok: false, error: "Campaña desconocida" }] }
+  }
+
+  if (![asuntoEs, cuerpoEs, asuntoEn, cuerpoEn].every((v) => v.trim())) {
     return {
       ...resumen,
-      detalle: [{ email: "", ok: false, error: "Faltan el asunto o el cuerpo de la plantilla" }],
+      detalle: [{ email: "", ok: false, error: "Faltan el asunto o el cuerpo en español o en inglés" }],
     }
   }
 
@@ -175,14 +160,15 @@ export async function enviarInvitacion(
   }
 
   const admin = await createAdminClient()
+  // `select("*")` para no romper si la migración 00061 aún no está aplicada.
   const { data, error } = await admin
     .schema("conferencia")
     .from("registros")
-    .select("id, nombre, email, estado")
+    .select("*")
     .in("id", ids)
 
   if (error) {
-    console.error("[enviarInvitacion] lectura:", error.message, error.code)
+    console.error("[enviarCampana] lectura:", error.message, error.code)
     return { ...resumen, detalle: [{ email: "", ok: false, error: error.message }] }
   }
 
@@ -190,90 +176,117 @@ export async function enviarInvitacion(
   const confirmadosDelLote = seleccionados.filter((r) => r.estado === "confirmado")
   resumen.omitidosNoConfirmados = seleccionados.length - confirmadosDelLote.length
 
-  // Quién recibió YA este mismo asunto sin error.
-  //
-  // SOLO CUENTAN LAS ÚLTIMAS 24 HORAS, y esto se aprendió de un fallo real: con
-  // el filtro sin fecha, quien hubiera recibido ese mismo asunto en cualquier
-  // prueba anterior quedaba excluido para siempre. El 13 de noviembre de 2026
-  // el envío del enlace saltó al propio administrador porque tenía un envío de
-  // prueba del día 10: no le llegó nada y parecía que el botón no enviaba.
-  // Una campaña es una campaña, no todo el histórico.
-  const desde = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
   let destinatarios = confirmadosDelLote
+
+  // En la campaña de membresía no se invita a quien ya es miembro aprobado.
+  // Es un seguro del servidor: aunque la selección venga mal, no se le manda
+  // una invitación a alguien que ya está dentro.
+  if (campana === "membresia") {
+    const [usuarios, solicitudes] = await Promise.all([
+      listAllAuthUsers(admin),
+      admin.from("solicitudes_membresia").select("usuario_id, estado").eq("estado", "aprobada").limit(1000),
+    ])
+    const idsAprobados = new Set((solicitudes.data ?? []).map((s) => s.usuario_id))
+    const emailsMiembros = new Set(
+      usuarios
+        .filter((u) => u.email && idsAprobados.has(u.id))
+        .map((u) => u.email!.trim().toLowerCase())
+    )
+
+    // Segunda llave: nombre exacto. Hay inscripciones duplicadas con otro
+    // correo (Amanda, Sachiko, Haily/Hainy) que el filtro por email no ve.
+    const { data: perfiles } = idsAprobados.size
+      ? await admin
+          .from("perfiles")
+          .select("id, nombre_completo")
+          .in("id", [...idsAprobados])
+      : { data: [] as { id: string; nombre_completo: string | null }[] }
+    const nombrePorId = new Map((perfiles ?? []).map((p) => [p.id, p.nombre_completo]))
+    const nombresMiembros = new Set(
+      usuarios
+        .filter((u) => idsAprobados.has(u.id))
+        .map((u) => {
+          const meta = u.user_metadata as Record<string, unknown> | undefined
+          return claveNombre(
+            nombrePorId.get(u.id) ||
+              (meta?.nombre_completo as string) ||
+              (meta?.full_name as string) ||
+              (meta?.name as string) ||
+              ""
+          )
+        })
+        .filter(Boolean)
+    )
+
+    const antes = destinatarios.length
+    destinatarios = destinatarios.filter(
+      (r) =>
+        !emailsMiembros.has((r.email ?? "").trim().toLowerCase()) &&
+        !nombresMiembros.has(claveNombre(r.nombre))
+    )
+    resumen.omitidosMiembros = antes - destinatarios.length
+  }
+
+  // Quién recibió YA este mismo correo sin error en las últimas 24 horas. Se
+  // compara por asunto porque los dos idiomas tienen asuntos distintos.
   if (saltarYaEnviados) {
+    const desde = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
     const { data: previos } = await admin
       .schema("conferencia")
       .from("envios")
       .select("email")
-      .eq("asunto", asunto)
+      .in("asunto", [asuntoEs, asuntoEn])
       .eq("ok", true)
       .gte("created_at", desde)
-    const yaTienen = new Set((previos ?? []).map((e) => (e.email ?? "").toLowerCase()))
-    destinatarios = confirmadosDelLote.filter((r) => !yaTienen.has((r.email ?? "").toLowerCase()))
-    resumen.yaEnviados = confirmadosDelLote.length - destinatarios.length
+    const yaTienen = new Set((previos ?? []).map((e) => (e.email ?? "").trim().toLowerCase()))
+    destinatarios = destinatarios.filter((r) => !yaTienen.has((r.email ?? "").trim().toLowerCase()))
+    resumen.yaEnviados = confirmadosDelLote.length - resumen.omitidosMiembros! - destinatarios.length
   }
 
   const { fromName, fromEmail } = await getSenderConfig(admin)
   const envios = () => admin.schema("conferencia").from("envios")
 
-  // El enlace de la reunión solo lo usa la plantilla de la víspera, y se lee una
-  // vez para todo el lote: es el mismo para todos. Manda el que está en el campo
-  // del panel —lo que se ve en la vista previa es lo que se manda— y si viene
-  // vacío se usa el guardado.
-  const { urlEnlace: enlaceGuardado } = (await getAjustes(admin)).data
-  const urlEnlace = (enlaceDelPanel ?? "").trim() || enlaceGuardado
-
-  // Y si aun así no hay enlace, NO se manda: un correo que dice «este es tu
-  // enlace» con el enlace vacío es peor que no enviarlo, porque el inscrito se
-  // queda esperando y ya no vuelve a mirar.
-  if ((plantilla === "recordatorio" || plantilla === "manana") && !urlEnlace) {
-    return {
-      ...resumen,
-      detalle: [{ email: "", ok: false, error: "Falta el enlace de Zoom: pégalo antes de enviar." }],
+  /**
+   * Anota el envío. Si la columna `plantilla` aún no existe, reintenta sin
+   * ella: perder la etiqueta de campaña es molesto, pero perder el registro
+   * del envío es peor.
+   */
+  async function anotar(registroId: string, email: string, asunto: string, ok: boolean, error?: string) {
+    const fila = { registro_id: registroId, email, asunto, ok, error: error ?? null }
+    const { error: errorConPlantilla } = await envios().insert({ ...fila, plantilla: campana })
+    if (!errorConPlantilla) return
+    const { error: errorSinPlantilla } = await envios().insert(fila)
+    if (errorSinPlantilla) {
+      console.error("[enviarCampana] envios:", errorSinPlantilla.message, errorSinPlantilla.code)
     }
   }
 
-  // La plantilla de ACCESO lleva un enlace FIRMADO distinto para cada persona:
-  // no se puede reutilizar el de otro ni mandarlo vacío, así que se genera aquí
-  // uno por destinatario.
-  const base = plantilla === "acceso" ? await baseDelSitio() : ""
-
   for (const r of destinatarios) {
     const email = r.email ?? ""
-    const html = componerCorreo(plantilla, cuerpo, {
-      nombre: r.nombre ?? "",
-      email,
-      enlace: urlEnlace,
-      acceso: plantilla === "acceso" ? enlaceAcceso(email, base) : undefined,
-    })
+    const idioma: Idioma = r.idioma === "es" || r.idioma === "en" ? r.idioma : idiomaPorPais(r.pais)
+    const asunto = idioma === "es" ? asuntoEs : asuntoEn
+    const cuerpo = idioma === "es" ? cuerpoEs : cuerpoEn
+    const html = componerCampana(campana, cuerpo, { nombre: r.nombre ?? "", email }, idioma)
 
     const res = await enviarConReintento({ to: email, subject: asunto, html, fromName, fromEmail })
 
     if (res.ok) {
       resumen.enviados++
       resumen.detalle.push({ email, ok: true })
-      await envios().insert({ registro_id: r.id, email, asunto, ok: true })
+      await anotar(r.id, email, asunto, true)
     } else {
       resumen.fallidos++
-      resumen.detalle.push({ email, ok: false, error: `${res.status} ${res.cuerpo.slice(0, 120)}` })
-      await envios().insert({
-        registro_id: r.id,
-        email,
-        asunto,
-        ok: false,
-        error: `${res.status} ${res.cuerpo.slice(0, 200)}`,
-      })
+      const error = `${res.status} ${res.cuerpo.slice(0, 120)}`
+      resumen.detalle.push({ email, ok: false, error })
+      await anotar(r.id, email, asunto, false, `${res.status} ${res.cuerpo.slice(0, 200)}`)
 
-      // Solo se corta el lote si de verdad no queda cuota. Un 429 de ritmo ya
-      // se ha reintentado arriba y no debe tumbar a los que vienen detrás.
       if (res.status === 429 && /quota|daily|limit reach|exceeded your/i.test(res.cuerpo)) {
         resumen.cortadoPorCuota = true
-        console.error("[enviarInvitacion] cuota agotada, se detiene el lote")
+        console.error("[enviarCampana] cuota agotada, se detiene el lote")
         break
       }
     }
 
-    // Ritmo por debajo del límite de Resend (2/s).
     if (destinatarios.indexOf(r) < destinatarios.length - 1) await esperar(PAUSA_ENTRE_ENVIOS_MS)
   }
 
@@ -287,18 +300,21 @@ export async function enviarInvitacion(
  * deshace: mejor ver el correo antes en la propia bandeja.
  */
 export async function enviarPrueba(
+  campana: CampanaId,
+  idioma: Idioma,
   asunto: string,
   cuerpo: string,
-  plantilla: PlantillaId,
-  destino?: string,
-  enlace?: string
+  destino?: string
 ): Promise<{ ok: boolean; error?: string; destino?: string }> {
   const guard = await requireAdmin()
   if (!guard.ok) return { ok: false, error: guard.error }
 
+  if (!CAMPANAS.includes(campana) || !IDIOMAS.includes(idioma)) {
+    return { ok: false, error: "Campaña o idioma desconocido" }
+  }
+
   // Sin destino, la prueba va al correo de quien está logueado: así el botón
-  // nunca puede escribir a un tercero por accidente. Con destino, se comprueba
-  // que sea un correo con forma de correo —es texto libre de un formulario—.
+  // nunca puede escribir a un tercero por accidente.
   const para = (destino ?? "").trim() || guard.email
   if (!para) return { ok: false, error: "No se pudo determinar el correo de destino" }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(para)) {
@@ -306,21 +322,10 @@ export async function enviarPrueba(
   }
 
   if (!asunto.trim() || !cuerpo.trim()) return { ok: false, error: "Asunto y cuerpo son obligatorios" }
-  if ((plantilla === "recordatorio" || plantilla === "manana") && !(enlace ?? "").trim()) {
-    return { ok: false, error: "Falta el enlace de Zoom: pégalo antes de enviar la prueba." }
-  }
 
   const admin = await createAdminClient()
   const { fromName, fromEmail } = await getSenderConfig(admin)
-  // Con la plantilla de acceso, la prueba lleva un enlace de verdad para el
-  // correo de destino: así se puede pulsar y comprobar que entra.
-  const enlacePrueba = plantilla === "acceso" ? enlaceAcceso(para, await baseDelSitio()) : undefined
-  const html = componerCorreo(plantilla, cuerpo, {
-    nombre: "Prueba",
-    email: para,
-    enlace,
-    acceso: enlacePrueba,
-  })
+  const html = componerCampana(campana, cuerpo, { nombre: "Prueba", email: para }, idioma)
 
   const res = await sendResendEmail({
     to: para,
@@ -336,242 +341,76 @@ export async function enviarPrueba(
 }
 
 /**
- * Alta manual de un inscrito, para uso administrativo.
- *
- * PARA QUÉ. El día del ensayo hay que probar el envío del enlace, y probarlo
- * con las 48 personas reales no es una opción. Esto mete a alguien en la lista
- * —solo nombre y correo— sin pasar por el código de verificación.
- *
- * QUÉ HACE Y QUÉ NO.
- *   · Lo crea ya `confirmado`: si no, no aparecería en los envíos, que es para
- *     lo que se usa. Queda marcado con `origen = 'alta-manual'` y `verificado_at`
- *     puesto, para que dentro de un mes se sepa que esa fila no la verificó su
- *     dueño.
- *   · NO acepta consentimiento en su nombre: `consentimiento_at` queda nulo. Es
- *     un dato que solo puede dar la persona.
- *   · NO envía nada. El envío se hace después con el botón de la fila o con la
- *     plantilla, que es justo lo que se quiere probar.
- *   · Si el correo ya está, no lo duplica ni lo pisa: devuelve en qué estado
- *     está, para no dejar dos filas del mismo buzón.
+ * Guarda la plantilla de una campaña en un idioma. Solo escribe las dos claves
+ * que recibe, así que editar español no pisa inglés.
  */
-export async function crearRegistroManual(
-  rawNombre: string,
-  rawEmail: string
-): Promise<{ ok: boolean; error?: string; estado?: string }> {
+export async function guardarCampana(
+  campana: CampanaId,
+  idioma: Idioma,
+  asunto: string,
+  cuerpo: string
+): Promise<{ ok: boolean; error?: string }> {
   const guard = await requireAdmin()
   if (!guard.ok) return { ok: false, error: guard.error }
 
-  const nombre = rawNombre.trim().slice(0, 120)
-  const email = rawEmail.trim().toLowerCase()
-
-  if (!nombre) return { ok: false, error: "Falta el nombre" }
-  // Misma forma de correo que usa la landing; el tope de longitud evita que un
-  // pegote de texto acabe en la tabla y en los correos.
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) || email.length > 254) {
-    return { ok: false, error: `Correo no válido: ${email}` }
+  if (!CAMPANAS.includes(campana) || !IDIOMAS.includes(idioma)) {
+    return { ok: false, error: "Campaña o idioma desconocido" }
   }
 
   const admin = await createAdminClient()
-  const { data: existente } = await admin
+  const prefijo = `plantilla_${campana}`
+  const filas = [
+    { clave: `${prefijo}_asunto_${idioma}`, valor: asunto },
+    { clave: `${prefijo}_cuerpo_${idioma}`, valor: cuerpo },
+  ].map((f) => ({ ...f, updated_at: new Date().toISOString() }))
+
+  const { error } = await admin
     .schema("conferencia")
-    .from("registros")
-    .select("id, email, estado")
-    .ilike("email", email)
-    .limit(1)
-
-  const ya = (existente ?? []).find((r) => (r.email ?? "").toLowerCase() === email)
-  if (ya) return { ok: false, error: "Ese correo ya está en la lista", estado: ya.estado }
-
-  const ahora = new Date().toISOString()
-  const { error } = await admin.schema("conferencia").from("registros").insert({
-    nombre,
-    email,
-    estado: "confirmado",
-    verificado_at: ahora,
-    consentimiento_at: null,
-    origen: "alta-manual",
-  })
+    .from("ajustes")
+    .upsert(filas, { onConflict: "clave" })
 
   if (error) {
-    console.error("[crearRegistroManual]", error.message, error.code)
-    // 23505 = choque con el índice único sobre lower(email): alguien lo creó
-    // entre la comprobación y el insert.
-    if (error.code === "23505") return { ok: false, error: "Ese correo ya está en la lista" }
+    console.error("[guardarCampana]", error.message, error.code)
     return { ok: false, error: error.message }
   }
-
-  return { ok: true, estado: "confirmado" }
+  return { ok: true }
 }
 
 /**
- * Reenvía la verificación a quien se inscribió y no terminó.
+ * Cambia el idioma de una o varias filas.
  *
- * NO es un recordatorio cualquiera: el código caduca a los 15 minutos y en la
- * base solo vive su hash, así que no se puede «volver a mandar el mismo». Aquí
- * se EMITE UNO NUEVO (misma maquinaria que la landing, en
- * `@/lib/conferencia-codigo`) y se manda con la plantilla `verificacion`, que es
- * editable desde el panel.
- *
- * Solo toca registros en `nuevo`: a quien ya confirmó no se le manda un código
- * que no necesita, y a quien está cancelado tampoco.
- *
- * Cada envío queda anotado en `envios`, igual que los demás.
+ * Es una corrección manual de la suposición por país: el formulario antiguo
+ * nunca guardó el idioma, así que puede haber excepciones.
  */
-export async function enviarVerificacion(ids: string[]): Promise<EnvioResumen> {
-  const resumen: EnvioResumen = {
-    enviados: 0,
-    fallidos: 0,
-    omitidosNoConfirmados: 0,
-    cortadoPorCuota: false,
-    detalle: [],
-  }
-
+export async function guardarIdioma(
+  ids: string[],
+  idioma: Idioma
+): Promise<{ ok: boolean; error?: string; actualizados?: number }> {
   const guard = await requireAdmin()
-  if (!guard.ok) {
-    return { ...resumen, detalle: [{ email: "", ok: false, error: guard.error }] }
-  }
+  if (!guard.ok) return { ok: false, error: guard.error }
 
-  if (ids.length === 0) return resumen
-  if (ids.length > MAX_POR_ENVIO) {
-    return { ...resumen, detalle: [{ email: "", ok: false, error: `Máximo ${MAX_POR_ENVIO} por envío` }] }
-  }
+  if (!IDIOMAS.includes(idioma)) return { ok: false, error: "Idioma desconocido" }
+  if (ids.length === 0) return { ok: true, actualizados: 0 }
+  if (ids.length > 500) return { ok: false, error: "Máximo 500 filas por cambio" }
 
   const admin = await createAdminClient()
   const { data, error } = await admin
     .schema("conferencia")
     .from("registros")
-    .select("id, nombre, email, estado")
+    .update({ idioma })
     .in("id", ids)
+    .select("id")
 
   if (error) {
-    console.error("[enviarVerificacion] lectura:", error.message, error.code)
-    return { ...resumen, detalle: [{ email: "", ok: false, error: error.message }] }
+    console.error("[guardarIdioma]", error.message, error.code)
+    const falta = error.code === "42703" || error.code === "PGRST204" || /idioma/i.test(error.message)
+    return {
+      ok: false,
+      error: falta
+        ? "Falta la columna idioma: aplica la migración 00061 en Supabase."
+        : error.message,
+    }
   }
 
-  const { plantillas } = (await getAjustes(admin)).data
-  const plantilla = plantillas.verificacion
-  const { fromName, fromEmail } = await getSenderConfig(admin)
-  const envios = () => admin.schema("conferencia").from("envios")
-
-  const lista = data ?? []
-  for (const r of lista) {
-    const email = r.email ?? ""
-    if (r.estado !== "nuevo") {
-      resumen.omitidosNoConfirmados++
-      resumen.detalle.push({
-        email,
-        ok: false,
-        error: "Ya está confirmado: no necesita código",
-      })
-      continue
-    }
-
-    if (!plantilla.asunto.trim() || !plantilla.cuerpo.trim()) {
-      resumen.fallidos++
-      resumen.detalle.push({ email, ok: false, error: "La plantilla de verificación está vacía" })
-      continue
-    }
-
-    const emision = await emitirCodigo(admin, r.id, "admin")
-    if (!emision.ok) {
-      resumen.fallidos++
-      resumen.detalle.push({
-        email,
-        ok: false,
-        error:
-          emision.reason === "cooldown"
-            ? `Espera ${emision.retryInSeconds} s: se le acaba de enviar otro código`
-            : "No se pudo emitir el código",
-      })
-      continue
-    }
-
-    const html = componerCorreo("verificacion", plantilla.cuerpo, {
-      nombre: r.nombre ?? "",
-      email,
-      codigo: emision.codigo,
-      minutos: String(CODE_TTL_MINUTES),
-    })
-
-    const res = await enviarConReintento({
-      to: email,
-      subject: plantilla.asunto,
-      html,
-      fromName,
-      fromEmail,
-    })
-
-    if (res.ok) {
-      resumen.enviados++
-      resumen.detalle.push({ email, ok: true })
-      await envios().insert({ registro_id: r.id, email, asunto: plantilla.asunto, ok: true })
-    } else {
-      resumen.fallidos++
-      resumen.detalle.push({ email, ok: false, error: `${res.status} ${res.cuerpo.slice(0, 120)}` })
-      await envios().insert({
-        registro_id: r.id,
-        email,
-        asunto: plantilla.asunto,
-        ok: false,
-        error: `${res.status} ${res.cuerpo.slice(0, 200)}`,
-      })
-      if (res.status === 429 && /quota|daily|limit reach|exceeded your/i.test(res.cuerpo)) {
-        resumen.cortadoPorCuota = true
-        console.error("[enviarVerificacion] cuota agotada, se detiene el lote")
-        break
-      }
-    }
-    if (lista.indexOf(r) < lista.length - 1) await esperar(PAUSA_ENTRE_ENVIOS_MS)
-  }
-
-  return resumen
-}
-
-/**
- * Guarda los ajustes del panel. Solo escribe las claves que recibe.
- *
- * Cada plantilla tiene su propio par de claves, así que hay que decir CUÁL se
- * está guardando: si no, editar el recordatorio pisaría la invitación.
- */
-export async function guardarAjustes(entrada: {
-  plantillaId?: PlantillaId
-  asunto?: string
-  cuerpo?: string
-  /** Enlace de Zoom. Solo lo usa la plantilla de la víspera. */
-  urlEnlace?: string
-}): Promise<{ ok: boolean; error?: string }> {
-  const guard = await requireAdmin()
-  if (!guard.ok) return { ok: false, error: guard.error }
-
-  const filas: { clave: string; valor: string }[] = []
-
-  if (entrada.urlEnlace !== undefined) {
-    // Solo http(s): este valor acaba dentro de un `href`, y un `javascript:`
-    // ahí sería un enlace envenenado enviado por correo a los inscritos.
-    const url = entrada.urlEnlace.trim()
-    if (url && !/^https?:\/\//i.test(url)) {
-      return { ok: false, error: "El enlace de Zoom tiene que empezar por https://" }
-    }
-    filas.push({ clave: "plantilla_recordatorio_url", valor: url })
-  }
-
-  if (entrada.plantillaId) {
-    const prefijo = `plantilla_${entrada.plantillaId}`
-    if (entrada.asunto !== undefined) filas.push({ clave: `${prefijo}_asunto`, valor: entrada.asunto })
-    if (entrada.cuerpo !== undefined) filas.push({ clave: `${prefijo}_cuerpo`, valor: entrada.cuerpo })
-  }
-
-  if (filas.length === 0) return { ok: true }
-
-  const admin = await createAdminClient()
-  const { error } = await admin
-    .schema("conferencia")
-    .from("ajustes")
-    .upsert(filas.map((f) => ({ ...f, updated_at: new Date().toISOString() })), { onConflict: "clave" })
-
-  if (error) {
-    console.error("[guardarAjustes]", error.message, error.code)
-    return { ok: false, error: error.message }
-  }
-  return { ok: true }
+  return { ok: true, actualizados: data?.length ?? 0 }
 }

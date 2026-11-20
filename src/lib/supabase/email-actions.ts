@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache"
 import { checkAdmin, registrarActividad } from "@/lib/supabase/admin-helpers"
 import { createClient, createAdminClient } from "@/lib/supabase/server"
+import { listAllAuthUsers } from "@/lib/supabase/auth-users"
 import { buildMagazineHtml, buildMembershipDecisionHtml, buildMembershipMessageHtml, buildMembershipProcessingHtml, buildNewsletterHtml, buildPaymentConfirmedHtml, buildStudentWelcomeHtml } from "@/lib/email-template"
 import { esMembresiaGratis, mergeFreeMembers } from "@/lib/supabase/free-membership"
 import { filterByAudiences, type Audience, type Recipient } from "@/lib/newsletter-audiences"
@@ -44,9 +45,9 @@ export async function getSubscribersWithEmails() {
 
   suscriptores = await mergeFreeMembers(admin, suscriptores)
 
-  const { data: users } = await admin.auth.admin.listUsers()
+  const authUsers = await listAllAuthUsers(admin)
   const userMap = new Map(
-    (users?.users ?? []).map((u) => [u.id, u.email ?? ""])
+    authUsers.map((u) => [u.id, u.email ?? ""])
   )
 
   return suscriptores
@@ -75,8 +76,8 @@ async function listAllRecipients(admin: AdminClient): Promise<Recipient[]> {
   const tipoMap = new Map<string, number | null>()
   for (const s of solicitudes ?? []) tipoMap.set(s.usuario_id, s.tipo_miembro)
 
-  const { data: users } = await admin.auth.admin.listUsers()
-  return (users?.users ?? [])
+  const authUsers = await listAllAuthUsers(admin)
+  return authUsers
     .filter((u) => !!u.email && !perfilMap.get(u.id)?.newsletter_optout)
     .map((u) => {
       const perfil = perfilMap.get(u.id)
@@ -366,9 +367,9 @@ export async function sendMagazineToSubscribers(revistaId: string, excludeEmails
 
   if (!suscriptores?.length) return { error: "No subscribers" }
 
-  const { data: users } = await admin.auth.admin.listUsers()
+  const authUsers = await listAllAuthUsers(admin)
   const userMap = new Map(
-    (users?.users ?? []).map((u) => [u.id, u.email ?? ""])
+    authUsers.map((u) => [u.id, u.email ?? ""])
   )
 
   const recipients = suscriptores

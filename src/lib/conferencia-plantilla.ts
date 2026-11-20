@@ -1,63 +1,169 @@
 import {
   buildConferenciaAccesoHtml,
   buildConferenciaAvisoHtml,
-  buildConferenciaInvitacionHtml,
-  buildConferenciaRecordatorioHtml,
+  buildConferenciaCampanaHtml,
 } from "./email-template"
 
 /**
- * Composición de los correos de la conferencia.
+ * Plantillas de correo de la conferencia.
  *
- * Este módulo NO toca el servidor a propósito: lo usan **los dos** lados.
- * El panel lo llama para pintar la vista previa y la acción de envío lo llama
- * para construir el correo de verdad. Al ser la misma función, lo que ves en
- * la vista previa es exactamente lo que se envía; con dos caminos distintos se
- * separarían al primer cambio.
+ * Hay DOS familias, y no se mezclan:
  *
- * LAS TRES PLANTILLAS, Y CUÁNDO SALE CADA UNA
+ *   · SISTEMA — `confirmacion` y `acceso`. Los dispara el registro público en
+ *     la conferencia. No se editan desde Bait: el panel ya no los muestra,
+ *     pero siguen funcionando con sus textos guardados.
  *
- *   `confirmacion` — al verificar el código. Dice que la plaza está confirmada y
- *                    que el enlace de Zoom llega 24 horas antes. No lleva botón:
- *                    en ese momento no hay nada que pulsar.
- *   `acceso`       — al terminar el registro y cada vez que se pide un enlace
- *                    desde la pantalla de inicio de sesión. Lleva el enlace
- *                    firmado ({{acceso}}), que es la llave para volver a entrar.
- *   `verificacion` — a mano desde el panel, para quien se inscribió y no llegó a
- *                    meter el código. Lleva un código NUEVO ({{codigo}}) porque
- *                    el anterior caduca a los 15 minutos: un recordatorio sin
- *                    código no sirve de nada.
- *   `recordatorio` — la víspera, a mano desde el panel. Lleva el enlace de Zoom,
- *                    que se pega en el panel ese mismo día.
- *   `manana`       — el recordatorio del mismo día, pensado para reenviar cuando
- *                    el de la víspera ya salió y hay que insistir. Asunto nuevo
- *                    y cuerpo corto a propósito: repetir el mismo correo con el
- *                    mismo asunto es la forma más rápida de acabar en spam.
- *   `invitacion`   — después del evento. Invita a hacerse miembro → /membresia.
+ *   · CAMPAÑAS — `membresia`, `newsletter`, `proxima`. Es lo que se edita y
+ *     se envía a mano desde Bait. Cada una existe en español y en inglés.
  *
- * Antes el recordatorio NO llevaba el enlace a propósito, para que la reunión no
- * circulara por correo. Ese criterio ya no aplica: la página no emite nada y el
- * enlace es justo lo que hay que hacer llegar a cada inscrito.
+ * Este módulo NO toca el servidor a propósito: lo usan el panel (vista previa)
+ * y la acción de envío (correo real). Al ser la misma función, lo que se ve en
+ * la vista previa es exactamente lo que se manda.
  */
 
-export const PLANTILLAS = ["confirmacion", "acceso", "verificacion", "recordatorio", "manana", "invitacion"] as const
+export const IDIOMAS = ["es", "en"] as const
+export type Idioma = (typeof IDIOMAS)[number]
 
-export type PlantillaId = (typeof PLANTILLAS)[number]
+export const CAMPANAS = ["membresia", "newsletter", "proxima"] as const
+export type CampanaId = (typeof CAMPANAS)[number]
 
 export interface Plantilla {
   asunto: string
   cuerpo: string
 }
 
+export type PlantillasCampana = Record<CampanaId, Record<Idioma, Plantilla>>
+
 /**
- * Texto de partida de cada plantilla.
+ * Texto de partida de las campañas.
  *
- * Vive en el código y no solo en la base por un motivo concreto: la plantilla de
- * `confirmacion` se envía sola al verificar el código, así que si la fila no
- * existe todavía el correo tiene que salir con algo coherente en vez de vacío.
- * `getAjustes` devuelve estos textos cuando la clave falta, el panel los enseña
- * como punto de partida y, en cuanto se guardan, mandan los de la base.
+ * Vive en el código además de en la base por el mismo motivo que antes: si la
+ * clave no existe (migración pendiente, fila borrada), el panel y el envío
+ * tienen que funcionar con algo coherente en vez de con un correo vacío.
  */
-export const PLANTILLAS_POR_DEFECTO: Record<PlantillaId, Plantilla> = {
+export const CAMPANAS_POR_DEFECTO: PlantillasCampana = {
+  membresia: {
+    es: {
+      asunto: "Tu lugar en IKMA",
+      cuerpo: [
+        "<p>Hola {{nombre}},</p>",
+        "<p>Gracias por acompañarnos en la Conferencia IKMA 2026. Esperamos que haya sido tan valioso para ti como para nosotros.</p>",
+        "<p>Si quieres seguir caminando con nosotros, puedes solicitar tu membresía de IKMA y acceder a nuestros contenidos, revistas y próximos encuentros.</p>",
+        "<p>Un abrazo,<br/>El equipo de IKMA</p>",
+      ].join("\n"),
+    },
+    en: {
+      asunto: "Your place at IKMA",
+      cuerpo: [
+        "<p>Hi {{nombre}},</p>",
+        "<p>Thank you for joining us at the IKMA Conference 2026. We hope it was as valuable for you as it was for us.</p>",
+        "<p>If you would like to keep walking with us, you can apply for IKMA membership and get access to our content, journals and upcoming gatherings.</p>",
+        "<p>Warm regards,<br/>The IKMA team</p>",
+      ].join("\n"),
+    },
+  },
+  newsletter: {
+    es: {
+      asunto: "Sigue conectado con IKMA",
+      cuerpo: [
+        "<p>Hola {{nombre}},</p>",
+        "<p>Queremos seguir compartiendo contigo lo que hacemos: artículos, revistas y encuentros de la comunidad IKMA.</p>",
+        "<p>Suscríbete a nuestro boletín para recibir las novedades directamente en tu correo.</p>",
+        "<p>Un abrazo,<br/>El equipo de IKMA</p>",
+      ].join("\n"),
+    },
+    en: {
+      asunto: "Stay connected with IKMA",
+      cuerpo: [
+        "<p>Hi {{nombre}},</p>",
+        "<p>We want to keep sharing what we do with you: articles, journals and gatherings from the IKMA community.</p>",
+        "<p>Subscribe to our newsletter to get the latest news straight to your inbox.</p>",
+        "<p>Warm regards,<br/>The IKMA team</p>",
+      ].join("\n"),
+    },
+  },
+  proxima: {
+    es: {
+      asunto: "La próxima Conferencia IKMA",
+      cuerpo: [
+        "<p>Hola {{nombre}},</p>",
+        "<p>Gracias por haber sido parte de la Conferencia IKMA 2026.</p>",
+        "<p>Ya estamos preparando la próxima edición y queremos que seas de los primeros en saberlo. Las fechas y el programa se publicarán pronto.</p>",
+        "<p>Nos encantará volver a verte.</p>",
+      ].join("\n"),
+    },
+    en: {
+      asunto: "The next IKMA Conference",
+      cuerpo: [
+        "<p>Hi {{nombre}},</p>",
+        "<p>Thank you for being part of the IKMA Conference 2026.</p>",
+        "<p>We are already preparing the next edition and want you to be among the first to know. Dates and programme will be published soon.</p>",
+        "<p>We would love to see you again.</p>",
+      ].join("\n"),
+    },
+  },
+}
+
+/** Botón de cada campaña. El href apunta al sitio real, no a una ruta interna. */
+const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://www.ikmaglobal.com"
+
+const CTA: Record<CampanaId, Record<Idioma, { titulo: string; linea: string; texto: string; href: string }>> = {
+  membresia: {
+    es: {
+      titulo: "Hazte miembro de IKMA",
+      linea: "Solicita tu membresía y sigue accediendo a nuestros contenidos, revistas y encuentros.",
+      texto: "Solicitar membresía",
+      href: `${SITE}/membresia`,
+    },
+    en: {
+      titulo: "Become an IKMA member",
+      linea: "Apply for membership and keep access to our content, journals and gatherings.",
+      texto: "Apply for membership",
+      href: `${SITE}/membresia`,
+    },
+  },
+  newsletter: {
+    es: {
+      titulo: "Sigue conectado con IKMA",
+      linea: "Recibe nuestros artículos, revistas y novedades directamente en tu correo.",
+      texto: "Suscribirme al boletín",
+      href: `${SITE}/#newsletter`,
+    },
+    en: {
+      titulo: "Stay connected with IKMA",
+      linea: "Get our articles, journals and updates straight to your inbox.",
+      texto: "Subscribe to the newsletter",
+      href: `${SITE}/#newsletter`,
+    },
+  },
+  proxima: {
+    es: {
+      titulo: "La próxima Conferencia IKMA",
+      linea: "Estamos preparando la siguiente edición. Te avisaremos en cuanto haya fechas.",
+      texto: "Ver próximos eventos",
+      href: `${SITE}/events`,
+    },
+    en: {
+      titulo: "The next IKMA Conference",
+      linea: "We are preparing the next edition. We will let you know as soon as dates are ready.",
+      texto: "See upcoming events",
+      href: `${SITE}/events`,
+    },
+  },
+}
+
+// ---------------------------------------------------------------- sistema
+
+export const PLANTILLAS_SISTEMA = ["confirmacion", "acceso"] as const
+export type PlantillaSistemaId = (typeof PLANTILLAS_SISTEMA)[number]
+
+/**
+ * Textos de los correos que dispara el registro público.
+ *
+ * La confirmación se envía sola al verificar el código, así que si la fila no
+ * existe todavía el correo tiene que salir con algo coherente en vez de vacío.
+ */
+export const SISTEMA_POR_DEFECTO: Record<PlantillaSistemaId, Plantilla> = {
   confirmacion: {
     asunto: "Your place at the IKMA Conference is confirmed",
     cuerpo: [
@@ -69,61 +175,11 @@ export const PLANTILLAS_POR_DEFECTO: Record<PlantillaId, Plantilla> = {
     ].join("\n"),
   },
   acceso: {
-    // Este correo lleva el enlace firmado que abre la sesión. El botón lo pone
-    // el shell (su href es {{acceso}}), así que el cuerpo puede editarse sin
-    // miedo: la llave no se toca desde el panel.
     asunto: "Your sign-in link — IKMA Conference",
     cuerpo: [
       "<p>Hi {{nombre}},</p>",
-      "<p style=\"font-size:19px;font-weight:700;line-height:1.4;color:#3C4A56\">Click the button below to get access to the conference information.</p>",
+      '<p style="font-size:19px;font-weight:700;line-height:1.4;color:#3C4A56">Click the button below to get access to the conference information.</p>',
       "<p>The link works for 30 days and in any browser. If you did not ask for it, you can ignore this message: your registration is not affected.</p>",
-    ].join("\n"),
-  },
-  verificacion: {
-    asunto: "Finish your registration — new code inside",
-    cuerpo: [
-      "<p>Hi {{nombre}},</p>",
-      "<p>You started registering for the IKMA Conference but did not finish: we still need to confirm your email.</p>",
-      "<p>This is your new code:</p>",
-      '<p style="font-size:32px;font-weight:700;letter-spacing:.18em;color:#0068B6;margin:20px 0">{{codigo}}</p>',
-      "<p>It expires in {{minutos}} minutes. Enter it on the conference page and your place is booked.</p>",
-      "<p>If you did not try to register, you can ignore this message.</p>",
-    ].join("\n"),
-  },
-  recordatorio: {
-    // Sin "tomorrow" a propósito: este correo sale en DOS momentos —el envío
-    // manual del día antes y el envío inmediato a quien se inscribe dentro de
-    // las últimas 24 h— y "mañana" sería mentira en el segundo.
-    // El ID y el passcode van escritos aparte del enlace: si el botón no abre
-    // donde uno espera, esos dos datos son la vía de emergencia.
-    asunto: "Your Zoom link for the IKMA Conference",
-    cuerpo: [
-      "<p>Hi {{nombre}},</p>",
-      "<p>The IKMA Conference is <strong>Saturday, November 14</strong>. This is your link to the meeting:</p>",
-      '<p><a href="{{enlace}}">{{enlace}}</a></p>',
-      "<p><strong>Meeting ID:</strong> 876 6174 6391<br/><strong>Passcode:</strong> 457744</p>",
-      "<p>If Zoom asks you to install the app, do it a few minutes before we start — it only takes a moment. You can also join straight from a browser.</p>",
-      "<p>See you there,<br/>The IKMA team</p>",
-    ].join("\n"),
-  },
-  manana: {
-    // CORTO Y CON UN SOLO ENLACE, a propósito. Los correos largos con varios
-    // botones y muchas imágenes son los que más acaban en spam; este solo tiene
-    // que resolver una cosa: que la persona pueda entrar mañana.
-    asunto: "IKMA Conference — how to join on Saturday",
-    cuerpo: [
-      "<p>Hi {{nombre}},</p>",
-      "<p>The IKMA Conference is <strong>tomorrow, Saturday, November 14</strong>, from 9:00 am to 3:30 pm (EST).</p>",
-      '<p>This is your link: <a href="{{enlace}}">{{enlace}}</a></p>',
-      "<p>If you cannot find this email tomorrow, you can also join from the conference page with your email — no password needed.</p>",
-    ].join("\n"),
-  },
-  invitacion: {
-    asunto: "Become part of IKMA",
-    cuerpo: [
-      "<p>Hi {{nombre}},</p>",
-      "<p>Thank you for joining us at the IKMA Conference. We hope it was a blessing to you.</p>",
-      "<p>If you would like to keep walking with us, you can become a member of the association.</p>",
     ].join("\n"),
   },
 }
@@ -131,14 +187,8 @@ export const PLANTILLAS_POR_DEFECTO: Record<PlantillaId, Plantilla> = {
 interface DatosPlantilla {
   nombre: string
   email: string
-  /** Enlace de Zoom de la reunión. Solo lo usa la plantilla de la víspera. */
-  enlace?: string
   /** Enlace firmado para volver a entrar («iniciar sesión» sin contraseña). */
   acceso?: string
-  /** Código de verificación. Solo lo usa la plantilla del recordatorio de alta. */
-  codigo?: string
-  /** Minutos que le quedan de vida al código. */
-  minutos?: string
 }
 
 /**
@@ -156,35 +206,33 @@ function renderPlantilla(texto: string, datos: DatosPlantilla): string {
   return texto
     .replaceAll("{{nombre}}", escapar(datos.nombre || "asistente"))
     .replaceAll("{{email}}", escapar(datos.email))
-    .replaceAll("{{enlace}}", escapar(datos.enlace ?? ""))
     .replaceAll("{{acceso}}", escapar(datos.acceso ?? ""))
-    .replaceAll("{{codigo}}", escapar(datos.codigo ?? ""))
-    .replaceAll("{{minutos}}", escapar(datos.minutos ?? ""))
 }
 
-/**
- * Correo completo: cuerpo con los marcadores ya resueltos + el shell de marca
- * (logo, cuerpo, botón y pie) que corresponda a la plantilla.
- */
-export function componerCorreo(
-  plantilla: PlantillaId,
+/** Correo completo de una plantilla de sistema (siempre en inglés). */
+export function componerCorreoSistema(
+  plantilla: PlantillaSistemaId,
   contenidoHtml: string,
-  datos: DatosPlantilla,
-  ctaTexto?: string
+  datos: DatosPlantilla
 ): string {
   const contenido_html = renderPlantilla(contenidoHtml, datos)
 
-  if (plantilla === "confirmacion") {
-    return buildConferenciaAvisoHtml({ contenido_html })
-  }
   if (plantilla === "acceso") {
-    return buildConferenciaAccesoHtml({ contenido_html, acceso: datos.acceso ?? "", ctaTexto })
+    return buildConferenciaAccesoHtml({ contenido_html, acceso: datos.acceso ?? "" })
   }
-  if (plantilla === "verificacion") {
-    return buildConferenciaAvisoHtml({ contenido_html })
-  }
-  if (plantilla === "recordatorio" || plantilla === "manana") {
-    return buildConferenciaRecordatorioHtml({ contenido_html, ctaTexto, enlace: datos.enlace })
-  }
-  return buildConferenciaInvitacionHtml({ nombre: datos.nombre, contenido_html, ctaTexto })
+  return buildConferenciaAvisoHtml({ contenido_html })
+}
+
+/** Correo completo de una campaña, con su botón y su pie en el idioma elegido. */
+export function componerCampana(
+  campana: CampanaId,
+  contenidoHtml: string,
+  datos: Pick<DatosPlantilla, "nombre" | "email">,
+  idioma: Idioma
+): string {
+  return buildConferenciaCampanaHtml({
+    contenido_html: renderPlantilla(contenidoHtml, datos),
+    cta: CTA[campana][idioma],
+    idioma,
+  })
 }

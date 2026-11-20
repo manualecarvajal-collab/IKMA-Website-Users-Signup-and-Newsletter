@@ -19,9 +19,9 @@ import {
   REGISTRO_COOKIE_MAX_AGE,
   valorCookieInscripcion,
 } from "@/lib/conferencia"
-import { getAjustes } from "@/lib/conferencia-admin"
-import { componerCorreo } from "@/lib/conferencia-plantilla"
-import { buildConferenciaAccesoHtml, buildConferenciaCodigoHtml } from "@/lib/email-template"
+import { getPlantillasSistema } from "@/lib/conferencia-admin"
+import { componerCorreoSistema } from "@/lib/conferencia-plantilla"
+import { buildConferenciaCodigoHtml } from "@/lib/email-template"
 import {
   CODE_DIGITS,
   CODE_TTL_MINUTES,
@@ -31,7 +31,6 @@ import {
   hashCode,
   hashesMatch,
 } from "@/lib/conferencia-codigo"
-import { enVentanaDeEnlace } from "@/components/conferencia/event"
 
 /**
  * Inscripción a la conferencia en dos pasos.
@@ -70,6 +69,8 @@ export interface RegistroInput {
   telefono?: string
   ciudad?: string
   mensaje?: string
+  /** Idioma en el que se inscribió. Se usa para mandarle las campañas. */
+  idioma?: "es" | "en"
 }
 
 /**
@@ -128,6 +129,18 @@ async function senderConfig(admin: Admin) {
   }
 }
 
+/**
+ * Quita `idioma` del payload.
+ *
+ * Sirve para que el registro público siga funcionando si el código se despliega
+ * antes de aplicar la migración 00061. En cuanto la columna existe, se guarda.
+ */
+function sinIdioma<T extends { idioma?: unknown }>(payload: T): T {
+  const copia = { ...payload } as Record<string, unknown>
+  delete copia.idioma
+  return copia as T
+}
+
 // ---------------------------------------------------------------- paso 1
 
 /**
@@ -163,10 +176,12 @@ export async function solicitarCodigo(input: RegistroInput): Promise<RequestCode
     //
     // No se toca `estado`: si ya estaba confirmado, sigue estándolo.
 
-    const { perfilProfesional, ...rest } = input
+    const { perfilProfesional, idioma: idiomaEntrada, ...rest } = input
+    const idioma = idiomaEntrada === "es" || idiomaEntrada === "en" ? idiomaEntrada : null
     const payload = {
       ...rest,
       email,
+      idioma,
       perfil_profesional: perfilProfesional ?? null,
       consentimiento_at: input.consentimiento ? new Date().toISOString() : null,
     }
@@ -187,14 +202,22 @@ export async function solicitarCodigo(input: RegistroInput): Promise<RequestCode
       // A quien vuelve desde otro navegador solo le hace falta el código, así
       // que eso es lo único que se le da.
       if (existing.estado !== "confirmado") {
-        const { error } = await registros().update(payload).eq("id", existing.id)
+        let { error } = await registros().update(payload).eq("id", existing.id)
+        if (error && /idioma/i.test(error.message)) {
+          error = (await registros().update(sinIdioma(payload)).eq("id", existing.id)).error
+        }
         if (error) {
           console.error("[solicitarCodigo] update:", error.message, error.code)
           return { ok: false, reason: "unknown" }
         }
       }
     } else {
-      const { data, error } = await registros().insert(payload).select("id").single()
+      let { data, error } = await registros().insert(payload).select("id").single()
+      if (error && /idioma/i.test(error.message)) {
+        const reintento = await registros().insert(sinIdioma(payload)).select("id").single()
+        data = reintento.data
+        error = reintento.error
+      }
       if (error || !data) {
         console.error("[solicitarCodigo] insert:", error?.message, error?.code)
         return { ok: false, reason: "unknown" }
@@ -358,40 +381,26 @@ export async function verificarCodigo(
 
     await codigos().update({ consumido_at: now }).eq("id", row.id)
 
-    // Correo. Dos caminos, y el segundo es el que importa cuando se inscribe
-    // alguien a última hora:
-    //
-    //   · normal      → la plantilla de confirmación, que anuncia que el enlace
-    //                   llega el 13 de noviembre.
-    //   · dentro de las 24 h previas (y durante el evento) → **el enlace, ya**.
-    //                   Esperar al envío manual del día antes dejaría a esa
-    //                   persona fuera de la reunión sin que nadie se diera
-    //                   cuenta, que es el fallo más caro posible aquí.
-    //
-    // Si todavía no hay enlace configurado se manda la confirmación igual: es
-    // preferible un correo que llega a destiempo que ninguno.
+    // Correo de confirmación. El recordatorio de Zoom ya no existe: la
+    // conferencia terminó y el panel dejó de enviar enlaces de reunión.
     //
     // Nada de esto puede tumbar la verificación: el registro ya está confirmado
     // y el código consumido, así que si Resend falla se registra y se sigue.
     let correoEnviado = false
-    let enlaceEnviado = false
+    const enlaceEnviado = false
     try {
-      const { plantillas, urlEnlace } = (await getAjustes(admin)).data
+      const plantillas = await getPlantillasSistema(admin)
       const { fromName, fromEmail } = await senderConfig(admin)
 
-      const urgente = enVentanaDeEnlace() && urlEnlace !== ""
-      const idPlantilla = urgente ? ("recordatorio" as const) : ("confirmacion" as const)
-      const plantilla = plantillas[idPlantilla]
+      const plantilla = plantillas.confirmacion
       const asunto = plantilla.asunto
-      const html = componerCorreo(idPlantilla, plantilla.cuerpo, {
+      const html = componerCorreoSistema("confirmacion", plantilla.cuerpo, {
         nombre: registro.nombre ?? "",
         email,
-        enlace: urlEnlace,
       })
 
       const envio = await sendResendEmail({ to: email, subject: asunto, html, fromName, fromEmail })
-      if (urgente) enlaceEnviado = envio.ok
-      else correoEnviado = envio.ok
+      correoEnviado = envio.ok
 
       if (!envio.ok) {
         const cuerpo = await envio.text().catch(() => "")
@@ -411,7 +420,7 @@ export async function verificarCodigo(
         const envioAcceso = await sendResendEmail({
           to: email,
           subject: plantillaAcceso.asunto,
-          html: componerCorreo("acceso", plantillaAcceso.cuerpo, {
+          html: componerCorreoSistema("acceso", plantillaAcceso.cuerpo, {
             nombre: registro.nombre ?? "",
             email,
             acceso: enlace,
@@ -524,7 +533,7 @@ export async function solicitarAcceso(rawEmail: string): Promise<AccesoResult> {
       return { ok: false, reason: "noRegistrado" }
     }
 
-    const { plantillas } = (await getAjustes(admin)).data
+    const plantillas = await getPlantillasSistema(admin)
     const plantilla = plantillas.acceso
     const asuntoActual = plantilla.asunto.trim() || ASUNTO_ACCESO_POR_DEFECTO
 
@@ -550,7 +559,7 @@ export async function solicitarAcceso(rawEmail: string): Promise<AccesoResult> {
     const envio = await sendResendEmail({
       to: email,
       subject: plantilla.asunto,
-      html: componerCorreo("acceso", plantilla.cuerpo, {
+      html: componerCorreoSistema("acceso", plantilla.cuerpo, {
         nombre: registro.nombre ?? "",
         email,
         acceso: enlace,

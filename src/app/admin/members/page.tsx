@@ -14,6 +14,8 @@ export default async function AdminMembersPage() {
   const t = await getTranslations("Admin")
   const admin = await createAdminClient()
 
+  // shortcut: PostgREST corta en 1000 filas (max-rows); hoy son 26. Si el padrón
+  // pasa de 1000 solicitudes, paginar con .range() como en listAllAuthUsers.
   const { data: solicitudes } = await admin
     .from("solicitudes_membresia")
     .select("*")

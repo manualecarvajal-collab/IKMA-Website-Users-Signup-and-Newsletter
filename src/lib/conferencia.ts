@@ -281,6 +281,48 @@ export function normalizeEmail(email: string): string {
   return email.trim().toLowerCase()
 }
 
+/**
+ * Idiomas que habla cada país, para los inscritos históricos.
+ *
+ * El formulario de la conferencia nunca guardó el idioma, así que esto es una
+ * suposición de arranque, no un dato. Solo los países hispanohablantes quedan
+ * en español; todo lo demás —Francia, Nigeria, Brasil, un país vacío— cae a
+ * inglés, que es el idioma por defecto del sitio. El panel deja corregir cada
+ * fila.
+ */
+export const PAISES_HISPANOHABLANTES = new Set([
+  "AR", "BO", "CL", "CO", "CR", "CU", "DO", "EC", "ES", "GQ",
+  "GT", "HN", "MX", "NI", "PA", "PE", "PR", "PY", "SV", "UY", "VE",
+])
+
+export function idiomaPorPais(pais: string | null | undefined): "es" | "en" {
+  return pais && PAISES_HISPANOHABLANTES.has(pais.trim().toUpperCase()) ? "es" : "en"
+}
+
+/**
+ * Nombres que la administración confirmó como la misma persona.
+ *
+ * La conferencia tiene inscripciones duplicadas con otro correo. El cruce por
+ * email no las ve; este alias sí. Solo se añade aquí lo que se ha verificado a
+ * mano, para no fusionar por parecido a dos personas distintas (hermanos,
+ * apellidos comunes).
+ */
+export const ALIAS_MIEMBROS: Record<string, string> = {
+  "haily cerero reyes": "hainy francys cerero reyes",
+}
+
+/** Clave para comparar nombres: sin tildes, sin signos, minúsculas. */
+export function claveNombre(nombre: string | null | undefined): string {
+  const base = String(nombre ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9 ]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase()
+  return ALIAS_MIEMBROS[base] ?? base
+}
+
 type Admin = Awaited<ReturnType<typeof createAdminClient>>
 
 interface RegistroEncontrado {

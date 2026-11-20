@@ -12,7 +12,10 @@ export default function NewsletterCTA() {
   if (user) return null
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-primary via-primary to-primary-container">
+    <section
+      id="newsletter"
+      className="relative overflow-hidden scroll-mt-24 bg-gradient-to-br from-primary via-primary to-primary-container"
+    >
       <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-white/10 blur-3xl" aria-hidden="true" />
       <div className="absolute -bottom-32 -left-24 h-80 w-80 rounded-full bg-on-primary/5 blur-3xl" aria-hidden="true" />
       <div className="relative mx-auto max-w-container-max px-margin-mobile py-14 md:px-margin-desktop md:py-20">
@@ -21,12 +24,9 @@ export default function NewsletterCTA() {
             <Icon name="mail" size={14} />
             {t("eyebrow")}
           </span>
-          <h2 className="mt-5 mb-3 font-headline-lg text-headline-lg leading-tight text-on-primary">
+          <h2 className="mt-5 mb-8 font-headline-md text-headline-md leading-tight text-balance text-on-primary">
             {t("title")}
           </h2>
-          <p className="mx-auto mb-8 max-w-xl font-body-lg text-body-lg text-on-primary/90">
-            {t("description")}
-          </p>
           <NewsletterCTAForm />
           <p className="mt-5 flex flex-wrap items-center justify-center gap-2 font-body-md text-body-md text-on-primary/75">
             <Icon name="verified" size={16} />

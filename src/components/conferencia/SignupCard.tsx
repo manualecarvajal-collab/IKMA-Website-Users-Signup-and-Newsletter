@@ -168,6 +168,7 @@ export default function SignupCard({
     const res = await solicitarCodigo({
       nombre: nombre.trim(),
       email: email.trim().toLowerCase(),
+      idioma: locale === "es" ? "es" : "en",
       ...(pais ? { pais } : {}),
       ...(perfil ? { perfilProfesional: perfil } : {}),
       consentimiento: true,

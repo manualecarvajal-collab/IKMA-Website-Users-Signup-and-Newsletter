@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache"
 import { checkAdmin, registrarActividad } from "@/lib/supabase/admin-helpers"
 import { createAdminClient } from "@/lib/supabase/server"
+import { listAllAuthUsers } from "@/lib/supabase/auth-users"
 import { cancelCustomerSubscriptions } from "@/lib/stripe/subscriptions"
 import {
   getUsuariosEliminados,
@@ -37,8 +38,7 @@ export async function getAllUsers() {
     membresiaMap.set(s.usuario_id, { tipo_miembro: s.tipo_miembro, estado: s.estado })
   }
 
-  const { data: authData } = await admin.auth.admin.listUsers()
-  const authUsers = authData?.users ?? []
+  const authUsers = await listAllAuthUsers(admin)
 
   const vivos = authUsers.map(u => {
     const perfil = perfilesMap.get(u.id)

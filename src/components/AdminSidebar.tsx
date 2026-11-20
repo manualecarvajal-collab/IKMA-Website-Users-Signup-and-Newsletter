@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useLocale } from "next-intl"
 import { useState, useEffect } from "react"
 import Icon from "@/components/Icon"
 
@@ -13,7 +14,6 @@ const navItems = [
   { href: "/admin/testimonios", label: "Testimonials", icon: "volunteer_activism" },
   { href: "/admin/members", label: "Members", icon: "groups" },
   { href: "/admin/newsletter", label: "Newsletter", icon: "mail" },
-  { href: "/admin/conferencia", label: "Conference", icon: "campaign" },
 ]
 
 export function SidebarNav({ 
@@ -26,6 +26,17 @@ export function SidebarNav({
   setIsOpen: (open: boolean) => void 
 }) {
   const pathname = usePathname()
+  const locale = useLocale()
+  const navItemsConBait = [
+    ...navItems,
+    {
+      href: "/admin/conferencia",
+      // El resto del admin está en inglés, pero el usuario lo lee en español.
+      // El nombre sigue el idioma de la interfaz: Bait / Carnada.
+      label: locale === "es" ? "Carnada" : "Bait",
+      icon: "fishing_hook",
+    },
+  ]
 
   // Close sidebar when pathname changes
   useEffect(() => {
@@ -75,7 +86,7 @@ export function SidebarNav({
           </button>
         </div>
         <nav className="p-4 space-y-1">
-          {navItems.map((item) => (
+          {navItemsConBait.map((item) => (
             <Link key={item.href} href={item.href} className={linkClasses(item.href)}>
               <Icon name={item.icon} size={18} /> {item.label}
             </Link>
